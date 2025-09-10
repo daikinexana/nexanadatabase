@@ -29,22 +29,22 @@ export default function Modal({ isOpen, onClose, children, title }: ModalProps) 
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* オーバーレイ */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-md"
         onClick={onClose}
       />
       
       {/* モーダルコンテンツ */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-[90vw] max-w-4xl h-[80vh] flex flex-col overflow-hidden">
+      <div className="relative bg-white rounded-3xl shadow-2xl w-[95vw] max-w-6xl h-[90vh] flex flex-col overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300">
         {/* ヘッダー */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0">
+        <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0 bg-gradient-to-r from-gray-50 to-white">
           {title && (
-            <h2 className="text-xl font-semibold text-gray-900 truncate pr-4">{title}</h2>
+            <h2 className="text-2xl font-bold text-gray-900 truncate pr-4">{title}</h2>
           )}
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+            className="p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200 flex-shrink-0 group"
           >
-            <X className="h-5 w-5" />
+            <X className="h-6 w-6 group-hover:rotate-90 transition-transform duration-200" />
           </button>
         </div>
         

@@ -16,8 +16,10 @@ interface Facility {
   organizer: string;
   organizerType: string;
   website?: string;
-  contact?: string;
-  tags: string[];
+  targetArea?: string;
+  facilityInfo?: string;
+  targetAudience?: string;
+  program?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -30,18 +32,18 @@ export default function AdminFacilitiesPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    content: '',
     imageUrl: '',
     address: '',
     area: '',
     organizer: '',
-    organizerType: 'GOVERNMENT' as const,
+    organizerType: '政府・自治体',
     website: '',
-    contact: '',
-    tags: [] as string[],
+    targetArea: '',
+    facilityInfo: '',
+    targetAudience: '',
+    program: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tagInput, setTagInput] = useState('');
 
   useEffect(() => {
     fetchFacilities();
@@ -107,22 +109,6 @@ export default function AdminFacilitiesPage() {
     }));
   };
 
-  const handleTagAdd = () => {
-    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, tagInput.trim()]
-      }));
-      setTagInput('');
-    }
-  };
-
-  const handleTagRemove = (tagToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,15 +129,16 @@ export default function AdminFacilitiesPage() {
         setFormData({
           title: '',
           description: '',
-          content: '',
           imageUrl: '',
           address: '',
           area: '',
           organizer: '',
-          organizerType: 'GOVERNMENT',
+          organizerType: '政府・自治体',
           website: '',
-          contact: '',
-          tags: [],
+          targetArea: '',
+          facilityInfo: '',
+          targetAudience: '',
+          program: '',
         });
         setShowCreateForm(false);
         alert('施設が正常に追加されました');
@@ -309,23 +296,16 @@ export default function AdminFacilitiesPage() {
                     <label htmlFor="organizerType" className="block text-sm font-medium text-gray-700 mb-2">
                       運営者タイプ <span className="text-red-500">*</span>
                     </label>
-                    <select
+                    <input
+                      type="text"
                       id="organizerType"
                       name="organizerType"
                       value={formData.organizerType}
                       onChange={handleInputChange}
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="GOVERNMENT">政府・自治体</option>
-                      <option value="VC">ベンチャーキャピタル</option>
-                      <option value="CVC">コーポレートベンチャーキャピタル</option>
-                      <option value="BANK">銀行</option>
-                      <option value="REAL_ESTATE">不動産</option>
-                      <option value="CORPORATION">企業</option>
-                      <option value="RESEARCH_INSTITUTION">研究機関</option>
-                      <option value="OTHER">その他</option>
-                    </select>
+                      placeholder="運営者タイプを入力してください"
+                    />
                   </div>
 
                   {/* ウェブサイト */}
@@ -344,19 +324,19 @@ export default function AdminFacilitiesPage() {
                     />
                   </div>
 
-                  {/* 連絡先 */}
+                  {/* 対象領域 */}
                   <div>
-                    <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-2">
-                      連絡先
+                    <label htmlFor="targetArea" className="block text-sm font-medium text-gray-700 mb-2">
+                      対象領域
                     </label>
                     <input
                       type="text"
-                      id="contact"
-                      name="contact"
-                      value={formData.contact}
+                      id="targetArea"
+                      name="targetArea"
+                      value={formData.targetArea}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="電話番号やメールアドレス"
+                      placeholder="対象領域を入力してください"
                     />
                   </div>
 
@@ -376,62 +356,51 @@ export default function AdminFacilitiesPage() {
                     />
                   </div>
 
-                  {/* タグ */}
+                  {/* 施設情報 */}
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      タグ
-                    </label>
-                    <div className="flex gap-2 mb-2">
-                      <input
-                        type="text"
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleTagAdd())}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="タグを入力してEnterキーを押すか追加ボタンをクリック"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleTagAdd}
-                        className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                      >
-                        追加
-                      </button>
-                    </div>
-                    {formData.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {formData.tags.map((tag, index) => (
-                          <span
-                            key={index}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
-                          >
-                            {tag}
-                            <button
-                              type="button"
-                              onClick={() => handleTagRemove(tag)}
-                              className="ml-1 text-blue-600 hover:text-blue-800"
-                            >
-                              ×
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 詳細内容 */}
-                  <div className="md:col-span-2">
-                    <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
-                      詳細内容（Markdown）
+                    <label htmlFor="facilityInfo" className="block text-sm font-medium text-gray-700 mb-2">
+                      施設情報
                     </label>
                     <textarea
-                      id="content"
-                      name="content"
-                      value={formData.content}
+                      id="facilityInfo"
+                      name="facilityInfo"
+                      value={formData.facilityInfo}
                       onChange={handleInputChange}
-                      rows={6}
+                      rows={4}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="施設の詳細な説明をMarkdown形式で入力してください"
+                      placeholder="施設の詳細な情報を入力してください"
+                    />
+                  </div>
+
+                  {/* 対象者 */}
+                  <div className="md:col-span-2">
+                    <label htmlFor="targetAudience" className="block text-sm font-medium text-gray-700 mb-2">
+                      対象者
+                    </label>
+                    <textarea
+                      id="targetAudience"
+                      name="targetAudience"
+                      value={formData.targetAudience}
+                      onChange={handleInputChange}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="対象者を入力してください"
+                    />
+                  </div>
+
+                  {/* プログラム */}
+                  <div className="md:col-span-2">
+                    <label htmlFor="program" className="block text-sm font-medium text-gray-700 mb-2">
+                      プログラム
+                    </label>
+                    <textarea
+                      id="program"
+                      name="program"
+                      value={formData.program}
+                      onChange={handleInputChange}
+                      rows={4}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="提供しているプログラムを入力してください"
                     />
                   </div>
                 </div>
@@ -508,18 +477,6 @@ export default function AdminFacilitiesPage() {
                           <span>更新日: {new Date(facility.updatedAt).toLocaleDateString('ja-JP')}</span>
                         </div>
                         
-                        {facility.tags.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {facility.tags.map((tag, index) => (
-                              <span
-                                key={index}
-                                className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                       </div>
                       
                       <div className="flex items-center gap-2 ml-4">

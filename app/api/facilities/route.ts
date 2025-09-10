@@ -27,7 +27,10 @@ export async function GET(request: NextRequest) {
         { description: { contains: search, mode: "insensitive" } },
         { organizer: { contains: search, mode: "insensitive" } },
         { address: { contains: search, mode: "insensitive" } },
-        { tags: { has: search } },
+        { targetArea: { contains: search, mode: "insensitive" } },
+        { facilityInfo: { contains: search, mode: "insensitive" } },
+        { targetAudience: { contains: search, mode: "insensitive" } },
+        { program: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -36,23 +39,9 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
-      include: {
-        createdByUser: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
     });
 
-    // タグを配列に変換
-    const facilitiesWithArrayTags = facilities.map(facility => ({
-      ...facility,
-      tags: facility.tags ? facility.tags.split(',') : []
-    }));
-
-    return NextResponse.json(facilitiesWithArrayTags);
+    return NextResponse.json(facilities);
   } catch (error) {
     console.error("Error fetching facilities:", error);
     return NextResponse.json(
@@ -71,15 +60,16 @@ export async function POST(request: NextRequest) {
     const {
       title,
       description,
-      content,
       imageUrl,
       address,
       area,
       organizer,
       organizerType,
       website,
-      contact,
-      tags,
+      targetArea,
+      facilityInfo,
+      targetAudience,
+      program,
     } = body;
 
     // バリデーション
@@ -94,16 +84,16 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         description,
-        content,
         imageUrl,
         address,
         area,
         organizer,
         organizerType,
         website,
-        contact,
-        tags: tags ? tags.join(',') : null,
-        createdBy: user.id,
+        targetArea,
+        facilityInfo,
+        targetAudience,
+        program,
       },
     });
 

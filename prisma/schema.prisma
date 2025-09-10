@@ -28,7 +28,6 @@ model User {
   subsidies       Subsidy[]
   news            News[]
   knowledge       Knowledge[]
-  facilities      Facility[]
   assetProvisions AssetProvision[]
   technologies    Technology[]
 
@@ -254,23 +253,22 @@ enum KnowledgeCategory {
 
 // 施設紹介
 model Facility {
-  id          String      @id @default(cuid())
-  title       String
-  description String?
-  content     String?     // 詳細内容（Markdown）
-  imageUrl    String?
-  address     String?     // 住所
-  area        String?     // 国・都道府県
-  organizer   String      // 運営者
-  organizerType OrganizerType
-  website     String?
-  contact     String?
-  tags        String?     // タグ配列（カンマ区切り）
-  isActive    Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  createdBy   String
-  createdByUser User      @relation(fields: [createdBy], references: [id])
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  imageUrl      String?
+  address       String?  // 住所
+  area          String?  // 国・都道府県
+  organizer     String   // 運営者
+  organizerType String   // 運営者タイプ
+  website       String?
+  targetArea    String?  // 対象領域
+  facilityInfo  String?  // 施設情報
+  targetAudience String? // 対象者
+  program       String?  // プログラム
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@map("facilities")
 }

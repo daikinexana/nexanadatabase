@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 import { AREAS, ORGANIZER_TYPES, CONTEST_CATEGORIES, GRANT_CATEGORIES, NEWS_TYPES, KNOWLEDGE_CATEGORIES } from "@/lib/constants";
+import CustomSelect from "./custom-select";
 
 interface FilterProps {
   type: "contest" | "event" | "grant" | "news" | "knowledge" | "facility";
@@ -62,52 +63,43 @@ export default function Filter({ type, filters, onFilterChange }: FilterProps) {
       {/* 横並びフィルター */}
       <div className="flex flex-wrap gap-3">
         {/* エリアフィルター */}
-        <div className="flex-shrink-0">
-          <select
+        <div className="flex-shrink-0 w-48">
+          <CustomSelect
+            options={[
+              { value: "", label: "エリア" },
+              ...AREAS.map(area => ({ value: area, label: area }))
+            ]}
             value={filters.area || ""}
-            onChange={(e) => onFilterChange({ ...filters, area: e.target.value || undefined })}
-            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:border-gray-300 transition-colors"
-          >
-            <option value="">エリア</option>
-            {AREAS.map((area) => (
-              <option key={area} value={area}>
-                {area}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => onFilterChange({ ...filters, area: value || undefined })}
+            placeholder="エリア"
+          />
         </div>
 
         {/* 主催者タイプフィルター */}
-        <div className="flex-shrink-0">
-          <select
+        <div className="flex-shrink-0 w-48">
+          <CustomSelect
+            options={[
+              { value: "", label: "主催者" },
+              ...ORGANIZER_TYPES.map(type => ({ value: type.value, label: type.label }))
+            ]}
             value={filters.organizerType || ""}
-            onChange={(e) => onFilterChange({ ...filters, organizerType: e.target.value || undefined })}
-            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:border-gray-300 transition-colors"
-          >
-            <option value="">主催者</option>
-            {ORGANIZER_TYPES.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => onFilterChange({ ...filters, organizerType: value || undefined })}
+            placeholder="主催者"
+          />
         </div>
 
         {/* カテゴリフィルター */}
         {getCategoryOptions().length > 0 && (
-          <div className="flex-shrink-0">
-            <select
+          <div className="flex-shrink-0 w-48">
+            <CustomSelect
+              options={[
+                { value: "", label: "カテゴリ" },
+                ...getCategoryOptions().map(category => ({ value: category.value, label: category.label }))
+              ]}
               value={filters.category || ""}
-              onChange={(e) => onFilterChange({ ...filters, category: e.target.value || undefined })}
-              className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:border-gray-300 transition-colors"
-            >
-              <option value="">カテゴリ</option>
-              {getCategoryOptions().map((category) => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => onFilterChange({ ...filters, category: value || undefined })}
+              placeholder="カテゴリ"
+            />
           </div>
         )}
 

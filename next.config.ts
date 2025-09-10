@@ -2,12 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    unoptimized: true, // 画像の最適化を無効化
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'exana-database-images.s3.ap-northeast-1.amazonaws.com',
-        port: '',
-        pathname: '/**',
+        hostname: '**',
       },
     ],
   },

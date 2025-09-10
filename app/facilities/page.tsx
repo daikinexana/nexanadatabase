@@ -18,8 +18,10 @@ interface Facility {
   organizer: string;
   organizerType: string;
   website?: string;
-  contact?: string;
-  tags: string[];
+  targetArea?: string;
+  facilityInfo?: string;
+  targetAudience?: string;
+  program?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -32,7 +34,6 @@ export default function FacilitiesPage() {
   const [filters, setFilters] = useState({
     area: undefined,
     organizerType: undefined,
-    tags: [],
   });
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -71,9 +72,10 @@ export default function FacilitiesPage() {
           facility.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           facility.organizer.toLowerCase().includes(searchTerm.toLowerCase()) ||
           facility.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          facility.tags.some((tag) =>
-            tag.toLowerCase().includes(searchTerm.toLowerCase())
-          )
+          facility.targetArea?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          facility.facilityInfo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          facility.targetAudience?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          facility.program?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -89,12 +91,6 @@ export default function FacilitiesPage() {
       );
     }
 
-    // タグでフィルタリング
-    if (filters.tags && filters.tags.length > 0) {
-      filtered = filtered.filter((facility) =>
-        filters.tags.some((tag) => facility.tags.includes(tag))
-      );
-    }
 
     setFilteredFacilities(filtered);
   }, [facilities, searchTerm, filters]);
@@ -127,7 +123,7 @@ export default function FacilitiesPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type="text"
-                  placeholder="施設名、運営者、住所で検索..."
+                  placeholder="施設名、運営者、住所、対象領域、施設情報、対象者、プログラムで検索..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -170,7 +166,7 @@ export default function FacilitiesPage() {
             <p className="text-gray-600">読み込み中...</p>
           </div>
         ) : filteredFacilities.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredFacilities.map((facility) => (
               <Card
                 key={facility.id}
@@ -181,11 +177,13 @@ export default function FacilitiesPage() {
                 area={facility.area}
                 organizer={facility.organizer}
                 organizerType={facility.organizerType}
-                tags={facility.tags}
                 website={facility.website}
                 type="facility"
                 address={facility.address}
-                contact={facility.contact}
+                targetArea={facility.targetArea}
+                facilityInfo={facility.facilityInfo}
+                targetAudience={facility.targetAudience}
+                program={facility.program}
               />
             ))}
           </div>
