@@ -6,22 +6,44 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "setup:env": "node scripts/setup-env.js",
+    "setup:local": "cp .env.local.example .env.local && echo '✅ .env.local を作成しました。ファイルを編集して実際の値を設定してください。'",
+    "setup:staging": "cp .env.staging.example .env.staging && echo '✅ .env.staging を作成しました。ファイルを編集して実際の値を設定してください。'",
+    "setup:production": "cp .env.production.example .env.production && echo '✅ .env.production を作成しました。ファイルを編集して実際の値を設定してください。'",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.884.0",
+    "@aws-sdk/s3-request-presigner": "^3.884.0",
+    "@clerk/nextjs": "^6.31.9",
+    "@prisma/client": "^6.15.0",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.542.0",
+    "next": "15.5.2",
     "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "next": "15.5.2"
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
-    "@eslint/eslintrc": "^3"
+    "prisma": "^6.15.0",
+    "tailwindcss": "^4",
+    "tsx": "^4.20.5",
+    "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }
