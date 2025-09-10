@@ -121,12 +121,12 @@ export default function Card({
     <>
       {/* カード */}
       <div
-        className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden h-full flex flex-col"
+        className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden h-96 flex flex-col"
         onClick={handleCardClick}
       >
         {/* 画像 */}
-        {imageUrl && (
-          <div className="relative h-40 w-full">
+        {imageUrl ? (
+          <div className="relative h-40 w-full flex-shrink-0">
             <Image
               src={imageUrl}
               alt={title}
@@ -134,36 +134,44 @@ export default function Card({
               className="object-cover"
             />
           </div>
+        ) : (
+          <div className="relative h-40 w-full flex-shrink-0 bg-gray-100 flex items-center justify-center">
+            <Building className="h-12 w-12 text-gray-400" />
+          </div>
         )}
 
-        <div className="p-4 flex-1 flex flex-col">
+        <div className="p-4 flex-1 flex flex-col min-h-0">
           {/* ヘッダー情報 */}
-          <div className="mb-3">
-            <h3 className="text-base font-semibold text-gray-900 line-clamp-2 mb-2">
+          <div className="mb-3 flex-shrink-0">
+            <h3 className="text-base font-semibold text-gray-900 line-clamp-2 mb-2 min-h-[2.5rem]">
               {title}
             </h3>
             <div className="flex items-center space-x-2 text-xs text-gray-600 mb-2">
-              <Building className="h-3 w-3" />
+              <Building className="h-3 w-3 flex-shrink-0" />
               <span className="truncate">{organizer}</span>
-              <span className="text-gray-400">•</span>
-              <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs whitespace-nowrap">
+              <span className="text-gray-400 flex-shrink-0">•</span>
+              <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs whitespace-nowrap flex-shrink-0">
                 {getOrganizerTypeLabel(organizerType)}
               </span>
             </div>
           </div>
 
           {/* 説明文 */}
-          {description && (
-            <p className="text-gray-600 text-xs mb-3 line-clamp-2 flex-1">
-              {description}
-            </p>
-          )}
+          <div className="mb-3 flex-1 min-h-[2.5rem]">
+            {description ? (
+              <p className="text-gray-600 text-xs line-clamp-2">
+                {description}
+              </p>
+            ) : (
+              <div className="h-[2.5rem]"></div>
+            )}
+          </div>
 
           {/* 日付情報 */}
-          <div className="space-y-1 mb-3">
+          <div className="space-y-1 mb-3 flex-shrink-0">
             {deadline && (
               <div className="flex items-center space-x-1">
-                <Clock className="h-3 w-3 text-gray-400" />
+                <Clock className="h-3 w-3 text-gray-400 flex-shrink-0" />
                 <span className="text-xs text-gray-600">締切:</span>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(deadline)}`}>
                   {getDaysRemaining(deadline) > 0
@@ -176,7 +184,7 @@ export default function Card({
             
             {startDate && (
               <div className="flex items-center space-x-1">
-                <Calendar className="h-3 w-3 text-gray-400" />
+                <Calendar className="h-3 w-3 text-gray-400 flex-shrink-0" />
                 <span className="text-xs text-gray-600">開催:</span>
                 <span className="text-xs text-gray-500">
                   {format(startDate, "MM/dd", { locale: ja })}
@@ -188,15 +196,15 @@ export default function Card({
 
           {/* エリア情報 */}
           {area && (
-            <div className="flex items-center space-x-1 mb-3">
-              <MapPin className="h-3 w-3 text-gray-400" />
-              <span className="text-xs text-gray-600">{area}</span>
+            <div className="flex items-center space-x-1 mb-3 flex-shrink-0">
+              <MapPin className="h-3 w-3 text-gray-400 flex-shrink-0" />
+              <span className="text-xs text-gray-600 truncate">{area}</span>
             </div>
           )}
 
           {/* 金額情報 */}
           {amount && (
-            <div className="mb-3">
+            <div className="mb-3 flex-shrink-0">
               <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
                 {amount}
               </span>
@@ -205,7 +213,7 @@ export default function Card({
 
           {/* カテゴリ */}
           {category && (
-            <div className="mb-3">
+            <div className="mb-3 flex-shrink-0">
               <span className="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
                 {getCategoryLabel(category)}
               </span>
@@ -214,7 +222,7 @@ export default function Card({
 
           {/* タグ */}
           {tags.length > 0 && (
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-1 flex-shrink-0">
               {tags.slice(0, 2).map((tag, index) => (
                 <span
                   key={index}

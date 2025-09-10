@@ -182,7 +182,7 @@ export default function ContestsPage() {
             <p className="text-gray-600">読み込み中...</p>
           </div>
         ) : filteredContests.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
             {filteredContests.map((contest) => (
               <Card
                 key={contest.id}
