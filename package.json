@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "type-check": "tsc --noEmit",
     "setup:env": "node scripts/setup-env.js",
     "setup:local": "cp .env.local.example .env.local && echo '✅ .env.local を作成しました。ファイルを編集して実際の値を設定してください。'",
     "setup:staging": "cp .env.staging.example .env.staging && echo '✅ .env.staging を作成しました。ファイルを編集して実際の値を設定してください。'",

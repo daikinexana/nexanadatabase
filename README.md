@@ -1,5 +1,10 @@
 # Nexana Database
 
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/daikinexana/nexanadatabase)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma)](https://www.prisma.io/)
+
 スタートアップ向けの包括的な情報キュレーションサイトです。コンテスト、展示会、公募、ニュース、ナレッジベースを一箇所で提供し、エリアや主催者タイプでフィルタリングできる機能を備えています。
 
 ## 機能
@@ -109,6 +114,38 @@ npm run dev
 ├── prisma/               # データベーススキーマ
 │   └── schema.prisma     # Prismaスキーマ
 └── public/               # 静的ファイル
+```
+
+## GitHub連携
+
+### リポジトリ
+- **GitHub**: [https://github.com/daikinexana/nexanadatabase](https://github.com/daikinexana/nexanadatabase)
+- **ブランチ**: `main` (本番), `develop` (開発)
+
+### CI/CD
+- **GitHub Actions**: 自動テスト、ビルド、デプロイ
+- **ワークフロー**: `.github/workflows/ci.yml`
+- **テスト**: ESLint、TypeScript型チェック、ビルドテスト
+
+### セキュリティ
+GitHubリポジトリのSecretsに以下の環境変数を設定してください：
+
+```
+DATABASE_URL
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+CLERK_SECRET_KEY
+NEXT_PUBLIC_CLERK_SIGN_IN_URL
+NEXT_PUBLIC_CLERK_SIGN_UP_URL
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL
+WEBHOOK_SECRET
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+AWS_REGION
+AWS_S3_BUCKET
+VERCEL_TOKEN
+VERCEL_ORG_ID
+VERCEL_PROJECT_ID
 ```
 
 ## デプロイ
