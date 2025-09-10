@@ -34,22 +34,22 @@ export default function Modal({ isOpen, onClose, children, title }: ModalProps) 
       />
       
       {/* モーダルコンテンツ */}
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-[90vw] max-w-4xl h-[80vh] flex flex-col overflow-hidden">
         {/* ヘッダー */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+        <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0">
           {title && (
-            <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+            <h2 className="text-xl font-semibold text-gray-900 truncate pr-4">{title}</h2>
           )}
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
         
         {/* コンテンツ */}
-        <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+        <div className="flex-1 overflow-y-auto">
           {children}
         </div>
       </div>

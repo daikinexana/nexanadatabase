@@ -247,10 +247,10 @@ export default function Card({
         onClose={() => setIsModalOpen(false)}
         title={title}
       >
-        <div className="p-6">
+        <div className="p-6 h-full flex flex-col">
           {/* 画像 */}
-          {imageUrl && (
-            <div className="relative h-64 w-full mb-6 rounded-lg overflow-hidden">
+          {imageUrl ? (
+            <div className="relative h-48 w-full mb-6 rounded-lg overflow-hidden flex-shrink-0">
               <Image
                 src={imageUrl}
                 alt={title}
@@ -258,10 +258,14 @@ export default function Card({
                 className="object-cover"
               />
             </div>
+          ) : (
+            <div className="relative h-48 w-full mb-6 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+              <Building className="h-16 w-16 text-gray-400" />
+            </div>
           )}
 
           {/* 詳細情報 */}
-          <div className="space-y-6">
+          <div className="space-y-6 flex-1 overflow-y-auto">
             {/* 基本情報 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
