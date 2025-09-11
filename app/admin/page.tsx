@@ -5,7 +5,7 @@ import Link from "next/link";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
-import { Trophy, Newspaper, BookOpen, Building, Calendar, Handshake, Gift, Package, Cpu } from "lucide-react";
+import { Trophy, Newspaper, BookOpen, Building, Calendar, Handshake } from "lucide-react";
 
 // サンプルデータ（実際の実装ではAPIから取得）
 const sampleData = {
@@ -159,56 +159,6 @@ export default function AdminPage() {
                 </p>
               </Link>
 
-              <Link
-                href="/admin/subsidies"
-                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 group"
-              >
-                <div className="flex items-center mb-3">
-                  <div className="p-3 rounded-lg bg-yellow-500 text-white mr-4">
-                    <Gift className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-yellow-600 transition-colors">
-                    助成金管理
-                  </h3>
-                </div>
-                <p className="text-gray-600 text-sm">
-                  スタートアップ向けの助成金・補助金情報を管理します
-                </p>
-              </Link>
-
-              <Link
-                href="/admin/asset-provisions"
-                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 group"
-              >
-                <div className="flex items-center mb-3">
-                  <div className="p-3 rounded-lg bg-orange-500 text-white mr-4">
-                    <Package className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">
-                    アセット提供管理
-                  </h3>
-                </div>
-                <p className="text-gray-600 text-sm">
-                  資金、設備、施設、技術、知識、ネットワークの提供公募を管理します
-                </p>
-              </Link>
-
-              <Link
-                href="/admin/technologies"
-                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 group"
-              >
-                <div className="flex items-center mb-3">
-                  <div className="p-3 rounded-lg bg-cyan-500 text-white mr-4">
-                    <Cpu className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-cyan-600 transition-colors">
-                    技術情報管理
-                  </h3>
-                </div>
-                <p className="text-gray-600 text-sm">
-                  提供可能な技術・ノウハウ情報を管理します
-                </p>
-              </Link>
 
               <Link
                 href="/admin/news"

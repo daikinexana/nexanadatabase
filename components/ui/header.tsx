@@ -12,9 +12,6 @@ const navigation = [
   { name: "施設紹介", href: "/facilities" },
   { name: "展示会", href: "/events" },
   { name: "公募", href: "/open-calls" },
-  { name: "助成金", href: "/subsidies" },
-  { name: "アセット提供", href: "/asset-provisions" },
-  { name: "技術情報", href: "/technologies" },
   { name: "ニュース", href: "/news" },
   { name: "ナレッジ", href: "/knowledge" },
 ];
