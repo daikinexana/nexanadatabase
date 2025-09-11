@@ -194,6 +194,25 @@ export default function Card({
             </div>
           )}
 
+          {/* 開始日・終了日（イベント用） */}
+          {type === "event" && startDate && (
+            <div className="flex items-center space-x-2 mb-3">
+              <Calendar className="h-4 w-4 text-green-500 flex-shrink-0" />
+              <span className="text-sm text-gray-600 font-medium">
+                {format(startDate, "yyyy年MM月dd日", { locale: ja })}
+                {endDate && ` 〜 ${format(endDate, "yyyy年MM月dd日", { locale: ja })}`}
+              </span>
+            </div>
+          )}
+
+          {/* 会場（イベント用） */}
+          {type === "event" && venue && (
+            <div className="flex items-center space-x-2 mb-3">
+              <Building className="h-4 w-4 text-purple-500 flex-shrink-0" />
+              <span className="text-sm text-gray-600 font-medium truncate">{venue}</span>
+            </div>
+          )}
+
           {/* エリア */}
           {area && (
             <div className="flex items-center space-x-2 mb-4">
@@ -288,6 +307,16 @@ export default function Card({
                       </div>
                     )}
 
+                    {type === "event" && venue && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">会場</label>
+                        <div className="flex items-center space-x-3 mt-2">
+                          <Building className="h-5 w-5 text-purple-500" />
+                          <span className="text-gray-900 font-medium">{venue}</span>
+                        </div>
+                      </div>
+                    )}
+
                     {area && (
                       <div>
                         <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">エリア</label>
@@ -314,11 +343,30 @@ export default function Card({
 
                     {startDate && (
                       <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">開始日</label>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                          {type === "event" ? "開催日" : "開始日"}
+                        </label>
                         <div className="flex items-center space-x-3 mt-2">
                           <Calendar className="h-5 w-5 text-green-500" />
                           <span className="text-gray-900 font-medium">
                             {format(startDate, "yyyy年MM月dd日 HH:mm", { locale: ja })}
+                            {type === "event" && endDate && (
+                              <span className="ml-2 text-gray-600">
+                                〜 {format(endDate, "yyyy年MM月dd日 HH:mm", { locale: ja })}
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {type === "event" && endDate && !startDate && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">終了日</label>
+                        <div className="flex items-center space-x-3 mt-2">
+                          <Calendar className="h-5 w-5 text-red-500" />
+                          <span className="text-gray-900 font-medium">
+                            {format(endDate, "yyyy年MM月dd日 HH:mm", { locale: ja })}
                           </span>
                         </div>
                       </div>
@@ -335,6 +383,46 @@ export default function Card({
                     概要
                   </h3>
                   <p className="text-gray-700 leading-relaxed text-base">{description}</p>
+                </div>
+              )}
+
+              {/* イベント固有の詳細情報 */}
+              {type === "event" && (targetArea || targetAudience || operatingCompany || venue) && (
+                <div className="bg-white rounded-2xl p-6 shadow-sm">
+                  <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                    <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-pink-600 rounded-full mr-3"></div>
+                    詳細情報
+                  </h3>
+                  
+                  <div className="space-y-6">
+                    {venue && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">会場</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{venue}</p>
+                      </div>
+                    )}
+                    
+                    {targetArea && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象領域</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{targetArea}</p>
+                      </div>
+                    )}
+                    
+                    {targetAudience && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象者</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{targetAudience}</p>
+                      </div>
+                    )}
+
+                    {operatingCompany && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">運営企業</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{operatingCompany}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 

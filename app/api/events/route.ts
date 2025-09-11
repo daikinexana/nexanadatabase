@@ -27,7 +27,9 @@ export async function GET(request: NextRequest) {
         { description: { contains: search, mode: "insensitive" } },
         { organizer: { contains: search, mode: "insensitive" } },
         { venue: { contains: search, mode: "insensitive" } },
-        { tags: { has: search } },
+        { targetArea: { contains: search, mode: "insensitive" } },
+        { targetAudience: { contains: search, mode: "insensitive" } },
+        { operatingCompany: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -36,23 +38,9 @@ export async function GET(request: NextRequest) {
       orderBy: {
         startDate: "asc",
       },
-      include: {
-        createdByUser: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
     });
 
-    // タグを配列に変換
-    const eventsWithArrayTags = events.map(event => ({
-      ...event,
-      tags: event.tags ? event.tags.split(',') : []
-    }));
-
-    return NextResponse.json(eventsWithArrayTags);
+    return NextResponse.json(events);
   } catch (error) {
     console.error("Error fetching events:", error);
     return NextResponse.json(
@@ -71,7 +59,6 @@ export async function POST(request: NextRequest) {
     const {
       title,
       description,
-      content,
       imageUrl,
       startDate,
       endDate,
@@ -80,8 +67,9 @@ export async function POST(request: NextRequest) {
       organizer,
       organizerType,
       website,
-      contact,
-      tags,
+      targetArea,
+      targetAudience,
+      operatingCompany,
     } = body;
 
     // バリデーション
@@ -121,7 +109,6 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         description,
-        content,
         imageUrl,
         startDate: start,
         endDate: end,
@@ -130,9 +117,9 @@ export async function POST(request: NextRequest) {
         organizer,
         organizerType,
         website,
-        contact,
-        tags: tags ? tags.join(',') : null,
-        createdBy: user.id,
+        targetArea,
+        targetAudience,
+        operatingCompany,
       },
     });
 

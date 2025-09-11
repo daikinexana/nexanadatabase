@@ -18,8 +18,9 @@ interface Event {
   organizer: string;
   organizerType: string;
   website?: string;
-  contact?: string;
-  tags: string[];
+  targetArea?: string;
+  targetAudience?: string;
+  operatingCompany?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -32,7 +33,6 @@ export default function AdminEventsPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    content: '',
     imageUrl: '',
     startDate: '',
     endDate: '',
@@ -41,11 +41,11 @@ export default function AdminEventsPage() {
     organizer: '',
     organizerType: 'GOVERNMENT' as const,
     website: '',
-    contact: '',
-    tags: [] as string[],
+    targetArea: '',
+    targetAudience: '',
+    operatingCompany: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tagInput, setTagInput] = useState('');
 
   useEffect(() => {
     fetchEvents();
@@ -119,22 +119,6 @@ export default function AdminEventsPage() {
     }));
   };
 
-  const handleTagAdd = () => {
-    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, tagInput.trim()]
-      }));
-      setTagInput('');
-    }
-  };
-
-  const handleTagRemove = (tagToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,7 +139,6 @@ export default function AdminEventsPage() {
         setFormData({
           title: '',
           description: '',
-          content: '',
           imageUrl: '',
           startDate: '',
           endDate: '',
@@ -164,8 +147,9 @@ export default function AdminEventsPage() {
           organizer: '',
           organizerType: 'GOVERNMENT',
           website: '',
-          contact: '',
-          tags: [],
+          targetArea: '',
+          targetAudience: '',
+          operatingCompany: '',
         });
         setShowCreateForm(false);
         alert('イベントが正常に追加されました');
@@ -389,19 +373,51 @@ export default function AdminEventsPage() {
                     />
                   </div>
 
-                  {/* 連絡先 */}
+                  {/* 対象領域 */}
                   <div>
-                    <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-2">
-                      連絡先
+                    <label htmlFor="targetArea" className="block text-sm font-medium text-gray-700 mb-2">
+                      対象領域
                     </label>
                     <input
                       type="text"
-                      id="contact"
-                      name="contact"
-                      value={formData.contact}
+                      id="targetArea"
+                      name="targetArea"
+                      value={formData.targetArea}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="電話番号やメールアドレス"
+                      placeholder="対象となる領域を入力してください"
+                    />
+                  </div>
+
+                  {/* 対象者 */}
+                  <div>
+                    <label htmlFor="targetAudience" className="block text-sm font-medium text-gray-700 mb-2">
+                      対象者
+                    </label>
+                    <input
+                      type="text"
+                      id="targetAudience"
+                      name="targetAudience"
+                      value={formData.targetAudience}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="対象となる人を入力してください"
+                    />
+                  </div>
+
+                  {/* 運営企業 */}
+                  <div>
+                    <label htmlFor="operatingCompany" className="block text-sm font-medium text-gray-700 mb-2">
+                      運営企業
+                    </label>
+                    <input
+                      type="text"
+                      id="operatingCompany"
+                      name="operatingCompany"
+                      value={formData.operatingCompany}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="運営企業名を入力してください"
                     />
                   </div>
 
@@ -421,64 +437,6 @@ export default function AdminEventsPage() {
                     />
                   </div>
 
-                  {/* タグ */}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      タグ
-                    </label>
-                    <div className="flex gap-2 mb-2">
-                      <input
-                        type="text"
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleTagAdd())}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="タグを入力してEnterキーを押すか追加ボタンをクリック"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleTagAdd}
-                        className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                      >
-                        追加
-                      </button>
-                    </div>
-                    {formData.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {formData.tags.map((tag, index) => (
-                          <span
-                            key={index}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full"
-                          >
-                            {tag}
-                            <button
-                              type="button"
-                              onClick={() => handleTagRemove(tag)}
-                              className="ml-1 text-green-600 hover:text-green-800"
-                            >
-                              ×
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 詳細内容 */}
-                  <div className="md:col-span-2">
-                    <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
-                      詳細内容（Markdown）
-                    </label>
-                    <textarea
-                      id="content"
-                      name="content"
-                      value={formData.content}
-                      onChange={handleInputChange}
-                      rows={6}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="イベントの詳細な説明をMarkdown形式で入力してください"
-                    />
-                  </div>
                 </div>
 
                 {/* ボタン */}
@@ -559,16 +517,17 @@ export default function AdminEventsPage() {
                           <span>主催者: {event.organizer}</span>
                         </div>
                         
-                        {event.tags.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {event.tags.map((tag, index) => (
-                              <span
-                                key={index}
-                                className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded"
-                              >
-                                {tag}
-                              </span>
-                            ))}
+                        {(event.targetArea || event.targetAudience || event.operatingCompany) && (
+                          <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
+                            {event.targetArea && (
+                              <span>対象領域: {event.targetArea}</span>
+                            )}
+                            {event.targetAudience && (
+                              <span>対象者: {event.targetAudience}</span>
+                            )}
+                            {event.operatingCompany && (
+                              <span>運営企業: {event.operatingCompany}</span>
+                            )}
                           </div>
                         )}
                       </div>

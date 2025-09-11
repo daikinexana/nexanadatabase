@@ -16,7 +16,6 @@ model User {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   assetProvisions AssetProvision[]
-  events          Event[]
   knowledge       Knowledge[]
   news            News[]
   openCalls       OpenCall[]
@@ -50,25 +49,23 @@ model Contest {
 }
 
 model Event {
-  id            String        @id @default(cuid())
-  title         String
-  description   String?
-  content       String?
-  imageUrl      String?
-  startDate     DateTime
-  endDate       DateTime?
-  venue         String?
-  area          String?
-  organizer     String
-  organizerType String
-  website       String?
-  contact       String?
-  tags          String?
-  isActive      Boolean       @default(true)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  createdBy     String
-  createdByUser User          @relation(fields: [createdBy], references: [id])
+  id                String   @id @default(cuid())
+  title             String
+  description       String?
+  imageUrl          String?
+  startDate         DateTime
+  endDate           DateTime?
+  venue             String?
+  area              String?
+  organizer         String
+  organizerType     String
+  website           String?
+  targetArea        String?  // 対象領域
+  targetAudience    String?  // 対象者
+  operatingCompany  String?  // 運営企業
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@map("events")
 }

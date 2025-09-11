@@ -20,8 +20,9 @@ interface Event {
   organizer: string;
   organizerType: string;
   website?: string;
-  contact?: string;
-  tags: string[];
+  targetArea?: string;
+  targetAudience?: string;
+  operatingCompany?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -34,9 +35,8 @@ export default function EventsPage() {
   const [filters, setFilters] = useState({
     area: undefined,
     organizerType: undefined,
-    tags: [],
   });
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [loading, setLoading] = useState(true);
 
   // データの取得
@@ -73,9 +73,9 @@ export default function EventsPage() {
           event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.organizer.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.venue?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.tags.some((tag) =>
-            tag.toLowerCase().includes(searchTerm.toLowerCase())
-          )
+          event.targetArea?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.targetAudience?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.operatingCompany?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -88,13 +88,6 @@ export default function EventsPage() {
     if (filters.organizerType) {
       filtered = filtered.filter(
         (event) => event.organizerType === filters.organizerType
-      );
-    }
-
-    // タグでフィルタリング
-    if (filters.tags && filters.tags.length > 0) {
-      filtered = filtered.filter((event) =>
-        filters.tags.some((tag) => event.tags.includes(tag))
       );
     }
 
@@ -129,7 +122,7 @@ export default function EventsPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type="text"
-                  placeholder="イベント名、主催者、会場で検索..."
+                  placeholder="イベント名、主催者、会場、対象領域、対象者、運営企業で検索..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -185,11 +178,12 @@ export default function EventsPage() {
                 area={event.area}
                 organizer={event.organizer}
                 organizerType={event.organizerType}
-                tags={event.tags}
                 website={event.website}
                 type="event"
                 venue={event.venue}
-                contact={event.contact}
+                targetArea={event.targetArea}
+                targetAudience={event.targetAudience}
+                operatingCompany={event.operatingCompany}
               />
             ))}
           </div>
