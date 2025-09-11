@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,28 +7,253 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ユーザー（管理者用）
 model User {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique
-  email     String   @unique
-  name      String?
-  role      UserRole @default(MEMBER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // リレーション
-  posts           Post[]
-  contests        Contest[]
-  events          Event[]
-  openCalls       OpenCall[]
-  subsidies       Subsidy[]
-  news            News[]
-  knowledge       Knowledge[]
+  id              String           @id @default(cuid())
+  clerkId         String           @unique
+  email           String           @unique
+  name            String?
+  role            UserRole         @default(MEMBER)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   assetProvisions AssetProvision[]
+  events          Event[]
+  knowledge       Knowledge[]
+  news            News[]
+  openCalls       OpenCall[]
+  posts           Post[]
+  subsidies       Subsidy[]
   technologies    Technology[]
 
   @@map("users")
+}
+
+model Contest {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  imageUrl        String?
+  deadline        DateTime?
+  startDate       DateTime?
+  area            String?     // 国・都道府県
+  organizer       String      // 主催者
+  organizerType   String?     // 主催者タイプ
+  website         String?
+  targetArea      String?     // 対象領域
+  targetAudience  String?     // 対象者
+  incentive       String?     // インセンティブ
+  operatingCompany String?    // 運営企業
+  isActive        Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("contests")
+}
+
+model Event {
+  id            String        @id @default(cuid())
+  title         String
+  description   String?
+  content       String?
+  imageUrl      String?
+  startDate     DateTime
+  endDate       DateTime?
+  venue         String?
+  area          String?
+  organizer     String
+  organizerType String
+  website       String?
+  contact       String?
+  tags          String?
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  createdBy     String
+  createdByUser User          @relation(fields: [createdBy], references: [id])
+
+  @@map("events")
+}
+
+model OpenCall {
+  id            String           @id @default(cuid())
+  title         String
+  description   String?
+  content       String?
+  imageUrl      String?
+  deadline      DateTime?
+  startDate     DateTime?
+  endDate       DateTime?
+  category      OpenCallCategory
+  area          String?
+  organizer     String
+  organizerType String
+  amount        String?
+  website       String?
+  contact       String?
+  tags          String?
+  isActive      Boolean          @default(true)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  createdBy     String
+  createdByUser User             @relation(fields: [createdBy], references: [id])
+
+  @@map("open_calls")
+}
+
+model Subsidy {
+  id            String          @id @default(cuid())
+  title         String
+  description   String?
+  content       String?
+  imageUrl      String?
+  deadline      DateTime?
+  startDate     DateTime?
+  endDate       DateTime?
+  category      SubsidyCategory
+  area          String?
+  organizer     String
+  organizerType String
+  amount        String?
+  website       String?
+  contact       String?
+  tags          String?
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  createdBy     String
+  createdByUser User            @relation(fields: [createdBy], references: [id])
+
+  @@map("subsidies")
+}
+
+model News {
+  id            String    @id @default(cuid())
+  title         String
+  description   String?
+  content       String?
+  imageUrl      String?
+  type          NewsType
+  company       String
+  sector        String?
+  amount        String?
+  round         String?
+  investors     String?
+  publishedAt   DateTime?
+  source        String?
+  sourceUrl     String?
+  tags          String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  createdBy     String
+  createdByUser User      @relation(fields: [createdBy], references: [id])
+
+  @@map("news")
+}
+
+model Knowledge {
+  id            String            @id @default(cuid())
+  title         String
+  description   String?
+  content       String
+  imageUrl      String?
+  category      KnowledgeCategory
+  tags          String?
+  author        String?
+  publishedAt   DateTime?
+  isActive      Boolean           @default(true)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  createdBy     String
+  createdByUser User              @relation(fields: [createdBy], references: [id])
+
+  @@map("knowledge")
+}
+
+model Facility {
+  id             String   @id @default(cuid())
+  title          String
+  description    String?
+  imageUrl       String?
+  address        String?
+  area           String?
+  organizer      String
+  website        String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  facilityInfo   String?
+  program        String?
+  targetArea     String?
+  targetAudience String?
+  organizerType  String
+
+  @@map("facilities")
+}
+
+model AssetProvision {
+  id            String        @id @default(cuid())
+  title         String
+  description   String?
+  content       String?
+  imageUrl      String?
+  deadline      DateTime?
+  startDate     DateTime?
+  endDate       DateTime?
+  category      AssetCategory
+  area          String?
+  organizer     String
+  organizerType String
+  amount        String?
+  website       String?
+  contact       String?
+  tags          String?
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  createdBy     String
+  createdByUser User          @relation(fields: [createdBy], references: [id])
+
+  @@map("asset_provisions")
+}
+
+model Technology {
+  id            String             @id @default(cuid())
+  title         String
+  description   String?
+  content       String?
+  imageUrl      String?
+  category      TechnologyCategory
+  area          String?
+  provider      String
+  providerType  String
+  website       String?
+  contact       String?
+  tags          String?
+  isActive      Boolean            @default(true)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  createdBy     String
+  createdByUser User               @relation(fields: [createdBy], references: [id])
+
+  @@map("technologies")
+}
+
+model Post {
+  id            String    @id @default(cuid())
+  title         String
+  description   String?
+  content       String
+  imageUrl      String?
+  category      String?
+  tags          String?
+  isPublished   Boolean   @default(false)
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  createdBy     String
+  createdByUser User      @relation(fields: [createdBy], references: [id])
+
+  @@map("posts")
 }
 
 enum UserRole {
@@ -40,104 +262,6 @@ enum UserRole {
   ADMIN
 }
 
-// コンテスト情報
-model Contest {
-  id          String      @id @default(cuid())
-  title       String
-  description String?
-  content     String?     // 詳細内容（Markdown）
-  imageUrl    String?
-  deadline    DateTime?
-  startDate   DateTime?
-  endDate     DateTime?
-  category    ContestCategory
-  area        String?     // 国・都道府県
-  organizer   String      // 主催者
-  organizerType OrganizerType
-  amount      String?     // 賞金・参加費
-  website     String?
-  contact     String?
-  tags        String?     // タグ配列（カンマ区切り）
-  isActive    Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  createdBy   String
-  createdByUser User      @relation(fields: [createdBy], references: [id])
-
-  @@map("contests")
-}
-
-enum ContestCategory {
-  STARTUP_CONTEST
-  INNOVATION_CHALLENGE
-  HACKATHON
-  PITCH_CONTEST
-  BUSINESS_PLAN
-  OTHER
-}
-
-enum OrganizerType {
-  GOVERNMENT
-  VC
-  CVC
-  BANK
-  REAL_ESTATE
-  CORPORATION
-  RESEARCH_INSTITUTION
-  OTHER
-}
-
-// 展示会・イベント情報
-model Event {
-  id          String      @id @default(cuid())
-  title       String
-  description String?
-  content     String?     // 詳細内容（Markdown）
-  imageUrl    String?
-  startDate   DateTime
-  endDate     DateTime?
-  venue       String?
-  area        String?     // 国・都道府県
-  organizer   String      // 主催者
-  organizerType OrganizerType
-  website     String?
-  contact     String?
-  tags        String?     // タグ配列（カンマ区切り）
-  isActive    Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  createdBy   String
-  createdByUser User      @relation(fields: [createdBy], references: [id])
-
-  @@map("events")
-}
-
-// 公募・課題解決パートナー募集情報
-model OpenCall {
-  id          String      @id @default(cuid())
-  title       String
-  description String?
-  content     String?     // 詳細内容（Markdown）
-  imageUrl    String?
-  deadline    DateTime?
-  startDate   DateTime?
-  endDate     DateTime?
-  category    OpenCallCategory
-  area        String?     // 国・都道府県
-  organizer   String      // 主催者
-  organizerType OrganizerType
-  amount      String?     // 助成金額
-  website     String?
-  contact     String?
-  tags        String?     // タグ配列（カンマ区切り）
-  isActive    Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  createdBy   String
-  createdByUser User      @relation(fields: [createdBy], references: [id])
-
-  @@map("open_calls")
-}
 
 enum OpenCallCategory {
   PARTNERSHIP
@@ -146,33 +270,6 @@ enum OpenCallCategory {
   INNOVATION
   RESEARCH
   OTHER
-}
-
-// 助成金・補助金情報
-model Subsidy {
-  id          String      @id @default(cuid())
-  title       String
-  description String?
-  content     String?     // 詳細内容（Markdown）
-  imageUrl    String?
-  deadline    DateTime?
-  startDate   DateTime?
-  endDate     DateTime?
-  category    SubsidyCategory
-  area        String?     // 国・都道府県
-  organizer   String      // 主催者
-  organizerType OrganizerType
-  amount      String?     // 助成金額
-  website     String?
-  contact     String?
-  tags        String?     // タグ配列（カンマ区切り）
-  isActive    Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  createdBy   String
-  createdByUser User      @relation(fields: [createdBy], references: [id])
-
-  @@map("subsidies")
 }
 
 enum SubsidyCategory {
@@ -186,58 +283,12 @@ enum SubsidyCategory {
   OTHER
 }
 
-// ニュース（調達・M&A情報）
-model News {
-  id          String      @id @default(cuid())
-  title       String
-  description String?
-  content     String?     // 詳細内容（Markdown）
-  imageUrl    String?
-  type        NewsType
-  company     String      // 調達企業
-  sector      String?     // 領域
-  amount      String?     // 金額
-  round       String?     // ラウンド（シリーズA等）
-  investors   String?     // 投資家リスト（カンマ区切り）
-  publishedAt DateTime?
-  source      String?     // 情報源
-  sourceUrl   String?
-  tags        String?     // タグ配列（カンマ区切り）
-  isActive    Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  createdBy   String
-  createdByUser User      @relation(fields: [createdBy], references: [id])
-
-  @@map("news")
-}
-
 enum NewsType {
   FUNDING
   M_AND_A
   IPO
   PARTNERSHIP
   OTHER
-}
-
-// ナレッジベース（情報メディア）
-model Knowledge {
-  id          String      @id @default(cuid())
-  title       String
-  description String?
-  content     String      // 詳細内容（Markdown）
-  imageUrl    String?
-  category    KnowledgeCategory
-  tags        String?     // タグ配列（カンマ区切り）
-  author      String?
-  publishedAt DateTime?
-  isActive    Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  createdBy   String
-  createdByUser User      @relation(fields: [createdBy], references: [id])
-
-  @@map("knowledge")
 }
 
 enum KnowledgeCategory {
@@ -251,55 +302,6 @@ enum KnowledgeCategory {
   OTHER
 }
 
-// 施設紹介
-model Facility {
-  id            String   @id @default(cuid())
-  title         String
-  description   String?
-  imageUrl      String?
-  address       String?  // 住所
-  area          String?  // 国・都道府県
-  organizer     String   // 運営者
-  organizerType String   // 運営者タイプ
-  website       String?
-  targetArea    String?  // 対象領域
-  facilityInfo  String?  // 施設情報
-  targetAudience String? // 対象者
-  program       String?  // プログラム
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@map("facilities")
-}
-
-// アセット提供公募
-model AssetProvision {
-  id          String      @id @default(cuid())
-  title       String
-  description String?
-  content     String?     // 詳細内容（Markdown）
-  imageUrl    String?
-  deadline    DateTime?
-  startDate   DateTime?
-  endDate     DateTime?
-  category    AssetCategory
-  area        String?     // 国・都道府県
-  organizer   String      // 主催者
-  organizerType OrganizerType
-  amount      String?     // 提供金額・規模
-  website     String?
-  contact     String?
-  tags        String?     // タグ配列（カンマ区切り）
-  isActive    Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  createdBy   String
-  createdByUser User      @relation(fields: [createdBy], references: [id])
-
-  @@map("asset_provisions")
-}
-
 enum AssetCategory {
   FUNDING
   EQUIPMENT
@@ -308,29 +310,6 @@ enum AssetCategory {
   KNOWLEDGE
   NETWORK
   OTHER
-}
-
-// 提供可能な技術情報
-model Technology {
-  id          String      @id @default(cuid())
-  title       String
-  description String?
-  content     String?     // 詳細内容（Markdown）
-  imageUrl    String?
-  category    TechnologyCategory
-  area        String?     // 国・都道府県
-  provider    String      // 提供者
-  providerType OrganizerType
-  website     String?
-  contact     String?
-  tags        String?     // タグ配列（カンマ区切り）
-  isActive    Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  createdBy   String
-  createdByUser User      @relation(fields: [createdBy], references: [id])
-
-  @@map("technologies")
 }
 
 enum TechnologyCategory {
@@ -344,23 +323,4 @@ enum TechnologyCategory {
   CYBERSECURITY
   CLOUD
   OTHER
-}
-
-// 投稿（汎用的な投稿システム）
-model Post {
-  id          String      @id @default(cuid())
-  title       String
-  description String?
-  content     String      // 詳細内容（Markdown）
-  imageUrl    String?
-  category    String?
-  tags        String?     // タグ配列（カンマ区切り）
-  isPublished Boolean     @default(false)
-  publishedAt DateTime?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  createdBy   String
-  createdByUser User      @relation(fields: [createdBy], references: [id])
-
-  @@map("posts")
 }

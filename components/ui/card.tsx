@@ -18,7 +18,7 @@ interface CardProps {
   endDate?: Date;
   area?: string;
   organizer: string;
-  organizerType: string;
+  organizerType?: string;
   category?: string;
   tags?: string[];
   website?: string;
@@ -32,6 +32,9 @@ interface CardProps {
   facilityInfo?: string;
   targetAudience?: string;
   program?: string;
+  // Contest specific fields
+  incentive?: string;
+  operatingCompany?: string;
   onClick?: () => void;
 }
 
@@ -58,6 +61,8 @@ export default function Card({
   facilityInfo,
   targetAudience,
   program,
+  incentive,
+  operatingCompany,
   onClick,
 }: CardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -157,28 +162,44 @@ export default function Card({
             {title}
           </h3>
 
-          {/* エリア */}
-          {area && (
-            <div className="flex items-center space-x-2 mb-3">
-              <MapPin className="h-4 w-4 text-blue-500 flex-shrink-0" />
-              <span className="text-sm text-gray-600 font-medium">{area}</span>
+          {/* 主催者 */}
+          <div className="flex items-center space-x-2 mb-3">
+            <Building className="h-4 w-4 text-gray-400 flex-shrink-0" />
+            <span className="text-sm text-gray-600 truncate">{organizer}</span>
+          </div>
+
+          {/* 主催者タイプ */}
+          {organizerType && (
+            <div className="mb-3">
+              <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs font-semibold rounded-full">
+                {getOrganizerTypeLabel(organizerType)}
+              </span>
             </div>
           )}
 
-          {/* 運営者タイプ */}
-          <div className="flex items-center space-x-2 mb-4">
-            <Building className="h-4 w-4 text-gray-400 flex-shrink-0" />
-            <span className="text-sm text-gray-600 truncate">{organizer}</span>
-            <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs font-semibold rounded-full whitespace-nowrap flex-shrink-0">
-              {getOrganizerTypeLabel(organizerType)}
-            </span>
-          </div>
-
           {/* 説明（最初の50文字のみ） */}
           {description && (
-            <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
+            <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-3">
               {description.length > 50 ? `${description.substring(0, 50)}...` : description}
             </p>
+          )}
+
+          {/* 締切日 */}
+          {deadline && (
+            <div className="flex items-center space-x-2 mb-3">
+              <Clock className="h-4 w-4 text-red-500 flex-shrink-0" />
+              <span className="text-sm text-gray-600 font-medium">
+                締切: {format(deadline, "yyyy年MM月dd日", { locale: ja })}
+              </span>
+            </div>
+          )}
+
+          {/* エリア */}
+          {area && (
+            <div className="flex items-center space-x-2 mb-4">
+              <MapPin className="h-4 w-4 text-blue-500 flex-shrink-0" />
+              <span className="text-sm text-gray-600 font-medium">{area}</span>
+            </div>
           )}
 
           {/* ホバー時の詳細表示インジケーター */}
@@ -253,11 +274,19 @@ export default function Card({
                       <div className="flex items-center space-x-3 mt-2">
                         <Building className="h-5 w-5 text-gray-400" />
                         <span className="text-gray-900 font-medium">{organizer}</span>
-                        <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-semibold rounded-full">
-                          {getOrganizerTypeLabel(organizerType)}
-                        </span>
                       </div>
                     </div>
+
+                    {organizerType && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">主催者タイプ</label>
+                        <div className="mt-2">
+                          <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-semibold rounded-full">
+                            {getOrganizerTypeLabel(organizerType)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
 
                     {area && (
                       <div>
@@ -271,23 +300,25 @@ export default function Card({
                   </div>
 
                   <div className="space-y-4">
-                    {category && (
+                    {deadline && (
                       <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">カテゴリ</label>
-                        <div className="mt-2">
-                          <span className="inline-block px-4 py-2 bg-green-100 text-green-800 text-sm font-semibold rounded-full">
-                            {getCategoryLabel(category)}
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">締切日</label>
+                        <div className="flex items-center space-x-3 mt-2">
+                          <Clock className="h-5 w-5 text-red-500" />
+                          <span className="text-gray-900 font-medium">
+                            {format(deadline, "yyyy年MM月dd日 HH:mm", { locale: ja })}
                           </span>
                         </div>
                       </div>
                     )}
 
-                    {amount && (
+                    {startDate && (
                       <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">金額</label>
-                        <div className="mt-2">
-                          <span className="inline-block px-4 py-2 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
-                            {amount}
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">開始日</label>
+                        <div className="flex items-center space-x-3 mt-2">
+                          <Calendar className="h-5 w-5 text-green-500" />
+                          <span className="text-gray-900 font-medium">
+                            {format(startDate, "yyyy年MM月dd日 HH:mm", { locale: ja })}
                           </span>
                         </div>
                       </div>
@@ -304,6 +335,84 @@ export default function Card({
                     概要
                   </h3>
                   <p className="text-gray-700 leading-relaxed text-base">{description}</p>
+                </div>
+              )}
+
+              {/* コンテスト固有の詳細情報 */}
+              {type === "contest" && (targetArea || targetAudience || incentive || operatingCompany) && (
+                <div className="bg-white rounded-2xl p-6 shadow-sm">
+                  <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                    <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-pink-600 rounded-full mr-3"></div>
+                    詳細情報
+                  </h3>
+                  
+                  <div className="space-y-6">
+                    {targetArea && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象領域</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{targetArea}</p>
+                      </div>
+                    )}
+                    
+                    {targetAudience && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象者</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{targetAudience}</p>
+                      </div>
+                    )}
+                    
+                    {incentive && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">インセンティブ</label>
+                        <div className="mt-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border-l-4 border-blue-500">
+                          <div className="prose prose-sm max-w-none">
+                            <div className="text-gray-900 leading-relaxed whitespace-pre-line">
+                              {incentive.split('\n').map((line, index) => {
+                                // 箇条書きや番号付きリストを検出
+                                if (line.trim().match(/^[\d\-\*\•]\s/)) {
+                                  return (
+                                    <div key={index} className="flex items-start space-x-2 mb-2">
+                                      <span className="text-blue-500 font-bold mt-1">•</span>
+                                      <span className="flex-1">{line.replace(/^[\d\-\*\•]\s/, '')}</span>
+                                    </div>
+                                  );
+                                }
+                                // 見出しを検出（## や ### で始まる行）
+                                if (line.trim().match(/^#{1,3}\s/)) {
+                                  const level = line.match(/^#{1,3}/)?.[0].length || 1;
+                                  const text = line.replace(/^#{1,3}\s/, '');
+                                  return (
+                                    <div key={index} className={`font-bold text-gray-900 mb-3 mt-4 ${
+                                      level === 1 ? 'text-lg' : level === 2 ? 'text-base' : 'text-sm'
+                                    }`}>
+                                      {text}
+                                    </div>
+                                  );
+                                }
+                                // 空行
+                                if (line.trim() === '') {
+                                  return <div key={index} className="h-2"></div>;
+                                }
+                                // 通常のテキスト
+                                return (
+                                  <div key={index} className="mb-2">
+                                    {line}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {operatingCompany && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">運営企業</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{operatingCompany}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -405,7 +514,7 @@ export default function Card({
                 </div>
               )}
 
-              {/* 外部リンク */}
+              {/* ウェブサイトリンク */}
               {website && (
                 <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-center">
                   <a
@@ -415,7 +524,7 @@ export default function Card({
                     className="inline-flex items-center space-x-3 px-8 py-4 bg-white text-gray-900 rounded-xl hover:bg-gray-50 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl"
                   >
                     <ExternalLink className="h-6 w-6" />
-                    <span>詳細ページを見る</span>
+                    <span>ウェブサイトを見る</span>
                   </a>
                 </div>
               )}

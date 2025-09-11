@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
+// 個別コンテスト取得
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -9,14 +11,6 @@ export async function GET(
     const contest = await prisma.contest.findUnique({
       where: {
         id: params.id,
-      },
-      include: {
-        createdByUser: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
       },
     });
 
@@ -37,29 +31,58 @@ export async function GET(
   }
 }
 
+// コンテスト更新
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    // 管理者権限を確認
+    const user = await requireAdmin();
+    
     const body = await request.json();
     const {
       title,
       description,
-      content,
       imageUrl,
       deadline,
       startDate,
-      endDate,
       area,
       organizer,
       organizerType,
-      category,
-      tags,
       website,
-      amount,
+      targetArea,
+      targetAudience,
+      incentive,
+      operatingCompany,
       isActive,
     } = body;
+
+    // バリデーション
+    if (!title || !organizer) {
+      return NextResponse.json(
+        { error: "必須フィールドが不足しています" },
+        { status: 400 }
+      );
+    }
+
+    // 日付のバリデーション
+    const deadlineDate = deadline ? new Date(deadline) : null;
+    const start = startDate ? new Date(startDate) : null;
+    
+    if (deadlineDate && isNaN(deadlineDate.getTime())) {
+      return NextResponse.json(
+        { error: "締切日が無効です" },
+        { status: 400 }
+      );
+    }
+
+    if (start && isNaN(start.getTime())) {
+      return NextResponse.json(
+        { error: "開始日が無効です" },
+        { status: 400 }
+      );
+    }
 
     const contest = await prisma.contest.update({
       where: {
@@ -68,64 +91,55 @@ export async function PUT(
       data: {
         title,
         description,
-        content,
         imageUrl,
-        deadline: deadline ? new Date(deadline) : null,
-        startDate: startDate ? new Date(startDate) : null,
-        endDate: endDate ? new Date(endDate) : null,
+        deadline: deadlineDate,
+        startDate: start,
         area,
         organizer,
         organizerType,
-        category,
-        tags,
         website,
-        amount,
-        isActive: isActive ?? true,
+        targetArea,
+        targetAudience,
+        incentive,
+        operatingCompany,
+        isActive: isActive !== undefined ? isActive : true,
       },
     });
 
     return NextResponse.json(contest);
   } catch (error) {
     console.error("Error updating contest:", error);
+    
+    if (error instanceof Error && error.message.includes("認証")) {
+      return NextResponse.json(
+        { error: "認証が必要です" },
+        { status: 401 }
+      );
+    }
+    
+    if (error instanceof Error && error.message.includes("管理者権限")) {
+      return NextResponse.json(
+        { error: "管理者権限が必要です" },
+        { status: 403 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: "Failed to update contest" },
+      { error: "コンテストの更新に失敗しました" },
       { status: 500 }
     );
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const body = await request.json();
-    const { isActive } = body;
-
-    const contest = await prisma.contest.update({
-      where: {
-        id: params.id,
-      },
-      data: {
-        isActive,
-      },
-    });
-
-    return NextResponse.json(contest);
-  } catch (error) {
-    console.error("Error updating contest status:", error);
-    return NextResponse.json(
-      { error: "Failed to update contest status" },
-      { status: 500 }
-    );
-  }
-}
-
+// コンテスト削除
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    // 管理者権限を確認
+    const user = await requireAdmin();
+    
     await prisma.contest.delete({
       where: {
         id: params.id,
@@ -135,8 +149,23 @@ export async function DELETE(
     return NextResponse.json({ message: "Contest deleted successfully" });
   } catch (error) {
     console.error("Error deleting contest:", error);
+    
+    if (error instanceof Error && error.message.includes("認証")) {
+      return NextResponse.json(
+        { error: "認証が必要です" },
+        { status: 401 }
+      );
+    }
+    
+    if (error instanceof Error && error.message.includes("管理者権限")) {
+      return NextResponse.json(
+        { error: "管理者権限が必要です" },
+        { status: 403 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: "Failed to delete contest" },
+      { error: "コンテストの削除に失敗しました" },
       { status: 500 }
     );
   }

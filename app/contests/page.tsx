@@ -15,14 +15,14 @@ interface Contest {
   imageUrl?: string;
   deadline?: string;
   startDate?: string;
-  endDate?: string;
   area?: string;
   organizer: string;
-  organizerType: string;
-  category: string;
-  tags: string[];
+  organizerType?: string;
   website?: string;
-  amount?: string;
+  targetArea?: string;
+  targetAudience?: string;
+  incentive?: string;
+  operatingCompany?: string;
 }
 
 export default function ContestsPage() {
@@ -31,9 +31,6 @@ export default function ContestsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     area: undefined,
-    organizerType: undefined,
-    category: undefined,
-    tags: [],
   });
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -71,36 +68,16 @@ export default function ContestsPage() {
           contest.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           contest.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           contest.organizer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          contest.tags.some((tag) =>
-            tag.toLowerCase().includes(searchTerm.toLowerCase())
-          )
+          contest.targetArea?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          contest.targetAudience?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          contest.incentive?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          contest.operatingCompany?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // エリアでフィルタリング
     if (filters.area) {
       filtered = filtered.filter((contest) => contest.area === filters.area);
-    }
-
-    // 主催者タイプでフィルタリング
-    if (filters.organizerType) {
-      filtered = filtered.filter(
-        (contest) => contest.organizerType === filters.organizerType
-      );
-    }
-
-    // カテゴリでフィルタリング
-    if (filters.category) {
-      filtered = filtered.filter(
-        (contest) => contest.category === filters.category
-      );
-    }
-
-    // タグでフィルタリング
-    if (filters.tags && filters.tags.length > 0) {
-      filtered = filtered.filter((contest) =>
-        filters.tags.some((tag) => contest.tags.includes(tag))
-      );
     }
 
     setFilteredContests(filtered);
@@ -182,7 +159,7 @@ export default function ContestsPage() {
             <p className="text-gray-600">読み込み中...</p>
           </div>
         ) : filteredContests.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-start">
             {filteredContests.map((contest) => (
               <Card
                 key={contest.id}
@@ -192,14 +169,14 @@ export default function ContestsPage() {
                 imageUrl={contest.imageUrl}
                 deadline={contest.deadline ? new Date(contest.deadline) : undefined}
                 startDate={contest.startDate ? new Date(contest.startDate) : undefined}
-                endDate={contest.endDate ? new Date(contest.endDate) : undefined}
                 area={contest.area}
                 organizer={contest.organizer}
-                organizerType={contest.organizerType}
-                category={contest.category}
-                tags={contest.tags}
+                organizerType={contest.organizerType || "その他"}
                 website={contest.website}
-                amount={contest.amount}
+                targetArea={contest.targetArea}
+                targetAudience={contest.targetAudience}
+                incentive={contest.incentive}
+                operatingCompany={contest.operatingCompany}
                 type="contest"
               />
             ))}

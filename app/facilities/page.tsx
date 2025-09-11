@@ -35,7 +35,7 @@ export default function FacilitiesPage() {
     area: undefined,
     organizerType: undefined,
   });
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [loading, setLoading] = useState(true);
 
   // データの取得

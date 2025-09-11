@@ -12,18 +12,17 @@ interface Contest {
   id: string;
   title: string;
   description?: string;
-  content?: string;
   imageUrl?: string;
   deadline?: string;
   startDate?: string;
-  endDate?: string;
   area?: string;
   organizer: string;
-  organizerType: string;
-  category: string;
-  tags: string[];
+  organizerType?: string;
   website?: string;
-  amount?: string;
+  targetArea?: string;
+  targetAudience?: string;
+  incentive?: string;
+  operatingCompany?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -36,21 +35,19 @@ export default function AdminContestsPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    content: '',
     imageUrl: '',
     deadline: '',
     startDate: '',
-    endDate: '',
     area: '',
     organizer: '',
-    organizerType: 'GOVERNMENT' as const,
-    category: 'STARTUP_CONTEST' as const,
+    organizerType: '',
     website: '',
-    amount: '',
-    tags: [] as string[],
+    targetArea: '',
+    targetAudience: '',
+    incentive: '',
+    operatingCompany: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tagInput, setTagInput] = useState('');
 
   useEffect(() => {
     fetchContests();
@@ -116,22 +113,6 @@ export default function AdminContestsPage() {
     }));
   };
 
-  const handleTagAdd = () => {
-    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, tagInput.trim()]
-      }));
-      setTagInput('');
-    }
-  };
-
-  const handleTagRemove = (tagToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,18 +133,17 @@ export default function AdminContestsPage() {
         setFormData({
           title: '',
           description: '',
-          content: '',
           imageUrl: '',
           deadline: '',
           startDate: '',
-          endDate: '',
           area: '',
           organizer: '',
-          organizerType: 'GOVERNMENT',
-          category: 'STARTUP_CONTEST',
+          organizerType: '',
           website: '',
-          amount: '',
-          tags: [],
+          targetArea: '',
+          targetAudience: '',
+          incentive: '',
+          operatingCompany: '',
         });
         setShowCreateForm(false);
         alert('コンテストが正常に追加されました');
@@ -268,24 +248,25 @@ export default function AdminContestsPage() {
                   {/* 主催者タイプ */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      主催者タイプ <span className="text-red-500">*</span>
+                      主催者タイプ
                     </label>
                     <select
                       value={formData.organizerType}
                       onChange={(e) => setFormData({ ...formData, organizerType: e.target.value })}
-                      required
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
-                      <option value="GOVERNMENT">政府・自治体</option>
-                      <option value="VC">ベンチャーキャピタル</option>
-                      <option value="CVC">コーポレートベンチャーキャピタル</option>
-                      <option value="BANK">銀行</option>
-                      <option value="REAL_ESTATE">不動産</option>
-                      <option value="CORPORATION">企業</option>
-                      <option value="RESEARCH_INSTITUTION">研究機関</option>
-                      <option value="OTHER">その他</option>
+                      <option value="">選択してください</option>
+                      <option value="行政">行政</option>
+                      <option value="VC">VC</option>
+                      <option value="CVC">CVC</option>
+                      <option value="銀行">銀行</option>
+                      <option value="不動産">不動産</option>
+                      <option value="企業">企業</option>
+                      <option value="研究機関">研究機関</option>
+                      <option value="その他">その他</option>
                     </select>
                   </div>
+
                 </div>
 
                 {/* 説明 */}
@@ -304,21 +285,6 @@ export default function AdminContestsPage() {
                   />
                 </div>
 
-                {/* 詳細内容 */}
-                <div className="md:col-span-2">
-                  <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
-                    詳細内容（Markdown）
-                  </label>
-                  <textarea
-                    id="content"
-                    name="content"
-                    value={formData.content}
-                    onChange={handleInputChange}
-                    rows={6}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="コンテストの詳細な説明をMarkdown形式で入力してください"
-                  />
-                </div>
 
                 {/* 締切日 */}
                 <div>
@@ -350,20 +316,6 @@ export default function AdminContestsPage() {
                   />
                 </div>
 
-                {/* 終了日 */}
-                <div>
-                  <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-2">
-                    終了日
-                  </label>
-                  <input
-                    type="datetime-local"
-                    id="endDate"
-                    name="endDate"
-                    value={formData.endDate}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
 
                 {/* エリア */}
                 <div>
@@ -381,110 +333,72 @@ export default function AdminContestsPage() {
                   />
                 </div>
 
-                {/* 金額 */}
+
+
+                {/* 対象領域 */}
                 <div>
-                  <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
-                    金額
+                  <label htmlFor="targetArea" className="block text-sm font-medium text-gray-700 mb-2">
+                    対象領域
                   </label>
                   <input
                     type="text"
-                    id="amount"
-                    name="amount"
-                    value={formData.amount}
+                    id="targetArea"
+                    name="targetArea"
+                    value={formData.targetArea}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="賞金や参加費を入力してください"
+                    placeholder="対象領域を入力してください"
                   />
                 </div>
 
-                {/* 主催者タイプ */}
+                {/* 対象者 */}
                 <div>
-                  <label htmlFor="organizerType" className="block text-sm font-medium text-gray-700 mb-2">
-                    主催者タイプ <span className="text-red-500">*</span>
+                  <label htmlFor="targetAudience" className="block text-sm font-medium text-gray-700 mb-2">
+                    対象者
                   </label>
-                  <select
-                    id="organizerType"
-                    name="organizerType"
-                    value={formData.organizerType}
+                  <input
+                    type="text"
+                    id="targetAudience"
+                    name="targetAudience"
+                    value={formData.targetAudience}
                     onChange={handleInputChange}
-                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="GOVERNMENT">政府・自治体</option>
-                    <option value="VC">ベンチャーキャピタル</option>
-                    <option value="CVC">コーポレートベンチャーキャピタル</option>
-                    <option value="BANK">銀行</option>
-                    <option value="REAL_ESTATE">不動産</option>
-                    <option value="CORPORATION">企業</option>
-                    <option value="RESEARCH_INSTITUTION">研究機関</option>
-                    <option value="OTHER">その他</option>
-                  </select>
+                    placeholder="対象者を入力してください"
+                  />
                 </div>
 
-                {/* カテゴリ */}
+                {/* インセンティブ */}
                 <div>
-                  <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                    カテゴリ <span className="text-red-500">*</span>
+                  <label htmlFor="incentive" className="block text-sm font-medium text-gray-700 mb-2">
+                    インセンティブ
                   </label>
-                  <select
-                    id="category"
-                    name="category"
-                    value={formData.category}
+                  <input
+                    type="text"
+                    id="incentive"
+                    name="incentive"
+                    value={formData.incentive}
                     onChange={handleInputChange}
-                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="STARTUP_CONTEST">スタートアップコンテスト</option>
-                    <option value="INNOVATION_CHALLENGE">イノベーションチャレンジ</option>
-                    <option value="HACKATHON">ハッカソン</option>
-                    <option value="PITCH_CONTEST">ピッチコンテスト</option>
-                    <option value="BUSINESS_PLAN">ビジネスプラン</option>
-                    <option value="OTHER">その他</option>
-                  </select>
+                    placeholder="インセンティブを入力してください"
+                  />
                 </div>
 
-                {/* タグ */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    タグ
+                {/* 運営企業 */}
+                <div>
+                  <label htmlFor="operatingCompany" className="block text-sm font-medium text-gray-700 mb-2">
+                    運営企業
                   </label>
-                  <div className="flex gap-2 mb-2">
-                    <input
-                      type="text"
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleTagAdd())}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="タグを入力してEnterキーを押すか追加ボタンをクリック"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleTagAdd}
-                      className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                    >
-                      追加
-                    </button>
-                  </div>
-                  {formData.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {formData.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
-                        >
-                          {tag}
-                          <button
-                            type="button"
-                            onClick={() => handleTagRemove(tag)}
-                            className="ml-1 text-blue-600 hover:text-blue-800"
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  <input
+                    type="text"
+                    id="operatingCompany"
+                    name="operatingCompany"
+                    value={formData.operatingCompany}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="運営企業を入力してください"
+                  />
                 </div>
+
 
                 {/* ウェブサイト */}
                 <div>
@@ -590,9 +504,6 @@ export default function AdminContestsPage() {
                               }`}>
                                 {contest.isActive ? '公開中' : '非公開'}
                               </span>
-                              <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                                {contest.category}
-                              </span>
                             </div>
                         
                             {contest.description && (
@@ -608,28 +519,26 @@ export default function AdminContestsPage() {
                               {contest.startDate && (
                                 <span>開始: {new Date(contest.startDate).toLocaleDateString('ja-JP')}</span>
                               )}
-                              {contest.endDate && (
-                                <span>終了: {new Date(contest.endDate).toLocaleDateString('ja-JP')}</span>
-                              )}
                               {contest.area && (
                                 <span>エリア: {contest.area}</span>
-                              )}
-                              {contest.amount && (
-                                <span className="font-semibold text-blue-600">金額: {contest.amount}</span>
                               )}
                               <span>主催者: {contest.organizer}</span>
                             </div>
                             
-                            {contest.tags.length > 0 && (
-                              <div className="mt-2 flex flex-wrap gap-1">
-                                {contest.tags.map((tag, index) => (
-                                  <span
-                                    key={index}
-                                    className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))}
+                            {(contest.targetArea || contest.targetAudience || contest.incentive || contest.operatingCompany) && (
+                              <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
+                                {contest.targetArea && (
+                                  <span>対象領域: {contest.targetArea}</span>
+                                )}
+                                {contest.targetAudience && (
+                                  <span>対象者: {contest.targetAudience}</span>
+                                )}
+                                {contest.incentive && (
+                                  <span>インセンティブ: {contest.incentive}</span>
+                                )}
+                                {contest.operatingCompany && (
+                                  <span>運営企業: {contest.operatingCompany}</span>
+                                )}
                               </div>
                             )}
                           </div>

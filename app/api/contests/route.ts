@@ -6,8 +6,6 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const area = searchParams.get("area");
-    const organizerType = searchParams.get("organizerType");
-    const category = searchParams.get("category");
     const search = searchParams.get("search");
     const admin = searchParams.get("admin"); // 管理画面用フラグ
 
@@ -22,20 +20,15 @@ export async function GET(request: NextRequest) {
       where.area = area;
     }
 
-    if (organizerType) {
-      where.organizerType = organizerType;
-    }
-
-    if (category) {
-      where.category = category;
-    }
-
     if (search) {
       where.OR = [
         { title: { contains: search, mode: "insensitive" } },
         { description: { contains: search, mode: "insensitive" } },
         { organizer: { contains: search, mode: "insensitive" } },
-        { tags: { has: search } },
+        { targetArea: { contains: search, mode: "insensitive" } },
+        { targetAudience: { contains: search, mode: "insensitive" } },
+        { incentive: { contains: search, mode: "insensitive" } },
+        { operatingCompany: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -44,23 +37,9 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
-      include: {
-        createdByUser: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
     });
 
-    // タグを配列に変換
-    const contestsWithArrayTags = contests.map(contest => ({
-      ...contest,
-      tags: contest.tags ? contest.tags.split(',') : []
-    }));
-
-    return NextResponse.json(contestsWithArrayTags);
+    return NextResponse.json(contests);
   } catch (error) {
     console.error("Error fetching contests:", error);
     return NextResponse.json(
@@ -79,22 +58,21 @@ export async function POST(request: NextRequest) {
     const {
       title,
       description,
-      content,
       imageUrl,
       deadline,
       startDate,
-      endDate,
       area,
       organizer,
       organizerType,
-      category,
-      tags,
       website,
-      amount,
+      targetArea,
+      targetAudience,
+      incentive,
+      operatingCompany,
     } = body;
 
     // バリデーション
-    if (!title || !organizer || !organizerType || !category) {
+    if (!title || !organizer) {
       return NextResponse.json(
         { error: "必須フィールドが不足しています" },
         { status: 400 }
@@ -104,7 +82,6 @@ export async function POST(request: NextRequest) {
     // 日付のバリデーション
     const deadlineDate = deadline ? new Date(deadline) : null;
     const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
     
     if (deadlineDate && isNaN(deadlineDate.getTime())) {
       return NextResponse.json(
@@ -120,37 +97,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (end && isNaN(end.getTime())) {
-      return NextResponse.json(
-        { error: "終了日が無効です" },
-        { status: 400 }
-      );
-    }
-
-    if (start && end && end < start) {
-      return NextResponse.json(
-        { error: "終了日は開始日より後である必要があります" },
-        { status: 400 }
-      );
-    }
-
     const contest = await prisma.contest.create({
       data: {
         title,
         description,
-        content,
         imageUrl,
         deadline: deadlineDate,
         startDate: start,
-        endDate: end,
         area,
         organizer,
         organizerType,
-        category,
-        tags: tags ? tags.join(',') : null,
         website,
-        amount,
-        createdBy: user.id,
+        targetArea,
+        targetAudience,
+        incentive,
+        operatingCompany,
       },
     });
 

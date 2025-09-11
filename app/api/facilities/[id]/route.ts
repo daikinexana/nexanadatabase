@@ -5,11 +5,12 @@ import { requireAdmin } from "@/lib/auth";
 // 施設の詳細取得
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const facility = await prisma.facility.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
     });
 
     if (!facility) {
@@ -32,12 +33,13 @@ export async function GET(
 // 施設の更新
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 管理者権限を確認
     const user = await requireAdmin();
     
+    const resolvedParams = await params;
     const body = await request.json();
     const {
       title,
@@ -65,7 +67,7 @@ export async function PUT(
 
     // 施設が存在するか確認
     const existingFacility = await prisma.facility.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
     });
 
     if (!existingFacility) {
@@ -76,7 +78,7 @@ export async function PUT(
     }
 
     const facility = await prisma.facility.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: {
         title,
         description,
@@ -122,15 +124,16 @@ export async function PUT(
 // 施設の削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 管理者権限を確認
     const user = await requireAdmin();
     
+    const resolvedParams = await params;
     // 施設が存在するか確認
     const existingFacility = await prisma.facility.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
     });
 
     if (!existingFacility) {
@@ -141,7 +144,7 @@ export async function DELETE(
     }
 
     await prisma.facility.delete({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
     });
 
     return NextResponse.json({ message: "施設が削除されました" });
@@ -172,18 +175,19 @@ export async function DELETE(
 // 施設のステータス更新（公開/非公開）
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 管理者権限を確認
     const user = await requireAdmin();
     
+    const resolvedParams = await params;
     const body = await request.json();
     const { isActive } = body;
 
     // 施設が存在するか確認
     const existingFacility = await prisma.facility.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
     });
 
     if (!existingFacility) {
@@ -194,7 +198,7 @@ export async function PATCH(
     }
 
     const facility = await prisma.facility.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: { isActive },
     });
 
