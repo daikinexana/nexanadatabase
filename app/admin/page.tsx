@@ -1,80 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
 import { Trophy, Newspaper, BookOpen, Building, Calendar, Handshake } from "lucide-react";
 
-// サンプルデータ（実際の実装ではAPIから取得）
-const sampleData = {
-  contests: [
-    {
-      id: "1",
-      title: "NEXCO東日本『E-NEXCO OPEN INNOVATION PROGRAM 2025』",
-      deadline: new Date("2025-09-17"),
-      organizer: "東日本高速道路株式会社",
-      category: "INNOVATION_CHALLENGE",
-      isActive: true,
-      createdAt: new Date("2025-08-01"),
-    },
-    {
-      id: "2",
-      title: "渋沢MIXオープンイノベーションプログラム Canvas",
-      deadline: new Date("2025-10-10"),
-      organizer: "埼玉県",
-      category: "STARTUP_CONTEST",
-      isActive: true,
-      createdAt: new Date("2025-08-02"),
-    },
-  ],
-  news: [
-    {
-      id: "1",
-      title: "終活プラットフォーム「SouSou」、プレシリーズA追加調達で累計3億円超",
-      company: "そうそう",
-      type: "FUNDING",
-      amount: "3億円",
-      publishedAt: new Date("2025-09-02"),
-      isActive: true,
-      createdAt: new Date("2025-09-02"),
-    },
-    {
-      id: "2",
-      title: "ドクターズプライム、シリーズA完結で4行から4億2,000万円デット調達",
-      company: "ドクターズプライム",
-      type: "FUNDING",
-      amount: "4億2,000万円",
-      publishedAt: new Date("2025-09-02"),
-      isActive: true,
-      createdAt: new Date("2025-09-02"),
-    },
-  ],
-  knowledge: [
-    {
-      id: "1",
-      title: "バイブコーディングは本格開発に使えるの？——PolyscapeのAI駆動開発",
-      category: "AI",
-      author: "kigoyama",
-      publishedAt: new Date("2025-08-26"),
-      isActive: true,
-      createdAt: new Date("2025-08-26"),
-    },
-    {
-      id: "2",
-      title: "あるようでなかった「賃貸初期費用の分割払い」で急成長——20億円調達、40万人が利用するスムーズとは？",
-      category: "FINTECH",
-      author: "kigoyama",
-      publishedAt: new Date("2025-08-26"),
-      isActive: true,
-      createdAt: new Date("2025-08-26"),
-    },
-  ],
-};
-
 export default function AdminPage() {
-  const [data] = useState(sampleData);
 
   return (
     <AdminGuard>
@@ -197,68 +129,6 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* 統計情報 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <Trophy className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        コンテスト数
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        {data.contests.length}
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <Newspaper className="h-6 w-6 text-green-600" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        ニュース数
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        {data.news.length}
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <BookOpen className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        ナレッジ数
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        {data.knowledge.length}
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <Footer />

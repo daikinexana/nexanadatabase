@@ -11,17 +11,17 @@ interface OpenCall {
   id: string;
   title: string;
   description?: string;
+  imageUrl?: string;
   deadline?: string;
   startDate?: string;
-  endDate?: string;
-  category: string;
   area?: string;
   organizer: string;
   organizerType: string;
-  amount?: string;
   website?: string;
-  contact?: string;
-  tags: string[];
+  targetArea?: string;
+  targetAudience?: string;
+  openCallType?: string;
+  availableResources?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -34,22 +34,19 @@ export default function AdminOpenCallsPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    content: '',
     imageUrl: '',
     deadline: '',
     startDate: '',
-    endDate: '',
-    category: 'PARTNERSHIP' as const,
     area: '',
     organizer: '',
-    organizerType: 'GOVERNMENT' as const,
-    amount: '',
+    organizerType: '',
     website: '',
-    contact: '',
-    tags: [] as string[],
+    targetArea: '',
+    targetAudience: '',
+    openCallType: '',
+    availableResources: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tagInput, setTagInput] = useState('');
 
   useEffect(() => {
     fetchOpenCalls();
@@ -115,17 +112,6 @@ export default function AdminOpenCallsPage() {
     });
   };
 
-  const getCategoryLabel = (category: string) => {
-    const categoryLabels: { [key: string]: string } = {
-      PARTNERSHIP: 'パートナーシップ',
-      COLLABORATION: 'コラボレーション',
-      CHALLENGE: 'チャレンジ',
-      INNOVATION: 'イノベーション',
-      RESEARCH: '研究',
-      OTHER: 'その他',
-    };
-    return categoryLabels[category] || category;
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -135,22 +121,6 @@ export default function AdminOpenCallsPage() {
     }));
   };
 
-  const handleTagAdd = () => {
-    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, tagInput.trim()]
-      }));
-      setTagInput('');
-    }
-  };
-
-  const handleTagRemove = (tagToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,19 +141,17 @@ export default function AdminOpenCallsPage() {
         setFormData({
           title: '',
           description: '',
-          content: '',
           imageUrl: '',
           deadline: '',
           startDate: '',
-          endDate: '',
-          category: 'PARTNERSHIP',
           area: '',
           organizer: '',
-          organizerType: 'GOVERNMENT',
-          amount: '',
+          organizerType: '',
           website: '',
-          contact: '',
-          tags: [],
+          targetArea: '',
+          targetAudience: '',
+          openCallType: '',
+          availableResources: '',
         });
         setShowCreateForm(false);
         alert('公募が正常に追加されました');
@@ -287,41 +255,35 @@ export default function AdminOpenCallsPage() {
                     />
                   </div>
 
-                  {/* カテゴリ */}
+                  {/* 対象領域 */}
                   <div>
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                      カテゴリ <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      id="category"
-                      name="category"
-                      value={formData.category}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="PARTNERSHIP">パートナーシップ</option>
-                      <option value="COLLABORATION">コラボレーション</option>
-                      <option value="CHALLENGE">チャレンジ</option>
-                      <option value="INNOVATION">イノベーション</option>
-                      <option value="RESEARCH">研究</option>
-                      <option value="OTHER">その他</option>
-                    </select>
-                  </div>
-
-                  {/* 助成金額 */}
-                  <div>
-                    <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
-                      助成金額・規模
+                    <label htmlFor="targetArea" className="block text-sm font-medium text-gray-700 mb-2">
+                      対象領域
                     </label>
                     <input
                       type="text"
-                      id="amount"
-                      name="amount"
-                      value={formData.amount}
+                      id="targetArea"
+                      name="targetArea"
+                      value={formData.targetArea}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="例: 最大500万円、無料提供など"
+                      placeholder="例: AI、IoT、バイオテクノロジーなど"
+                    />
+                  </div>
+
+                  {/* 対象者 */}
+                  <div>
+                    <label htmlFor="targetAudience" className="block text-sm font-medium text-gray-700 mb-2">
+                      対象者
+                    </label>
+                    <input
+                      type="text"
+                      id="targetAudience"
+                      name="targetAudience"
+                      value={formData.targetAudience}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="例: スタートアップ、中小企業、研究機関など"
                     />
                   </div>
 
@@ -355,18 +317,19 @@ export default function AdminOpenCallsPage() {
                     />
                   </div>
 
-                  {/* 終了日 */}
+                  {/* 公募タイプ */}
                   <div>
-                    <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-2">
-                      終了日
+                    <label htmlFor="openCallType" className="block text-sm font-medium text-gray-700 mb-2">
+                      公募タイプ
                     </label>
                     <input
-                      type="datetime-local"
-                      id="endDate"
-                      name="endDate"
-                      value={formData.endDate}
+                      type="text"
+                      id="openCallType"
+                      name="openCallType"
+                      value={formData.openCallType}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="例: 助成金、補助金、コンテスト、パートナーシップなど"
                     />
                   </div>
 
@@ -408,23 +371,16 @@ export default function AdminOpenCallsPage() {
                     <label htmlFor="organizerType" className="block text-sm font-medium text-gray-700 mb-2">
                       主催者タイプ <span className="text-red-500">*</span>
                     </label>
-                    <select
+                    <input
+                      type="text"
                       id="organizerType"
                       name="organizerType"
                       value={formData.organizerType}
                       onChange={handleInputChange}
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="GOVERNMENT">政府・自治体</option>
-                      <option value="VC">ベンチャーキャピタル</option>
-                      <option value="CVC">コーポレートベンチャーキャピタル</option>
-                      <option value="BANK">銀行</option>
-                      <option value="REAL_ESTATE">不動産</option>
-                      <option value="CORPORATION">企業</option>
-                      <option value="RESEARCH_INSTITUTION">研究機関</option>
-                      <option value="OTHER">その他</option>
-                    </select>
+                      placeholder="例: 政府・自治体、企業、研究機関など"
+                    />
                   </div>
 
                   {/* ウェブサイト */}
@@ -443,19 +399,19 @@ export default function AdminOpenCallsPage() {
                     />
                   </div>
 
-                  {/* 連絡先 */}
+                  {/* 提供可能なリソース/技術 */}
                   <div>
-                    <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-2">
-                      連絡先
+                    <label htmlFor="availableResources" className="block text-sm font-medium text-gray-700 mb-2">
+                      提供可能なリソース/技術
                     </label>
                     <input
                       type="text"
-                      id="contact"
-                      name="contact"
-                      value={formData.contact}
+                      id="availableResources"
+                      name="availableResources"
+                      value={formData.availableResources}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="電話番号やメールアドレス"
+                      placeholder="例: 資金、技術支援、ネットワーク、施設など"
                     />
                   </div>
 
@@ -475,64 +431,6 @@ export default function AdminOpenCallsPage() {
                     />
                   </div>
 
-                  {/* タグ */}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      タグ
-                    </label>
-                    <div className="flex gap-2 mb-2">
-                      <input
-                        type="text"
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleTagAdd())}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="タグを入力してEnterキーを押すか追加ボタンをクリック"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleTagAdd}
-                        className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                      >
-                        追加
-                      </button>
-                    </div>
-                    {formData.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {formData.tags.map((tag, index) => (
-                          <span
-                            key={index}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full"
-                          >
-                            {tag}
-                            <button
-                              type="button"
-                              onClick={() => handleTagRemove(tag)}
-                              className="ml-1 text-purple-600 hover:text-purple-800"
-                            >
-                              ×
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 詳細内容 */}
-                  <div className="md:col-span-2">
-                    <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
-                      詳細内容（Markdown）
-                    </label>
-                    <textarea
-                      id="content"
-                      name="content"
-                      value={formData.content}
-                      onChange={handleInputChange}
-                      rows={6}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="公募の詳細な説明をMarkdown形式で入力してください"
-                    />
-                  </div>
                 </div>
 
                 {/* ボタン */}
@@ -591,9 +489,11 @@ export default function AdminOpenCallsPage() {
                           }`}>
                             {openCall.isActive ? '公開中' : '非公開'}
                           </span>
-                          <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
-                            {getCategoryLabel(openCall.category)}
-                          </span>
+                          {openCall.openCallType && (
+                            <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
+                              {openCall.openCallType}
+                            </span>
+                          )}
                         </div>
                         
                         {openCall.description && (
@@ -609,28 +509,23 @@ export default function AdminOpenCallsPage() {
                           {openCall.startDate && (
                             <span>開始: {formatDate(openCall.startDate)}</span>
                           )}
-                          {openCall.endDate && (
-                            <span>終了: {formatDate(openCall.endDate)}</span>
-                          )}
                           {openCall.area && (
                             <span>エリア: {openCall.area}</span>
                           )}
-                          {openCall.amount && (
-                            <span>金額: {openCall.amount}</span>
+                          {openCall.targetArea && (
+                            <span>対象領域: {openCall.targetArea}</span>
+                          )}
+                          {openCall.targetAudience && (
+                            <span>対象者: {openCall.targetAudience}</span>
                           )}
                           <span>主催者: {openCall.organizer}</span>
                         </div>
                         
-                        {openCall.tags.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {openCall.tags.map((tag, index) => (
-                              <span
-                                key={index}
-                                className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded"
-                              >
-                                {tag}
-                              </span>
-                            ))}
+                        {openCall.availableResources && (
+                          <div className="mt-2">
+                            <span className="text-sm text-gray-600">
+                              <strong>提供リソース:</strong> {openCall.availableResources}
+                            </span>
                           </div>
                         )}
                       </div>

@@ -17,7 +17,6 @@ model User {
   updatedAt       DateTime         @updatedAt
   knowledge       Knowledge[]
   news            News[]
-  openCalls       OpenCall[]
   posts           Post[]
 
   @@map("users")
@@ -68,27 +67,23 @@ model Event {
 }
 
 model OpenCall {
-  id            String           @id @default(cuid())
-  title         String
-  description   String?
-  content       String?
-  imageUrl      String?
-  deadline      DateTime?
-  startDate     DateTime?
-  endDate       DateTime?
-  category      OpenCallCategory
-  area          String?
-  organizer     String
-  organizerType String
-  amount        String?
-  website       String?
-  contact       String?
-  tags          String?
-  isActive      Boolean          @default(true)
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  createdBy     String
-  createdByUser User             @relation(fields: [createdBy], references: [id])
+  id                    String   @id @default(cuid())
+  title                 String
+  description           String?
+  imageUrl              String?
+  deadline              DateTime?
+  startDate             DateTime?
+  area                  String?
+  organizer             String
+  organizerType         String
+  website               String?
+  targetArea            String?  // 対象領域
+  targetAudience        String?  // 対象者
+  openCallType          String?  // 公募タイプ
+  availableResources    String?  // 提供可能なリソース/技術
+  isActive              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
   @@map("open_calls")
 }
@@ -186,14 +181,6 @@ enum UserRole {
 }
 
 
-enum OpenCallCategory {
-  PARTNERSHIP
-  COLLABORATION
-  CHALLENGE
-  INNOVATION
-  RESEARCH
-  OTHER
-}
 
 
 enum NewsType {

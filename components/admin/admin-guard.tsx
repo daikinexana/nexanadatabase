@@ -21,41 +21,53 @@ export default function AdminGuard({ children }: AdminGuardProps) {
       clearTimeout(fetchTimeoutRef.current);
     }
 
-    if (isLoaded && !user) {
+    // Clerkがまだ読み込み中の場合は何もしない
+    if (!isLoaded) {
+      return;
+    }
+
+    // ユーザーが認証されていない場合はサインインページにリダイレクト
+    if (!user) {
+      console.log("No user found, redirecting to sign-in");
       router.push("/sign-in");
+      setIsCheckingRole(false);
       return;
     }
     
-    if (isLoaded && user) {
-      // デバウンス機能を追加（500ms待機）
-      fetchTimeoutRef.current = setTimeout(() => {
-        // データベースからユーザー情報を取得
-        fetch("/api/user/me")
-          .then(res => {
-            if (!res.ok) {
-              if (res.status === 401) {
-                // 認証されていない場合はサインインページにリダイレクト
-                router.push("/sign-in");
-                return;
-              }
-              throw new Error(`HTTP error! status: ${res.status}`);
+    // ユーザーが認証されている場合、データベースからユーザー情報を取得
+    console.log("User found, fetching user data from database");
+    fetchTimeoutRef.current = setTimeout(() => {
+      fetch("/api/user/me")
+        .then(res => {
+          if (!res.ok) {
+            if (res.status === 401) {
+              console.log("Unauthorized, redirecting to sign-in");
+              router.push("/sign-in");
+              return;
             }
-            return res.json();
-          })
-          .then(data => {
-            if (data.user) {
-              setUserRole(data.user.role);
-            }
-            setIsCheckingRole(false);
-          })
-          .catch(error => {
-            console.error("Error fetching user role:", error);
-            // エラーの場合はサインインページにリダイレクト
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then(data => {
+          console.log("User data received:", data);
+          if (data && data.user) {
+            setUserRole(data.user.role);
+          } else {
+            console.error("No user data received:", data);
+            setUserRole(null);
+            // ユーザーデータが取得できない場合はサインインページにリダイレクト
             router.push("/sign-in");
-            setIsCheckingRole(false);
-          });
-      }, 500);
-    }
+          }
+          setIsCheckingRole(false);
+        })
+        .catch(error => {
+          console.error("Error fetching user role:", error);
+          // エラーの場合はサインインページにリダイレクト
+          router.push("/sign-in");
+          setIsCheckingRole(false);
+        });
+    }, 500);
 
     // クリーンアップ関数
     return () => {

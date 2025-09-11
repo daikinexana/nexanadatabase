@@ -22,16 +22,15 @@ export async function GET(request: NextRequest) {
       where.organizerType = organizerType;
     }
 
-    if (category) {
-      where.category = category;
-    }
-
     if (search) {
       where.OR = [
         { title: { contains: search, mode: "insensitive" } },
         { description: { contains: search, mode: "insensitive" } },
         { organizer: { contains: search, mode: "insensitive" } },
-        { tags: { has: search } },
+        { targetArea: { contains: search, mode: "insensitive" } },
+        { targetAudience: { contains: search, mode: "insensitive" } },
+        { openCallType: { contains: search, mode: "insensitive" } },
+        { availableResources: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -40,23 +39,9 @@ export async function GET(request: NextRequest) {
       orderBy: {
         deadline: "asc",
       },
-      include: {
-        createdByUser: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
     });
 
-    // タグを配列に変換
-    const openCallsWithArrayTags = openCalls.map(openCall => ({
-      ...openCall,
-      tags: openCall.tags ? openCall.tags.split(',') : []
-    }));
-
-    return NextResponse.json(openCallsWithArrayTags);
+    return NextResponse.json(openCalls);
   } catch (error) {
     console.error("Error fetching open calls:", error);
     return NextResponse.json(
@@ -75,23 +60,21 @@ export async function POST(request: NextRequest) {
     const {
       title,
       description,
-      content,
       imageUrl,
       deadline,
       startDate,
-      endDate,
-      category,
       area,
       organizer,
       organizerType,
-      amount,
       website,
-      contact,
-      tags,
+      targetArea,
+      targetAudience,
+      openCallType,
+      availableResources,
     } = body;
 
     // バリデーション
-    if (!title || !organizer || !organizerType || !category) {
+    if (!title || !organizer || !organizerType) {
       return NextResponse.json(
         { error: "必須フィールドが不足しています" },
         { status: 400 }
@@ -101,7 +84,6 @@ export async function POST(request: NextRequest) {
     // 日付のバリデーション
     const deadlineDate = deadline ? new Date(deadline) : null;
     const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
     
     if (deadlineDate && isNaN(deadlineDate.getTime())) {
       return NextResponse.json(
@@ -117,38 +99,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (end && isNaN(end.getTime())) {
-      return NextResponse.json(
-        { error: "終了日が無効です" },
-        { status: 400 }
-      );
-    }
-
-    if (start && end && end < start) {
-      return NextResponse.json(
-        { error: "終了日は開始日より後である必要があります" },
-        { status: 400 }
-      );
-    }
-
     const openCall = await prisma.openCall.create({
       data: {
         title,
         description,
-        content,
         imageUrl,
         deadline: deadlineDate,
         startDate: start,
-        endDate: end,
-        category,
         area,
         organizer,
         organizerType,
-        amount,
         website,
-        contact,
-        tags: tags ? tags.join(',') : null,
-        createdBy: user.id,
+        targetArea,
+        targetAudience,
+        openCallType,
+        availableResources,
       },
     });
 
