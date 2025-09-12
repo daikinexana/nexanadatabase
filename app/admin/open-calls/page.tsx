@@ -22,6 +22,8 @@ interface OpenCall {
   targetAudience?: string;
   openCallType?: string;
   availableResources?: string;
+  resourceType?: string;
+  operatingCompany?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -45,6 +47,8 @@ export default function AdminOpenCallsPage() {
     targetAudience: '',
     openCallType: '',
     availableResources: '',
+    resourceType: '',
+    operatingCompany: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -152,6 +156,8 @@ export default function AdminOpenCallsPage() {
           targetAudience: '',
           openCallType: '',
           availableResources: '',
+          resourceType: '',
+          operatingCompany: '',
         });
         setShowCreateForm(false);
         alert('公募が正常に追加されました');
@@ -415,6 +421,38 @@ export default function AdminOpenCallsPage() {
                     />
                   </div>
 
+                  {/* 提供可能なリソース/技術タイプ */}
+                  <div>
+                    <label htmlFor="resourceType" className="block text-sm font-medium text-gray-700 mb-2">
+                      提供可能なリソース/技術タイプ
+                    </label>
+                    <input
+                      type="text"
+                      id="resourceType"
+                      name="resourceType"
+                      value={formData.resourceType}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="例: 資金提供、技術支援、人材派遣、施設提供など"
+                    />
+                  </div>
+
+                  {/* 運営企業 */}
+                  <div>
+                    <label htmlFor="operatingCompany" className="block text-sm font-medium text-gray-700 mb-2">
+                      運営企業
+                    </label>
+                    <input
+                      type="text"
+                      id="operatingCompany"
+                      name="operatingCompany"
+                      value={formData.operatingCompany}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="例: 株式会社○○、NPO法人○○など"
+                    />
+                  </div>
+
                   {/* 画像URL */}
                   <div className="md:col-span-2">
                     <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-2">
@@ -525,6 +563,20 @@ export default function AdminOpenCallsPage() {
                           <div className="mt-2">
                             <span className="text-sm text-gray-600">
                               <strong>提供リソース:</strong> {openCall.availableResources}
+                            </span>
+                          </div>
+                        )}
+                        {openCall.resourceType && (
+                          <div className="mt-1">
+                            <span className="text-sm text-gray-600">
+                              <strong>リソースタイプ:</strong> {openCall.resourceType}
+                            </span>
+                          </div>
+                        )}
+                        {openCall.operatingCompany && (
+                          <div className="mt-1">
+                            <span className="text-sm text-gray-600">
+                              <strong>運営企業:</strong> {openCall.operatingCompany}
                             </span>
                           </div>
                         )}

@@ -6,7 +6,6 @@ import Link from "next/link";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
-import ImageUpload from "@/components/ui/image-upload";
 import { ArrowLeft, Save, X } from "lucide-react";
 
 interface Contest {
@@ -125,12 +124,6 @@ export default function EditContestPage({ params }: { params: Promise<{ id: stri
     }
   };
 
-  const handleImageUpload = (imageUrl: string) => {
-    setFormData(prev => ({
-      ...prev,
-      imageUrl
-    }));
-  };
 
   if (loading) {
     return (
@@ -228,22 +221,14 @@ export default function EditContestPage({ params }: { params: Promise<{ id: stri
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     主催者タイプ
                   </label>
-                  <select
+                  <input
+                    type="text"
                     name="organizerType"
                     value={formData.organizerType}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">選択してください</option>
-                    <option value="行政">行政</option>
-                    <option value="VC">VC</option>
-                    <option value="CVC">CVC</option>
-                    <option value="銀行">銀行</option>
-                    <option value="不動産">不動産</option>
-                    <option value="企業">企業</option>
-                    <option value="研究機関">研究機関</option>
-                    <option value="その他">その他</option>
-                  </select>
+                    placeholder="例: 行政、企業、研究機関、VC、CVC、銀行、不動産、その他"
+                  />
                 </div>
 
                 <div className="md:col-span-2">
@@ -384,12 +369,15 @@ export default function EditContestPage({ params }: { params: Promise<{ id: stri
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    画像
+                    画像URL
                   </label>
-                  <ImageUpload
+                  <input
+                    type="url"
+                    name="imageUrl"
                     value={formData.imageUrl}
-                    onChange={handleImageUpload}
-                    type="contest"
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="https://example.com/image.jpg"
                   />
                 </div>
 

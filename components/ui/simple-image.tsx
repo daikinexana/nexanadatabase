@@ -10,6 +10,7 @@ interface SimpleImageProps {
   fill?: boolean;
   width?: number;
   height?: number;
+  priority?: boolean;
 }
 
 export default function SimpleImage({ 
@@ -18,7 +19,8 @@ export default function SimpleImage({
   className = "",
   fill = false,
   width,
-  height 
+  height,
+  priority = false
 }: SimpleImageProps) {
   const [hasError, setHasError] = useState(false);
 
@@ -41,6 +43,7 @@ export default function SimpleImage({
       style={fill ? { width: '100%', height: '100%', objectFit: 'cover' } : {}}
       width={width}
       height={height}
+      loading={priority ? "eager" : "lazy"}
       onError={() => setHasError(true)}
     />
   );

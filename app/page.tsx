@@ -2,12 +2,12 @@ import Link from "next/link";
 import { Metadata } from "next";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
-import { Trophy, Calendar, Gift, Newspaper, BookOpen, TrendingUp, Building, Package, Cpu, Handshake } from "lucide-react";
+import { Trophy, Calendar, Newspaper, BookOpen, Building, Handshake } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Nexana Database - スタートアップ向け情報キュレーションサイト",
   description: "スタートアップ向けのコンテスト、展示会、公募、ニュース、ナレッジベースを提供する情報キュレーションサイト",
-  keywords: "スタートアップ, コンテスト, 展示会, 公募, 助成金, 投資, M&A, イノベーション",
+  keywords: "スタートアップ, コンテスト, 展示会, 公募, 投資, M&A, イノベーション",
   openGraph: {
     title: "Nexana Database - スタートアップ向け情報キュレーションサイト",
     description: "スタートアップ向けのコンテスト、展示会、公募、ニュース、ナレッジベースを提供する情報キュレーションサイト",
@@ -46,27 +46,6 @@ const features = [
     color: "bg-purple-500",
   },
   {
-    name: "助成金・補助金",
-    description: "スタートアップ向けの助成金・補助金情報を集約",
-    href: "/subsidies",
-    icon: Gift,
-    color: "bg-yellow-500",
-  },
-  {
-    name: "アセット提供公募",
-    description: "資金、設備、施設、技術、知識、ネットワークの提供公募情報",
-    href: "/asset-provisions",
-    icon: Package,
-    color: "bg-orange-500",
-  },
-  {
-    name: "提供可能な技術情報",
-    description: "企業や研究機関が提供可能な技術・ノウハウ情報",
-    href: "/technologies",
-    icon: Cpu,
-    color: "bg-cyan-500",
-  },
-  {
     name: "ニュース",
     description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信",
     href: "/news",
@@ -87,9 +66,6 @@ const stats = [
   { name: "施設紹介数", value: "50+" },
   { name: "展示会・イベント数", value: "80+" },
   { name: "公募情報", value: "100+" },
-  { name: "助成金・補助金", value: "120+" },
-  { name: "アセット提供公募", value: "100+" },
-  { name: "技術情報", value: "120+" },
   { name: "月間ニュース配信", value: "500+" },
 ];
 

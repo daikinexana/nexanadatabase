@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
         { targetAudience: { contains: search, mode: "insensitive" } },
         { openCallType: { contains: search, mode: "insensitive" } },
         { availableResources: { contains: search, mode: "insensitive" } },
+        { resourceType: { contains: search, mode: "insensitive" } },
+        { operatingCompany: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -40,6 +42,12 @@ export async function GET(request: NextRequest) {
         deadline: "asc",
       },
     });
+
+    // デバッグ用ログ
+    console.log("Fetched open calls:", openCalls.length);
+    if (openCalls.length > 0) {
+      console.log("First open call:", JSON.stringify(openCalls[0], null, 2));
+    }
 
     return NextResponse.json(openCalls);
   } catch (error) {
@@ -71,6 +79,8 @@ export async function POST(request: NextRequest) {
       targetAudience,
       openCallType,
       availableResources,
+      resourceType,
+      operatingCompany,
     } = body;
 
     // バリデーション
@@ -114,6 +124,8 @@ export async function POST(request: NextRequest) {
         targetAudience,
         openCallType,
         availableResources,
+        resourceType,
+        operatingCompany,
       },
     });
 

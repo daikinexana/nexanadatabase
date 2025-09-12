@@ -8,84 +8,90 @@ import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
 import { ArrowLeft, Save, X } from "lucide-react";
 
-interface Event {
+interface OpenCall {
   id: string;
   title: string;
   description?: string;
   imageUrl?: string;
-  startDate: string;
-  endDate?: string;
-  venue?: string;
+  deadline?: string;
+  startDate?: string;
   area?: string;
   organizer: string;
   organizerType: string;
   website?: string;
   targetArea?: string;
   targetAudience?: string;
+  openCallType?: string;
+  availableResources?: string;
+  resourceType?: string;
   operatingCompany?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export default function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
+export default function EditOpenCallPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const resolvedParams = use(params);
-  const [event, setEvent] = useState<Event | null>(null);
+  const [openCall, setOpenCall] = useState<OpenCall | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     imageUrl: '',
+    deadline: '',
     startDate: '',
-    endDate: '',
-    venue: '',
     area: '',
     organizer: '',
     organizerType: '',
     website: '',
     targetArea: '',
     targetAudience: '',
+    openCallType: '',
+    availableResources: '',
+    resourceType: '',
     operatingCompany: '',
     isActive: true,
   });
 
   useEffect(() => {
-    const fetchEvent = async () => {
+    const fetchOpenCall = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/events/${resolvedParams.id}`);
+        const response = await fetch(`/api/open-calls/${resolvedParams.id}`);
         if (response.ok) {
           const data = await response.json();
-          setEvent(data);
+          setOpenCall(data);
           setFormData({
             title: data.title || '',
             description: data.description || '',
             imageUrl: data.imageUrl || '',
+            deadline: data.deadline ? new Date(data.deadline).toISOString().slice(0, 16) : '',
             startDate: data.startDate ? new Date(data.startDate).toISOString().slice(0, 16) : '',
-            endDate: data.endDate ? new Date(data.endDate).toISOString().slice(0, 16) : '',
-            venue: data.venue || '',
             area: data.area || '',
             organizer: data.organizer || '',
             organizerType: data.organizerType || '',
             website: data.website || '',
             targetArea: data.targetArea || '',
             targetAudience: data.targetAudience || '',
+            openCallType: data.openCallType || '',
+            availableResources: data.availableResources || '',
+            resourceType: data.resourceType || '',
             operatingCompany: data.operatingCompany || '',
             isActive: data.isActive,
           });
         } else {
-          console.error("Failed to fetch event");
+          console.error("Failed to fetch open call");
         }
       } catch (error) {
-        console.error("Error fetching event:", error);
+        console.error("Error fetching open call:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchEvent();
+    fetchOpenCall();
   }, [resolvedParams.id]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -101,8 +107,8 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`/api/events/${resolvedParams.id}`, {
-        method: 'PUT',
+      const response = await fetch(`/api/open-calls/${resolvedParams.id}`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -110,15 +116,15 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
       });
 
       if (response.ok) {
-        alert('イベントが正常に更新されました');
-        router.push('/admin/events');
+        alert('公募が正常に更新されました');
+        router.push('/admin/open-calls');
       } else {
         const error = await response.json();
-        alert(`エラー: ${error.error || 'イベントの更新に失敗しました'}`);
+        alert(`エラー: ${error.error || '公募の更新に失敗しました'}`);
       }
     } catch (error) {
-      console.error('Error updating event:', error);
-      alert('イベントの更新に失敗しました');
+      console.error('Error updating open call:', error);
+      alert('公募の更新に失敗しました');
     } finally {
       setIsSubmitting(false);
     }
@@ -141,19 +147,19 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
     );
   }
 
-  if (!event) {
+  if (!openCall) {
     return (
       <AdminGuard>
         <div className="min-h-screen bg-gray-50">
           <Header />
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">イベントが見つかりません</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">公募が見つかりません</h1>
               <Link
-                href="/admin/events"
+                href="/admin/open-calls"
                 className="text-blue-600 hover:text-blue-800 font-medium"
               >
-                ← イベント一覧に戻る
+                ← 公募一覧に戻る
               </Link>
             </div>
           </div>
@@ -173,25 +179,25 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-4">
               <Link
-                href="/admin/events"
+                href="/admin/open-calls"
                 className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                イベント一覧に戻る
+                公募一覧に戻る
               </Link>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">イベント編集</h1>
-            <p className="text-gray-600 mt-2">イベント情報を編集します</p>
+            <h1 className="text-3xl font-bold text-gray-900">公募編集</h1>
+            <p className="text-gray-600 mt-2">公募情報を編集します</p>
           </div>
 
           {/* フォーム */}
           <div className="bg-white shadow rounded-lg">
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* イベント名 */}
+                {/* 公募名 */}
                 <div className="md:col-span-2">
                   <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-                    イベント名 <span className="text-red-500">*</span>
+                    公募名 <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -201,7 +207,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="イベント名を入力してください"
+                    placeholder="公募名を入力してください"
                   />
                 </div>
 
@@ -217,14 +223,14 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                     onChange={handleInputChange}
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="イベントの説明を入力してください"
+                    placeholder="公募の説明を入力してください"
                   />
                 </div>
 
                 {/* 開始日 */}
                 <div>
                   <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-2">
-                    開始日 <span className="text-red-500">*</span>
+                    開始日
                   </label>
                   <input
                     type="datetime-local"
@@ -232,39 +238,22 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                     name="startDate"
                     value={formData.startDate}
                     onChange={handleInputChange}
-                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
-                {/* 終了日 */}
+                {/* 締切日 */}
                 <div>
-                  <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-2">
-                    終了日
+                  <label htmlFor="deadline" className="block text-sm font-medium text-gray-700 mb-2">
+                    締切日
                   </label>
                   <input
                     type="datetime-local"
-                    id="endDate"
-                    name="endDate"
-                    value={formData.endDate}
+                    id="deadline"
+                    name="deadline"
+                    value={formData.deadline}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-
-                {/* 会場 */}
-                <div>
-                  <label htmlFor="venue" className="block text-sm font-medium text-gray-700 mb-2">
-                    会場
-                  </label>
-                  <input
-                    type="text"
-                    id="venue"
-                    name="venue"
-                    value={formData.venue}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="会場名を入力してください"
                   />
                 </div>
 
@@ -281,6 +270,22 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="都道府県を入力してください"
+                  />
+                </div>
+
+                {/* 公募タイプ */}
+                <div>
+                  <label htmlFor="openCallType" className="block text-sm font-medium text-gray-700 mb-2">
+                    公募タイプ
+                  </label>
+                  <input
+                    type="text"
+                    id="openCallType"
+                    name="openCallType"
+                    value={formData.openCallType}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="例: 助成金、補助金、コンテスト、パートナーシップなど"
                   />
                 </div>
 
@@ -346,7 +351,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                     value={formData.targetArea}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="対象となる領域を入力してください"
+                    placeholder="例: AI、IoT、バイオテクノロジーなど"
                   />
                 </div>
 
@@ -362,7 +367,39 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                     value={formData.targetAudience}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="対象となる人を入力してください"
+                    placeholder="例: スタートアップ、中小企業、研究機関など"
+                  />
+                </div>
+
+                {/* 提供可能なリソース/技術 */}
+                <div>
+                  <label htmlFor="availableResources" className="block text-sm font-medium text-gray-700 mb-2">
+                    提供可能なリソース/技術
+                  </label>
+                  <input
+                    type="text"
+                    id="availableResources"
+                    name="availableResources"
+                    value={formData.availableResources}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="例: 資金、技術支援、ネットワーク、施設など"
+                  />
+                </div>
+
+                {/* 提供可能なリソース/技術タイプ */}
+                <div>
+                  <label htmlFor="resourceType" className="block text-sm font-medium text-gray-700 mb-2">
+                    提供可能なリソース/技術タイプ
+                  </label>
+                  <input
+                    type="text"
+                    id="resourceType"
+                    name="resourceType"
+                    value={formData.resourceType}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="例: 資金提供、技術支援、人材派遣、施設提供など"
                   />
                 </div>
 
@@ -378,7 +415,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                     value={formData.operatingCompany}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="運営企業名を入力してください"
+                    placeholder="例: 株式会社○○、NPO法人○○など"
                   />
                 </div>
 
@@ -420,7 +457,7 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
               {/* ボタン */}
               <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
                 <Link
-                  href="/admin/events"
+                  href="/admin/open-calls"
                   className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
                 >
                   <X className="h-4 w-4" />

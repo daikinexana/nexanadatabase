@@ -4,11 +4,12 @@ import { requireAdmin } from "@/lib/auth";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const openCall = await prisma.openCall.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
     });
 
     if (!openCall) {
@@ -30,12 +31,13 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 管理者権限を確認
     await requireAdmin();
     
+    const resolvedParams = await params;
     const body = await request.json();
     const {
       title,
@@ -51,6 +53,8 @@ export async function PATCH(
       targetAudience,
       openCallType,
       availableResources,
+      resourceType,
+      operatingCompany,
       isActive,
     } = body;
 
@@ -87,10 +91,12 @@ export async function PATCH(
     if (targetAudience !== undefined) updateData.targetAudience = targetAudience;
     if (openCallType !== undefined) updateData.openCallType = openCallType;
     if (availableResources !== undefined) updateData.availableResources = availableResources;
+    if (resourceType !== undefined) updateData.resourceType = resourceType;
+    if (operatingCompany !== undefined) updateData.operatingCompany = operatingCompany;
     if (isActive !== undefined) updateData.isActive = isActive;
 
     const openCall = await prisma.openCall.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: updateData,
     });
 
@@ -121,14 +127,15 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 管理者権限を確認
     await requireAdmin();
     
+    const resolvedParams = await params;
     await prisma.openCall.delete({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
     });
 
     return NextResponse.json({ message: "公募が削除されました" });

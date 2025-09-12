@@ -8,86 +8,87 @@ datasource db {
 }
 
 model User {
-  id              String           @id @default(cuid())
-  clerkId         String           @unique
-  email           String           @unique
-  name            String?
-  role            UserRole         @default(MEMBER)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  knowledge       Knowledge[]
-  news            News[]
-  posts           Post[]
+  id        String      @id @default(cuid())
+  clerkId   String      @unique
+  email     String      @unique
+  name      String?
+  role      UserRole    @default(MEMBER)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  knowledge Knowledge[]
+  news      News[]
+  posts     Post[]
 
   @@map("users")
 }
 
 model Contest {
-  id              String   @id @default(cuid())
-  title           String
-  description     String?
-  imageUrl        String?
-  deadline        DateTime?
-  startDate       DateTime?
-  area            String?     // 国・都道府県
-  organizer       String      // 主催者
-  organizerType   String?     // 主催者タイプ
-  website         String?
-  targetArea      String?     // 対象領域
-  targetAudience  String?     // 対象者
-  incentive       String?     // インセンティブ
-  operatingCompany String?    // 運営企業
-  isActive        Boolean     @default(true)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id               String    @id @default(cuid())
+  title            String
+  description      String?
+  imageUrl         String?
+  deadline         DateTime?
+  startDate        DateTime?
+  area             String?
+  organizer        String
+  website          String?
+  isActive         Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  incentive        String?
+  operatingCompany String?
+  targetArea       String?
+  targetAudience   String?
+  organizerType    String?
 
   @@map("contests")
 }
 
 model Event {
-  id                String   @id @default(cuid())
-  title             String
-  description       String?
-  imageUrl          String?
-  startDate         DateTime
-  endDate           DateTime?
-  venue             String?
-  area              String?
-  organizer         String
-  organizerType     String
-  website           String?
-  targetArea        String?  // 対象領域
-  targetAudience    String?  // 対象者
-  operatingCompany  String?  // 運営企業
-  isActive          Boolean  @default(true)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id               String    @id @default(cuid())
+  title            String
+  description      String?
+  imageUrl         String?
+  startDate        DateTime
+  endDate          DateTime?
+  venue            String?
+  area             String?
+  organizer        String
+  website          String?
+  isActive         Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  organizerType    String
+  operatingCompany String?
+  targetArea       String?
+  targetAudience   String?
 
   @@map("events")
 }
 
 model OpenCall {
-  id                    String   @id @default(cuid())
-  title                 String
-  description           String?
-  imageUrl              String?
-  deadline              DateTime?
-  startDate             DateTime?
-  area                  String?
-  organizer             String
-  organizerType         String
-  website               String?
-  targetArea            String?  // 対象領域
-  targetAudience        String?  // 対象者
-  openCallType          String?  // 公募タイプ
-  availableResources    String?  // 提供可能なリソース/技術
-  isActive              Boolean  @default(true)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                 String    @id @default(cuid())
+  title              String
+  description        String?
+  imageUrl           String?
+  deadline           DateTime?
+  startDate          DateTime?
+  area               String?
+  organizer          String
+  website            String?
+  isActive           Boolean   @default(true)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  organizerType      String
+  availableResources String?
+  openCallType       String?
+  targetArea         String?
+  targetAudience     String?
+  resourceType       String?
+  operatingCompany   String?
 
   @@map("open_calls")
 }
-
 
 model News {
   id            String    @id @default(cuid())
@@ -154,8 +155,6 @@ model Facility {
   @@map("facilities")
 }
 
-
-
 model Post {
   id            String    @id @default(cuid())
   title         String
@@ -180,9 +179,6 @@ enum UserRole {
   ADMIN
 }
 
-
-
-
 enum NewsType {
   FUNDING
   M_AND_A
@@ -201,5 +197,3 @@ enum KnowledgeCategory {
   EDUTECH
   OTHER
 }
-
-

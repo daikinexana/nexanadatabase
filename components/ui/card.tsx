@@ -35,6 +35,10 @@ interface CardProps {
   // Contest specific fields
   incentive?: string;
   operatingCompany?: string;
+  // Open-call specific fields
+  openCallType?: string;
+  availableResources?: string;
+  resourceType?: string;
   onClick?: () => void;
 }
 
@@ -63,6 +67,9 @@ export default function Card({
   program,
   incentive,
   operatingCompany,
+  openCallType,
+  availableResources,
+  resourceType,
   onClick,
 }: CardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -146,6 +153,7 @@ export default function Card({
               src={imageUrl}
               alt={title}
               fill
+              priority
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
@@ -173,6 +181,24 @@ export default function Card({
             <div className="mb-3">
               <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs font-semibold rounded-full">
                 {getOrganizerTypeLabel(organizerType)}
+              </span>
+            </div>
+          )}
+
+          {/* 公募タイプ（open-call用） */}
+          {type === "open-call" && openCallType && (
+            <div className="mb-3">
+              <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-semibold rounded-full">
+                {openCallType}
+              </span>
+            </div>
+          )}
+
+          {/* 提供可能なリソース/技術タイプ（open-call用） */}
+          {type === "open-call" && resourceType && (
+            <div className="mb-3">
+              <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-semibold rounded-full">
+                {resourceType}
               </span>
             </div>
           )}
@@ -250,6 +276,7 @@ export default function Card({
                     src={imageUrl}
                     alt={title}
                     fill
+                    priority
                     className="object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
@@ -302,6 +329,30 @@ export default function Card({
                         <div className="mt-2">
                           <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-semibold rounded-full">
                             {getOrganizerTypeLabel(organizerType)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 公募タイプ（open-call用） */}
+                    {type === "open-call" && openCallType && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">公募タイプ</label>
+                        <div className="mt-2">
+                          <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-full">
+                            {openCallType}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 提供可能なリソース/技術タイプ（open-call用） */}
+                    {type === "open-call" && resourceType && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供可能なリソース/技術タイプ</label>
+                        <div className="mt-2">
+                          <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-600 text-white text-sm font-semibold rounded-full">
+                            {resourceType}
                           </span>
                         </div>
                       </div>
@@ -420,6 +471,120 @@ export default function Card({
                       <div>
                         <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">運営企業</label>
                         <p className="text-gray-900 mt-2 leading-relaxed">{operatingCompany}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Open-call固有の詳細情報 */}
+              {type === "open-call" && (targetArea || targetAudience || openCallType || area || organizer || operatingCompany || organizerType || resourceType || availableResources) && (
+                <div className="bg-white rounded-2xl p-6 shadow-sm">
+                  <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                    <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-pink-600 rounded-full mr-3"></div>
+                    詳細情報
+                  </h3>
+                  
+                  <div className="space-y-6">
+                    {targetArea && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象領域</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{targetArea}</p>
+                      </div>
+                    )}
+                    
+                    {targetAudience && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象者</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{targetAudience}</p>
+                      </div>
+                    )}
+
+                    {openCallType && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">公募タイプ</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{openCallType}</p>
+                      </div>
+                    )}
+
+                    {area && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">エリア</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{area}</p>
+                      </div>
+                    )}
+
+                    {organizer && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">主催者</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{organizer}</p>
+                      </div>
+                    )}
+
+                    {operatingCompany && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">運営企業</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{operatingCompany}</p>
+                      </div>
+                    )}
+
+                    {organizerType && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">主催者タイプ</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{getOrganizerTypeLabel(organizerType)}</p>
+                      </div>
+                    )}
+
+
+                    {resourceType && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供可能なリソース/技術タイプ</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed">{resourceType}</p>
+                      </div>
+                    )}
+
+                    {availableResources && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供可能なリソース/技術</label>
+                        <div className="mt-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border-l-4 border-blue-500">
+                          <div className="prose prose-sm max-w-none">
+                            <div className="text-gray-900 leading-relaxed whitespace-pre-line">
+                              {availableResources.split('\n').map((line, index) => {
+                                // 箇条書きや番号付きリストを検出
+                                if (line.trim().match(/^[\d\-\*\•]\s/)) {
+                                  return (
+                                    <div key={index} className="flex items-start space-x-2 mb-2">
+                                      <span className="text-blue-500 font-bold mt-1">•</span>
+                                      <span className="flex-1">{line.replace(/^[\d\-\*\•]\s/, '')}</span>
+                                    </div>
+                                  );
+                                }
+                                // 見出しを検出（## や ### で始まる行）
+                                if (line.trim().match(/^#{1,3}\s/)) {
+                                  const level = line.match(/^#{1,3}/)?.[0].length || 1;
+                                  const text = line.replace(/^#{1,3}\s/, '');
+                                  return (
+                                    <div key={index} className={`font-bold text-gray-900 mb-3 mt-4 ${
+                                      level === 1 ? 'text-lg' : level === 2 ? 'text-base' : 'text-sm'
+                                    }`}>
+                                      {text}
+                                    </div>
+                                  );
+                                }
+                                // 空行
+                                if (line.trim() === '') {
+                                  return <div key={index} className="h-2"></div>;
+                                }
+                                // 通常のテキスト
+                                return (
+                                  <div key={index} className="mb-2">
+                                    {line}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>

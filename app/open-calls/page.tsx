@@ -15,15 +15,16 @@ interface OpenCall {
   imageUrl?: string;
   deadline?: string;
   startDate?: string;
-  endDate?: string;
-  category: string;
   area?: string;
   organizer: string;
   organizerType: string;
-  amount?: string;
   website?: string;
-  contact?: string;
-  tags: string[];
+  targetArea?: string;
+  targetAudience?: string;
+  openCallType?: string;
+  availableResources?: string;
+  resourceType?: string;
+  operatingCompany?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -36,8 +37,7 @@ export default function OpenCallsPage() {
   const [filters, setFilters] = useState({
     area: undefined,
     organizerType: undefined,
-    category: undefined,
-    tags: [],
+    openCallType: undefined,
   });
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -50,6 +50,11 @@ export default function OpenCallsPage() {
         const response = await fetch("/api/open-calls");
         if (response.ok) {
           const data = await response.json();
+          console.log("Fetched open calls data:", data);
+          if (data.length > 0) {
+            console.log("First open call data:", data[0]);
+            console.log("Operating company:", data[0].operatingCompany);
+          }
           setOpenCalls(data);
         } else {
           console.error("Failed to fetch open calls");
@@ -75,9 +80,12 @@ export default function OpenCallsPage() {
           openCall.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           openCall.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           openCall.organizer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          openCall.tags.some((tag) =>
-            tag.toLowerCase().includes(searchTerm.toLowerCase())
-          )
+          openCall.targetArea?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          openCall.targetAudience?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          openCall.openCallType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          openCall.availableResources?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          openCall.resourceType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          openCall.operatingCompany?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -93,17 +101,10 @@ export default function OpenCallsPage() {
       );
     }
 
-    // カテゴリでフィルタリング
-    if (filters.category) {
+    // 公募タイプでフィルタリング
+    if (filters.openCallType) {
       filtered = filtered.filter(
-        (openCall) => openCall.category === filters.category
-      );
-    }
-
-    // タグでフィルタリング
-    if (filters.tags && filters.tags.length > 0) {
-      filtered = filtered.filter((openCall) =>
-        filters.tags.some((tag) => openCall.tags.includes(tag))
+        (openCall) => openCall.openCallType === filters.openCallType
       );
     }
 
@@ -138,7 +139,7 @@ export default function OpenCallsPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type="text"
-                  placeholder="公募名、主催者、カテゴリで検索..."
+                  placeholder="公募名、主催者、対象領域、公募タイプで検索..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -191,16 +192,17 @@ export default function OpenCallsPage() {
                 imageUrl={openCall.imageUrl}
                 deadline={openCall.deadline ? new Date(openCall.deadline) : undefined}
                 startDate={openCall.startDate ? new Date(openCall.startDate) : undefined}
-                endDate={openCall.endDate ? new Date(openCall.endDate) : undefined}
                 area={openCall.area}
                 organizer={openCall.organizer}
                 organizerType={openCall.organizerType}
-                category={openCall.category}
-                tags={openCall.tags}
                 website={openCall.website}
-                amount={openCall.amount}
+                targetArea={openCall.targetArea}
+                targetAudience={openCall.targetAudience}
+                openCallType={openCall.openCallType}
+                availableResources={openCall.availableResources}
+                resourceType={openCall.resourceType}
+                operatingCompany={openCall.operatingCompany}
                 type="open-call"
-                contact={openCall.contact}
               />
             ))}
           </div>
