@@ -39,7 +39,7 @@ export default function OpenCallsPage() {
     organizerType: undefined,
     openCallType: undefined,
   });
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [loading, setLoading] = useState(true);
 
   // データの取得
@@ -151,7 +151,7 @@ export default function OpenCallsPage() {
               className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
               <FilterIcon className="h-4 w-4 mr-2" />
-              フィルター
+              {showFilters ? "フィルターを隠す" : "フィルターを表示"}
             </button>
           </div>
 

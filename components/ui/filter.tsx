@@ -6,11 +6,12 @@ import { AREAS, ORGANIZER_TYPES, CONTEST_CATEGORIES, GRANT_CATEGORIES, NEWS_TYPE
 import CustomSelect from "./custom-select";
 
 interface FilterProps {
-  type: "contest" | "event" | "grant" | "news" | "knowledge" | "facility";
+  type: "contest" | "event" | "grant" | "news" | "knowledge" | "facility" | "open-call";
   filters: {
     area?: string;
     organizerType?: string;
     category?: string;
+    openCallType?: string;
     tags?: string[];
   };
   onFilterChange: (filters: any) => void;
@@ -29,6 +30,8 @@ export default function Filter({ type, filters, onFilterChange }: FilterProps) {
         return NEWS_TYPES;
       case "knowledge":
         return KNOWLEDGE_CATEGORIES;
+      case "open-call":
+        return [];
       default:
         return [];
     }
@@ -39,11 +42,12 @@ export default function Filter({ type, filters, onFilterChange }: FilterProps) {
       area: undefined,
       organizerType: undefined,
       category: undefined,
+      openCallType: undefined,
       tags: [],
     });
   };
 
-  const hasActiveFilters = filters.area || filters.organizerType || filters.category || (filters.tags && filters.tags.length > 0);
+  const hasActiveFilters = filters.area || filters.organizerType || filters.category || filters.openCallType || (filters.tags && filters.tags.length > 0);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
@@ -93,12 +97,15 @@ export default function Filter({ type, filters, onFilterChange }: FilterProps) {
           <div className="flex-shrink-0 w-48">
             <CustomSelect
               options={[
-                { value: "", label: "カテゴリ" },
+                { value: "", label: type === "open-call" ? "公募タイプ" : "カテゴリ" },
                 ...getCategoryOptions().map(category => ({ value: category.value, label: category.label }))
               ]}
-              value={filters.category || ""}
-              onChange={(value) => onFilterChange({ ...filters, category: value || undefined })}
-              placeholder="カテゴリ"
+              value={type === "open-call" ? (filters.openCallType || "") : (filters.category || "")}
+              onChange={(value) => onFilterChange({ 
+                ...filters, 
+                [type === "open-call" ? "openCallType" : "category"]: value || undefined 
+              })}
+              placeholder={type === "open-call" ? "公募タイプ" : "カテゴリ"}
             />
           </div>
         )}
@@ -128,11 +135,14 @@ export default function Filter({ type, filters, onFilterChange }: FilterProps) {
                 </button>
               </span>
             )}
-            {filters.category && (
+            {(filters.category || filters.openCallType) && (
               <span className="inline-flex items-center px-2 py-1 bg-purple-50 text-purple-700 text-xs rounded-full border border-purple-200">
-                {getCategoryOptions().find(c => c.value === filters.category)?.label}
+                {getCategoryOptions().find(c => c.value === (filters.category || filters.openCallType))?.label}
                 <button
-                  onClick={() => onFilterChange({ ...filters, category: undefined })}
+                  onClick={() => onFilterChange({ 
+                    ...filters, 
+                    [type === "open-call" ? "openCallType" : "category"]: undefined 
+                  })}
                   className="ml-1 text-purple-500 hover:text-purple-700"
                 >
                   <X className="h-3 w-3" />
