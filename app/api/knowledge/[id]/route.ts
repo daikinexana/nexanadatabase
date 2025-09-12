@@ -10,14 +10,6 @@ export async function GET(
       where: {
         id: params.id,
       },
-      include: {
-        createdByUser: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
     });
 
     if (!knowledge) {
@@ -46,12 +38,11 @@ export async function PUT(
     const {
       title,
       description,
-      content,
       imageUrl,
-      category,
-      author,
       publishedAt,
-      tags,
+      website,
+      categoryTag,
+      area,
       isActive,
     } = body;
 
@@ -62,12 +53,11 @@ export async function PUT(
       data: {
         title,
         description,
-        content,
         imageUrl,
-        category,
-        author,
         publishedAt: publishedAt ? new Date(publishedAt) : null,
-        tags: tags ? tags.join(',') : null,
+        website,
+        categoryTag,
+        area,
         isActive: isActive ?? true,
       },
     });

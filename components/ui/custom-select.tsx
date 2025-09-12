@@ -73,7 +73,7 @@ export default function CustomSelect({
 
       {/* ドロップダウンメニュー */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
+        <div className="absolute z-[9999] w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
           {/* 検索ボックス */}
           <div className="p-2 border-b border-gray-100">
             <input

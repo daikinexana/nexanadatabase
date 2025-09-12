@@ -32,7 +32,6 @@ export async function GET(request: NextRequest) {
         { description: { contains: search, mode: "insensitive" } },
         { company: { contains: search, mode: "insensitive" } },
         { sector: { contains: search, mode: "insensitive" } },
-        { tags: { has: search } },
       ];
     }
 
@@ -41,24 +40,15 @@ export async function GET(request: NextRequest) {
       orderBy: {
         publishedAt: "desc",
       },
-      include: {
-        createdByUser: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
     });
 
-    // タグと投資家を配列に変換
-    const newsWithArrayTags = news.map(newsItem => ({
+    // 投資家を配列に変換
+    const newsWithArrayInvestors = news.map(newsItem => ({
       ...newsItem,
-      tags: newsItem.tags ? newsItem.tags.split(',') : [],
       investors: newsItem.investors ? newsItem.investors.split(',') : []
     }));
 
-    return NextResponse.json(newsWithArrayTags);
+    return NextResponse.json(newsWithArrayInvestors);
   } catch (error) {
     console.error("Error fetching news:", error);
     return NextResponse.json(
@@ -77,18 +67,15 @@ export async function POST(request: NextRequest) {
     const {
       title,
       description,
-      content,
       imageUrl,
       type,
       company,
       sector,
       amount,
-      round,
       investors,
       publishedAt,
-      source,
       sourceUrl,
-      tags,
+      area,
     } = body;
 
     // バリデーション
@@ -103,19 +90,15 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         description,
-        content,
         imageUrl,
         type,
         company,
         sector,
         amount,
-        round,
         investors: investors ? investors.join(',') : null,
         publishedAt: publishedAt ? new Date(publishedAt) : null,
-        source,
         sourceUrl,
-        tags: tags ? tags.join(',') : null,
-        createdBy: user.id,
+        area,
       },
     });
 

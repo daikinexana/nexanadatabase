@@ -11,18 +11,15 @@ interface News {
   id: string;
   title: string;
   description?: string;
-  content?: string;
   imageUrl?: string;
   type: string;
   company: string;
   sector?: string;
   amount?: string;
-  round?: string;
   investors: string[];
   publishedAt?: string;
-  source?: string;
   sourceUrl?: string;
-  tags: string[];
+  area?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -37,22 +34,18 @@ export default function AdminNewsPage() {
   const [formData, setFormData] = useState<Partial<News>>({
     title: "",
     description: "",
-    content: "",
     imageUrl: "",
     type: "FUNDING",
     company: "",
     sector: "",
     amount: "",
-    round: "",
     investors: [],
     publishedAt: "",
-    source: "",
     sourceUrl: "",
-    tags: [],
+    area: "",
     isActive: true,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tagInput, setTagInput] = useState('');
   const [investorInput, setInvestorInput] = useState('');
 
   useEffect(() => {
@@ -80,18 +73,15 @@ export default function AdminNewsPage() {
     setFormData({
       title: "",
       description: "",
-      content: "",
       imageUrl: "",
       type: "FUNDING",
       company: "",
       sector: "",
       amount: "",
-      round: "",
       investors: [],
       publishedAt: "",
-      source: "",
       sourceUrl: "",
-      tags: [],
+      area: "",
       isActive: true,
     });
   };
@@ -102,6 +92,7 @@ export default function AdminNewsPage() {
     setFormData({
       ...newsItem,
       publishedAt: newsItem.publishedAt ? newsItem.publishedAt.split('T')[0] : "",
+      area: newsItem.area || "",
     });
   };
 
@@ -148,18 +139,14 @@ export default function AdminNewsPage() {
         setFormData({
           title: "",
           description: "",
-          content: "",
           imageUrl: "",
           type: "FUNDING",
           company: "",
           sector: "",
           amount: "",
-          round: "",
           investors: [],
           publishedAt: "",
-          source: "",
           sourceUrl: "",
-          tags: [],
           isActive: true,
         });
         alert(isCreating ? 'ニュースが正常に追加されました' : 'ニュースが正常に更新されました');
@@ -181,47 +168,22 @@ export default function AdminNewsPage() {
     setFormData({
       title: "",
       description: "",
-      content: "",
       imageUrl: "",
       type: "FUNDING",
       company: "",
       sector: "",
       amount: "",
-      round: "",
       investors: [],
       publishedAt: "",
-      source: "",
       sourceUrl: "",
-      tags: [],
+      area: "",
       isActive: true,
     });
-  };
-
-  const handleTagChange = (value: string) => {
-    const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag);
-    setFormData({ ...formData, tags });
   };
 
   const handleInvestorChange = (value: string) => {
     const investors = value.split(',').map(investor => investor.trim()).filter(investor => investor);
     setFormData({ ...formData, investors });
-  };
-
-  const handleTagAdd = () => {
-    if (tagInput.trim() && !formData.tags?.includes(tagInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...(prev.tags || []), tagInput.trim()]
-      }));
-      setTagInput('');
-    }
-  };
-
-  const handleTagRemove = (tagToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags?.filter(tag => tag !== tagToRemove) || []
-    }));
   };
 
   const handleInvestorAdd = () => {
@@ -357,37 +319,8 @@ export default function AdminNewsPage() {
                   />
                 </div>
 
-                {/* 詳細内容 */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    詳細内容（Markdown）
-                  </label>
-                  <textarea
-                    value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    rows={6}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="ニュースの詳細な内容をMarkdown形式で入力してください"
-                  />
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      タイプ
-                    </label>
-                    <select
-                      value={formData.type}
-                      onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="FUNDING">投資</option>
-                      <option value="M_AND_A">M&A</option>
-                      <option value="IPO">IPO</option>
-                      <option value="PARTNERSHIP">パートナーシップ</option>
-                      <option value="OTHER">その他</option>
-                    </select>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       領域
@@ -397,6 +330,7 @@ export default function AdminNewsPage() {
                       value={formData.sector}
                       onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="ヘルステック、AI・機械学習など"
                     />
                   </div>
                   <div>
@@ -408,6 +342,7 @@ export default function AdminNewsPage() {
                       value={formData.amount}
                       onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="3億円、26億円など"
                     />
                   </div>
                 </div>
@@ -415,26 +350,29 @@ export default function AdminNewsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      ラウンド
+                      エリア
                     </label>
                     <input
                       type="text"
-                      value={formData.round}
-                      onChange={(e) => setFormData({ ...formData, round: e.target.value })}
+                      value={formData.area}
+                      onChange={(e) => setFormData({ ...formData, area: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="東京、大阪、オンラインなど"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      公開日
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.publishedAt}
-                      onChange={(e) => setFormData({ ...formData, publishedAt: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
+                </div>
+
+                {/* 公開日 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    公開日
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.publishedAt}
+                    onChange={(e) => setFormData({ ...formData, publishedAt: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                 </div>
 
                 <div>
@@ -449,43 +387,7 @@ export default function AdminNewsPage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    タグ（カンマ区切り）
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.tags?.join(', ')}
-                    onChange={(e) => handleTagChange(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      情報源
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.source}
-                      onChange={(e) => setFormData({ ...formData, source: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      情報源URL
-                    </label>
-                    <input
-                      type="url"
-                      value={formData.sourceUrl}
-                      onChange={(e) => setFormData({ ...formData, sourceUrl: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-
+                {/* 画像URL */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     画像URL
@@ -495,8 +397,24 @@ export default function AdminNewsPage() {
                     value={formData.imageUrl}
                     onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://example.com/image.jpg"
                   />
                 </div>
+
+                {/* ソースURL */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    ソースURL
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.sourceUrl}
+                    onChange={(e) => setFormData({ ...formData, sourceUrl: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://example.com/news-article"
+                  />
+                </div>
+
 
                 <div className="flex items-center">
                   <input
@@ -564,6 +482,9 @@ export default function AdminNewsPage() {
                         タイプ
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        エリア
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         金額
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -589,6 +510,9 @@ export default function AdminNewsPage() {
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                             {newsItem.type}
                           </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{newsItem.area || "-"}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">{newsItem.amount}</div>

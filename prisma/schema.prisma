@@ -8,15 +8,13 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(cuid())
-  clerkId   String      @unique
-  email     String      @unique
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
   name      String?
-  role      UserRole    @default(MEMBER)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  knowledge Knowledge[]
-  news      News[]
+  role      UserRole @default(MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   posts     Post[]
 
   @@map("users")
@@ -80,56 +78,48 @@ model OpenCall {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   organizerType      String
-  availableResources String?
-  openCallType       String?
   targetArea         String?
   targetAudience     String?
-  resourceType       String?
+  openCallType       String?
+  availableResources String?
   operatingCompany   String?
+  resourceType       String?
 
   @@map("open_calls")
 }
 
 model News {
-  id            String    @id @default(cuid())
-  title         String
-  description   String?
-  content       String?
-  imageUrl      String?
-  type          NewsType
-  company       String
-  sector        String?
-  amount        String?
-  round         String?
-  investors     String?
-  publishedAt   DateTime?
-  source        String?
-  sourceUrl     String?
-  tags          String?
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  createdBy     String
-  createdByUser User      @relation(fields: [createdBy], references: [id])
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String?
+  company     String
+  sector      String?
+  amount      String?
+  investors   String?
+  publishedAt DateTime?
+  sourceUrl   String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  type        String
+  area        String?
 
   @@map("news")
 }
 
 model Knowledge {
-  id            String            @id @default(cuid())
-  title         String
-  description   String?
-  content       String
-  imageUrl      String?
-  category      KnowledgeCategory
-  tags          String?
-  author        String?
-  publishedAt   DateTime?
-  isActive      Boolean           @default(true)
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  createdBy     String
-  createdByUser User              @relation(fields: [createdBy], references: [id])
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String?
+  publishedAt DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  categoryTag String?
+  website     String?
+  area        String?
 
   @@map("knowledge")
 }
@@ -177,23 +167,4 @@ enum UserRole {
   MEMBER
   EDITOR
   ADMIN
-}
-
-enum NewsType {
-  FUNDING
-  M_AND_A
-  IPO
-  PARTNERSHIP
-  OTHER
-}
-
-enum KnowledgeCategory {
-  AI
-  DEEPTECH
-  BIOTECH
-  CLEANTECH
-  FINTECH
-  HEALTHTECH
-  EDUTECH
-  OTHER
 }

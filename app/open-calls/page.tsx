@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Metadata } from "next";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
 import Filter from "@/components/ui/filter";
-import { Search, Filter as FilterIcon, Handshake, DollarSign } from "lucide-react";
+import { Search, Filter as FilterIcon, Handshake } from "lucide-react";
 
 interface OpenCall {
   id: string;
@@ -111,7 +110,11 @@ export default function OpenCallsPage() {
     setFilteredOpenCalls(filtered);
   }, [openCalls, searchTerm, filters]);
 
-  const handleFilterChange = (newFilters: any) => {
+  const handleFilterChange = (newFilters: {
+    area?: string;
+    organizerType?: string;
+    openCallType?: string;
+  }) => {
     setFilters(newFilters);
   };
 

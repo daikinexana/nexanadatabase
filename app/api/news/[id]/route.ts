@@ -10,14 +10,6 @@ export async function GET(
       where: {
         id: params.id,
       },
-      include: {
-        createdByUser: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
     });
 
     if (!news) {
@@ -46,18 +38,15 @@ export async function PUT(
     const {
       title,
       description,
-      content,
       imageUrl,
       type,
       company,
       sector,
       amount,
-      round,
       investors,
       publishedAt,
-      source,
       sourceUrl,
-      tags,
+      area,
       isActive,
     } = body;
 
@@ -68,18 +57,15 @@ export async function PUT(
       data: {
         title,
         description,
-        content,
         imageUrl,
         type,
         company,
         sector,
         amount,
-        round,
         investors,
         publishedAt: publishedAt ? new Date(publishedAt) : null,
-        source,
         sourceUrl,
-        tags,
+        area,
         isActive: isActive ?? true,
       },
     });

@@ -11,12 +11,11 @@ interface Knowledge {
   id: string;
   title: string;
   description?: string;
-  content?: string;
   imageUrl?: string;
-  category: string;
-  author: string;
+  website?: string;
+  categoryTag?: string;
+  area?: string;
   publishedAt?: string;
-  tags: string[];
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -31,16 +30,14 @@ export default function AdminKnowledgePage() {
   const [formData, setFormData] = useState<Partial<Knowledge>>({
     title: "",
     description: "",
-    content: "# ナレッジタイトル\n\nここに詳細な内容をMarkdown形式で記述してください。",
     imageUrl: "",
-    category: "AI",
-    author: "",
+    website: "",
+    categoryTag: "",
+    area: "",
     publishedAt: "",
-    tags: [],
     isActive: true,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tagInput, setTagInput] = useState('');
 
   useEffect(() => {
     fetchKnowledge();
@@ -67,12 +64,11 @@ export default function AdminKnowledgePage() {
     setFormData({
       title: "",
       description: "",
-      content: "# ナレッジタイトル\n\nここに詳細な内容をMarkdown形式で記述してください。",
       imageUrl: "",
-      category: "AI",
-      author: "",
+      website: "",
+      categoryTag: "",
+      area: "",
       publishedAt: "",
-      tags: [],
       isActive: true,
     });
   };
@@ -80,16 +76,16 @@ export default function AdminKnowledgePage() {
   const handleEdit = (knowledgeItem: Knowledge) => {
     setEditingKnowledge(knowledgeItem);
     setIsCreating(false);
-    setFormData({
-      ...knowledgeItem,
-      title: knowledgeItem.title || "",
-      description: knowledgeItem.description || "",
-      content: knowledgeItem.content || "",
-      imageUrl: knowledgeItem.imageUrl || "",
-      author: knowledgeItem.author || "",
-      publishedAt: knowledgeItem.publishedAt ? knowledgeItem.publishedAt.split('T')[0] : "",
-      tags: knowledgeItem.tags || [],
-    });
+      setFormData({
+        ...knowledgeItem,
+        title: knowledgeItem.title || "",
+        description: knowledgeItem.description || "",
+        imageUrl: knowledgeItem.imageUrl || "",
+        website: knowledgeItem.website || "",
+        categoryTag: knowledgeItem.categoryTag || "",
+        area: knowledgeItem.area || "",
+        publishedAt: knowledgeItem.publishedAt ? knowledgeItem.publishedAt.split('T')[0] : "",
+      });
   };
 
   const handleDelete = async (id: string) => {
@@ -135,12 +131,10 @@ export default function AdminKnowledgePage() {
         setFormData({
           title: "",
           description: "",
-          content: "# ナレッジタイトル\n\nここに詳細な内容をMarkdown形式で記述してください。",
           imageUrl: "",
-          category: "AI",
-          author: "",
+          website: "",
+          categoryTag: "",
           publishedAt: "",
-          tags: [],
           isActive: true,
         });
         alert(isCreating ? 'ナレッジが正常に追加されました' : 'ナレッジが正常に更新されました');
@@ -162,37 +156,15 @@ export default function AdminKnowledgePage() {
     setFormData({
       title: "",
       description: "",
-      content: "# ナレッジタイトル\n\nここに詳細な内容をMarkdown形式で記述してください。",
       imageUrl: "",
-      category: "AI",
-      author: "",
+      website: "",
+      categoryTag: "",
+      area: "",
       publishedAt: "",
-      tags: [],
       isActive: true,
     });
   };
 
-  const handleTagChange = (value: string) => {
-    const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag);
-    setFormData({ ...formData, tags });
-  };
-
-  const handleTagAdd = () => {
-    if (tagInput.trim() && !formData.tags?.includes(tagInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...(prev.tags || []), tagInput.trim()]
-      }));
-      setTagInput('');
-    }
-  };
-
-  const handleTagRemove = (tagToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags?.filter(tag => tag !== tagToRemove) || []
-    }));
-  };
 
   const toggleActive = async (id: string, currentStatus: boolean) => {
     try {
@@ -261,44 +233,48 @@ export default function AdminKnowledgePage() {
                     />
                   </div>
 
-                  {/* 著者 */}
+                  {/* ウェブサイト */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      著者 <span className="text-red-500">*</span>
+                      ウェブサイト
                     </label>
                     <input
-                      type="text"
-                      required
-                      value={formData.author || ""}
-                      onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                      type="url"
+                      value={formData.website || ""}
+                      onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="著者名を入力してください"
+                      placeholder="https://example.com"
                     />
                   </div>
 
-                  {/* カテゴリ */}
+                  {/* カテゴリータグ */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      カテゴリ <span className="text-red-500">*</span>
+                      カテゴリータグ
                     </label>
-                    <select
-                      value={formData.category || "AI"}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      required
+                    <input
+                      type="text"
+                      value={formData.categoryTag || ""}
+                      onChange={(e) => setFormData({ ...formData, categoryTag: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="AI">AI</option>
-                      <option value="DEEPTECH">ディープテック</option>
-                      <option value="BIOTECH">バイオテック</option>
-                      <option value="FINTECH">フィンテック</option>
-                      <option value="HEALTHTECH">ヘルステック</option>
-                      <option value="EDTECH">エドテック</option>
-                      <option value="CLIMATETECH">クライメートテック</option>
-                      <option value="SPACETECH">スペーステック</option>
-                      <option value="QUANTUM">量子技術</option>
-                      <option value="BLOCKCHAIN">ブロックチェーン</option>
-                      <option value="OTHER">その他</option>
-                    </select>
+                      placeholder="AI, ディープテック, バイオテックなど"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* エリア */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      エリア
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.area || ""}
+                      onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="東京、大阪、オンラインなど"
+                    />
                   </div>
                 </div>
 
@@ -316,20 +292,6 @@ export default function AdminKnowledgePage() {
                   />
                 </div>
 
-                {/* 詳細内容 */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    詳細内容（Markdown） <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    required
-                    value={formData.content || ""}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    rows={6}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="ナレッジの詳細な内容をMarkdown形式で入力してください"
-                  />
-                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -357,18 +319,6 @@ export default function AdminKnowledgePage() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    タグ（カンマ区切り）
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.tags?.join(', ') || ""}
-                    onChange={(e) => handleTagChange(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="タグをカンマ区切りで入力してください"
-                  />
-                </div>
 
                 <div className="flex items-center">
                   <input
@@ -430,10 +380,13 @@ export default function AdminKnowledgePage() {
                         タイトル
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        著者
+                        カテゴリータグ
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        カテゴリ
+                        エリア
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        ウェブサイト
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         公開日
@@ -455,12 +408,28 @@ export default function AdminKnowledgePage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{knowledgeItem.author}</div>
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                            {knowledgeItem.categoryTag || "-"}
+                          </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                            {knowledgeItem.category}
-                          </span>
+                          <div className="text-sm text-gray-900">
+                            {knowledgeItem.area || "-"}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 max-w-xs truncate">
+                            {knowledgeItem.website ? (
+                              <a 
+                                href={knowledgeItem.website} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800"
+                              >
+                                {knowledgeItem.website}
+                              </a>
+                            ) : "-"}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
