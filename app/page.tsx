@@ -61,13 +61,6 @@ const features = [
   },
 ];
 
-const stats = [
-  { name: "掲載コンテスト数", value: "150+" },
-  { name: "施設紹介数", value: "50+" },
-  { name: "展示会・イベント数", value: "80+" },
-  { name: "公募情報", value: "100+" },
-  { name: "月間ニュース配信", value: "500+" },
-];
 
 export default function Home() {
   return (
@@ -88,39 +81,10 @@ export default function Home() {
             <p className="text-lg text-white/90 mb-12 max-w-2xl mx-auto">
               コンテスト、展示会、公募、ニュース、ナレッジベースを一箇所で。エリアや主催者タイプでフィルタリングして、あなたに最適な情報を見つけましょう。
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/contests"
-                className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-              >
-                コンテストを見る
-              </Link>
-              <Link
-                href="/news"
-                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors"
-              >
-                最新ニュース
-              </Link>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* 統計情報 */}
-      <div className="bg-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat) => (
-              <div key={stat.name} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-gray-600">{stat.name}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* 機能紹介 */}
       <div className="py-16 bg-gray-50">
@@ -158,31 +122,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* CTA セクション */}
-      <div className="bg-blue-600 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            今すぐ始めましょう
-          </h2>
-          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            スタートアップの成長に必要な情報を効率的に収集し、機会を逃さないようにしましょう
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/contests"
-              className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-            >
-              コンテストを探す
-            </Link>
-            <Link
-              href="/knowledge"
-              className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors"
-            >
-              ナレッジを読む
-            </Link>
-          </div>
-        </div>
-      </div>
 
       <Footer />
     </div>
