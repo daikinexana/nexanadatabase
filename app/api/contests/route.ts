@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search");
     const admin = searchParams.get("admin"); // 管理画面用フラグ
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     // 管理画面以外では公開中のコンテストのみ表示
     if (!admin) {
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // 管理者権限を確認
-    const user = await requireAdmin();
+    await requireAdmin();
     
     const body = await request.json();
     const {

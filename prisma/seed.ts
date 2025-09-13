@@ -174,9 +174,7 @@ async function main() {
     const newsItem = await prisma.news.create({
       data: {
         ...newsData,
-        tags: Array.isArray(newsData.tags) ? newsData.tags.join(',') : newsData.tags,
         investors: Array.isArray(newsData.investors) ? newsData.investors.join(',') : newsData.investors,
-        createdBy: dummyUser.id,
       },
     });
     console.log('📰 ニュースを作成:', newsItem.title);
@@ -187,8 +185,6 @@ async function main() {
     const knowledgeItem = await prisma.knowledge.create({
       data: {
         ...knowledgeData,
-        tags: Array.isArray(knowledgeData.tags) ? knowledgeData.tags.join(',') : knowledgeData.tags,
-        createdBy: dummyUser.id,
       },
     });
     console.log('📚 ナレッジを作成:', knowledgeItem.title);

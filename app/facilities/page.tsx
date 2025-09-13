@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Metadata } from "next";
+import { useState, useEffect, useCallback, useMemo } from "react";
+// import { Metadata } from "next";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
 import Filter from "@/components/ui/filter";
-import { Search, Filter as FilterIcon, MapPin, Building } from "lucide-react";
+import { Search, Filter as FilterIcon, Building } from "lucide-react";
 
 interface Facility {
   id: string;
@@ -31,12 +31,91 @@ export default function FacilitiesPage() {
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [filteredFacilities, setFilteredFacilities] = useState<Facility[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{ area?: string; organizerType?: string; }>({
     area: undefined,
     organizerType: undefined,
   });
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // エリアの順序定義（全国/47都道府県/国外）
+  const areaOrder = useMemo(() => [
+    '全国',
+    '北海道',
+    '青森県',
+    '岩手県',
+    '宮城県',
+    '秋田県',
+    '山形県',
+    '福島県',
+    '茨城県',
+    '栃木県',
+    '群馬県',
+    '埼玉県',
+    '千葉県',
+    '東京都',
+    '神奈川県',
+    '新潟県',
+    '富山県',
+    '石川県',
+    '福井県',
+    '山梨県',
+    '長野県',
+    '岐阜県',
+    '静岡県',
+    '愛知県',
+    '三重県',
+    '滋賀県',
+    '京都府',
+    '大阪府',
+    '兵庫県',
+    '奈良県',
+    '和歌山県',
+    '鳥取県',
+    '島根県',
+    '岡山県',
+    '広島県',
+    '山口県',
+    '徳島県',
+    '香川県',
+    '愛媛県',
+    '高知県',
+    '福岡県',
+    '佐賀県',
+    '長崎県',
+    '熊本県',
+    '大分県',
+    '宮崎県',
+    '鹿児島県',
+    '沖縄県',
+    'アメリカ',
+    'カナダ',
+    'イギリス',
+    'エストニア',
+    'オランダ',
+    'スペイン',
+    'ドイツ',
+    'フランス',
+    'ポルトガル',
+    '中国',
+    '台湾',
+    '韓国',
+    'インドネシア',
+    'シンガポール',
+    'タイ',
+    'ベトナム',
+    'インド',
+    'UAE（ドバイ/アブダビ）',
+    'オーストラリア',
+    'その他'
+  ], []);
+
+  // エリアの順序を取得する関数
+  const getAreaOrder = useCallback((area: string | undefined) => {
+    if (!area) return 999; // エリアが未設定の場合は最後に配置
+    const index = areaOrder.indexOf(area);
+    return index === -1 ? 999 : index;
+  }, [areaOrder]);
 
   // データの取得
   useEffect(() => {
@@ -91,11 +170,23 @@ export default function FacilitiesPage() {
       );
     }
 
+    // エリアの順序でソート
+    filtered.sort((a, b) => {
+      const aOrder = getAreaOrder(a.area);
+      const bOrder = getAreaOrder(b.area);
+      
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder;
+      }
+      
+      // 同じエリア内では作成日時の降順（新しい順）
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
 
     setFilteredFacilities(filtered);
-  }, [facilities, searchTerm, filters]);
+  }, [facilities, searchTerm, filters, getAreaOrder]);
 
-  const handleFilterChange = (newFilters: any) => {
+  const handleFilterChange = (newFilters: { area?: string; organizerType?: string; }) => {
     setFilters(newFilters);
   };
 
@@ -207,26 +298,77 @@ export default function FacilitiesPage() {
             <p className="text-gray-600">読み込み中...</p>
           </div>
         ) : filteredFacilities.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredFacilities.map((facility) => (
-              <Card
-                key={facility.id}
-                id={facility.id}
-                title={facility.title}
-                description={facility.description}
-                imageUrl={facility.imageUrl}
-                area={facility.area}
-                organizer={facility.organizer}
-                organizerType={facility.organizerType}
-                website={facility.website}
-                type="facility"
-                address={facility.address}
-                targetArea={facility.targetArea}
-                facilityInfo={facility.facilityInfo}
-                targetAudience={facility.targetAudience}
-                program={facility.program}
-              />
-            ))}
+          <div className="space-y-12">
+            {areaOrder.map((area) => {
+              const areaFacilities = filteredFacilities.filter(facility => facility.area === area);
+              if (areaFacilities.length === 0) return null;
+
+              return (
+                <div key={area}>
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{area}</h2>
+                    <div className="h-1 w-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+                    {areaFacilities.map((facility) => (
+                      <Card
+                        key={facility.id}
+                        id={facility.id}
+                        title={facility.title}
+                        description={facility.description}
+                        imageUrl={facility.imageUrl}
+                        area={facility.area}
+                        organizer={facility.organizer}
+                        organizerType={facility.organizerType}
+                        website={facility.website}
+                        type="facility"
+                        address={facility.address}
+                        targetArea={facility.targetArea}
+                        facilityInfo={facility.facilityInfo}
+                        targetAudience={facility.targetAudience}
+                        program={facility.program}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            
+            {/* エリア未設定の施設 */}
+            {(() => {
+              const unassignedFacilities = filteredFacilities.filter(facility => !areaOrder.includes(facility.area || ''));
+              if (unassignedFacilities.length === 0) return null;
+
+              return (
+                <div>
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">その他</h2>
+                    <div className="h-1 w-20 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full"></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+                    {unassignedFacilities.map((facility) => (
+                      <Card
+                        key={facility.id}
+                        id={facility.id}
+                        title={facility.title}
+                        description={facility.description}
+                        imageUrl={facility.imageUrl}
+                        area={facility.area}
+                        organizer={facility.organizer}
+                        organizerType={facility.organizerType}
+                        website={facility.website}
+                        type="facility"
+                        address={facility.address}
+                        targetArea={facility.targetArea}
+                        facilityInfo={facility.facilityInfo}
+                        targetAudience={facility.targetAudience}
+                        program={facility.program}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         ) : (
           <div className="text-center py-12">

@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
-import { Plus, Edit, Trash2, Save, X, Eye, EyeOff } from "lucide-react";
+import AdminNav from "@/components/ui/admin-nav";
+import { Plus, Edit, Trash2, Save, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
 
 interface Knowledge {
   id: string;
@@ -17,12 +19,13 @@ interface Knowledge {
   area?: string;
   publishedAt?: string;
   isActive: boolean;
+  isChecked?: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export default function AdminKnowledgePage() {
-  const router = useRouter();
+  // const router = useRouter();
   const [knowledge, setKnowledge] = useState<Knowledge[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingKnowledge, setEditingKnowledge] = useState<Knowledge | null>(null);
@@ -188,10 +191,19 @@ export default function AdminKnowledgePage() {
     }
   };
 
+  // const toggleChecked = (id: string) => {
+  //   setKnowledge(knowledge.map(knowledgeItem => 
+  //     knowledgeItem.id === id 
+  //       ? { ...knowledgeItem, isChecked: !knowledgeItem.isChecked }
+  //       : knowledgeItem
+  //   ));
+  // };
+
   return (
     <AdminGuard>
       <div className="min-h-screen bg-gray-50">
         <Header />
+        <AdminNav />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
@@ -365,119 +377,107 @@ export default function AdminKnowledgePage() {
           )}
 
           {/* ナレッジ一覧 */}
-          <div className="bg-white shadow overflow-hidden sm:rounded-md">
+          <div className="bg-white shadow rounded-lg overflow-hidden">
             {loading ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                 <p className="text-gray-600">読み込み中...</p>
               </div>
+            ) : knowledge.length === 0 ? (
+              <div className="px-6 py-8 text-center text-gray-500">
+                ナレッジ情報がありません
+              </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        タイトル
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        カテゴリータグ
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        エリア
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        ウェブサイト
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        公開日
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        ステータス
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        操作
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {knowledge.map((knowledgeItem) => (
-                      <tr key={knowledgeItem.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900 max-w-xs truncate">
-                            {knowledgeItem.title}
+              <div className="divide-y divide-gray-200">
+                {knowledge.map((knowledgeItem) => (
+                  <div key={knowledgeItem.id} className="px-6 py-4 hover:bg-gray-50">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 flex gap-4">
+                        {/* 画像 */}
+                        {knowledgeItem.imageUrl && (
+                          <div className="flex-shrink-0">
+                            <Image
+                              src={knowledgeItem.imageUrl}
+                              alt={knowledgeItem.title}
+                              width={80}
+                              height={80}
+                              className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                            {knowledgeItem.categoryTag || "-"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {knowledgeItem.area || "-"}
+                        )}
+                        
+                        {/* ナレッジ情報 */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg font-medium text-gray-900 truncate">
+                              {knowledgeItem.title}
+                            </h3>
+                            <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${
+                              knowledgeItem.isActive 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {knowledgeItem.isActive ? '公開中' : '非公開'}
+                            </span>
+                            {knowledgeItem.categoryTag && (
+                              <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800 flex-shrink-0">
+                                {knowledgeItem.categoryTag}
+                              </span>
+                            )}
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900 max-w-xs truncate">
-                            {knowledgeItem.website ? (
-                              <a 
-                                href={knowledgeItem.website} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:text-blue-800"
-                              >
-                                {knowledgeItem.website}
-                              </a>
-                            ) : "-"}
+                          
+                          {knowledgeItem.description && (
+                            <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                              {knowledgeItem.description}
+                            </p>
+                          )}
+                          
+                          <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                            {knowledgeItem.area && (
+                              <span>エリア: {knowledgeItem.area}</span>
+                            )}
+                            {knowledgeItem.publishedAt && (
+                              <span>公開日: {new Date(knowledgeItem.publishedAt).toLocaleDateString("ja-JP")}</span>
+                            )}
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {knowledgeItem.publishedAt ? new Date(knowledgeItem.publishedAt).toLocaleDateString("ja-JP") : "-"}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                        <button
+                          onClick={() => toggleActive(knowledgeItem.id, knowledgeItem.isActive)}
+                          className={`p-2 rounded-lg transition-colors ${
                             knowledgeItem.isActive
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}>
-                            {knowledgeItem.isActive ? "公開中" : "非公開"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => toggleActive(knowledgeItem.id, knowledgeItem.isActive)}
-                              className={`${
-                                knowledgeItem.isActive 
-                                  ? "text-green-600 hover:text-green-900" 
-                                  : "text-gray-400 hover:text-gray-600"
-                              }`}
-                              title={knowledgeItem.isActive ? "非公開にする" : "公開する"}
-                            >
-                              {knowledgeItem.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                            </button>
-                            <button
-                              onClick={() => handleEdit(knowledgeItem)}
-                              className="text-blue-600 hover:text-blue-900"
-                              title="編集"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(knowledgeItem.id)}
-                              className="text-red-600 hover:text-red-900"
-                              title="削除"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                              ? 'text-red-600 hover:bg-red-50'
+                              : 'text-green-600 hover:bg-green-50'
+                          }`}
+                          title={knowledgeItem.isActive ? '非公開にする' : '公開する'}
+                        >
+                          {knowledgeItem.isActive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                        
+                        <button
+                          onClick={() => handleEdit(knowledgeItem)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="編集"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        
+                        <button
+                          onClick={() => handleDelete(knowledgeItem.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="削除"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>

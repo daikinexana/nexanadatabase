@@ -2,7 +2,7 @@
 
 import React from "react";
 import { X } from "lucide-react";
-import { AREAS, PREFECTURE_AREAS, ORGANIZER_TYPES, CONTEST_CATEGORIES, GRANT_CATEGORIES, NEWS_TYPES, KNOWLEDGE_CATEGORIES } from "@/lib/constants";
+import { AREAS, PREFECTURE_AREAS, NEWS_TYPES } from "@/lib/constants";
 import CustomSelect from "./custom-select";
 
 interface FilterProps {
@@ -36,22 +36,22 @@ export default function Filter({ type, filters, onFilterChange }: FilterProps) {
     return AREAS;
   };
 
-  const getCategoryOptions = () => {
-    switch (type) {
-      case "contest":
-        return CONTEST_CATEGORIES;
-      case "grant":
-        return GRANT_CATEGORIES;
-      case "news":
-        return NEWS_TYPES;
-      case "knowledge":
-        return KNOWLEDGE_CATEGORIES;
-      case "open-call":
-        return [];
-      default:
-        return [];
-    }
-  };
+  // const getCategoryOptions = () => {
+  //   switch (type) {
+  //     case "contest":
+  //       return CONTEST_CATEGORIES;
+  //     case "grant":
+  //       return GRANT_CATEGORIES;
+  //     case "news":
+  //       return NEWS_TYPES;
+  //     case "knowledge":
+  //       return KNOWLEDGE_CATEGORIES;
+  //     case "open-call":
+  //       return [];
+  //     default:
+  //       return [];
+  //   }
+  // };
 
   const clearFilters = () => {
     onFilterChange({

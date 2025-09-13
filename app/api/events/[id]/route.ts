@@ -5,12 +5,13 @@ import { requireAdmin } from "@/lib/auth";
 // 個別イベント取得
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const event = await prisma.event.findUnique({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
     });
 
@@ -34,12 +35,13 @@ export async function GET(
 // イベント更新
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 管理者権限を確認
-    const user = await requireAdmin();
+    await requireAdmin();
     
+    const resolvedParams = await params;
     const body = await request.json();
     const {
       title,
@@ -86,14 +88,14 @@ export async function PUT(
 
     const event = await prisma.event.update({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
       data: {
         title,
         description,
         imageUrl,
-        startDate: start,
-        endDate: end,
+        startDate: start || undefined,
+        endDate: end || undefined,
         venue,
         area,
         organizer,
@@ -134,15 +136,17 @@ export async function PUT(
 // イベント削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 管理者権限を確認
-    const user = await requireAdmin();
+    await requireAdmin();
+    
+    const resolvedParams = await params;
     
     await prisma.event.delete({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
     });
 
@@ -174,11 +178,13 @@ export async function DELETE(
 // イベントの公開状態切り替え
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 管理者権限を確認
-    const user = await requireAdmin();
+    await requireAdmin();
+    
+    const resolvedParams = await params;
     
     const body = await request.json();
     const { isActive } = body;
@@ -192,7 +198,7 @@ export async function PATCH(
 
     const event = await prisma.event.update({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
       data: {
         isActive,

@@ -5,12 +5,13 @@ import { requireAdmin } from "@/lib/auth";
 // 個別コンテスト取得
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const contest = await prisma.contest.findUnique({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
     });
 
@@ -34,12 +35,13 @@ export async function GET(
 // コンテスト更新
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 管理者権限を確認
-    const user = await requireAdmin();
+    await requireAdmin();
     
+    const resolvedParams = await params;
     const body = await request.json();
     const {
       title,
@@ -86,7 +88,7 @@ export async function PUT(
 
     const contest = await prisma.contest.update({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
       data: {
         title,
@@ -134,15 +136,17 @@ export async function PUT(
 // コンテスト削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 管理者権限を確認
-    const user = await requireAdmin();
+    await requireAdmin();
+    
+    const resolvedParams = await params;
     
     await prisma.contest.delete({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
     });
 

@@ -5,12 +5,15 @@ import Link from "next/link";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
+import AdminNav from "@/components/ui/admin-nav";
 import { Building, Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
 
 interface Facility {
   id: string;
   title: string;
   description?: string;
+  imageUrl?: string;
   address?: string;
   area?: string;
   organizer: string;
@@ -21,6 +24,7 @@ interface Facility {
   targetAudience?: string;
   program?: string;
   isActive: boolean;
+  isChecked?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -52,10 +56,14 @@ export default function AdminFacilitiesPage() {
   const fetchFacilities = async () => {
     try {
       const response = await fetch('/api/facilities');
-      if (response.ok) {
-        const data = await response.json();
-        setFacilities(data);
-      }
+        if (response.ok) {
+          const data = await response.json();
+          // 作成日時で降順ソート（新しいものが上に来る）
+          const sortedData = data.sort((a: Facility, b: Facility) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          setFacilities(sortedData);
+        }
     } catch (error) {
       console.error('施設情報の取得に失敗しました:', error);
     } finally {
@@ -83,6 +91,14 @@ export default function AdminFacilitiesPage() {
     } catch (error) {
       console.error('ステータスの更新に失敗しました:', error);
     }
+  };
+
+  const toggleChecked = (id: string) => {
+    setFacilities(facilities.map(facility => 
+      facility.id === id 
+        ? { ...facility, isChecked: !facility.isChecked }
+        : facility
+    ));
   };
 
   const deleteFacility = async (id: string) => {
@@ -174,6 +190,7 @@ export default function AdminFacilitiesPage() {
     <AdminGuard>
       <div className="min-h-screen bg-gray-50">
         <Header />
+        <AdminNav />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
@@ -446,40 +463,68 @@ export default function AdminFacilitiesPage() {
             ) : (
               <div className="divide-y divide-gray-200">
                 {facilities.map((facility) => (
-                  <div key={facility.id} className="px-6 py-4 hover:bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <Building className="h-5 w-5 text-gray-400" />
-                          <h3 className="text-lg font-medium text-gray-900">
-                            {facility.title}
-                          </h3>
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            facility.isActive 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {facility.isActive ? '公開中' : '非公開'}
-                          </span>
+                  <div key={facility.id} className={`px-6 py-4 hover:bg-gray-50 ${facility.isChecked ? 'bg-blue-50 border-l-4 border-blue-400' : ''}`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 flex gap-4">
+                        {/* チェックボックス */}
+                        <div className="flex-shrink-0 pt-1">
+                          <input
+                            type="checkbox"
+                            checked={facility.isChecked || false}
+                            onChange={() => toggleChecked(facility.id)}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            title="確認済み"
+                          />
                         </div>
-                        
-                        {facility.description && (
-                          <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-                            {facility.description}
-                          </p>
+                        {/* 画像 */}
+                        {facility.imageUrl && (
+                          <div className="flex-shrink-0">
+                            <Image
+                              src={facility.imageUrl}
+                              alt={facility.title}
+                              width={80}
+                              height={80}
+                              className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          </div>
                         )}
                         
-                        <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
-                          {facility.area && (
-                            <span>エリア: {facility.area}</span>
+                        {/* 施設情報 */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3">
+                            <Building className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                            <h3 className="text-lg font-medium text-gray-900 truncate">
+                              {facility.title}
+                            </h3>
+                            <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${
+                              facility.isActive 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {facility.isActive ? '公開中' : '非公開'}
+                            </span>
+                          </div>
+                          
+                          {facility.description && (
+                            <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                              {facility.description}
+                            </p>
                           )}
-                          <span>主催者: {facility.organizer}</span>
-                          <span>更新日: {new Date(facility.updatedAt).toLocaleDateString('ja-JP')}</span>
+                          
+                          <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
+                            {facility.area && (
+                              <span>エリア: {facility.area}</span>
+                            )}
+                            <span>主催者: {facility.organizer}</span>
+                            <span>更新日: {new Date(facility.updatedAt).toLocaleDateString('ja-JP')}</span>
+                          </div>
                         </div>
-                        
                       </div>
                       
-                      <div className="flex items-center gap-2 ml-4">
+                      <div className="flex items-center gap-2 ml-4 flex-shrink-0">
                         <button
                           onClick={() => toggleActive(facility.id, facility.isActive)}
                           className={`p-2 rounded-lg transition-colors ${

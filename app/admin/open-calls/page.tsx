@@ -5,7 +5,9 @@ import Link from "next/link";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
+import AdminNav from "@/components/ui/admin-nav";
 import { Handshake, Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
 
 interface OpenCall {
   id: string;
@@ -25,6 +27,7 @@ interface OpenCall {
   resourceType?: string;
   operatingCompany?: string;
   isActive: boolean;
+  isChecked?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -59,10 +62,14 @@ export default function AdminOpenCallsPage() {
   const fetchOpenCalls = async () => {
     try {
       const response = await fetch('/api/open-calls');
-      if (response.ok) {
-        const data = await response.json();
-        setOpenCalls(data);
-      }
+        if (response.ok) {
+          const data = await response.json();
+          // 作成日時で降順ソート（新しいものが上に来る）
+          const sortedData = data.sort((a: OpenCall, b: OpenCall) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          setOpenCalls(sortedData);
+        }
     } catch (error) {
       console.error('公募情報の取得に失敗しました:', error);
     } finally {
@@ -91,6 +98,14 @@ export default function AdminOpenCallsPage() {
       console.error('ステータスの更新に失敗しました:', error);
     }
   };
+
+  // const toggleChecked = (id: string) => {
+  //   setOpenCalls(openCalls.map(openCall => 
+  //     openCall.id === id 
+  //       ? { ...openCall, isChecked: !openCall.isChecked }
+  //       : openCall
+  //   ));
+  // };
 
   const deleteOpenCall = async (id: string) => {
     if (!confirm('この公募を削除しますか？')) return;
@@ -193,6 +208,7 @@ export default function AdminOpenCallsPage() {
     <AdminGuard>
       <div className="min-h-screen bg-gray-50">
         <Header />
+        <AdminNav />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
@@ -513,76 +529,95 @@ export default function AdminOpenCallsPage() {
               <div className="divide-y divide-gray-200">
                 {openCalls.map((openCall) => (
                   <div key={openCall.id} className="px-6 py-4 hover:bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <Handshake className="h-5 w-5 text-gray-400" />
-                          <h3 className="text-lg font-medium text-gray-900">
-                            {openCall.title}
-                          </h3>
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            openCall.isActive 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {openCall.isActive ? '公開中' : '非公開'}
-                          </span>
-                          {openCall.openCallType && (
-                            <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
-                              {openCall.openCallType}
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 flex gap-4">
+                        {/* 画像 */}
+                        {openCall.imageUrl && (
+                          <div className="flex-shrink-0">
+                            <Image
+                              src={openCall.imageUrl}
+                              alt={openCall.title}
+                              width={80}
+                              height={80}
+                              className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          </div>
+                        )}
+                        
+                        {/* 公募情報 */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3">
+                            <Handshake className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                            <h3 className="text-lg font-medium text-gray-900 truncate">
+                              {openCall.title}
+                            </h3>
+                            <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${
+                              openCall.isActive 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {openCall.isActive ? '公開中' : '非公開'}
                             </span>
+                            {openCall.openCallType && (
+                              <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800 flex-shrink-0">
+                                {openCall.openCallType}
+                              </span>
+                            )}
+                          </div>
+                          
+                          {openCall.description && (
+                            <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                              {openCall.description}
+                            </p>
+                          )}
+                        
+                          <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
+                            {openCall.deadline && (
+                              <span>締切: {formatDate(openCall.deadline)}</span>
+                            )}
+                            {openCall.startDate && (
+                              <span>開始: {formatDate(openCall.startDate)}</span>
+                            )}
+                            {openCall.area && (
+                              <span>エリア: {openCall.area}</span>
+                            )}
+                            {openCall.targetArea && (
+                              <span>対象領域: {openCall.targetArea}</span>
+                            )}
+                            {openCall.targetAudience && (
+                              <span>対象者: {openCall.targetAudience}</span>
+                            )}
+                            <span>主催者: {openCall.organizer}</span>
+                          </div>
+                          
+                          {openCall.availableResources && (
+                            <div className="mt-2">
+                              <span className="text-sm text-gray-600">
+                                <strong>提供リソース:</strong> {openCall.availableResources}
+                              </span>
+                            </div>
+                          )}
+                          {openCall.resourceType && (
+                            <div className="mt-1">
+                              <span className="text-sm text-gray-600">
+                                <strong>リソースタイプ:</strong> {openCall.resourceType}
+                              </span>
+                            </div>
+                          )}
+                          {openCall.operatingCompany && (
+                            <div className="mt-1">
+                              <span className="text-sm text-gray-600">
+                                <strong>運営企業:</strong> {openCall.operatingCompany}
+                              </span>
+                            </div>
                           )}
                         </div>
-                        
-                        {openCall.description && (
-                          <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-                            {openCall.description}
-                          </p>
-                        )}
-                        
-                        <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
-                          {openCall.deadline && (
-                            <span>締切: {formatDate(openCall.deadline)}</span>
-                          )}
-                          {openCall.startDate && (
-                            <span>開始: {formatDate(openCall.startDate)}</span>
-                          )}
-                          {openCall.area && (
-                            <span>エリア: {openCall.area}</span>
-                          )}
-                          {openCall.targetArea && (
-                            <span>対象領域: {openCall.targetArea}</span>
-                          )}
-                          {openCall.targetAudience && (
-                            <span>対象者: {openCall.targetAudience}</span>
-                          )}
-                          <span>主催者: {openCall.organizer}</span>
-                        </div>
-                        
-                        {openCall.availableResources && (
-                          <div className="mt-2">
-                            <span className="text-sm text-gray-600">
-                              <strong>提供リソース:</strong> {openCall.availableResources}
-                            </span>
-                          </div>
-                        )}
-                        {openCall.resourceType && (
-                          <div className="mt-1">
-                            <span className="text-sm text-gray-600">
-                              <strong>リソースタイプ:</strong> {openCall.resourceType}
-                            </span>
-                          </div>
-                        )}
-                        {openCall.operatingCompany && (
-                          <div className="mt-1">
-                            <span className="text-sm text-gray-600">
-                              <strong>運営企業:</strong> {openCall.operatingCompany}
-                            </span>
-                          </div>
-                        )}
                       </div>
                       
-                      <div className="flex items-center gap-2 ml-4">
+                      <div className="flex items-center gap-2 ml-4 flex-shrink-0">
                         <button
                           onClick={() => toggleActive(openCall.id, openCall.isActive)}
                           className={`p-2 rounded-lg transition-colors ${

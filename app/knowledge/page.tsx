@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Metadata } from "next";
+// import { Metadata } from "next";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
-import Card from "@/components/ui/card";
+// import Card from "@/components/ui/card";
 import Filter from "@/components/ui/filter";
-import { Search, Filter as FilterIcon, BookOpen, Calendar, User, ArrowRight, ExternalLink, Sparkles, Brain, Lightbulb, Target, TrendingUp, X } from "lucide-react";
+import { Search, Filter as FilterIcon, BookOpen, Calendar, ExternalLink, X } from "lucide-react";
+import Image from "next/image";
 
 interface KnowledgeItem {
   id: string;
@@ -23,9 +24,9 @@ export default function KnowledgePage() {
   const [knowledge, setKnowledge] = useState<KnowledgeItem[]>([]);
   const [filteredKnowledge, setFilteredKnowledge] = useState<KnowledgeItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{ categoryTag?: string; area?: string; }>({
     categoryTag: undefined,
     area: undefined,
   });
@@ -50,7 +51,8 @@ export default function KnowledgePage() {
         setKnowledge(data);
         setFilteredKnowledge(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Error fetching knowledge:', err);
+        // setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);
       }
@@ -77,7 +79,7 @@ export default function KnowledgePage() {
     setFilteredKnowledge(filtered);
   }, [knowledge, searchTerm]);
 
-  const handleFilterChange = (newFilters: any) => {
+  const handleFilterChange = (newFilters: { categoryTag?: string; area?: string; }) => {
     setFilters(newFilters);
   };
 
@@ -92,12 +94,12 @@ export default function KnowledgePage() {
   };
 
   // カテゴリータグ別の記事数を計算
-  const categoryCounts = knowledge.reduce((acc, item) => {
-    if (item.categoryTag) {
-      acc[item.categoryTag] = (acc[item.categoryTag] || 0) + 1;
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  // const categoryCounts = knowledge.reduce((acc, item) => {
+  //   if (item.categoryTag) {
+  //     acc[item.categoryTag] = (acc[item.categoryTag] || 0) + 1;
+  //   }
+  //   return acc;
+  // }, {} as Record<string, number>);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -227,9 +229,10 @@ export default function KnowledgePage() {
                         {/* 画像セクション */}
                         {item.imageUrl && (
                           <div className="w-1/3 relative overflow-hidden">
-                            <img
+                            <Image
                               src={item.imageUrl}
                               alt={item.title}
+                              fill
                               className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                             />
                             <div className="absolute top-3 left-3">
@@ -362,9 +365,11 @@ export default function KnowledgePage() {
                 <div className="mb-6">
                   {selectedKnowledge.imageUrl && (
                     <div className="relative mb-4 rounded-xl overflow-hidden">
-                      <img
+                      <Image
                         src={selectedKnowledge.imageUrl}
                         alt={selectedKnowledge.title}
+                        width={800}
+                        height={400}
                         className="w-full h-64 object-cover"
                       />
                     </div>

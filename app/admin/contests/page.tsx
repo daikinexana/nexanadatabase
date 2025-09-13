@@ -5,7 +5,9 @@ import Link from "next/link";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
+import AdminNav from "@/components/ui/admin-nav";
 import { Trophy, Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
 
 interface Contest {
   id: string;
@@ -23,6 +25,7 @@ interface Contest {
   incentive?: string;
   operatingCompany?: string;
   isActive: boolean;
+  isChecked?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -55,10 +58,14 @@ export default function AdminContestsPage() {
   const fetchContests = async () => {
     try {
       const response = await fetch('/api/contests?admin=true');
-      if (response.ok) {
-        const data = await response.json();
-        setContests(data);
-      }
+        if (response.ok) {
+          const data = await response.json();
+          // 作成日時で降順ソート（新しいものが上に来る）
+          const sortedData = data.sort((a: Contest, b: Contest) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          setContests(sortedData);
+        }
     } catch (error) {
       console.error('コンテスト情報の取得に失敗しました:', error);
     } finally {
@@ -86,6 +93,14 @@ export default function AdminContestsPage() {
     } catch (error) {
       console.error('ステータスの更新に失敗しました:', error);
     }
+  };
+
+  const toggleChecked = (id: string) => {
+    setContests(contests.map(contest => 
+      contest.id === id 
+        ? { ...contest, isChecked: !contest.isChecked }
+        : contest
+    ));
   };
 
   const deleteContest = async (id: string) => {
@@ -178,6 +193,7 @@ export default function AdminContestsPage() {
     <AdminGuard>
       <div className="min-h-screen bg-gray-50">
         <Header />
+        <AdminNav />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
@@ -475,16 +491,28 @@ export default function AdminContestsPage() {
             ) : (
               <div className="divide-y divide-gray-200">
                 {contests.map((contest) => (
-                  <div key={contest.id} className="px-6 py-4 hover:bg-gray-50">
+                  <div key={contest.id} className={`px-6 py-4 hover:bg-gray-50 ${contest.isChecked ? 'bg-blue-50 border-l-4 border-blue-400' : ''}`}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-start gap-4">
+                          {/* チェックボックス */}
+                          <div className="flex-shrink-0 pt-1">
+                            <input
+                              type="checkbox"
+                              checked={contest.isChecked || false}
+                              onChange={() => toggleChecked(contest.id)}
+                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                              title="確認済み"
+                            />
+                          </div>
                           {/* 画像プレビュー */}
                           {contest.imageUrl ? (
                             <div className="flex-shrink-0">
-                              <img
+                              <Image
                                 src={contest.imageUrl}
                                 alt={contest.title}
+                                width={64}
+                                height={64}
                                 className="w-16 h-16 object-cover rounded-lg"
                               />
                             </div>

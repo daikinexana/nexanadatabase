@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ImageIcon } from "lucide-react";
+import Image from "next/image";
 
 interface SimpleImageProps {
   src: string;
@@ -36,13 +37,11 @@ export default function SimpleImage({
   }
 
   return (
-    <img
+    <Image
       src={src}
       alt={alt}
       className={className}
-      style={fill ? { width: '100%', height: '100%', objectFit: 'cover' } : {}}
-      width={width}
-      height={height}
+      {...(fill ? { fill: true } : { width, height })}
       loading={priority ? "eager" : "lazy"}
       onError={() => setHasError(true)}
     />

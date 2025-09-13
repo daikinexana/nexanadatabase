@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const area = searchParams.get("area");
     const search = searchParams.get("search");
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       isActive: true,
     };
 
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error creating knowledge:", error);
     return NextResponse.json(
-      { error: `Failed to create knowledge: ${error.message}` },
+      { error: `Failed to create knowledge: ${error instanceof Error ? error.message : String(error)}` },
       { status: 500 }
     );
   }

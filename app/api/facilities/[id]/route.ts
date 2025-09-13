@@ -37,7 +37,7 @@ export async function PUT(
 ) {
   try {
     // 管理者権限を確認
-    const user = await requireAdmin();
+    await requireAdmin();
     
     const resolvedParams = await params;
     const body = await request.json();
@@ -128,7 +128,7 @@ export async function DELETE(
 ) {
   try {
     // 管理者権限を確認
-    const user = await requireAdmin();
+    await requireAdmin();
     
     const resolvedParams = await params;
     // 施設が存在するか確認
@@ -179,7 +179,7 @@ export async function PATCH(
 ) {
   try {
     // 管理者権限を確認
-    const user = await requireAdmin();
+    await requireAdmin();
     
     const resolvedParams = await params;
     const body = await request.json();

@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
 
 interface ImageUploadProps {
   value?: string;
@@ -99,9 +100,10 @@ export default function ImageUpload({ value, onChange, type, className = "" }: I
       {value && (
         <div className="relative">
           <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
-            <img
+            <Image
               src={value}
               alt="アップロードされた画像"
+              fill
               className="w-full h-full object-cover"
             />
             <button

@@ -7,10 +7,10 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const area = searchParams.get("area");
     const organizerType = searchParams.get("organizerType");
-    const category = searchParams.get("category");
+    // const category = searchParams.get("category");
     const search = searchParams.get("search");
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       isActive: true,
     };
 
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // 管理者権限を確認
-    const user = await requireAdmin();
+    await requireAdmin();
     
     const body = await request.json();
     const {

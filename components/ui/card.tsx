@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import SimpleImage from "./simple-image";
-import { Calendar, MapPin, Building, ExternalLink, Clock, Phone, Mail } from "lucide-react";
+import { Calendar, MapPin, Building, ExternalLink, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import Modal from "./modal";
@@ -43,7 +43,7 @@ interface CardProps {
 }
 
 export default function Card({
-  id,
+  // id,
   title,
   description,
   imageUrl,
@@ -53,14 +53,14 @@ export default function Card({
   area,
   organizer,
   organizerType,
-  category,
+  // category,
   tags,
   website,
-  amount,
+  // amount,
   type = "contest",
-  address,
+  // address,
   venue,
-  contact,
+  // contact,
   targetArea,
   facilityInfo,
   targetAudience,
@@ -112,7 +112,6 @@ export default function Card({
   };
 
   const getOrganizerTypeStyle = (type: string) => {
-    console.log('OrganizerType:', type); // デバッグ用
     const styleMap: Record<string, { className: string; style: React.CSSProperties }> = {
       GOVERNMENT: { 
         className: "bg-blue-600", 
@@ -148,37 +147,36 @@ export default function Card({
       }, // その他 - グレー
     };
     const result = styleMap[type] || { className: "bg-gray-600", style: { backgroundColor: '#4b5563' } };
-    console.log('Selected style:', result); // デバッグ用
     return result;
   };
 
-  const getCategoryLabel = (category: string) => {
-    const categoryMap: Record<string, string> = {
-      STARTUP_CONTEST: "スタートアップコンテスト",
-      INNOVATION_CHALLENGE: "イノベーションチャレンジ",
-      HACKATHON: "ハッカソン",
-      PITCH_CONTEST: "ピッチコンテスト",
-      BUSINESS_PLAN: "ビジネスプラン",
-      SUBSIDY: "補助金",
-      GRANT: "助成金",
-      PARTNERSHIP: "パートナーシップ",
-      COLLABORATION: "協業",
-      ASSET_PROVISION: "アセット提供",
-      TECHNOLOGY_PROVISION: "技術提供",
-      FUNDING: "投資",
-      M_AND_A: "M&A",
-      IPO: "IPO",
-      AI: "AI",
-      DEEPTECH: "ディープテック",
-      BIOTECH: "バイオテック",
-      CLEANTECH: "クリーンテック",
-      FINTECH: "フィンテック",
-      HEALTHTECH: "ヘルステック",
-      EDUTECH: "エドテック",
-      OTHER: "その他",
-    };
-    return categoryMap[category] || category;
-  };
+  // const getCategoryLabel = (category: string) => {
+  //   const categoryMap: Record<string, string> = {
+  //     STARTUP_CONTEST: "スタートアップコンテスト",
+  //     INNOVATION_CHALLENGE: "イノベーションチャレンジ",
+  //     HACKATHON: "ハッカソン",
+  //     PITCH_CONTEST: "ピッチコンテスト",
+  //     BUSINESS_PLAN: "ビジネスプラン",
+  //     SUBSIDY: "補助金",
+  //     GRANT: "助成金",
+  //     PARTNERSHIP: "パートナーシップ",
+  //     COLLABORATION: "協業",
+  //     ASSET_PROVISION: "アセット提供",
+  //     TECHNOLOGY_PROVISION: "技術提供",
+  //     FUNDING: "投資",
+  //     M_AND_A: "M&A",
+  //     IPO: "IPO",
+  //     AI: "AI",
+  //     DEEPTECH: "ディープテック",
+  //     BIOTECH: "バイオテック",
+  //     CLEANTECH: "クリーンテック",
+  //     FINTECH: "フィンテック",
+  //     HEALTHTECH: "ヘルステック",
+  //     EDUTECH: "エドテック",
+  //     OTHER: "その他",
+  //   };
+  //   return categoryMap[category] || category;
+  // };
 
   return (
     <>
@@ -222,7 +220,6 @@ export default function Card({
           {/* 主催者タイプ */}
           {organizerType && (
             <div className="mb-3">
-              <div className="text-xs text-gray-500 mb-1">Debug: {organizerType}</div>
               <span 
                 className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${
                   organizerType === 'GOVERNMENT' || organizerType === '行政' ? 'bg-blue-600' :
@@ -251,36 +248,60 @@ export default function Card({
           )}
 
           {/* 公募タイプ（open-call用） */}
-          {type === "open-call" && openCallType && (
+          {type === "open-call" && (
             <div className="mb-3">
-              <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-semibold rounded-full">
-                {openCallType}
-              </span>
+              {openCallType ? (
+                <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-semibold rounded-full">
+                  {openCallType}
+                </span>
+              ) : (
+                <span className="px-3 py-1 bg-gray-200 text-gray-500 text-xs font-semibold rounded-full">
+                  公募タイプ未定
+                </span>
+              )}
             </div>
           )}
 
           {/* 提供可能なリソース/技術タイプ（open-call用） */}
-          {type === "open-call" && resourceType && (
+          {type === "open-call" && (
             <div className="mb-3">
-              <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-semibold rounded-full">
-                {resourceType}
-              </span>
+              {resourceType ? (
+                <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-semibold rounded-full">
+                  {resourceType}
+                </span>
+              ) : (
+                <span className="px-3 py-1 bg-gray-200 text-gray-500 text-xs font-semibold rounded-full">
+                  リソースタイプ未定
+                </span>
+              )}
             </div>
           )}
 
           {/* 説明（最初の50文字のみ） */}
-          {description && (
+          {description ? (
             <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-3">
               {description.length > 50 ? `${description.substring(0, 50)}...` : description}
             </p>
+          ) : (
+            <div className="mb-3">
+              <div className="h-4 bg-gray-100 rounded animate-pulse mb-2"></div>
+              <div className="h-4 bg-gray-100 rounded animate-pulse w-3/4"></div>
+            </div>
           )}
 
           {/* 締切日 */}
-          {deadline && (
+          {deadline ? (
             <div className="flex items-center space-x-2 mb-3">
               <Clock className="h-4 w-4 text-red-500 flex-shrink-0" />
               <span className="text-sm text-gray-600 font-medium">
                 締切: {format(deadline, "yyyy年MM月dd日", { locale: ja })}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2 mb-3">
+              <Clock className="h-4 w-4 text-gray-300 flex-shrink-0" />
+              <span className="text-sm text-gray-400 italic">
+                締切日未定
               </span>
             </div>
           )}
@@ -291,7 +312,7 @@ export default function Card({
               <Calendar className="h-4 w-4 text-green-500 flex-shrink-0" />
               <span className="text-sm text-gray-600 font-medium">
                 {format(startDate, "yyyy年MM月dd日", { locale: ja })}
-                {endDate && ` 〜 ${format(endDate, "yyyy年MM月dd日", { locale: ja })}`}
+                {endDate && ` 〜 ${format(endDate, "MM月dd日", { locale: ja })}`}
               </span>
             </div>
           )}
@@ -305,12 +326,77 @@ export default function Card({
           )}
 
           {/* エリア */}
-          {area && (
-            <div className="flex items-center space-x-2 mb-4">
+          {area ? (
+            <div className="flex items-center space-x-2 mb-3">
               <MapPin className="h-4 w-4 text-blue-500 flex-shrink-0" />
               <span className="text-sm text-gray-600 font-medium">{area}</span>
             </div>
+          ) : (
+            <div className="flex items-center space-x-2 mb-3">
+              <MapPin className="h-4 w-4 text-gray-300 flex-shrink-0" />
+              <span className="text-sm text-gray-400 italic">エリア未定</span>
+            </div>
           )}
+
+          {/* カウントダウンバッジ（エリアの下） */}
+          {deadline && (
+            <div className="mb-4 flex justify-center">
+              <div className={`relative px-4 py-2 text-sm font-bold rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 ${getStatusColor(deadline)}`}>
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-full"></div>
+                <div className="relative flex items-center space-x-2">
+                  <Clock className="h-4 w-4" />
+                  <span>
+                    {(() => {
+                      const days = getDaysRemaining(deadline);
+                      if (days < 0) return "締切済み";
+                      if (days === 0) return "今日締切！";
+                      if (days === 1) return "明日締切！";
+                      if (days <= 7) return `残り${days}日`;
+                      return `残り${days}日`;
+                    })()}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* イベント開始日までのカウントダウンバッジ（イベント用） */}
+          {type === "event" && startDate && (
+            <div className="mb-4 flex justify-center">
+              <div className={`relative px-4 py-2 text-sm font-bold rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 ${getStatusColor(startDate)}`}>
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-full"></div>
+                <div className="relative flex items-center space-x-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>
+                    {(() => {
+                      const days = getDaysRemaining(startDate);
+                      if (days < 0) return "開催済み";
+                      if (days === 0) return "今日開催！";
+                      if (days === 1) return "明日開催！";
+                      if (days <= 7) return `開催まで${days}日`;
+                      return `開催まで${days}日`;
+                    })()}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 追加情報のプレースホルダー */}
+          <div className="mt-3 space-y-2">
+            {type === "open-call" && (
+              <>
+                <div className="flex items-center space-x-2">
+                  <div className="h-3 w-3 bg-gray-200 rounded-full"></div>
+                  <span className="text-xs text-gray-400">詳細情報あり</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="h-3 w-3 bg-gray-200 rounded-full"></div>
+                  <span className="text-xs text-gray-400">応募条件・要件</span>
+                </div>
+              </>
+            )}
+          </div>
 
           {/* ホバー時の詳細表示インジケーター */}
           <div className="mt-auto pt-4 flex items-center justify-between">

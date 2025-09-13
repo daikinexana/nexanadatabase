@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Metadata } from "next";
+import { useState, useEffect, useCallback } from "react";
+// import { Metadata } from "next";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
-import Card from "@/components/ui/card";
+// import Card from "@/components/ui/card";
 import Filter from "@/components/ui/filter";
-import { Search, Filter as FilterIcon, TrendingUp, DollarSign, Building, ArrowRight, Calendar, ExternalLink, Sparkles, Zap, X } from "lucide-react";
+import { Search, Filter as FilterIcon, TrendingUp, DollarSign, Building, Calendar, ExternalLink, X } from "lucide-react";
+import Image from "next/image";
 
 interface NewsItem {
   id: string;
@@ -46,12 +47,7 @@ export default function NewsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  // データベースからニュースを取得
-  useEffect(() => {
-    fetchNews();
-  }, [filters, searchTerm]);
-
-  const fetchNews = async () => {
+  const fetchNews = useCallback(async () => {
     try {
       setLoading(true);
       // フィルターパラメータを含めてAPIを呼び出す
@@ -79,7 +75,12 @@ export default function NewsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, searchTerm]);
+
+  // データベースからニュースを取得
+  useEffect(() => {
+    fetchNews();
+  }, [filters, searchTerm, fetchNews]);
 
   // APIから取得したデータをそのまま表示（フィルタリングはAPI側で実行）
   useEffect(() => {
@@ -107,15 +108,15 @@ export default function NewsPage() {
   };
 
   // 統計情報の計算
-  const totalFunding = news
-    .filter((item) => item.type === "FUNDING")
-    .reduce((sum, item) => {
-      const amount = item.amount?.replace(/[^\d]/g, "") || "0";
-      return sum + parseInt(amount);
-    }, 0);
+  // const totalFunding = news
+  //   .filter((item) => item.type === "FUNDING")
+  //   .reduce((sum, item) => {
+  //     const amount = item.amount?.replace(/[^\d]/g, "") || "0";
+  //     return sum + parseInt(amount);
+  //   }, 0);
 
-  const fundingCount = news.filter((item) => item.type === "FUNDING").length;
-  const mAndACount = news.filter((item) => item.type === "M_AND_A").length;
+  // const fundingCount = news.filter((item) => item.type === "FUNDING").length;
+  // const mAndACount = news.filter((item) => item.type === "M_AND_A").length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -242,13 +243,14 @@ export default function NewsPage() {
                   >
                     {/* メインカード */}
                     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden relative z-0">
-                      <div className="flex h-48">
+                      <div className="flex h-64">
                         {/* 画像セクション */}
                         {item.imageUrl && (
                           <div className="w-1/3 relative overflow-hidden">
-                            <img
+                            <Image
                               src={item.imageUrl}
                               alt={item.title}
+                              fill
                               className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                             />
                             <div className="absolute top-3 left-3">
@@ -260,46 +262,58 @@ export default function NewsPage() {
                         )}
 
                         {/* コンテンツセクション */}
-                        <div className="flex-1 p-6">
-                          <div className="flex flex-col h-full justify-between">
-                            {/* ヘッダー */}
-                            <div className="mb-3">
-                              <h3 className="text-lg font-semibold text-gray-900 mb-2 leading-tight line-clamp-2">
-                                {item.title}
-                              </h3>
-                              <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
-                                {item.description}
-                              </p>
+                        <div className="flex-1 p-6 flex flex-col">
+                          {/* ヘッダー */}
+                          <div className="mb-4 flex-shrink-0">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2 leading-tight line-clamp-2">
+                              {item.title}
+                            </h3>
+                            <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
+                              {item.description}
+                            </p>
+                          </div>
+
+                          {/* メタ情報 - フレックスで下部に配置 */}
+                          <div className="mt-auto space-y-3">
+                            {/* 企業名と金額 */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2 min-w-0 flex-1">
+                                <Building className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                                <span className="text-sm font-medium text-gray-700 truncate">{item.company}</span>
+                              </div>
+                              {item.amount && (
+                                <div className="px-3 py-1 bg-gray-100 rounded-full flex-shrink-0 ml-2">
+                                  <span className="text-sm font-semibold text-gray-700">{item.amount}</span>
+                                </div>
+                              )}
                             </div>
 
-                            {/* メタ情報 */}
-                            <div className="space-y-3">
-                              {/* 企業名と金額 */}
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-2">
-                                  <Building className="h-4 w-4 text-gray-500" />
-                                  <span className="text-sm font-medium text-gray-700">{item.company}</span>
-                                </div>
-                                {item.amount && (
-                                  <div className="px-3 py-1 bg-gray-100 rounded-full">
-                                    <span className="text-sm font-semibold text-gray-700">{item.amount}</span>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              {/* 業界・領域とエリア */}
+                            {/* 公開日 */}
+                            {item.publishedAt && (
                               <div className="flex items-center space-x-2">
-                                {item.sector && (
-                                  <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
-                                    {item.sector}
-                                  </span>
-                                )}
-                                {item.area && (
-                                  <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">
-                                    {item.area}
-                                  </span>
-                                )}
+                                <Calendar className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                                <span className="text-sm text-gray-600">
+                                  {new Date(item.publishedAt).toLocaleDateString("ja-JP", { 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric' 
+                                  })}
+                                </span>
                               </div>
+                            )}
+                            
+                            {/* 業界・領域とエリア */}
+                            <div className="flex items-center space-x-2 flex-wrap gap-1">
+                              {item.sector && (
+                                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                                  {item.sector}
+                                </span>
+                              )}
+                              {item.area && (
+                                <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">
+                                  {item.area}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -388,9 +402,11 @@ export default function NewsPage() {
                 <div className="mb-6">
                   {selectedNews.imageUrl && (
                     <div className="relative mb-4 rounded-xl overflow-hidden">
-                      <img
+                      <Image
                         src={selectedNews.imageUrl}
                         alt={selectedNews.title}
+                        width={800}
+                        height={256}
                         className="w-full h-64 object-cover"
                       />
                     </div>

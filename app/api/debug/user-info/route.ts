@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const user = await getCurrentUser();
     
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("Error fetching user info:", error);
     return NextResponse.json(
-      { error: "ユーザー情報の取得に失敗しました", details: error.message },
+      { error: "ユーザー情報の取得に失敗しました", details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

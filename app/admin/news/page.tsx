@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
-import { Plus, Edit, Trash2, Save, X, Eye, EyeOff } from "lucide-react";
+import AdminNav from "@/components/ui/admin-nav";
+import { Plus, Edit, Trash2, Save } from "lucide-react";
+import Image from "next/image";
 
 interface News {
   id: string;
@@ -21,12 +23,13 @@ interface News {
   sourceUrl?: string;
   area?: string;
   isActive: boolean;
+  isChecked?: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export default function AdminNewsPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const [news, setNews] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingNews, setEditingNews] = useState<News | null>(null);
@@ -46,7 +49,7 @@ export default function AdminNewsPage() {
     isActive: true,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [investorInput, setInvestorInput] = useState('');
+  // const [investorInput, setInvestorInput] = useState('');
 
   useEffect(() => {
     fetchNews();
@@ -186,49 +189,58 @@ export default function AdminNewsPage() {
     setFormData({ ...formData, investors });
   };
 
-  const handleInvestorAdd = () => {
-    if (investorInput.trim() && !formData.investors?.includes(investorInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        investors: [...(prev.investors || []), investorInput.trim()]
-      }));
-      setInvestorInput('');
-    }
-  };
+  // const handleInvestorAdd = () => {
+  //   if (investorInput.trim() && !formData.investors?.includes(investorInput.trim())) {
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       investors: [...(prev.investors || []), investorInput.trim()]
+  //     }));
+  //     setInvestorInput('');
+  //   }
+  // };
 
-  const handleInvestorRemove = (investorToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      investors: prev.investors?.filter(investor => investor !== investorToRemove) || []
-    }));
-  };
+  // const handleInvestorRemove = (investorToRemove: string) => {
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     investors: prev.investors?.filter(investor => investor !== investorToRemove) || []
+  //   }));
+  // };
 
-  const toggleActive = async (id: string, currentStatus: boolean) => {
-    try {
-      const response = await fetch(`/api/news/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ isActive: !currentStatus }),
-      });
+  // const toggleActive = async (id: string, currentStatus: boolean) => {
+  //   try {
+  //     const response = await fetch(`/api/news/${id}`, {
+  //       method: 'PATCH',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ isActive: !currentStatus }),
+  //     });
 
-      if (response.ok) {
-        setNews(news.map(newsItem => 
-          newsItem.id === id 
-            ? { ...newsItem, isActive: !currentStatus }
-            : newsItem
-        ));
-      }
-    } catch (error) {
-      console.error('ステータスの更新に失敗しました:', error);
-    }
-  };
+  //     if (response.ok) {
+  //       setNews(news.map(newsItem => 
+  //         newsItem.id === id 
+  //           ? { ...newsItem, isActive: !currentStatus }
+  //           : newsItem
+  //       ));
+  //     }
+  //   } catch (error) {
+  //     console.error('ステータスの更新に失敗しました:', error);
+  //   }
+  // };
+
+  // const toggleChecked = (id: string) => {
+  //   setNews(news.map(newsItem => 
+  //     newsItem.id === id 
+  //       ? { ...newsItem, isChecked: !newsItem.isChecked }
+  //       : newsItem
+  //   ));
+  // };
 
   return (
     <AdminGuard>
       <div className="min-h-screen bg-gray-50">
         <Header />
+        <AdminNav />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
@@ -499,8 +511,23 @@ export default function AdminNewsPage() {
                     {news.map((newsItem) => (
                       <tr key={newsItem.id}>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900 max-w-xs truncate">
-                            {newsItem.title}
+                          <div className="flex items-center gap-3">
+                            {/* 画像 */}
+                            {newsItem.imageUrl && (
+                              <Image
+                                src={newsItem.imageUrl}
+                                alt={newsItem.title}
+                                width={48}
+                                height={48}
+                                className="w-12 h-12 object-cover rounded-lg border border-gray-200 flex-shrink-0"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            )}
+                            <div className="text-sm font-medium text-gray-900 max-w-xs truncate">
+                              {newsItem.title}
+                            </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">

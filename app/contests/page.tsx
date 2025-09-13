@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Metadata } from "next";
+import { useState, useEffect, useCallback, useMemo } from "react";
+// import { Metadata } from "next";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
@@ -30,10 +30,11 @@ export default function ContestsPage() {
   const [contests, setContests] = useState<Contest[]>([]);
   const [filteredContests, setFilteredContests] = useState<Contest[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{ area?: string; organizerType?: string; }>({
     area: undefined,
   });
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showPastContests, setShowPastContests] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // データの取得
@@ -59,7 +60,7 @@ export default function ContestsPage() {
   }, []);
 
   // エリアの順序定義（全国/47都道府県/国外）
-  const areaOrder = [
+  const areaOrder = useMemo(() => [
     '全国',
     '北海道',
     '青森県',
@@ -128,14 +129,14 @@ export default function ContestsPage() {
     'UAE（ドバイ/アブダビ）',
     'オーストラリア',
     'その他'
-  ];
+  ], []);
 
   // エリアの順序を取得する関数
-  const getAreaOrder = (area: string | undefined) => {
+  const getAreaOrder = useCallback((area: string | undefined) => {
     if (!area) return 999; // エリアが未設定の場合は最後に配置
     const index = areaOrder.indexOf(area);
     return index === -1 ? 999 : index;
-  };
+  }, [areaOrder]);
 
   // フィルタリング処理
   useEffect(() => {
@@ -160,6 +161,15 @@ export default function ContestsPage() {
       filtered = filtered.filter((contest) => contest.area === filters.area);
     }
 
+    // 過去のコンテストのフィルタリング
+    if (!showPastContests) {
+      const now = new Date();
+      filtered = filtered.filter((contest) => {
+        if (!contest.deadline) return true; // 締切日が未設定の場合は表示
+        return new Date(contest.deadline) >= now;
+      });
+    }
+
     // エリアの順序でソート
     filtered.sort((a, b) => {
       const aOrder = getAreaOrder(a.area);
@@ -169,14 +179,22 @@ export default function ContestsPage() {
         return aOrder - bOrder;
       }
       
-      // 同じエリア内では作成日時の降順（新しい順）
+      // 同じエリア内では締切日でソート（締切日が近い順、締切日未設定は最後）
+      const aDeadline = a.deadline ? new Date(a.deadline).getTime() : Number.MAX_SAFE_INTEGER;
+      const bDeadline = b.deadline ? new Date(b.deadline).getTime() : Number.MAX_SAFE_INTEGER;
+      
+      if (aDeadline !== bDeadline) {
+        return aDeadline - bDeadline;
+      }
+      
+      // 締切日が同じ場合は作成日時の降順（新しい順）
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
     setFilteredContests(filtered);
-  }, [contests, searchTerm, filters]);
+  }, [contests, searchTerm, filters, showPastContests, getAreaOrder]);
 
-  const handleFilterChange = (newFilters: any) => {
+  const handleFilterChange = (newFilters: { area?: string; organizerType?: string; }) => {
     setFilters(newFilters);
   };
 
@@ -277,6 +295,16 @@ export default function ContestsPage() {
             <p className="text-gray-600">
               {filteredContests.length}件のコンテストが見つかりました
             </p>
+            <button
+              onClick={() => setShowPastContests(!showPastContests)}
+              className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                showPastContests
+                  ? "bg-gray-600 text-white hover:bg-gray-700"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {showPastContests ? "過去のコンテストを非表示" : "過去のコンテストも表示"}
+            </button>
           </div>
         </div>
 

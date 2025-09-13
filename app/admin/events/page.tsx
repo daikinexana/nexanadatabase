@@ -5,12 +5,15 @@ import Link from "next/link";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
+import AdminNav from "@/components/ui/admin-nav";
 import { Calendar, Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
 
 interface Event {
   id: string;
   title: string;
   description?: string;
+  imageUrl?: string;
   startDate: string;
   endDate?: string;
   venue?: string;
@@ -22,6 +25,7 @@ interface Event {
   targetAudience?: string;
   operatingCompany?: string;
   isActive: boolean;
+  isChecked?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -54,10 +58,14 @@ export default function AdminEventsPage() {
   const fetchEvents = async () => {
     try {
       const response = await fetch('/api/events');
-      if (response.ok) {
-        const data = await response.json();
-        setEvents(data);
-      }
+        if (response.ok) {
+          const data = await response.json();
+          // 作成日時で降順ソート（新しいものが上に来る）
+          const sortedData = data.sort((a: Event, b: Event) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          setEvents(sortedData);
+        }
     } catch (error) {
       console.error('イベント情報の取得に失敗しました:', error);
     } finally {
@@ -86,6 +94,14 @@ export default function AdminEventsPage() {
       console.error('ステータスの更新に失敗しました:', error);
     }
   };
+
+  // const toggleChecked = (id: string) => {
+  //   setEvents(events.map(event => 
+  //     event.id === id 
+  //       ? { ...event, isChecked: !event.isChecked }
+  //       : event
+  //   ));
+  // };
 
   const deleteEvent = async (id: string) => {
     if (!confirm('このイベントを削除しますか？')) return;
@@ -185,6 +201,7 @@ export default function AdminEventsPage() {
     <AdminGuard>
       <div className="min-h-screen bg-gray-50">
         <Header />
+        <AdminNav />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
@@ -481,58 +498,77 @@ export default function AdminEventsPage() {
               <div className="divide-y divide-gray-200">
                 {events.map((event) => (
                   <div key={event.id} className="px-6 py-4 hover:bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <Calendar className="h-5 w-5 text-gray-400" />
-                          <h3 className="text-lg font-medium text-gray-900">
-                            {event.title}
-                          </h3>
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            event.isActive 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {event.isActive ? '公開中' : '非公開'}
-                          </span>
-                        </div>
-                        
-                        {event.description && (
-                          <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-                            {event.description}
-                          </p>
-                        )}
-                        
-                        <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
-                          <span>開催日: {formatDate(event.startDate)}</span>
-                          {event.endDate && (
-                            <span>〜 {formatDate(event.endDate)}</span>
-                          )}
-                          {event.venue && (
-                            <span>会場: {event.venue}</span>
-                          )}
-                          {event.area && (
-                            <span>エリア: {event.area}</span>
-                          )}
-                          <span>主催者: {event.organizer}</span>
-                        </div>
-                        
-                        {(event.targetArea || event.targetAudience || event.operatingCompany) && (
-                          <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
-                            {event.targetArea && (
-                              <span>対象領域: {event.targetArea}</span>
-                            )}
-                            {event.targetAudience && (
-                              <span>対象者: {event.targetAudience}</span>
-                            )}
-                            {event.operatingCompany && (
-                              <span>運営企業: {event.operatingCompany}</span>
-                            )}
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 flex gap-4">
+                        {/* 画像 */}
+                        {event.imageUrl && (
+                          <div className="flex-shrink-0">
+                            <Image
+                              src={event.imageUrl}
+                              alt={event.title}
+                              width={80}
+                              height={80}
+                              className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
                           </div>
                         )}
+                        
+                        {/* イベント情報 */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3">
+                            <Calendar className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                            <h3 className="text-lg font-medium text-gray-900 truncate">
+                              {event.title}
+                            </h3>
+                            <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${
+                              event.isActive 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {event.isActive ? '公開中' : '非公開'}
+                            </span>
+                          </div>
+                          
+                          {event.description && (
+                            <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                              {event.description}
+                            </p>
+                          )}
+                          
+                          <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
+                            <span>開催日: {formatDate(event.startDate)}</span>
+                            {event.endDate && (
+                              <span>〜 {formatDate(event.endDate)}</span>
+                            )}
+                            {event.venue && (
+                              <span>会場: {event.venue}</span>
+                            )}
+                            {event.area && (
+                              <span>エリア: {event.area}</span>
+                            )}
+                            <span>主催者: {event.organizer}</span>
+                          </div>
+                          
+                          {(event.targetArea || event.targetAudience || event.operatingCompany) && (
+                            <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
+                              {event.targetArea && (
+                                <span>対象領域: {event.targetArea}</span>
+                              )}
+                              {event.targetAudience && (
+                                <span>対象者: {event.targetAudience}</span>
+                              )}
+                              {event.operatingCompany && (
+                                <span>運営企業: {event.operatingCompany}</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
                       
-                      <div className="flex items-center gap-2 ml-4">
+                      <div className="flex items-center gap-2 ml-4 flex-shrink-0">
                         <button
                           onClick={() => toggleActive(event.id, event.isActive)}
                           className={`p-2 rounded-lg transition-colors ${

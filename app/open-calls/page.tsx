@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
@@ -33,13 +33,97 @@ export default function OpenCallsPage() {
   const [openCalls, setOpenCalls] = useState<OpenCall[]>([]);
   const [filteredOpenCalls, setFilteredOpenCalls] = useState<OpenCall[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{
+    area?: string;
+    organizerType?: string;
+    openCallType?: string;
+  }>({
     area: undefined,
     organizerType: undefined,
     openCallType: undefined,
   });
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showPastOpenCalls, setShowPastOpenCalls] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // エリアの順序定義（全国/47都道府県/国外）
+  const areaOrder = useMemo(() => [
+    '全国',
+    '北海道',
+    '青森県',
+    '岩手県',
+    '宮城県',
+    '秋田県',
+    '山形県',
+    '福島県',
+    '茨城県',
+    '栃木県',
+    '群馬県',
+    '埼玉県',
+    '千葉県',
+    '東京都',
+    '神奈川県',
+    '新潟県',
+    '富山県',
+    '石川県',
+    '福井県',
+    '山梨県',
+    '長野県',
+    '岐阜県',
+    '静岡県',
+    '愛知県',
+    '三重県',
+    '滋賀県',
+    '京都府',
+    '大阪府',
+    '兵庫県',
+    '奈良県',
+    '和歌山県',
+    '鳥取県',
+    '島根県',
+    '岡山県',
+    '広島県',
+    '山口県',
+    '徳島県',
+    '香川県',
+    '愛媛県',
+    '高知県',
+    '福岡県',
+    '佐賀県',
+    '長崎県',
+    '熊本県',
+    '大分県',
+    '宮崎県',
+    '鹿児島県',
+    '沖縄県',
+    'アメリカ',
+    'カナダ',
+    'イギリス',
+    'エストニア',
+    'オランダ',
+    'スペイン',
+    'ドイツ',
+    'フランス',
+    'ポルトガル',
+    '中国',
+    '台湾',
+    '韓国',
+    'インドネシア',
+    'シンガポール',
+    'タイ',
+    'ベトナム',
+    'インド',
+    'UAE（ドバイ/アブダビ）',
+    'オーストラリア',
+    'その他'
+  ], []);
+
+  // エリアの順序を取得する関数
+  const getAreaOrder = useCallback((area: string | undefined) => {
+    if (!area) return 999; // エリアが未設定の場合は最後に配置
+    const index = areaOrder.indexOf(area);
+    return index === -1 ? 999 : index;
+  }, [areaOrder]);
 
   // データの取得
   useEffect(() => {
@@ -107,8 +191,38 @@ export default function OpenCallsPage() {
       );
     }
 
+    // 過去の公募のフィルタリング
+    if (!showPastOpenCalls) {
+      const now = new Date();
+      filtered = filtered.filter((openCall) => {
+        if (!openCall.deadline) return true; // 締切日が未設定の場合は表示
+        return new Date(openCall.deadline) >= now;
+      });
+    }
+
+    // エリアの順序でソート
+    filtered.sort((a, b) => {
+      const aOrder = getAreaOrder(a.area);
+      const bOrder = getAreaOrder(b.area);
+      
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder;
+      }
+      
+      // 同じエリア内では締切日でソート（締切日が近い順、締切日未設定は最後）
+      const aDeadline = a.deadline ? new Date(a.deadline).getTime() : Number.MAX_SAFE_INTEGER;
+      const bDeadline = b.deadline ? new Date(b.deadline).getTime() : Number.MAX_SAFE_INTEGER;
+      
+      if (aDeadline !== bDeadline) {
+        return aDeadline - bDeadline;
+      }
+      
+      // 締切日が同じ場合は作成日時の降順（新しい順）
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
     setFilteredOpenCalls(filtered);
-  }, [openCalls, searchTerm, filters]);
+  }, [openCalls, searchTerm, filters, showPastOpenCalls, getAreaOrder]);
 
   const handleFilterChange = (newFilters: {
     area?: string;
@@ -216,6 +330,16 @@ export default function OpenCallsPage() {
             <p className="text-gray-600">
               {filteredOpenCalls.length}件の公募が見つかりました
             </p>
+            <button
+              onClick={() => setShowPastOpenCalls(!showPastOpenCalls)}
+              className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                showPastOpenCalls
+                  ? "bg-gray-600 text-white hover:bg-gray-700"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {showPastOpenCalls ? "過去の公募を非表示" : "過去の公募も表示"}
+            </button>
           </div>
         </div>
 
@@ -226,29 +350,83 @@ export default function OpenCallsPage() {
             <p className="text-gray-600">読み込み中...</p>
           </div>
         ) : filteredOpenCalls.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredOpenCalls.map((openCall) => (
-              <Card
-                key={openCall.id}
-                id={openCall.id}
-                title={openCall.title}
-                description={openCall.description}
-                imageUrl={openCall.imageUrl}
-                deadline={openCall.deadline ? new Date(openCall.deadline) : undefined}
-                startDate={openCall.startDate ? new Date(openCall.startDate) : undefined}
-                area={openCall.area}
-                organizer={openCall.organizer}
-                organizerType={openCall.organizerType}
-                website={openCall.website}
-                targetArea={openCall.targetArea}
-                targetAudience={openCall.targetAudience}
-                openCallType={openCall.openCallType}
-                availableResources={openCall.availableResources}
-                resourceType={openCall.resourceType}
-                operatingCompany={openCall.operatingCompany}
-                type="open-call"
-              />
-            ))}
+          <div className="space-y-12">
+            {areaOrder.map((area) => {
+              const areaOpenCalls = filteredOpenCalls.filter(openCall => openCall.area === area);
+              if (areaOpenCalls.length === 0) return null;
+
+              return (
+                <div key={area}>
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{area}</h2>
+                    <div className="h-1 w-20 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full"></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+                    {areaOpenCalls.map((openCall) => (
+                      <Card
+                        key={openCall.id}
+                        id={openCall.id}
+                        title={openCall.title}
+                        description={openCall.description}
+                        imageUrl={openCall.imageUrl}
+                        deadline={openCall.deadline ? new Date(openCall.deadline) : undefined}
+                        startDate={openCall.startDate ? new Date(openCall.startDate) : undefined}
+                        area={openCall.area}
+                        organizer={openCall.organizer}
+                        organizerType={openCall.organizerType || "その他"}
+                        website={openCall.website}
+                        targetArea={openCall.targetArea}
+                        targetAudience={openCall.targetAudience}
+                        openCallType={openCall.openCallType}
+                        availableResources={openCall.availableResources}
+                        resourceType={openCall.resourceType}
+                        operatingCompany={openCall.operatingCompany}
+                        type="open-call"
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            
+            {/* エリア未設定の公募 */}
+            {(() => {
+              const unassignedOpenCalls = filteredOpenCalls.filter(openCall => !areaOrder.includes(openCall.area || ''));
+              if (unassignedOpenCalls.length === 0) return null;
+
+              return (
+                <div>
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">その他</h2>
+                    <div className="h-1 w-20 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full"></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+                    {unassignedOpenCalls.map((openCall) => (
+                      <Card
+                        key={openCall.id}
+                        id={openCall.id}
+                        title={openCall.title}
+                        description={openCall.description}
+                        imageUrl={openCall.imageUrl}
+                        deadline={openCall.deadline ? new Date(openCall.deadline) : undefined}
+                        startDate={openCall.startDate ? new Date(openCall.startDate) : undefined}
+                        area={openCall.area}
+                        organizer={openCall.organizer}
+                        organizerType={openCall.organizerType || "その他"}
+                        website={openCall.website}
+                        targetArea={openCall.targetArea}
+                        targetAudience={openCall.targetAudience}
+                        openCallType={openCall.openCallType}
+                        availableResources={openCall.availableResources}
+                        resourceType={openCall.resourceType}
+                        operatingCompany={openCall.operatingCompany}
+                        type="open-call"
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         ) : (
           <div className="text-center py-12">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/ui/header";
@@ -51,13 +51,7 @@ export default function EditFacilityPage() {
     isActive: true,
   });
 
-  useEffect(() => {
-    if (facilityId) {
-      fetchFacility();
-    }
-  }, [facilityId]);
-
-  const fetchFacility = async () => {
+  const fetchFacility = useCallback(async () => {
     try {
       const response = await fetch(`/api/facilities/${facilityId}`);
       if (response.ok) {
@@ -89,7 +83,13 @@ export default function EditFacilityPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [facilityId, router]);
+
+  useEffect(() => {
+    if (facilityId) {
+      fetchFacility();
+    }
+  }, [facilityId, fetchFacility]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
