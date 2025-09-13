@@ -5,7 +5,6 @@ import Link from "next/link";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
-import ImageUpload from "@/components/ui/image-upload";
 import { Trophy, Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 
 interface Contest {
@@ -416,19 +415,22 @@ export default function AdminContestsPage() {
                   />
                 </div>
 
-                {/* 画像アップロード */}
+                {/* 画像URL入力 */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    画像
+                  <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-2">
+                    画像URL
                   </label>
-                  <ImageUpload
+                  <input
+                    type="url"
+                    id="imageUrl"
+                    name="imageUrl"
                     value={formData.imageUrl}
-                    onChange={(imageUrl) => setFormData({ ...formData, imageUrl })}
-                    type="contest"
-                    className="w-full"
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="https://example.com/image.jpg"
                   />
                   <p className="mt-1 text-xs text-gray-500">
-                    画像をアップロードするか、既存の画像URLを入力してください
+                    画像のURLを入力してください
                   </p>
                 </div>
 

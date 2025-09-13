@@ -149,6 +149,47 @@ export default function EventsPage() {
           )}
         </div>
 
+        {/* 主催者タイプの色説明 */}
+        <div className="mb-6">
+          <div className="bg-white rounded-2xl shadow-sm p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">主催者タイプの色分け</h3>
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">行政</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">行政</span>
+              </div>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-purple-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">VC</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">VC</span>
+              </div>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-indigo-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">CVC</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">CVC</span>
+              </div>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">銀行</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">銀行</span>
+              </div>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-orange-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">不動産</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">不動産</span>
+              </div>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-red-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">企業</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">企業</span>
+              </div>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-teal-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">研究機関</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">研究機関</span>
+              </div>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-gray-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">その他</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">その他</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* 結果表示 */}
         <div className="mb-6">
           <div className="flex items-center justify-between">

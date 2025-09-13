@@ -23,6 +23,7 @@ interface Contest {
   targetAudience?: string;
   incentive?: string;
   operatingCompany?: string;
+  createdAt: string;
 }
 
 export default function ContestsPage() {
@@ -57,6 +58,85 @@ export default function ContestsPage() {
     fetchContests();
   }, []);
 
+  // エリアの順序定義（全国/47都道府県/国外）
+  const areaOrder = [
+    '全国',
+    '北海道',
+    '青森県',
+    '岩手県',
+    '宮城県',
+    '秋田県',
+    '山形県',
+    '福島県',
+    '茨城県',
+    '栃木県',
+    '群馬県',
+    '埼玉県',
+    '千葉県',
+    '東京都',
+    '神奈川県',
+    '新潟県',
+    '富山県',
+    '石川県',
+    '福井県',
+    '山梨県',
+    '長野県',
+    '岐阜県',
+    '静岡県',
+    '愛知県',
+    '三重県',
+    '滋賀県',
+    '京都府',
+    '大阪府',
+    '兵庫県',
+    '奈良県',
+    '和歌山県',
+    '鳥取県',
+    '島根県',
+    '岡山県',
+    '広島県',
+    '山口県',
+    '徳島県',
+    '香川県',
+    '愛媛県',
+    '高知県',
+    '福岡県',
+    '佐賀県',
+    '長崎県',
+    '熊本県',
+    '大分県',
+    '宮崎県',
+    '鹿児島県',
+    '沖縄県',
+    'アメリカ',
+    'カナダ',
+    'イギリス',
+    'エストニア',
+    'オランダ',
+    'スペイン',
+    'ドイツ',
+    'フランス',
+    'ポルトガル',
+    '中国',
+    '台湾',
+    '韓国',
+    'インドネシア',
+    'シンガポール',
+    'タイ',
+    'ベトナム',
+    'インド',
+    'UAE（ドバイ/アブダビ）',
+    'オーストラリア',
+    'その他'
+  ];
+
+  // エリアの順序を取得する関数
+  const getAreaOrder = (area: string | undefined) => {
+    if (!area) return 999; // エリアが未設定の場合は最後に配置
+    const index = areaOrder.indexOf(area);
+    return index === -1 ? 999 : index;
+  };
+
   // フィルタリング処理
   useEffect(() => {
     let filtered = contests;
@@ -79,6 +159,19 @@ export default function ContestsPage() {
     if (filters.area) {
       filtered = filtered.filter((contest) => contest.area === filters.area);
     }
+
+    // エリアの順序でソート
+    filtered.sort((a, b) => {
+      const aOrder = getAreaOrder(a.area);
+      const bOrder = getAreaOrder(b.area);
+      
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder;
+      }
+      
+      // 同じエリア内では作成日時の降順（新しい順）
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
 
     setFilteredContests(filtered);
   }, [contests, searchTerm, filters]);
@@ -137,6 +230,47 @@ export default function ContestsPage() {
           )}
         </div>
 
+        {/* 主催者タイプの色説明 */}
+        <div className="mb-6">
+          <div className="bg-white rounded-2xl shadow-sm p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">主催者タイプの色分け</h3>
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">行政</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">行政</span>
+              </div>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-purple-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">VC</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">VC</span>
+              </div>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-indigo-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">CVC</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">CVC</span>
+              </div>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">銀行</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">銀行</span>
+              </div>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-orange-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">不動産</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">不動産</span>
+              </div>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-red-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">企業</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">企業</span>
+              </div>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-teal-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">研究機関</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">研究機関</span>
+              </div>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="px-3 py-1 bg-gray-600 text-white text-xs font-semibold rounded-full whitespace-nowrap">その他</span>
+                <span className="text-sm text-gray-600 whitespace-nowrap">その他</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* 結果表示 */}
         <div className="mb-6">
           <div className="flex items-center justify-between">
@@ -153,27 +287,79 @@ export default function ContestsPage() {
             <p className="text-gray-600">読み込み中...</p>
           </div>
         ) : filteredContests.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-start">
-            {filteredContests.map((contest) => (
-              <Card
-                key={contest.id}
-                id={contest.id}
-                title={contest.title}
-                description={contest.description}
-                imageUrl={contest.imageUrl}
-                deadline={contest.deadline ? new Date(contest.deadline) : undefined}
-                startDate={contest.startDate ? new Date(contest.startDate) : undefined}
-                area={contest.area}
-                organizer={contest.organizer}
-                organizerType={contest.organizerType || "その他"}
-                website={contest.website}
-                targetArea={contest.targetArea}
-                targetAudience={contest.targetAudience}
-                incentive={contest.incentive}
-                operatingCompany={contest.operatingCompany}
-                type="contest"
-              />
-            ))}
+          <div className="space-y-12">
+            {areaOrder.map((area) => {
+              const areaContests = filteredContests.filter(contest => contest.area === area);
+              if (areaContests.length === 0) return null;
+
+              return (
+                <div key={area}>
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{area}</h2>
+                    <div className="h-1 w-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+                    {areaContests.map((contest) => (
+                      <Card
+                        key={contest.id}
+                        id={contest.id}
+                        title={contest.title}
+                        description={contest.description}
+                        imageUrl={contest.imageUrl}
+                        deadline={contest.deadline ? new Date(contest.deadline) : undefined}
+                        startDate={contest.startDate ? new Date(contest.startDate) : undefined}
+                        area={contest.area}
+                        organizer={contest.organizer}
+                        organizerType={contest.organizerType || "その他"}
+                        website={contest.website}
+                        targetArea={contest.targetArea}
+                        targetAudience={contest.targetAudience}
+                        incentive={contest.incentive}
+                        operatingCompany={contest.operatingCompany}
+                        type="contest"
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            
+            {/* エリア未設定のコンテスト */}
+            {(() => {
+              const unassignedContests = filteredContests.filter(contest => !areaOrder.includes(contest.area || ''));
+              if (unassignedContests.length === 0) return null;
+
+              return (
+                <div>
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">その他</h2>
+                    <div className="h-1 w-20 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full"></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+                    {unassignedContests.map((contest) => (
+                      <Card
+                        key={contest.id}
+                        id={contest.id}
+                        title={contest.title}
+                        description={contest.description}
+                        imageUrl={contest.imageUrl}
+                        deadline={contest.deadline ? new Date(contest.deadline) : undefined}
+                        startDate={contest.startDate ? new Date(contest.startDate) : undefined}
+                        area={contest.area}
+                        organizer={contest.organizer}
+                        organizerType={contest.organizerType || "その他"}
+                        website={contest.website}
+                        targetArea={contest.targetArea}
+                        targetAudience={contest.targetAudience}
+                        incentive={contest.incentive}
+                        operatingCompany={contest.operatingCompany}
+                        type="contest"
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         ) : (
           <div className="text-center py-12">

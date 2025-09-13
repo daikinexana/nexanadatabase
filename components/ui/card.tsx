@@ -111,6 +111,47 @@ export default function Card({
     return typeMap[type] || type;
   };
 
+  const getOrganizerTypeStyle = (type: string) => {
+    console.log('OrganizerType:', type); // デバッグ用
+    const styleMap: Record<string, { className: string; style: React.CSSProperties }> = {
+      GOVERNMENT: { 
+        className: "bg-blue-600", 
+        style: { backgroundColor: '#2563eb' } 
+      }, // 行政 - 青
+      VC: { 
+        className: "bg-purple-600", 
+        style: { backgroundColor: '#9333ea' } 
+      }, // VC - 紫
+      CVC: { 
+        className: "bg-indigo-600", 
+        style: { backgroundColor: '#4f46e5' } 
+      }, // CVC - インディゴ
+      BANK: { 
+        className: "bg-green-600", 
+        style: { backgroundColor: '#16a34a' } 
+      }, // 銀行 - 緑
+      REAL_ESTATE: { 
+        className: "bg-orange-600", 
+        style: { backgroundColor: '#ea580c' } 
+      }, // 不動産 - オレンジ
+      CORPORATION: { 
+        className: "bg-red-600", 
+        style: { backgroundColor: '#dc2626' } 
+      }, // 企業 - 赤
+      RESEARCH_INSTITUTION: { 
+        className: "bg-teal-600", 
+        style: { backgroundColor: '#0d9488' } 
+      }, // 研究機関 - ティール
+      OTHER: { 
+        className: "bg-gray-600", 
+        style: { backgroundColor: '#4b5563' } 
+      }, // その他 - グレー
+    };
+    const result = styleMap[type] || { className: "bg-gray-600", style: { backgroundColor: '#4b5563' } };
+    console.log('Selected style:', result); // デバッグ用
+    return result;
+  };
+
   const getCategoryLabel = (category: string) => {
     const categoryMap: Record<string, string> = {
       STARTUP_CONTEST: "スタートアップコンテスト",
@@ -143,7 +184,7 @@ export default function Card({
     <>
       {/* カード */}
       <div
-        className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden group"
+        className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden group h-full flex flex-col"
         onClick={handleCardClick}
       >
         {/* 画像 */}
@@ -164,11 +205,13 @@ export default function Card({
           </div>
         )}
 
-        <div className="p-6">
+        <div className="p-6 flex flex-col flex-1">
           {/* タイトル */}
-          <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors">
-            {title}
-          </h3>
+          <div className="h-14 mb-3 flex items-start">
+            <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+              {title}
+            </h3>
+          </div>
 
           {/* 主催者 */}
           <div className="flex items-center space-x-2 mb-3">
@@ -179,7 +222,29 @@ export default function Card({
           {/* 主催者タイプ */}
           {organizerType && (
             <div className="mb-3">
-              <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs font-semibold rounded-full">
+              <div className="text-xs text-gray-500 mb-1">Debug: {organizerType}</div>
+              <span 
+                className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${
+                  organizerType === 'GOVERNMENT' || organizerType === '行政' ? 'bg-blue-600' :
+                  organizerType === 'VC' ? 'bg-purple-600' :
+                  organizerType === 'CVC' ? 'bg-indigo-600' :
+                  organizerType === 'BANK' || organizerType === '銀行' ? 'bg-green-600' :
+                  organizerType === 'REAL_ESTATE' || organizerType === '不動産' ? 'bg-orange-600' :
+                  organizerType === 'CORPORATION' || organizerType === '企業' ? 'bg-red-600' :
+                  organizerType === 'RESEARCH_INSTITUTION' || organizerType === '研究機関' ? 'bg-teal-600' :
+                  'bg-gray-600'
+                }`}
+                style={{
+                  backgroundColor: organizerType === 'GOVERNMENT' || organizerType === '行政' ? '#2563eb' :
+                                 organizerType === 'VC' ? '#9333ea' :
+                                 organizerType === 'CVC' ? '#4f46e5' :
+                                 organizerType === 'BANK' || organizerType === '銀行' ? '#16a34a' :
+                                 organizerType === 'REAL_ESTATE' || organizerType === '不動産' ? '#ea580c' :
+                                 organizerType === 'CORPORATION' || organizerType === '企業' ? '#dc2626' :
+                                 organizerType === 'RESEARCH_INSTITUTION' || organizerType === '研究機関' ? '#0d9488' :
+                                 '#4b5563'
+                }}
+              >
                 {getOrganizerTypeLabel(organizerType)}
               </span>
             </div>
@@ -248,7 +313,7 @@ export default function Card({
           )}
 
           {/* ホバー時の詳細表示インジケーター */}
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-auto pt-4 flex items-center justify-between">
             <div className="flex items-center space-x-2 text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
               <span>詳細を見る</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -327,7 +392,10 @@ export default function Card({
                       <div>
                         <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">主催者タイプ</label>
                         <div className="mt-2">
-                          <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-semibold rounded-full">
+                          <span 
+                            className={`px-3 py-1 text-white text-sm font-semibold rounded-full ${getOrganizerTypeStyle(organizerType).className}`}
+                            style={getOrganizerTypeStyle(organizerType).style}
+                          >
                             {getOrganizerTypeLabel(organizerType)}
                           </span>
                         </div>
@@ -531,7 +599,14 @@ export default function Card({
                     {organizerType && (
                       <div>
                         <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">主催者タイプ</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{getOrganizerTypeLabel(organizerType)}</p>
+                        <div className="mt-2">
+                          <span 
+                            className={`px-3 py-1 text-white text-sm font-semibold rounded-full ${getOrganizerTypeStyle(organizerType).className}`}
+                            style={getOrganizerTypeStyle(organizerType).style}
+                          >
+                            {getOrganizerTypeLabel(organizerType)}
+                          </span>
+                        </div>
                       </div>
                     )}
 
