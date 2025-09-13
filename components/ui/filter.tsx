@@ -2,7 +2,7 @@
 
 import React from "react";
 import { X } from "lucide-react";
-import { AREAS, ORGANIZER_TYPES, CONTEST_CATEGORIES, GRANT_CATEGORIES, NEWS_TYPES, KNOWLEDGE_CATEGORIES } from "@/lib/constants";
+import { AREAS, PREFECTURE_AREAS, ORGANIZER_TYPES, CONTEST_CATEGORIES, GRANT_CATEGORIES, NEWS_TYPES, KNOWLEDGE_CATEGORIES } from "@/lib/constants";
 import CustomSelect from "./custom-select";
 
 interface FilterProps {
@@ -26,6 +26,15 @@ interface FilterProps {
 }
 
 export default function Filter({ type, filters, onFilterChange }: FilterProps) {
+
+  const getAreaOptions = () => {
+    // コンテスト、施設紹介、展示会、公募は都道府県版を使用
+    if (type === "contest" || type === "facility" || type === "event" || type === "open-call") {
+      return PREFECTURE_AREAS;
+    }
+    // ニュース、ナレッジは従来のエリア版を使用
+    return AREAS;
+  };
 
   const getCategoryOptions = () => {
     switch (type) {
@@ -79,7 +88,7 @@ export default function Filter({ type, filters, onFilterChange }: FilterProps) {
           <CustomSelect
             options={[
               { value: "", label: "エリアを選択" },
-              ...AREAS.map(area => ({ value: area, label: area }))
+              ...getAreaOptions().map(area => ({ value: area, label: area }))
             ]}
             value={filters.area || ""}
             onChange={(value) => onFilterChange({ ...filters, area: value || undefined })}

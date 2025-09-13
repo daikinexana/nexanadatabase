@@ -5,6 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const categoryTag = searchParams.get("categoryTag");
+    const area = searchParams.get("area");
     const search = searchParams.get("search");
 
     const where: any = {
@@ -13,6 +14,10 @@ export async function GET(request: NextRequest) {
 
     if (categoryTag) {
       where.categoryTag = categoryTag;
+    }
+
+    if (area) {
+      where.area = area;
     }
 
     if (search) {
