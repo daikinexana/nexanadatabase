@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      where.OR = [
+      const searchConditions = [
         { title: { contains: search, mode: "insensitive" } },
         { description: { contains: search, mode: "insensitive" } },
         { organizer: { contains: search, mode: "insensitive" } },
@@ -30,7 +30,11 @@ export async function GET(request: NextRequest) {
         { targetArea: { contains: search, mode: "insensitive" } },
         { targetAudience: { contains: search, mode: "insensitive" } },
         { operatingCompany: { contains: search, mode: "insensitive" } },
+        { organizerType: { contains: search, mode: "insensitive" } },
+        { area: { contains: search, mode: "insensitive" } },
       ];
+
+      where.OR = searchConditions;
     }
 
     const events = await prisma.event.findMany({

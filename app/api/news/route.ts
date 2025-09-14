@@ -27,12 +27,14 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      where.OR = [
-        { title: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-        { company: { contains: search, mode: "insensitive" } },
+      const searchConditions = [
+        { type: { contains: search, mode: "insensitive" } },
+        { area: { contains: search, mode: "insensitive" } },
         { sector: { contains: search, mode: "insensitive" } },
+        { investors: { contains: search, mode: "insensitive" } },
       ];
+
+      where.OR = searchConditions;
     }
 
     const news = await prisma.news.findMany({

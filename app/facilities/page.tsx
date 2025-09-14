@@ -143,18 +143,23 @@ export default function FacilitiesPage() {
   useEffect(() => {
     let filtered = facilities;
 
-    // 検索語でフィルタリング
+    // 検索語でフィルタリング（データベースの値のみ）
     if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(
-        (facility) =>
-          facility.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          facility.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          facility.organizer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          facility.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          facility.targetArea?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          facility.facilityInfo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          facility.targetAudience?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          facility.program?.toLowerCase().includes(searchTerm.toLowerCase())
+        (facility) => {
+          // データベースの値での検索のみ（完全一致を優先）
+          const organizerTypeMatch = facility.organizerType.toLowerCase() === searchLower;
+          const areaMatch = facility.area?.toLowerCase() === searchLower || false;
+          
+          // 部分一致は、完全一致でない場合のみ
+          const organizerTypePartialMatch = !organizerTypeMatch && 
+                                          facility.organizerType.toLowerCase().includes(searchLower);
+          const areaPartialMatch = !areaMatch && 
+                                 facility.area?.toLowerCase().includes(searchLower) || false;
+          
+          return organizerTypeMatch || areaMatch || organizerTypePartialMatch || areaPartialMatch;
+        }
       );
     }
 
@@ -214,7 +219,7 @@ export default function FacilitiesPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type="text"
-                  placeholder="施設名、運営者、住所、対象領域、施設情報、対象者、プログラムで検索..."
+                  placeholder="企業、行政、VC、その他、不動産系、企業R&D、東京都、大阪府、アメリカ、UAEなどで検索..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

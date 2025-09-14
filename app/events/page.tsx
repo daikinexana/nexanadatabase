@@ -124,7 +124,11 @@ export default function EventsPage() {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/events");
+        const params = new URLSearchParams();
+        if (filters.area) params.append('area', filters.area);
+        if (filters.organizerType) params.append('organizerType', filters.organizerType);
+        
+        const response = await fetch(`/api/events?${params.toString()}`);
         if (response.ok) {
           const data = await response.json();
           setEvents(data);
@@ -139,35 +143,29 @@ export default function EventsPage() {
     };
 
     fetchEvents();
-  }, []);
+  }, [filters]);
 
   // フィルタリング処理
   useEffect(() => {
     let filtered = events;
 
-    // 検索語でフィルタリング
+    // 検索語でフィルタリング（データベースの値のみ）
     if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(
-        (event) =>
-          event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.organizer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.venue?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.targetArea?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.targetAudience?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.operatingCompany?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // エリアでフィルタリング
-    if (filters.area) {
-      filtered = filtered.filter((event) => event.area === filters.area);
-    }
-
-    // 主催者タイプでフィルタリング
-    if (filters.organizerType) {
-      filtered = filtered.filter(
-        (event) => event.organizerType === filters.organizerType
+        (event) => {
+          // データベースの値での検索のみ（完全一致を優先）
+          const organizerTypeMatch = event.organizerType.toLowerCase() === searchLower;
+          const areaMatch = event.area?.toLowerCase() === searchLower || false;
+          
+          // 部分一致は、完全一致でない場合のみ
+          const organizerTypePartialMatch = !organizerTypeMatch && 
+                                          event.organizerType.toLowerCase().includes(searchLower);
+          const areaPartialMatch = !areaMatch && 
+                                 event.area?.toLowerCase().includes(searchLower) || false;
+          
+          return organizerTypeMatch || areaMatch || organizerTypePartialMatch || areaPartialMatch;
+        }
       );
     }
 
@@ -232,7 +230,7 @@ export default function EventsPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type="text"
-                  placeholder="イベント名、主催者、会場、対象領域、対象者、運営企業で検索..."
+                  placeholder="企業、行政、VC、東京都、大阪府、アメリカ、シンガポールなどで検索..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

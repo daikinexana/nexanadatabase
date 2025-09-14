@@ -289,19 +289,12 @@ export default function Card({
             </div>
           )}
 
-          {/* 締切日（facility以外） */}
-          {type !== "facility" && deadline ? (
+          {/* 締切日（facility以外、締切日がある場合のみ） */}
+          {type !== "facility" && deadline && (
             <div className="flex items-center space-x-2 mb-3">
               <Clock className="h-4 w-4 text-red-500 flex-shrink-0" />
               <span className="text-sm text-gray-600 font-medium">
                 締切: {format(deadline, "yyyy年MM月dd日", { locale: ja })}
-              </span>
-            </div>
-          ) : type !== "facility" && (
-            <div className="flex items-center space-x-2 mb-3">
-              <Clock className="h-4 w-4 text-gray-300 flex-shrink-0" />
-              <span className="text-sm text-gray-400 italic">
-                締切日未定
               </span>
             </div>
           )}

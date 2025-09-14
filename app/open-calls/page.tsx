@@ -130,14 +130,15 @@ export default function OpenCallsPage() {
     const fetchOpenCalls = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/open-calls");
+        const params = new URLSearchParams();
+        if (filters.area) params.append('area', filters.area);
+        if (filters.organizerType) params.append('organizerType', filters.organizerType);
+        if (filters.openCallType) params.append('openCallType', filters.openCallType);
+        
+        const response = await fetch(`/api/open-calls?${params.toString()}`);
         if (response.ok) {
           const data = await response.json();
           console.log("Fetched open calls data:", data);
-          if (data.length > 0) {
-            console.log("First open call data:", data[0]);
-            console.log("Operating company:", data[0].operatingCompany);
-          }
           setOpenCalls(data);
         } else {
           console.error("Failed to fetch open calls");
@@ -150,25 +151,24 @@ export default function OpenCallsPage() {
     };
 
     fetchOpenCalls();
-  }, []);
+  }, [filters]);
 
   // フィルタリング処理
   useEffect(() => {
     let filtered = openCalls;
 
-    // 検索語でフィルタリング
+    // 検索語でフィルタリング（データベースの値のみ）
     if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (openCall) =>
-          openCall.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          openCall.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          openCall.organizer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          openCall.targetArea?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          openCall.targetAudience?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          openCall.openCallType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          openCall.availableResources?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          openCall.resourceType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          openCall.operatingCompany?.toLowerCase().includes(searchTerm.toLowerCase())
+          // データベースの値での検索のみ
+          openCall.organizerType.toLowerCase().includes(searchLower) ||
+          openCall.openCallType?.toLowerCase().includes(searchLower) ||
+          openCall.resourceType?.toLowerCase().includes(searchLower) ||
+          openCall.area?.toLowerCase().includes(searchLower) ||
+          openCall.targetArea?.toLowerCase().includes(searchLower) ||
+          openCall.targetAudience?.toLowerCase().includes(searchLower)
       );
     }
 
@@ -256,7 +256,7 @@ export default function OpenCallsPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type="text"
-                  placeholder="公募名、主催者、対象領域、公募タイプで検索..."
+                  placeholder="企業、行政、銀行系、VC、共創型、RFP型、アセット提供型、技術シーズ提供型、全国、東京都、大阪府などで検索..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

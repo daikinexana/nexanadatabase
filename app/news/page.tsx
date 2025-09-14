@@ -50,11 +50,10 @@ export default function NewsPage() {
   const fetchNews = useCallback(async () => {
     try {
       setLoading(true);
-      // フィルターパラメータを含めてAPIを呼び出す
+      // フィルターパラメータのみでAPIを呼び出す
       const params = new URLSearchParams();
       if (filters.area) params.append('area', filters.area);
       if (filters.category) params.append('type', filters.category);
-      if (searchTerm) params.append('search', searchTerm);
       
       const response = await fetch(`/api/news?${params.toString()}`);
       
@@ -75,17 +74,32 @@ export default function NewsPage() {
     } finally {
       setLoading(false);
     }
-  }, [filters, searchTerm]);
+  }, [filters]);
 
   // データベースからニュースを取得
   useEffect(() => {
     fetchNews();
-  }, [filters, searchTerm, fetchNews]);
+  }, [filters, fetchNews]);
 
-  // APIから取得したデータをそのまま表示（フィルタリングはAPI側で実行）
+  // 検索機能（データベースの値のみでフィルタリング）
   useEffect(() => {
-    setFilteredNews(news);
-  }, [news]);
+    if (!searchTerm.trim()) {
+      setFilteredNews(news);
+    } else {
+      const searchLower = searchTerm.toLowerCase();
+      const filtered = news.filter(item => 
+        // データベースの値での検索のみ
+        item.type.toLowerCase().includes(searchLower) ||
+        item.area.toLowerCase().includes(searchLower) ||
+        item.sector.toLowerCase().includes(searchLower) ||
+        // 投資家名での検索
+        item.investors.some(investor => 
+          investor.toLowerCase().includes(searchLower)
+        )
+      );
+      setFilteredNews(filtered);
+    }
+  }, [news, searchTerm]);
 
   const handleFilterChange = (newFilters: {
     area?: string;
@@ -180,7 +194,7 @@ export default function NewsPage() {
                       <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-hover:text-blue-500 transition-colors" />
                       <input
                         type="text"
-                        placeholder="ニュースを検索..."
+                        placeholder="資金調達、M&A、日本、アメリカ、バイオテクノロジー、デジタルマーケティングなどで検索..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-12 pr-4 py-4 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-lg transition-all duration-300 hover:shadow-xl"
@@ -245,21 +259,32 @@ export default function NewsPage() {
                     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden relative z-0">
                       <div className="flex h-64">
                         {/* 画像セクション */}
-                        {item.imageUrl && (
-                          <div className="w-1/3 relative overflow-hidden">
+                        <div className="w-1/3 relative overflow-hidden">
+                          {item.imageUrl ? (
                             <Image
                               src={item.imageUrl}
                               alt={item.title}
                               fill
                               className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                             />
-                            <div className="absolute top-3 left-3">
-                              <span className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full">
-                                {item.type === "FUNDING" ? "資金調達" : item.type === "M_AND_A" ? "M&A" : item.type}
-                              </span>
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                              <div className="text-center text-white">
+                                <TrendingUp className="h-12 w-12 mx-auto mb-2 opacity-80" />
+                                <p className="text-sm font-medium opacity-90">ニュース</p>
+                              </div>
                             </div>
+                          )}
+                          <div className="absolute top-3 left-3">
+                            <span className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${
+                              item.type === "資金調達" ? "bg-green-500" : 
+                              item.type === "M&A" ? "bg-purple-500" : 
+                              "bg-blue-500"
+                            }`}>
+                              {item.type}
+                            </span>
                           </div>
-                        )}
+                        </div>
 
                         {/* コンテンツセクション */}
                         <div className="flex-1 p-6 flex flex-col">
@@ -376,8 +401,12 @@ export default function NewsPage() {
             {/* ヘッダー */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <div className="flex items-center space-x-3">
-                <span className="px-3 py-1 bg-blue-600 text-white text-sm font-semibold rounded-full">
-                  {selectedNews.type === "FUNDING" ? "資金調達" : selectedNews.type === "M_AND_A" ? "M&A" : selectedNews.type}
+                <span className={`px-3 py-1 text-white text-sm font-semibold rounded-full ${
+                  selectedNews.type === "資金調達" ? "bg-green-500" : 
+                  selectedNews.type === "M&A" ? "bg-purple-500" : 
+                  "bg-blue-500"
+                }`}>
+                  {selectedNews.type}
                 </span>
                 <span className="text-sm text-gray-500">
                   {selectedNews.publishedAt && new Date(selectedNews.publishedAt).toLocaleDateString("ja-JP", { 
@@ -400,8 +429,8 @@ export default function NewsPage() {
               <div className="p-6">
                 {/* 画像とタイトル */}
                 <div className="mb-6">
-                  {selectedNews.imageUrl && (
-                    <div className="relative mb-4 rounded-xl overflow-hidden">
+                  <div className="relative mb-4 rounded-xl overflow-hidden">
+                    {selectedNews.imageUrl ? (
                       <Image
                         src={selectedNews.imageUrl}
                         alt={selectedNews.title}
@@ -409,8 +438,15 @@ export default function NewsPage() {
                         height={256}
                         className="w-full h-64 object-cover"
                       />
-                    </div>
-                  )}
+                    ) : (
+                      <div className="w-full h-64 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                        <div className="text-center text-white">
+                          <TrendingUp className="h-16 w-16 mx-auto mb-4 opacity-80" />
+                          <p className="text-lg font-medium opacity-90">ニュース</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <h1 className="text-2xl font-bold text-gray-900 mb-4 leading-tight">
                     {selectedNews.title}
                   </h1>

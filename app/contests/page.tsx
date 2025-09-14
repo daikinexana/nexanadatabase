@@ -142,17 +142,23 @@ export default function ContestsPage() {
   useEffect(() => {
     let filtered = contests;
 
-    // 検索語でフィルタリング
+    // 検索語でフィルタリング（データベースの値のみ）
     if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(
-        (contest) =>
-          contest.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          contest.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          contest.organizer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          contest.targetArea?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          contest.targetAudience?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          contest.incentive?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          contest.operatingCompany?.toLowerCase().includes(searchTerm.toLowerCase())
+        (contest) => {
+          // データベースの値での検索のみ（完全一致を優先）
+          const organizerTypeMatch = contest.organizerType?.toLowerCase() === searchLower || false;
+          const areaMatch = contest.area?.toLowerCase() === searchLower || false;
+          
+          // 部分一致は、完全一致でない場合のみ
+          const organizerTypePartialMatch = !organizerTypeMatch && 
+                                          contest.organizerType?.toLowerCase().includes(searchLower) || false;
+          const areaPartialMatch = !areaMatch && 
+                                 contest.area?.toLowerCase().includes(searchLower) || false;
+          
+          return organizerTypeMatch || areaMatch || organizerTypePartialMatch || areaPartialMatch;
+        }
       );
     }
 
@@ -221,7 +227,7 @@ export default function ContestsPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type="text"
-                  placeholder="コンテスト名、主催者、エリア、対象領域、対象者、インセンティブ、運営企業で検索..."
+                  placeholder="企業、行政、大学と研究機関、その他、不動産系、企業R&D、全国、東京都、大阪府、兵庫県、大分県、中国などで検索..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
