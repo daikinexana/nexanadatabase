@@ -6,8 +6,8 @@ import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
 import AdminNav from "@/components/ui/admin-nav";
-import { Handshake, Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
-import Image from "next/image";
+import { Handshake, Plus, Edit, Trash2, Eye, EyeOff, Save, X } from "lucide-react";
+import SimpleImage from "@/components/ui/simple-image";
 
 interface OpenCall {
   id: string;
@@ -36,6 +36,8 @@ export default function AdminOpenCallsPage() {
   const [openCalls, setOpenCalls] = useState<OpenCall[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingData, setEditingData] = useState<Partial<OpenCall>>({});
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -138,6 +140,94 @@ export default function AdminOpenCallsPage() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const startEditing = (openCall: OpenCall) => {
+    setEditingId(openCall.id);
+    setEditingData({
+      title: openCall.title,
+      description: openCall.description,
+      imageUrl: openCall.imageUrl,
+      deadline: openCall.deadline,
+      startDate: openCall.startDate,
+      area: openCall.area,
+      organizer: openCall.organizer,
+      organizerType: openCall.organizerType,
+      website: openCall.website,
+      targetArea: openCall.targetArea,
+      targetAudience: openCall.targetAudience,
+      openCallType: openCall.openCallType,
+      availableResources: openCall.availableResources,
+      resourceType: openCall.resourceType,
+      operatingCompany: openCall.operatingCompany,
+    });
+  };
+
+  const cancelEditing = () => {
+    setEditingId(null);
+    setEditingData({});
+  };
+
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setEditingData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const saveEdit = async (id: string) => {
+    try {
+      // 日付フィールドを適切にフォーマット
+      const dataToSend = {
+        ...editingData,
+        deadline: editingData.deadline ? new Date(editingData.deadline).toISOString() : null,
+        startDate: editingData.startDate ? new Date(editingData.startDate).toISOString() : null,
+      };
+
+      console.log('Sending data to API:', dataToSend);
+
+      const response = await fetch(`/api/open-calls/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
+      if (response.ok) {
+        const updatedOpenCall = await response.json();
+        setOpenCalls(openCalls.map(openCall => 
+          openCall.id === id ? updatedOpenCall : openCall
+        ));
+        setEditingId(null);
+        setEditingData({});
+        alert('公募が正常に更新されました');
+      } else {
+        const responseText = await response.text();
+        console.error('Raw response text:', responseText);
+        console.error('Response status:', response.status);
+        console.error('Response headers:', response.headers);
+        
+        let errorData: { error?: string; details?: string } = {};
+        try {
+          errorData = JSON.parse(responseText);
+          console.error('Parsed error data:', errorData);
+        } catch (parseError) {
+          console.error('Failed to parse error response as JSON:', parseError);
+          console.error('Raw response text was:', responseText);
+          errorData = { error: 'JSONパースエラー', details: responseText };
+        }
+        
+        alert(`エラー: ${errorData.error || '公募の更新に失敗しました'}\n詳細: ${errorData.details || '詳細不明'}\nステータス: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('公募の更新に失敗しました:', error);
+      alert('公募の更新に失敗しました');
+    }
   };
 
 
@@ -531,120 +621,319 @@ export default function AdminOpenCallsPage() {
                   <div key={openCall.id} className="px-6 py-4 hover:bg-gray-50">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 flex gap-4">
-                        {/* 画像 */}
-                        {openCall.imageUrl && (
-                          <div className="flex-shrink-0">
-                            <Image
-                              src={openCall.imageUrl}
-                              alt={openCall.title}
-                              width={80}
-                              height={80}
-                              className="w-20 h-20 object-cover rounded-lg border border-gray-200"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                              }}
-                            />
-                          </div>
-                        )}
+                        {/* 画像プレビュー */}
+                        <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
+                          {editingId === openCall.id ? (
+                            // 編集モードでも画像を表示
+                            editingData.imageUrl ? (
+                              <SimpleImage
+                                src={editingData.imageUrl}
+                                alt={editingData.title || openCall.title}
+                                width={80}
+                                height={80}
+                                className="w-20 h-20 object-cover"
+                              />
+                            ) : (
+                              <div className="w-20 h-20 bg-gray-100 flex items-center justify-center">
+                                <Handshake className="h-8 w-8 text-gray-400" />
+                              </div>
+                            )
+                          ) : (
+                            // 表示モード
+                            openCall.imageUrl ? (
+                              <SimpleImage
+                                src={openCall.imageUrl.trim()}
+                                alt={openCall.title}
+                                width={80}
+                                height={80}
+                                className="w-20 h-20 object-cover"
+                              />
+                            ) : (
+                              <div className="w-20 h-20 bg-gray-100 flex items-center justify-center">
+                                <Handshake className="h-8 w-8 text-gray-400" />
+                              </div>
+                            )
+                          )}
+                        </div>
                         
                         {/* 公募情報 */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3">
-                            <Handshake className="h-5 w-5 text-gray-400 flex-shrink-0" />
-                            <h3 className="text-lg font-medium text-gray-900 truncate">
-                              {openCall.title}
-                            </h3>
-                            <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${
-                              openCall.isActive 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-red-100 text-red-800'
-                            }`}>
-                              {openCall.isActive ? '公開中' : '非公開'}
-                            </span>
-                            {openCall.openCallType && (
-                              <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800 flex-shrink-0">
-                                {openCall.openCallType}
-                              </span>
-                            )}
-                          </div>
-                          
-                          {openCall.description && (
-                            <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-                              {openCall.description}
-                            </p>
-                          )}
-                        
-                          <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
-                            {openCall.deadline && (
-                              <span>締切: {formatDate(openCall.deadline)}</span>
-                            )}
-                            {openCall.startDate && (
-                              <span>開始: {formatDate(openCall.startDate)}</span>
-                            )}
-                            {openCall.area && (
-                              <span>エリア: {openCall.area}</span>
-                            )}
-                            {openCall.targetArea && (
-                              <span>対象領域: {openCall.targetArea}</span>
-                            )}
-                            {openCall.targetAudience && (
-                              <span>対象者: {openCall.targetAudience}</span>
-                            )}
-                            <span>主催者: {openCall.organizer}</span>
-                          </div>
-                          
-                          {openCall.availableResources && (
-                            <div className="mt-2">
-                              <span className="text-sm text-gray-600">
-                                <strong>提供リソース:</strong> {openCall.availableResources}
-                              </span>
+                          {editingId === openCall.id ? (
+                            <div className="space-y-3">
+                              {/* 編集モード */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">公募名</label>
+                                  <input
+                                    type="text"
+                                    name="title"
+                                    value={editingData.title || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">エリア</label>
+                                  <input
+                                    type="text"
+                                    name="area"
+                                    value={editingData.area || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">主催者</label>
+                                  <input
+                                    type="text"
+                                    name="organizer"
+                                    value={editingData.organizer || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">主催者タイプ</label>
+                                  <input
+                                    type="text"
+                                    name="organizerType"
+                                    value={editingData.organizerType || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">公募タイプ</label>
+                                  <input
+                                    type="text"
+                                    name="openCallType"
+                                    value={editingData.openCallType || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">ウェブサイト</label>
+                                  <input
+                                    type="url"
+                                    name="website"
+                                    value={editingData.website || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">締切日</label>
+                                  <input
+                                    type="datetime-local"
+                                    name="deadline"
+                                    value={editingData.deadline ? new Date(editingData.deadline).toISOString().slice(0, 16) : ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">開始日</label>
+                                  <input
+                                    type="datetime-local"
+                                    name="startDate"
+                                    value={editingData.startDate ? new Date(editingData.startDate).toISOString().slice(0, 16) : ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">画像URL</label>
+                                  <input
+                                    type="url"
+                                    name="imageUrl"
+                                    value={editingData.imageUrl || ''}
+                                    onChange={(e) => {
+                                      const value = e.target.value;
+                                      setEditingData(prev => ({
+                                        ...prev,
+                                        imageUrl: value
+                                      }));
+                                    }}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="https://example.com/image.jpg"
+                                  />
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    画像URLを入力すると、左側のプレビューが更新されます
+                                  </p>
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">説明</label>
+                                  <textarea
+                                    name="description"
+                                    value={editingData.description || ''}
+                                    onChange={handleEditInputChange}
+                                    rows={2}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">対象領域</label>
+                                  <input
+                                    type="text"
+                                    name="targetArea"
+                                    value={editingData.targetArea || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">対象者</label>
+                                  <input
+                                    type="text"
+                                    name="targetAudience"
+                                    value={editingData.targetAudience || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">提供可能なリソース/技術</label>
+                                  <input
+                                    type="text"
+                                    name="availableResources"
+                                    value={editingData.availableResources || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">提供可能なリソース/技術タイプ</label>
+                                  <input
+                                    type="text"
+                                    name="resourceType"
+                                    value={editingData.resourceType || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">運営企業</label>
+                                  <input
+                                    type="text"
+                                    name="operatingCompany"
+                                    value={editingData.operatingCompany || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                              </div>
                             </div>
-                          )}
-                          {openCall.resourceType && (
-                            <div className="mt-1">
-                              <span className="text-sm text-gray-600">
-                                <strong>リソースタイプ:</strong> {openCall.resourceType}
-                              </span>
-                            </div>
-                          )}
-                          {openCall.operatingCompany && (
-                            <div className="mt-1">
-                              <span className="text-sm text-gray-600">
-                                <strong>運営企業:</strong> {openCall.operatingCompany}
-                              </span>
+                          ) : (
+                            <div>
+                              <div className="flex items-center gap-3">
+                                <Handshake className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                                <h3 className="text-lg font-medium text-gray-900 truncate" title={openCall.title}>
+                                  {openCall.title.length > 30 ? `${openCall.title.substring(0, 30)}...` : openCall.title}
+                                </h3>
+                                <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${
+                                  openCall.isActive 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : 'bg-red-100 text-red-800'
+                                }`}>
+                                  {openCall.isActive ? '公開中' : '非公開'}
+                                </span>
+                                {openCall.openCallType && (
+                                  <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800 flex-shrink-0">
+                                    {openCall.openCallType}
+                                  </span>
+                                )}
+                              </div>
+                              
+                              {openCall.description && (
+                                <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                                  {openCall.description}
+                                </p>
+                              )}
+                            
+                              <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
+                                {openCall.deadline && (
+                                  <span>締切: {formatDate(openCall.deadline)}</span>
+                                )}
+                                {openCall.startDate && (
+                                  <span>開始: {formatDate(openCall.startDate)}</span>
+                                )}
+                                {openCall.area && (
+                                  <span>エリア: {openCall.area}</span>
+                                )}
+                                {openCall.targetArea && (
+                                  <span>対象領域: {openCall.targetArea}</span>
+                                )}
+                                {openCall.targetAudience && (
+                                  <span>対象者: {openCall.targetAudience}</span>
+                                )}
+                                <span>主催者: {openCall.organizer}</span>
+                              </div>
+                              
+                              {openCall.availableResources && (
+                                <div className="mt-2">
+                                  <span className="text-sm text-gray-600">
+                                    <strong>提供リソース:</strong> {openCall.availableResources}
+                                  </span>
+                                </div>
+                              )}
+                              {openCall.resourceType && (
+                                <div className="mt-1">
+                                  <span className="text-sm text-gray-600">
+                                    <strong>リソースタイプ:</strong> {openCall.resourceType}
+                                  </span>
+                                </div>
+                              )}
+                              {openCall.operatingCompany && (
+                                <div className="mt-1">
+                                  <span className="text-sm text-gray-600">
+                                    <strong>運営企業:</strong> {openCall.operatingCompany}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
                       </div>
                       
                       <div className="flex items-center gap-2 ml-4 flex-shrink-0">
-                        <button
-                          onClick={() => toggleActive(openCall.id, openCall.isActive)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            openCall.isActive
-                              ? 'text-red-600 hover:bg-red-50'
-                              : 'text-green-600 hover:bg-green-50'
-                          }`}
-                          title={openCall.isActive ? '非公開にする' : '公開する'}
-                        >
-                          {openCall.isActive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                        
-                        <Link
-                          href={`/admin/open-calls/${openCall.id}/edit`}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="編集"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Link>
-                        
-                        <button
-                          onClick={() => deleteOpenCall(openCall.id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="削除"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {editingId === openCall.id ? (
+                          // 編集モードのボタン
+                          <>
+                            <button
+                              onClick={() => saveEdit(openCall.id)}
+                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                              title="保存"
+                            >
+                              <Save className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={cancelEditing}
+                              className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                              title="キャンセル"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : (
+                          // 表示モードのボタン
+                          <>
+                            <button
+                              onClick={() => startEditing(openCall)}
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              title="編集"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => deleteOpenCall(openCall.id)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="削除"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

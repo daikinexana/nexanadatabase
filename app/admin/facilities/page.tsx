@@ -6,8 +6,8 @@ import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
 import AdminNav from "@/components/ui/admin-nav";
-import { Building, Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
-import Image from "next/image";
+import { Building, Plus, Edit, Trash2, Eye, EyeOff, Save, X } from "lucide-react";
+import SimpleImage from "@/components/ui/simple-image";
 
 interface Facility {
   id: string;
@@ -33,6 +33,8 @@ export default function AdminFacilitiesPage() {
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingData, setEditingData] = useState<Partial<Facility>>({});
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -123,6 +125,88 @@ export default function AdminFacilitiesPage() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const startEditing = (facility: Facility) => {
+    setEditingId(facility.id);
+    setEditingData({
+      title: facility.title,
+      description: facility.description,
+      imageUrl: facility.imageUrl,
+      address: facility.address,
+      area: facility.area,
+      organizer: facility.organizer,
+      organizerType: facility.organizerType,
+      website: facility.website,
+      targetArea: facility.targetArea,
+      facilityInfo: facility.facilityInfo,
+      targetAudience: facility.targetAudience,
+      program: facility.program,
+    });
+  };
+
+  const cancelEditing = () => {
+    setEditingId(null);
+    setEditingData({});
+  };
+
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setEditingData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const saveEdit = async (id: string) => {
+    try {
+      const dataToSend = {
+        ...editingData,
+      };
+
+      console.log('Sending data to API:', dataToSend);
+
+      const response = await fetch(`/api/facilities/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
+      if (response.ok) {
+        const updatedFacility = await response.json();
+        setFacilities(facilities.map(facility => 
+          facility.id === id ? updatedFacility : facility
+        ));
+        setEditingId(null);
+        setEditingData({});
+        alert('施設が正常に更新されました');
+      } else {
+        const responseText = await response.text();
+        console.error('Raw response text:', responseText);
+        console.error('Response status:', response.status);
+        console.error('Response headers:', response.headers);
+        
+        let errorData: { error?: string; details?: string } = {};
+        try {
+          errorData = JSON.parse(responseText);
+          console.error('Parsed error data:', errorData);
+        } catch (parseError) {
+          console.error('Failed to parse error response as JSON:', parseError);
+          console.error('Raw response text was:', responseText);
+          errorData = { error: 'JSONパースエラー', details: responseText };
+        }
+        
+        alert(`エラー: ${errorData.error || '施設の更新に失敗しました'}\n詳細: ${errorData.details || '詳細不明'}\nステータス: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('施設の更新に失敗しました:', error);
+      alert('施設の更新に失敗しました');
+    }
   };
 
 
@@ -476,82 +560,251 @@ export default function AdminFacilitiesPage() {
                             title="確認済み"
                           />
                         </div>
-                        {/* 画像 */}
-                        {facility.imageUrl && (
-                          <div className="flex-shrink-0">
-                            <Image
-                              src={facility.imageUrl}
-                              alt={facility.title}
-                              width={80}
-                              height={80}
-                              className="w-20 h-20 object-cover rounded-lg border border-gray-200"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                              }}
-                            />
-                          </div>
-                        )}
+                        {/* 画像プレビュー */}
+                        <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
+                          {editingId === facility.id ? (
+                            // 編集モードでも画像を表示
+                            editingData.imageUrl ? (
+                              <SimpleImage
+                                src={editingData.imageUrl}
+                                alt={editingData.title || facility.title}
+                                width={80}
+                                height={80}
+                                className="w-20 h-20 object-cover"
+                              />
+                            ) : (
+                              <div className="w-20 h-20 bg-gray-100 flex items-center justify-center">
+                                <Building className="h-8 w-8 text-gray-400" />
+                              </div>
+                            )
+                          ) : (
+                            // 表示モード
+                            facility.imageUrl ? (
+                              <SimpleImage
+                                src={facility.imageUrl.trim()}
+                                alt={facility.title}
+                                width={80}
+                                height={80}
+                                className="w-20 h-20 object-cover"
+                              />
+                            ) : (
+                              <div className="w-20 h-20 bg-gray-100 flex items-center justify-center">
+                                <Building className="h-8 w-8 text-gray-400" />
+                              </div>
+                            )
+                          )}
+                        </div>
                         
                         {/* 施設情報 */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3">
-                            <Building className="h-5 w-5 text-gray-400 flex-shrink-0" />
-                            <h3 className="text-lg font-medium text-gray-900 truncate">
-                              {facility.title}
-                            </h3>
-                            <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${
-                              facility.isActive 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-red-100 text-red-800'
-                            }`}>
-                              {facility.isActive ? '公開中' : '非公開'}
-                            </span>
-                          </div>
-                          
-                          {facility.description && (
-                            <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-                              {facility.description}
-                            </p>
+                          {editingId === facility.id ? (
+                            <div className="space-y-3">
+                              {/* 編集モード */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">施設名</label>
+                                  <input
+                                    type="text"
+                                    name="title"
+                                    value={editingData.title || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">エリア</label>
+                                  <input
+                                    type="text"
+                                    name="area"
+                                    value={editingData.area || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">運営者</label>
+                                  <input
+                                    type="text"
+                                    name="organizer"
+                                    value={editingData.organizer || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">運営者タイプ</label>
+                                  <input
+                                    type="text"
+                                    name="organizerType"
+                                    value={editingData.organizerType || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">住所</label>
+                                  <input
+                                    type="text"
+                                    name="address"
+                                    value={editingData.address || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">ウェブサイト</label>
+                                  <input
+                                    type="url"
+                                    name="website"
+                                    value={editingData.website || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">画像URL</label>
+                                  <input
+                                    type="url"
+                                    name="imageUrl"
+                                    value={editingData.imageUrl || ''}
+                                    onChange={(e) => {
+                                      const value = e.target.value;
+                                      setEditingData(prev => ({
+                                        ...prev,
+                                        imageUrl: value
+                                      }));
+                                    }}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="https://example.com/image.jpg"
+                                  />
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    画像URLを入力すると、左側のプレビューが更新されます
+                                  </p>
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">説明</label>
+                                  <textarea
+                                    name="description"
+                                    value={editingData.description || ''}
+                                    onChange={handleEditInputChange}
+                                    rows={2}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">対象領域</label>
+                                  <input
+                                    type="text"
+                                    name="targetArea"
+                                    value={editingData.targetArea || ''}
+                                    onChange={handleEditInputChange}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">施設情報</label>
+                                  <textarea
+                                    name="facilityInfo"
+                                    value={editingData.facilityInfo || ''}
+                                    onChange={handleEditInputChange}
+                                    rows={2}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">対象者</label>
+                                  <textarea
+                                    name="targetAudience"
+                                    value={editingData.targetAudience || ''}
+                                    onChange={handleEditInputChange}
+                                    rows={2}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">プログラム</label>
+                                  <textarea
+                                    name="program"
+                                    value={editingData.program || ''}
+                                    onChange={handleEditInputChange}
+                                    rows={2}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div>
+                              <div className="flex items-center gap-3">
+                                <Building className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                                <h3 className="text-lg font-medium text-gray-900 truncate">
+                                  {facility.title}
+                                </h3>
+                                <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${
+                                  facility.isActive 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : 'bg-red-100 text-red-800'
+                                }`}>
+                                  {facility.isActive ? '公開中' : '非公開'}
+                                </span>
+                              </div>
+                              
+                              {facility.description && (
+                                <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                                  {facility.description}
+                                </p>
+                              )}
+                              
+                              <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
+                                {facility.area && (
+                                  <span>エリア: {facility.area}</span>
+                                )}
+                                <span>主催者: {facility.organizer}</span>
+                                <span>更新日: {new Date(facility.updatedAt).toLocaleDateString('ja-JP')}</span>
+                              </div>
+                            </div>
                           )}
-                          
-                          <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
-                            {facility.area && (
-                              <span>エリア: {facility.area}</span>
-                            )}
-                            <span>主催者: {facility.organizer}</span>
-                            <span>更新日: {new Date(facility.updatedAt).toLocaleDateString('ja-JP')}</span>
-                          </div>
                         </div>
                       </div>
                       
                       <div className="flex items-center gap-2 ml-4 flex-shrink-0">
-                        <button
-                          onClick={() => toggleActive(facility.id, facility.isActive)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            facility.isActive
-                              ? 'text-red-600 hover:bg-red-50'
-                              : 'text-green-600 hover:bg-green-50'
-                          }`}
-                          title={facility.isActive ? '非公開にする' : '公開する'}
-                        >
-                          {facility.isActive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                        
-                        <Link
-                          href={`/admin/facilities/${facility.id}/edit`}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="編集"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Link>
-                        
-                        <button
-                          onClick={() => deleteFacility(facility.id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="削除"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {editingId === facility.id ? (
+                          // 編集モードのボタン
+                          <>
+                            <button
+                              onClick={() => saveEdit(facility.id)}
+                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                              title="保存"
+                            >
+                              <Save className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={cancelEditing}
+                              className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                              title="キャンセル"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : (
+                          // 表示モードのボタン
+                          <>
+                            <button
+                              onClick={() => startEditing(facility)}
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              title="編集"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => deleteFacility(facility.id)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="削除"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -24,3 +24,13 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Next.jsのデフォルトエラーアイコンを非表示にする */
+img[alt]:after {
+  display: none !important;
+}
+
+/* 画像読み込みエラー時のデフォルトアイコンを非表示にする */
+img[src*="data:image/svg+xml"] {
+  display: none !important;
+}

@@ -6,8 +6,8 @@ import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
 import AdminNav from "@/components/ui/admin-nav";
-import { Plus, Edit, Trash2, Save, Eye, EyeOff } from "lucide-react";
-import Image from "next/image";
+import { Plus, Edit, Trash2, Save, Eye, EyeOff, BookOpen, X } from "lucide-react";
+import SimpleImage from "@/components/ui/simple-image";
 
 interface Knowledge {
   id: string;
@@ -394,20 +394,21 @@ export default function AdminKnowledgePage() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1 flex gap-4">
                         {/* 画像 */}
-                        {knowledgeItem.imageUrl && (
-                          <div className="flex-shrink-0">
-                            <Image
-                              src={knowledgeItem.imageUrl}
+                        <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
+                          {knowledgeItem.imageUrl ? (
+                            <SimpleImage
+                              src={knowledgeItem.imageUrl.trim()}
                               alt={knowledgeItem.title}
                               width={80}
                               height={80}
-                              className="w-20 h-20 object-cover rounded-lg border border-gray-200"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                              }}
+                              className="w-20 h-20 object-cover"
                             />
-                          </div>
-                        )}
+                          ) : (
+                            <div className="w-20 h-20 bg-gray-100 flex items-center justify-center">
+                              <BookOpen className="h-8 w-8 text-gray-400" />
+                            </div>
+                          )}
+                        </div>
                         
                         {/* ナレッジ情報 */}
                         <div className="flex-1 min-w-0">
@@ -447,17 +448,7 @@ export default function AdminKnowledgePage() {
                       </div>
                       
                       <div className="flex items-center gap-2 ml-4 flex-shrink-0">
-                        <button
-                          onClick={() => toggleActive(knowledgeItem.id, knowledgeItem.isActive)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            knowledgeItem.isActive
-                              ? 'text-red-600 hover:bg-red-50'
-                              : 'text-green-600 hover:bg-green-50'
-                          }`}
-                          title={knowledgeItem.isActive ? '非公開にする' : '公開する'}
-                        >
-                          {knowledgeItem.isActive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
+                        {/* 目に斜線が入ったアイコンを非表示 */}
                         
                         <button
                           onClick={() => handleEdit(knowledgeItem)}

@@ -7,7 +7,7 @@ import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
 import AdminNav from "@/components/ui/admin-nav";
 import { Plus, Edit, Trash2, Save } from "lucide-react";
-import Image from "next/image";
+import SimpleImage from "@/components/ui/simple-image";
 
 interface News {
   id: string;
@@ -513,18 +513,21 @@ export default function AdminNewsPage() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
                             {/* 画像 */}
-                            {newsItem.imageUrl && (
-                              <Image
-                                src={newsItem.imageUrl}
-                                alt={newsItem.title}
-                                width={48}
-                                height={48}
-                                className="w-12 h-12 object-cover rounded-lg border border-gray-200 flex-shrink-0"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                }}
-                              />
-                            )}
+                            <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                              {newsItem.imageUrl ? (
+                                <SimpleImage
+                                  src={newsItem.imageUrl.trim()}
+                                  alt={newsItem.title}
+                                  width={48}
+                                  height={48}
+                                  className="w-12 h-12 object-cover"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 bg-gray-100 flex items-center justify-center">
+                                  <div className="w-6 h-6 bg-gray-300 rounded"></div>
+                                </div>
+                              )}
+                            </div>
                             <div className="text-sm font-medium text-gray-900 max-w-xs truncate">
                               {newsItem.title}
                             </div>

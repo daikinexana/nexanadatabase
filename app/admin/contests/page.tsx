@@ -6,8 +6,8 @@ import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
 import AdminNav from "@/components/ui/admin-nav";
-import { Trophy, Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
-import Image from "next/image";
+import { Trophy, Plus, Edit, Trash2, Eye, EyeOff, Save, X } from "lucide-react";
+import SimpleImage from "@/components/ui/simple-image";
 
 interface Contest {
   id: string;
@@ -34,6 +34,8 @@ export default function AdminContestsPage() {
   const [contests, setContests] = useState<Contest[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingData, setEditingData] = useState<Partial<Contest>>({});
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -125,6 +127,96 @@ export default function AdminContestsPage() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const startEditing = (contest: Contest) => {
+    setEditingId(contest.id);
+    setEditingData({
+      title: contest.title,
+      description: contest.description,
+      imageUrl: contest.imageUrl,
+      deadline: contest.deadline,
+      startDate: contest.startDate,
+      area: contest.area,
+      organizer: contest.organizer,
+      organizerType: contest.organizerType,
+      website: contest.website,
+      targetArea: contest.targetArea,
+      targetAudience: contest.targetAudience,
+      incentive: contest.incentive,
+      operatingCompany: contest.operatingCompany,
+    });
+  };
+
+  const cancelEditing = () => {
+    setEditingId(null);
+    setEditingData({});
+  };
+
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setEditingData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+
+  const saveEdit = async (id: string) => {
+    try {
+      // 日付フィールドを適切にフォーマット
+      const dataToSend = {
+        ...editingData,
+        deadline: editingData.deadline ? new Date(editingData.deadline).toISOString() : null,
+        startDate: editingData.startDate ? new Date(editingData.startDate).toISOString() : null,
+      };
+
+      console.log('Sending data:', dataToSend);
+      console.log('Contest ID:', id);
+      console.log('Editing data:', editingData);
+
+      const response = await fetch(`/api/contests/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
+      if (response.ok) {
+        const updatedContest = await response.json();
+        setContests(contests.map(contest => 
+          contest.id === id ? updatedContest : contest
+        ));
+        setEditingId(null);
+        setEditingData({});
+        alert('コンテストが正常に更新されました');
+      } else {
+        // レスポンスのテキストを直接読み取る
+        const responseText = await response.text();
+        console.error('Raw response text:', responseText);
+        console.error('Response status:', response.status);
+        console.error('Response headers:', response.headers);
+        
+        let errorData: { error?: string; details?: string } = {};
+        try {
+          errorData = JSON.parse(responseText);
+          console.error('Parsed error data:', errorData);
+        } catch (parseError) {
+          console.error('Failed to parse error response as JSON:', parseError);
+          console.error('Raw response text was:', responseText);
+          errorData = { error: 'JSONパースエラー', details: responseText };
+        }
+        
+        alert(`エラー: ${errorData.error || 'コンテストの更新に失敗しました'}\n詳細: ${errorData.details || '詳細不明'}\nステータス: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('コンテストの更新に失敗しました:', error);
+      alert('コンテストの更新に失敗しました');
+    }
   };
 
 
@@ -491,7 +583,7 @@ export default function AdminContestsPage() {
             ) : (
               <div className="divide-y divide-gray-200">
                 {contests.map((contest) => (
-                  <div key={contest.id} className={`px-6 py-4 hover:bg-gray-50 ${contest.isChecked ? 'bg-blue-50 border-l-4 border-blue-400' : ''}`}>
+                  <div key={contest.id} className={`px-6 py-4 hover:bg-gray-50 ${contest.isChecked ? 'bg-blue-50 border-l-4 border-blue-400' : ''} ${editingId === contest.id ? 'bg-yellow-50 border-l-4 border-yellow-400' : ''}`}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-start gap-4">
@@ -506,103 +598,276 @@ export default function AdminContestsPage() {
                             />
                           </div>
                           {/* 画像プレビュー */}
-                          {contest.imageUrl ? (
-                            <div className="flex-shrink-0">
-                              <Image
-                                src={contest.imageUrl}
-                                alt={contest.title}
-                                width={64}
-                                height={64}
-                                className="w-16 h-16 object-cover rounded-lg"
-                              />
-                            </div>
-                          ) : (
-                            <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                              <Trophy className="h-6 w-6 text-gray-400" />
-                            </div>
-                          )}
+                          <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden">
+                            {editingId === contest.id ? (
+                              // 編集モードでも画像を表示
+                              editingData.imageUrl ? (
+                                <SimpleImage
+                                  src={editingData.imageUrl}
+                                  alt={editingData.title || contest.title}
+                                  width={64}
+                                  height={64}
+                                  className="w-16 h-16 object-cover"
+                                />
+                              ) : (
+                                <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
+                                  <Trophy className="h-6 w-6 text-gray-400" />
+                                </div>
+                              )
+                            ) : (
+                              // 表示モード
+                              contest.imageUrl ? (
+                                <SimpleImage
+                                  src={contest.imageUrl}
+                                  alt={contest.title}
+                                  width={64}
+                                  height={64}
+                                  className="w-16 h-16 object-cover"
+                                />
+                              ) : (
+                                <div className="w-16 h-16 bg-gray-100 flex items-center justify-center">
+                                  <Trophy className="h-6 w-6 text-gray-400" />
+                                </div>
+                              )
+                            )}
+                          </div>
                           
                           <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h3 className="text-lg font-medium text-gray-900">
-                                {contest.title}
-                              </h3>
-                              <span className={`px-2 py-1 text-xs rounded-full ${
-                                contest.isActive 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : 'bg-red-100 text-red-800'
-                              }`}>
-                                {contest.isActive ? '公開中' : '非公開'}
-                              </span>
-                            </div>
-                        
-                            {contest.description && (
-                              <p className="text-sm text-gray-600 line-clamp-2">
-                                {contest.description}
-                              </p>
-                            )}
-                            
-                            <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
-                              {contest.deadline && (
-                                <span>締切: {new Date(contest.deadline).toLocaleDateString('ja-JP')}</span>
-                              )}
-                              {contest.startDate && (
-                                <span>開始: {new Date(contest.startDate).toLocaleDateString('ja-JP')}</span>
-                              )}
-                              {contest.area && (
-                                <span>エリア: {contest.area}</span>
-                              )}
-                              <span>主催者: {contest.organizer}</span>
-                            </div>
-                            
-                            {(contest.targetArea || contest.targetAudience || contest.incentive || contest.operatingCompany) && (
-                              <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
-                                {contest.targetArea && (
-                                  <span>対象領域: {contest.targetArea}</span>
-                                )}
-                                {contest.targetAudience && (
-                                  <span>対象者: {contest.targetAudience}</span>
-                                )}
-                                {contest.incentive && (
-                                  <span>インセンティブ: {contest.incentive}</span>
-                                )}
-                                {contest.operatingCompany && (
-                                  <span>運営企業: {contest.operatingCompany}</span>
-                                )}
+                            {editingId === contest.id ? (
+                              <div className="space-y-3">
+                                {/* 編集モード */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">コンテスト名</label>
+                                    <input
+                                      type="text"
+                                      name="title"
+                                      value={editingData.title || ''}
+                                      onChange={handleEditInputChange}
+                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">画像URL</label>
+                                    <input
+                                      type="url"
+                                      name="imageUrl"
+                                      value={editingData.imageUrl || ''}
+                                      onChange={(e) => {
+                                        const value = e.target.value;
+                                        setEditingData(prev => ({
+                                          ...prev,
+                                          imageUrl: value
+                                        }));
+                                      }}
+                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                      placeholder="https://example.com/image.jpg"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      画像URLを入力すると、左側のプレビューが更新されます
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">主催者</label>
+                                    <input
+                                      type="text"
+                                      name="organizer"
+                                      value={editingData.organizer || ''}
+                                      onChange={handleEditInputChange}
+                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">エリア</label>
+                                    <input
+                                      type="text"
+                                      name="area"
+                                      value={editingData.area || ''}
+                                      onChange={handleEditInputChange}
+                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">締切日</label>
+                                    <input
+                                      type="datetime-local"
+                                      name="deadline"
+                                      value={editingData.deadline ? new Date(editingData.deadline).toISOString().slice(0, 16) : ''}
+                                      onChange={(e) => {
+                                        const value = e.target.value;
+                                        setEditingData(prev => ({
+                                          ...prev,
+                                          deadline: value ? new Date(value).toISOString() : undefined
+                                        }));
+                                      }}
+                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">開始日</label>
+                                    <input
+                                      type="datetime-local"
+                                      name="startDate"
+                                      value={editingData.startDate ? new Date(editingData.startDate).toISOString().slice(0, 16) : ''}
+                                      onChange={(e) => {
+                                        const value = e.target.value;
+                                        setEditingData(prev => ({
+                                          ...prev,
+                                          startDate: value ? new Date(value).toISOString() : undefined
+                                        }));
+                                      }}
+                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">説明</label>
+                                  <textarea
+                                    name="description"
+                                    value={editingData.description || ''}
+                                    onChange={handleEditInputChange}
+                                    rows={2}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">対象領域</label>
+                                    <input
+                                      type="text"
+                                      name="targetArea"
+                                      value={editingData.targetArea || ''}
+                                      onChange={handleEditInputChange}
+                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">対象者</label>
+                                    <input
+                                      type="text"
+                                      name="targetAudience"
+                                      value={editingData.targetAudience || ''}
+                                      onChange={handleEditInputChange}
+                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">インセンティブ</label>
+                                    <input
+                                      type="text"
+                                      name="incentive"
+                                      value={editingData.incentive || ''}
+                                      onChange={handleEditInputChange}
+                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">運営企業</label>
+                                    <input
+                                      type="text"
+                                      name="operatingCompany"
+                                      value={editingData.operatingCompany || ''}
+                                      onChange={handleEditInputChange}
+                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                  </div>
+                                </div>
                               </div>
+                            ) : (
+                              <>
+                                {/* 表示モード */}
+                                <div className="flex items-center gap-3 mb-2">
+                                  <h3 className="text-lg font-medium text-gray-900">
+                                    {contest.title}
+                                  </h3>
+                                  <span className={`px-2 py-1 text-xs rounded-full ${
+                                    contest.isActive 
+                                      ? 'bg-green-100 text-green-800' 
+                                      : 'bg-red-100 text-red-800'
+                                  }`}>
+                                    {contest.isActive ? '公開中' : '非公開'}
+                                  </span>
+                                </div>
+                            
+                                {contest.description && (
+                                  <p className="text-sm text-gray-600 line-clamp-2">
+                                    {contest.description}
+                                  </p>
+                                )}
+                                
+                                <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
+                                  {contest.deadline && (
+                                    <span>締切: {new Date(contest.deadline).toLocaleDateString('ja-JP')}</span>
+                                  )}
+                                  {contest.startDate && (
+                                    <span>開始: {new Date(contest.startDate).toLocaleDateString('ja-JP')}</span>
+                                  )}
+                                  {contest.area && (
+                                    <span>エリア: {contest.area}</span>
+                                  )}
+                                  <span>主催者: {contest.organizer}</span>
+                                </div>
+                            
+                                {(contest.targetArea || contest.targetAudience || contest.incentive || contest.operatingCompany) && (
+                                  <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
+                                    {contest.targetArea && (
+                                      <span>対象領域: {contest.targetArea}</span>
+                                    )}
+                                    {contest.targetAudience && (
+                                      <span>対象者: {contest.targetAudience}</span>
+                                    )}
+                                    {contest.incentive && (
+                                      <span>インセンティブ: {contest.incentive}</span>
+                                    )}
+                                    {contest.operatingCompany && (
+                                      <span>運営企業: {contest.operatingCompany}</span>
+                                    )}
+                                  </div>
+                                )}
+                              </>
                             )}
                           </div>
                         </div>
                       </div>
                       
                       <div className="flex items-center gap-2 ml-4">
-                        <button
-                          onClick={() => toggleActive(contest.id, contest.isActive)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            contest.isActive
-                              ? 'text-red-600 hover:bg-red-50'
-                              : 'text-green-600 hover:bg-green-50'
-                          }`}
-                          title={contest.isActive ? '非公開にする' : '公開する'}
-                        >
-                          {contest.isActive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                        
-                        <Link
-                          href={`/admin/contests/${contest.id}/edit`}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="編集"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Link>
-                        
-                        <button
-                          onClick={() => deleteContest(contest.id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="削除"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {editingId === contest.id ? (
+                          <>
+                            {/* 編集モードのアクションボタン */}
+                            <button
+                              onClick={() => saveEdit(contest.id)}
+                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                              title="保存"
+                            >
+                              <Save className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={cancelEditing}
+                              className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                              title="キャンセル"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            {/* 表示モードのアクションボタン */}
+                            <button
+                              onClick={() => startEditing(contest)}
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              title="編集"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => deleteContest(contest.id)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="削除"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

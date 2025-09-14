@@ -29,6 +29,108 @@ export async function GET(
   }
 }
 
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    // 管理者権限を確認
+    await requireAdmin();
+    
+    const resolvedParams = await params;
+    const body = await request.json();
+    const {
+      title,
+      description,
+      imageUrl,
+      deadline,
+      startDate,
+      area,
+      organizer,
+      organizerType,
+      website,
+      targetArea,
+      targetAudience,
+      openCallType,
+      availableResources,
+      resourceType,
+      operatingCompany,
+      isActive,
+    } = body;
+
+    // バリデーション
+    if (!title || !organizer || !organizerType) {
+      return NextResponse.json(
+        { error: "必須フィールドが不足しています" },
+        { status: 400 }
+      );
+    }
+
+    // 日付のバリデーション
+    const deadlineDate = deadline ? new Date(deadline) : null;
+    const start = startDate ? new Date(startDate) : null;
+    
+    if (deadlineDate && isNaN(deadlineDate.getTime())) {
+      return NextResponse.json(
+        { error: "締切日が無効です" },
+        { status: 400 }
+      );
+    }
+
+    if (start && isNaN(start.getTime())) {
+      return NextResponse.json(
+        { error: "開始日が無効です" },
+        { status: 400 }
+      );
+    }
+
+    const openCall = await prisma.openCall.update({
+      where: { id: resolvedParams.id },
+      data: {
+        title,
+        description,
+        imageUrl,
+        deadline: deadlineDate,
+        startDate: start,
+        area,
+        organizer,
+        organizerType,
+        website,
+        targetArea,
+        targetAudience,
+        openCallType,
+        availableResources,
+        resourceType,
+        operatingCompany,
+        isActive: isActive !== undefined ? isActive : true,
+      },
+    });
+
+    return NextResponse.json(openCall);
+  } catch (error) {
+    console.error("Error updating open call:", error);
+    
+    if (error instanceof Error && error.message.includes("認証")) {
+      return NextResponse.json(
+        { error: "認証が必要です" },
+        { status: 401 }
+      );
+    }
+    
+    if (error instanceof Error && error.message.includes("管理者権限")) {
+      return NextResponse.json(
+        { error: "管理者権限が必要です" },
+        { status: 403 }
+      );
+    }
+    
+    return NextResponse.json(
+      { error: "公募の更新に失敗しました" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
