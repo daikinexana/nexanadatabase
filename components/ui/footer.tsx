@@ -5,7 +5,7 @@ const navigation = {
     { name: "ホーム", href: "/" },
     { name: "コンテスト", href: "/contests" },
     { name: "施設紹介", href: "/facilities" },
-    { name: "展示会", href: "/events" },
+    { name: "イベント", href: "/events" },
     { name: "公募", href: "/open-calls" },
     { name: "ニュース", href: "/news" },
     { name: "ナレッジ", href: "/knowledge" },
