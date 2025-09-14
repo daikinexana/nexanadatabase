@@ -102,201 +102,227 @@ export default function KnowledgePage() {
   // }, {} as Record<string, number>);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <Header />
       
       {/* ヒーローセクション */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* 背景パターン */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-white"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,0,0.05),transparent_50%)]"></div>
+      <div className="relative overflow-hidden">
+        {/* 背景画像 */}
+        <div className="absolute inset-0">
+          <div className="w-full h-full bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/80 via-purple-600/80 to-indigo-600/80"></div>
+          <div className="absolute inset-0 bg-black/30"></div>
+        </div>
         
-        <div className="container-custom relative z-10">
-          <div className="text-center max-w-5xl mx-auto">
-            <div className="flex items-center justify-center mb-8">
-              <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mr-4">
-                <BookOpen className="h-8 w-8 text-white" />
-              </div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black leading-none text-display">
-                ナレッジベース
-              </h1>
-            </div>
-            
-            <p className="text-base md:text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed text-subtitle">
-              AI、ディープテック、イノベーションの最新技術情報とトレンドを専門家の視点から詳しく解説
-            </p>
-            
-            <p className="text-sm text-gray-500 mb-12 max-w-xl mx-auto leading-relaxed text-body">
-              スタートアップに必要な知識とインサイトを提供します
+        {/* 装飾的な要素 */}
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-20 w-40 h-40 bg-purple-300/20 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1s'}}></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-blue-300/20 rounded-full blur-2xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+              ナレッジ
+              <span className="block bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent mt-2">
+                ベース
+              </span>
+            </h1>
+            <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
+              AI、ディープテック、イノベーションの最新技術情報とトレンドを
+              <br className="hidden sm:block" />
+              専門家の視点から詳しく解説
             </p>
           </div>
         </div>
-      </section>
+      </div>
 
-      <div className="container-custom">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-black mx-auto mb-6"></div>
-              <p className="text-xl text-gray-600">記事を読み込み中...</p>
+              <div className="relative">
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 mx-auto"></div>
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto absolute top-0 left-0"></div>
+              </div>
+              <p className="text-gray-600 mt-4 text-lg">記事を読み込み中...</p>
             </div>
           </div>
         ) : (
-          <div className="space-y-16">
+          <div className="space-y-8">
             {/* 検索・フィルター */}
-            <section className="py-12 bg-gray-50 rounded-3xl">
-              <div className="max-w-4xl mx-auto px-8">
-                {/* 検索バーとフィルターボタン */}
-                <div className="flex flex-col sm:flex-row gap-6 mb-8">
-                  <div className="flex-1">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-xl relative z-20">
+              {/* 検索バーとフィルターボタン */}
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                <div className="flex-1">
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
                     <div className="relative">
-                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-hover:text-blue-500 transition-colors" />
                       <input
                         type="text"
                         placeholder="記事を検索..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-12 pr-6 py-4 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-black focus:border-transparent text-lg transition-smooth"
+                        className="w-full pl-12 pr-4 py-4 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-lg transition-all duration-300 hover:shadow-xl"
                       />
                     </div>
                   </div>
-                  
-                  {/* フィルターボタン */}
-                  <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="inline-flex items-center px-6 py-4 border-2 border-black rounded-2xl text-lg font-medium text-black bg-white hover:bg-black hover:text-white transition-smooth"
-                  >
-                    <FilterIcon className="h-5 w-5 mr-2" />
-                    フィルター
-                  </button>
                 </div>
-
-                {/* フィルター（条件付き表示） */}
-                {showFilters && (
-                  <div className="border-t border-gray-200 pt-8">
-                    <Filter
-                      type="knowledge"
-                      filters={filters}
-                      onFilterChange={handleFilterChange}
-                    />
-                  </div>
-                )}
+                
+                {/* フィルターボタン */}
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="flex items-center space-x-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  <FilterIcon className="h-5 w-5" />
+                  <span className="font-semibold">フィルター</span>
+                </button>
               </div>
-            </section>
+
+              {/* フィルター（条件付き表示） */}
+              {showFilters && (
+                <div className="border-t border-gray-200 pt-6">
+                  <Filter
+                    type="knowledge"
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                  />
+                </div>
+              )}
+            </div>
 
             {/* メインコンテンツ */}
-            <section>
-              {/* 結果表示 */}
-              <div className="mb-12">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-black mb-4 text-display">
-                      {filteredKnowledge.length}件の記事
-                    </h2>
-                    <p className="text-lg text-gray-600 text-subtitle">
-                      最新の技術ナレッジをお届けします
-                    </p>
-                  </div>
-                  <div className="hidden md:flex items-center space-x-3 text-lg text-gray-500">
-                    <Calendar className="h-5 w-5" />
-                    <span>更新: {new Date().toLocaleDateString("ja-JP")}</span>
-                  </div>
+            <div>
+            {/* 結果表示 */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                    {filteredKnowledge.length}件の記事
+                  </h2>
+                  <p className="text-gray-600">
+                    最新の技術ナレッジをお届けします
+                  </p>
+                </div>
+                <div className="hidden md:flex items-center space-x-2 text-sm text-gray-500">
+                  <Calendar className="h-4 w-4" />
+                  <span>更新: {new Date().toLocaleDateString("ja-JP")}</span>
                 </div>
               </div>
+            </div>
 
-              {/* 記事一覧 */}
-              {filteredKnowledge.length > 0 ? (
-                <div className="grid gap-8">
-                  {filteredKnowledge.map((item, index) => (
-                    <div 
-                      key={item.id} 
-                      className="group cursor-pointer hover-lift transition-smooth"
-                      style={{ animationDelay: `${index * 100}ms` }}
-                      onClick={() => handleKnowledgeClick(item)}
-                    >
-                      {/* メインカード */}
-                      <div className="bg-white rounded-3xl border-2 border-gray-100 hover:border-gray-200 transition-smooth overflow-hidden">
-                        <div className="flex h-80">
-                          {/* 画像セクション */}
-                          {item.imageUrl && (
-                            <div className="w-1/3 relative overflow-hidden">
-                              <Image
-                                src={item.imageUrl}
-                                alt={item.title}
-                                fill
-                                className="object-cover w-full h-full group-hover:scale-105 transition-smooth"
-                              />
-                              <div className="absolute top-4 left-4">
-                                <span className="px-4 py-2 bg-black text-white text-sm font-semibold rounded-full">
-                                  {item.categoryTag || "ナレッジ"}
+            {/* 記事カード一覧 */}
+            {filteredKnowledge.length > 0 ? (
+              <div className="grid gap-4">
+                {filteredKnowledge.map((item, index) => (
+                  <div 
+                    key={item.id} 
+                    className="group cursor-pointer"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                    onClick={() => handleKnowledgeClick(item)}
+                  >
+                    {/* メインカード */}
+                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden relative z-0">
+                      <div className="flex h-64">
+                        {/* 画像セクション */}
+                        {item.imageUrl && (
+                          <div className="w-1/3 relative overflow-hidden">
+                            <Image
+                              src={item.imageUrl}
+                              alt={item.title}
+                              fill
+                              className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute top-3 left-3">
+                              <span className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full">
+                                {item.categoryTag || "ナレッジ"}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* コンテンツセクション */}
+                        <div className="flex-1 p-6 flex flex-col">
+                          {/* ヘッダー */}
+                          <div className="mb-4 flex-shrink-0">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2 leading-tight line-clamp-2">
+                              {item.title}
+                            </h3>
+                            <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
+                              {item.description}
+                            </p>
+                          </div>
+
+                          {/* メタ情報 - フレックスで下部に配置 */}
+                          <div className="mt-auto space-y-3">
+                            {/* 公開日 */}
+                            {item.publishedAt && (
+                              <div className="flex items-center space-x-2">
+                                <Calendar className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                                <span className="text-sm text-gray-600">
+                                  {new Date(item.publishedAt).toLocaleDateString("ja-JP", { 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric' 
+                                  })}
                                 </span>
                               </div>
-                            </div>
-                          )}
-
-                          {/* コンテンツセクション */}
-                          <div className="flex-1 p-8 flex flex-col">
-                            {/* ヘッダー */}
-                            <div className="mb-6 flex-shrink-0">
-                              <h3 className="text-xl font-bold text-black mb-4 leading-tight line-clamp-2 text-heading">
-                                {item.title}
-                              </h3>
-                              <p className="text-gray-600 text-base leading-relaxed line-clamp-2 text-body">
-                                {item.description}
-                              </p>
-                            </div>
-
-                            {/* メタ情報 - フレックスで下部に配置 */}
-                            <div className="mt-auto space-y-4">
-                              {/* 公開日 */}
-                              {item.publishedAt && (
-                                <div className="flex items-center space-x-3">
-                                  <Calendar className="h-5 w-5 text-gray-500 flex-shrink-0" />
-                                  <span className="text-lg text-gray-600">
-                                    {new Date(item.publishedAt).toLocaleDateString("ja-JP", { 
-                                      year: 'numeric', 
-                                      month: 'long', 
-                                      day: 'numeric' 
-                                    })}
-                                  </span>
-                                </div>
+                            )}
+                            
+                            {/* カテゴリータグとエリア */}
+                            <div className="flex items-center space-x-2 flex-wrap gap-1">
+                              {item.categoryTag && (
+                                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                                  {item.categoryTag}
+                                </span>
                               )}
-                              
-                              {/* カテゴリータグとエリア */}
-                              <div className="flex items-center space-x-3 flex-wrap gap-2">
-                                {item.categoryTag && (
-                                  <span className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
-                                    {item.categoryTag}
-                                  </span>
-                                )}
-                                {item.area && (
-                                  <span className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
-                                    {item.area}
-                                  </span>
-                                )}
-                              </div>
+                              {item.area && (
+                                <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">
+                                  {item.area}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-20">
-                  <div className="text-gray-400 mb-8">
-                    <BookOpen className="h-20 w-20 mx-auto" />
                   </div>
-                  <h3 className="text-3xl font-bold text-black mb-4">
-                    該当する記事が見つかりませんでした
-                  </h3>
-                  <p className="text-xl text-gray-600">
-                    検索条件を変更して再度お試しください
-                  </p>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"></div>
+                  <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-12 border border-white/20 shadow-xl">
+                    <div className="text-gray-400 mb-6">
+                      <BookOpen className="h-16 w-16 mx-auto animate-pulse" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                      該当する記事が見つかりませんでした
+                    </h3>
+                    <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                      検索条件を変更して再度お試しください。新しいフィルターを試してみることもできます。
+                    </p>
+                    <button 
+                      onClick={() => {
+                        setSearchTerm("");
+                        setFilters({
+                          categoryTag: undefined,
+                          area: undefined,
+                        });
+                      }}
+                      className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                    >
+                      フィルターをリセット
+                    </button>
+                  </div>
                 </div>
-              )}
-            </section>
+              </div>
+            )}
           </div>
+        </div>
         )}
       </div>
 
@@ -346,7 +372,7 @@ export default function KnowledgePage() {
                         src={selectedKnowledge.imageUrl}
                         alt={selectedKnowledge.title}
                         width={800}
-                        height={400}
+                        height={256}
                         className="w-full h-64 object-cover"
                       />
                     </div>

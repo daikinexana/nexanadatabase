@@ -289,15 +289,15 @@ export default function Card({
             </div>
           )}
 
-          {/* 締切日 */}
-          {deadline ? (
+          {/* 締切日（facility以外） */}
+          {type !== "facility" && deadline ? (
             <div className="flex items-center space-x-2 mb-3">
               <Clock className="h-4 w-4 text-red-500 flex-shrink-0" />
               <span className="text-sm text-gray-600 font-medium">
                 締切: {format(deadline, "yyyy年MM月dd日", { locale: ja })}
               </span>
             </div>
-          ) : (
+          ) : type !== "facility" && (
             <div className="flex items-center space-x-2 mb-3">
               <Clock className="h-4 w-4 text-gray-300 flex-shrink-0" />
               <span className="text-sm text-gray-400 italic">
@@ -338,8 +338,8 @@ export default function Card({
             </div>
           )}
 
-          {/* カウントダウンバッジ（エリアの下） */}
-          {deadline && (
+          {/* カウントダウンバッジ（エリアの下、facility以外） */}
+          {type !== "facility" && deadline && (
             <div className="mb-4 flex justify-center">
               <div className={`relative px-4 py-2 text-sm font-bold rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 ${getStatusColor(deadline)}`}>
                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-full"></div>
@@ -534,7 +534,7 @@ export default function Card({
                   </div>
 
                   <div className="space-y-4">
-                    {deadline && (
+                    {type !== "facility" && deadline && (
                       <div>
                         <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">締切日</label>
                         <div className="flex items-center space-x-3 mt-2">
