@@ -6,7 +6,7 @@ import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 // import Card from "@/components/ui/card";
 import Filter from "@/components/ui/filter";
-import { Search, Filter as FilterIcon, TrendingUp, DollarSign, Building, Calendar, ExternalLink, X } from "lucide-react";
+import { Search, Filter as FilterIcon, TrendingUp, DollarSign, Building, Calendar, ExternalLink, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import Image from "next/image";
 
 interface NewsItem {
@@ -23,6 +23,45 @@ interface NewsItem {
   publishedAt: Date | string;
   sourceUrl: string;
 }
+
+// 国を判定する関数
+const getCountryFromArea = (area: string): string => {
+  if (!area) return 'その他';
+  
+  const areaLower = area.toLowerCase();
+  
+  if (areaLower.includes('日本') || areaLower.includes('japan') || areaLower.includes('東京') || areaLower.includes('大阪') || areaLower.includes('京都') || areaLower.includes('福岡') || areaLower.includes('名古屋')) {
+    return '日本';
+  } else if (areaLower.includes('アメリカ') || areaLower.includes('usa') || areaLower.includes('us') || areaLower.includes('united states') || areaLower.includes('san francisco') || areaLower.includes('new york') || areaLower.includes('los angeles') || areaLower.includes('boston') || areaLower.includes('seattle')) {
+    return 'アメリカ';
+  } else if (areaLower.includes('イギリス') || areaLower.includes('uk') || areaLower.includes('united kingdom') || areaLower.includes('london') || areaLower.includes('england')) {
+    return 'イギリス';
+  } else if (areaLower.includes('韓国') || areaLower.includes('korea') || areaLower.includes('south korea') || areaLower.includes('seoul')) {
+    return '韓国';
+  } else if (areaLower.includes('中国') || areaLower.includes('china') || areaLower.includes('beijing') || areaLower.includes('shanghai') || areaLower.includes('shenzhen')) {
+    return '中国';
+  } else {
+    return 'その他';
+  }
+};
+
+// 国別のバッジ色設定
+const getCountryBadgeColor = (country: string): string => {
+  switch (country) {
+    case '日本':
+      return 'bg-red-500 text-white'; // 日本の国旗の赤
+    case 'アメリカ':
+      return 'bg-blue-500 text-white'; // アメリカの国旗の青
+    case 'イギリス':
+      return 'bg-purple-500 text-white'; // イギリスの国旗の紫
+    case '韓国':
+      return 'bg-yellow-500 text-black'; // 韓国の国旗の黄色
+    case '中国':
+      return 'bg-red-600 text-white'; // 中国の国旗の赤
+    default:
+      return 'bg-gray-500 text-white'; // その他はグレー
+  }
+};
 
 
 export default function NewsPage() {
@@ -46,6 +85,10 @@ export default function NewsPage() {
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  
+  // ページネーション用の状態
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50;
 
   const fetchNews = useCallback(async () => {
     try {
@@ -99,7 +142,22 @@ export default function NewsPage() {
       );
       setFilteredNews(filtered);
     }
+    // 検索やフィルターが変更されたら1ページ目に戻る
+    setCurrentPage(1);
   }, [news, searchTerm]);
+
+  // ページネーション用の計算
+  const totalPages = Math.ceil(filteredNews.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentNews = filteredNews.slice(startIndex, endIndex);
+
+  // ページ変更ハンドラー
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // ページトップにスクロール
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleFilterChange = (newFilters: {
     area?: string;
@@ -233,6 +291,11 @@ export default function NewsPage() {
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     {filteredNews.length}件のニュース
+                    {totalPages > 1 && (
+                      <span className="text-lg font-normal text-gray-600 ml-2">
+                        （{currentPage} / {totalPages}ページ）
+                      </span>
+                    )}
                   </h2>
                   <p className="text-gray-600">
                     最新のスタートアップ情報をお届けします
@@ -248,7 +311,7 @@ export default function NewsPage() {
             {/* ニュースカード一覧 */}
             {filteredNews.length > 0 ? (
               <div className="grid gap-4">
-                {filteredNews.map((item, index) => (
+                {currentNews.map((item, index) => (
                   <div 
                     key={item.id} 
                     className="group cursor-pointer"
@@ -335,8 +398,8 @@ export default function NewsPage() {
                                 </span>
                               )}
                               {item.area && (
-                                <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">
-                                  {item.area}
+                                <span className={`px-2 py-1 text-xs font-medium rounded ${getCountryBadgeColor(getCountryFromArea(item.area))}`}>
+                                  {getCountryFromArea(item.area)}
                                 </span>
                               )}
                             </div>
@@ -377,6 +440,90 @@ export default function NewsPage() {
                       フィルターをリセット
                     </button>
                   </div>
+                </div>
+              </div>
+            )}
+            
+            {/* ページネーション */}
+            {filteredNews.length > 0 && totalPages > 1 && (
+              <div className="mt-8 flex items-center justify-center">
+                <nav className="flex items-center space-x-2" aria-label="ページネーション">
+                  {/* 最初のページ */}
+                  <button
+                    onClick={() => handlePageChange(1)}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="最初のページ"
+                  >
+                    <ChevronsLeft className="h-4 w-4" />
+                  </button>
+                  
+                  {/* 前のページ */}
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="前のページ"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  
+                  {/* ページ番号 */}
+                  <div className="flex items-center space-x-1">
+                    {(() => {
+                      const pages = [];
+                      const maxVisiblePages = 5;
+                      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                      const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                      
+                      if (endPage - startPage + 1 < maxVisiblePages) {
+                        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                      }
+                      
+                      for (let i = startPage; i <= endPage; i++) {
+                        pages.push(
+                          <button
+                            key={i}
+                            onClick={() => handlePageChange(i)}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              i === currentPage
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                            }`}
+                          >
+                            {i}
+                          </button>
+                        );
+                      }
+                      
+                      return pages;
+                    })()}
+                  </div>
+                  
+                  {/* 次のページ */}
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="次のページ"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                  
+                  {/* 最後のページ */}
+                  <button
+                    onClick={() => handlePageChange(totalPages)}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="最後のページ"
+                  >
+                    <ChevronsRight className="h-4 w-4" />
+                  </button>
+                </nav>
+                
+                {/* ページ情報 */}
+                <div className="ml-4 text-sm text-gray-500">
+                  {startIndex + 1}-{Math.min(endIndex, filteredNews.length)} / {filteredNews.length}件
                 </div>
               </div>
             )}
@@ -493,7 +640,12 @@ export default function NewsPage() {
                       {selectedNews.area && (
                         <div>
                           <span className="text-sm text-gray-500">エリア</span>
-                          <p className="text-lg font-semibold text-gray-900">{selectedNews.area}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <p className="text-lg font-semibold text-gray-900">{selectedNews.area}</p>
+                            <span className={`px-2 py-1 text-xs font-medium rounded ${getCountryBadgeColor(getCountryFromArea(selectedNews.area))}`}>
+                              {getCountryFromArea(selectedNews.area)}
+                            </span>
+                          </div>
                         </div>
                       )}
                     </div>

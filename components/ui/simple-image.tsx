@@ -23,7 +23,6 @@ export default function SimpleImage({
   priority = false
 }: SimpleImageProps) {
   const [hasError, setHasError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   // URLのトリム処理
   const trimmedSrc = src?.trim();
@@ -56,7 +55,6 @@ export default function SimpleImage({
   }
 
   // Base64形式の場合は常にunoptimizedを使用
-  const isBase64 = trimmedSrc.startsWith('data:image/');
   
   return (
     <Image
@@ -68,11 +66,9 @@ export default function SimpleImage({
       onError={() => {
         console.log('Image load error for:', trimmedSrc.substring(0, 50) + '...');
         setHasError(true);
-        setIsLoading(false);
       }}
       onLoad={() => {
         console.log('Image loaded successfully:', trimmedSrc.substring(0, 50) + '...');
-        setIsLoading(false);
       }}
       unoptimized={true}
       style={{ display: hasError ? 'none' : 'block' }}

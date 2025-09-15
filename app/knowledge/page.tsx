@@ -6,7 +6,7 @@ import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 // import Card from "@/components/ui/card";
 import Filter from "@/components/ui/filter";
-import { Search, Filter as FilterIcon, BookOpen, Calendar, ExternalLink, X } from "lucide-react";
+import { Search, Filter as FilterIcon, BookOpen, Calendar, ExternalLink, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import Image from "next/image";
 
 interface KnowledgeItem {
@@ -33,6 +33,10 @@ export default function KnowledgePage() {
   const [selectedKnowledge, setSelectedKnowledge] = useState<KnowledgeItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  
+  // ページネーション用の状態
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50;
 
   // APIからデータを取得
   useEffect(() => {
@@ -77,7 +81,22 @@ export default function KnowledgePage() {
     }
 
     setFilteredKnowledge(filtered);
+    // 検索やフィルターが変更されたら1ページ目に戻る
+    setCurrentPage(1);
   }, [knowledge, searchTerm]);
+
+  // ページネーション用の計算
+  const totalPages = Math.ceil(filteredKnowledge.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentKnowledge = filteredKnowledge.slice(startIndex, endIndex);
+
+  // ページ変更ハンドラー
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // ページトップにスクロール
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleFilterChange = (newFilters: { categoryTag?: string; area?: string; }) => {
     setFilters(newFilters);
@@ -130,9 +149,9 @@ export default function KnowledgePage() {
               </span>
             </h1>
             <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
-              AI、ディープテック、イノベーションの最新技術情報とトレンドを
+              スタートアップで今知っておきたい技術情報とトレンドを
               <br className="hidden sm:block" />
-              専門家の視点から詳しく解説
+              厳選してキュレーションしてお届け
             </p>
           </div>
         </div>
@@ -201,6 +220,11 @@ export default function KnowledgePage() {
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     {filteredKnowledge.length}件の記事
+                    {totalPages > 1 && (
+                      <span className="text-lg font-normal text-gray-600 ml-2">
+                        （{currentPage} / {totalPages}ページ）
+                      </span>
+                    )}
                   </h2>
                   <p className="text-gray-600">
                     最新の技術ナレッジをお届けします
@@ -216,7 +240,7 @@ export default function KnowledgePage() {
             {/* 記事カード一覧 */}
             {filteredKnowledge.length > 0 ? (
               <div className="grid gap-4">
-                {filteredKnowledge.map((item, index) => (
+                {currentKnowledge.map((item, index) => (
                   <div 
                     key={item.id} 
                     className="group cursor-pointer"
@@ -318,6 +342,90 @@ export default function KnowledgePage() {
                       フィルターをリセット
                     </button>
                   </div>
+                </div>
+              </div>
+            )}
+            
+            {/* ページネーション */}
+            {filteredKnowledge.length > 0 && totalPages > 1 && (
+              <div className="mt-8 flex items-center justify-center">
+                <nav className="flex items-center space-x-2" aria-label="ページネーション">
+                  {/* 最初のページ */}
+                  <button
+                    onClick={() => handlePageChange(1)}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="最初のページ"
+                  >
+                    <ChevronsLeft className="h-4 w-4" />
+                  </button>
+                  
+                  {/* 前のページ */}
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="前のページ"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  
+                  {/* ページ番号 */}
+                  <div className="flex items-center space-x-1">
+                    {(() => {
+                      const pages = [];
+                      const maxVisiblePages = 5;
+                      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                      const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                      
+                      if (endPage - startPage + 1 < maxVisiblePages) {
+                        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                      }
+                      
+                      for (let i = startPage; i <= endPage; i++) {
+                        pages.push(
+                          <button
+                            key={i}
+                            onClick={() => handlePageChange(i)}
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              i === currentPage
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                            }`}
+                          >
+                            {i}
+                          </button>
+                        );
+                      }
+                      
+                      return pages;
+                    })()}
+                  </div>
+                  
+                  {/* 次のページ */}
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="次のページ"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                  
+                  {/* 最後のページ */}
+                  <button
+                    onClick={() => handlePageChange(totalPages)}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="最後のページ"
+                  >
+                    <ChevronsRight className="h-4 w-4" />
+                  </button>
+                </nav>
+                
+                {/* ページ情報 */}
+                <div className="ml-4 text-sm text-gray-500">
+                  {startIndex + 1}-{Math.min(endIndex, filteredKnowledge.length)} / {filteredKnowledge.length}件
                 </div>
               </div>
             )}

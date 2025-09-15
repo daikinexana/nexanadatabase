@@ -6,7 +6,7 @@ import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
 import AdminNav from "@/components/ui/admin-nav";
-import { Calendar, Plus, Edit, Trash2, Eye, EyeOff, Save, X } from "lucide-react";
+import { Calendar, Plus, Edit, Trash2, Save, X } from "lucide-react";
 import SimpleImage from "@/components/ui/simple-image";
 
 interface Event {
@@ -75,27 +75,6 @@ export default function AdminEventsPage() {
     }
   };
 
-  const toggleActive = async (id: string, currentStatus: boolean) => {
-    try {
-      const response = await fetch(`/api/events/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ isActive: !currentStatus }),
-      });
-
-      if (response.ok) {
-        setEvents(events.map(event => 
-          event.id === id 
-            ? { ...event, isActive: !currentStatus }
-            : event
-        ));
-      }
-    } catch (error) {
-      console.error('ステータスの更新に失敗しました:', error);
-    }
-  };
 
   // const toggleChecked = (id: string) => {
   //   setEvents(events.map(event => 

@@ -474,35 +474,45 @@ export default function AdminNewsPage() {
 
           {/* ニュース一覧 */}
           <div className="bg-white shadow overflow-hidden sm:rounded-md">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-lg font-medium text-gray-900">
+                ニュース一覧 ({news.length}件)
+              </h2>
+            </div>
+            
             {loading ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                 <p className="text-gray-600">読み込み中...</p>
               </div>
+            ) : news.length === 0 ? (
+              <div className="px-6 py-8 text-center text-gray-500">
+                ニュース情報がありません
+              </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
+                <table className="w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">
                         タイトル
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                         企業
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
                         タイプ
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
                         エリア
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
                         金額
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
                         ステータス
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
                         操作
                       </th>
                     </tr>
@@ -510,64 +520,73 @@ export default function AdminNewsPage() {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {news.map((newsItem) => (
                       <tr key={newsItem.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-3">
+                        <td className="px-3 py-4">
+                          <div className="flex items-center gap-2">
                             {/* 画像 */}
-                            <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                            <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
                               {newsItem.imageUrl ? (
                                 <SimpleImage
                                   src={newsItem.imageUrl.trim()}
                                   alt={newsItem.title}
-                                  width={48}
-                                  height={48}
-                                  className="w-12 h-12 object-cover"
+                                  width={32}
+                                  height={32}
+                                  className="w-8 h-8 object-cover"
                                 />
                               ) : (
-                                <div className="w-12 h-12 bg-gray-100 flex items-center justify-center">
-                                  <div className="w-6 h-6 bg-gray-300 rounded"></div>
+                                <div className="w-8 h-8 bg-gray-100 flex items-center justify-center">
+                                  <div className="w-4 h-4 bg-gray-300 rounded"></div>
                                 </div>
                               )}
                             </div>
-                            <div className="text-sm font-medium text-gray-900 max-w-xs truncate">
-                              {newsItem.title}
+                            <div className="text-sm font-medium text-gray-900 truncate" title={newsItem.title}>
+                              {newsItem.title.length > 30 ? `${newsItem.title.substring(0, 30)}...` : newsItem.title}
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{newsItem.company}</div>
+                        <td className="px-3 py-4">
+                          <div className="text-sm text-gray-900 truncate" title={newsItem.company}>
+                            {newsItem.company.length > 15 ? `${newsItem.company.substring(0, 15)}...` : newsItem.company}
+                          </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            {newsItem.type}
+                        <td className="px-3 py-4">
+                          <span className="px-1 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-green-100 text-green-800">
+                            {newsItem.type === 'FUNDING' ? '投資' : 
+                             newsItem.type === 'M_AND_A' ? 'M&A' :
+                             newsItem.type === 'IPO' ? 'IPO' :
+                             newsItem.type === 'PARTNERSHIP' ? '提携' : 'その他'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{newsItem.area || "-"}</div>
+                        <td className="px-3 py-4">
+                          <div className="text-sm text-gray-900 truncate" title={newsItem.area || "-"}>
+                            {newsItem.area ? (newsItem.area.length > 8 ? `${newsItem.area.substring(0, 8)}...` : newsItem.area) : "-"}
+                          </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{newsItem.amount}</div>
+                        <td className="px-3 py-4">
+                          <div className="text-sm text-gray-900 truncate" title={newsItem.amount || "-"}>
+                            {newsItem.amount ? (newsItem.amount.length > 10 ? `${newsItem.amount.substring(0, 10)}...` : newsItem.amount) : "-"}
+                          </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        <td className="px-3 py-4">
+                          <span className={`px-1 py-1 inline-flex text-xs leading-4 font-semibold rounded-full ${
                             newsItem.isActive
                               ? "bg-green-100 text-green-800"
                               : "bg-red-100 text-red-800"
                           }`}>
-                            {newsItem.isActive ? "公開中" : "非公開"}
+                            {newsItem.isActive ? "公開" : "非公開"}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
+                        <td className="px-3 py-4 text-sm font-medium">
+                          <div className="flex space-x-1">
                             <button
                               onClick={() => handleEdit(newsItem)}
-                              className="text-blue-600 hover:text-blue-900"
+                              className="text-blue-600 hover:text-blue-900 p-1"
                               title="編集"
                             >
                               <Edit className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(newsItem.id)}
-                              className="text-red-600 hover:text-red-900"
+                              className="text-red-600 hover:text-red-900 p-1"
                               title="削除"
                             >
                               <Trash2 className="h-4 w-4" />
