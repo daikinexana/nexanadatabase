@@ -49,11 +49,18 @@ export default function ImageUpload({ value, onChange, type, className = "" }: I
       if (result.success) {
         onChange(result.imageUrl);
       } else {
-        alert(result.error || "画像のアップロードに失敗しました");
+        console.error("S3アップロードエラー:", result.error);
+        // S3アップロードが失敗した場合、ローカルファイルのURLを生成
+        const localUrl = URL.createObjectURL(file);
+        onChange(localUrl);
+        alert("S3アップロードに失敗しましたが、ローカルプレビューを表示します。保存前に画像URLを手動で設定してください。");
       }
     } catch (error) {
       console.error("アップロードエラー:", error);
-      alert("画像のアップロードに失敗しました");
+      // エラーの場合もローカルプレビューを表示
+      const localUrl = URL.createObjectURL(file);
+      onChange(localUrl);
+      alert("アップロードに失敗しましたが、ローカルプレビューを表示します。保存前に画像URLを手動で設定してください。");
     } finally {
       setIsUploading(false);
     }

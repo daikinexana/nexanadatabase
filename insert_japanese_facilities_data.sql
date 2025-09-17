@@ -55,3 +55,4 @@ ON CONFLICT (id) DO UPDATE SET
   "isActive" = EXCLUDED."isActive",
   "updatedAt" = NOW();
 
+

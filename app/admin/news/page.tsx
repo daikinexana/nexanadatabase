@@ -8,6 +8,7 @@ import AdminGuard from "@/components/admin/admin-guard";
 import AdminNav from "@/components/ui/admin-nav";
 import { Plus, Edit, Trash2, Save } from "lucide-react";
 import SimpleImage from "@/components/ui/simple-image";
+import ImageUpload from "@/components/ui/image-upload";
 
 interface News {
   id: string;
@@ -399,18 +400,26 @@ export default function AdminNewsPage() {
                   />
                 </div>
 
-                {/* 画像URL */}
+                {/* 画像アップロード */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    画像URL
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    画像
                   </label>
-                  <input
-                    type="url"
-                    value={formData.imageUrl}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="https://example.com/image.jpg"
+                  <ImageUpload
+                    value={formData.imageUrl || ''}
+                    onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                    type="news"
                   />
+                  <div className="mt-2">
+                    <label className="block text-xs text-gray-500 mb-1">または直接URLを入力</label>
+                    <input
+                      type="url"
+                      value={formData.imageUrl}
+                      onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </div>
                 </div>
 
                 {/* ソースURL */}
@@ -522,7 +531,7 @@ export default function AdminNewsPage() {
                       <tr key={newsItem.id}>
                         <td className="px-3 py-4">
                           <div className="flex items-center gap-2">
-                            {/* 画像 */}
+                            {/* 画像プレビュー */}
                             <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
                               {newsItem.imageUrl ? (
                                 <SimpleImage

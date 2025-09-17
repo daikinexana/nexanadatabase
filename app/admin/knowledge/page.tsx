@@ -8,6 +8,7 @@ import AdminGuard from "@/components/admin/admin-guard";
 import AdminNav from "@/components/ui/admin-nav";
 import { Plus, Edit, Trash2, Save, BookOpen, X } from "lucide-react";
 import SimpleImage from "@/components/ui/simple-image";
+import ImageUpload from "@/components/ui/image-upload";
 
 interface Knowledge {
   id: string;
@@ -366,15 +367,23 @@ export default function AdminKnowledgePage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      画像URL
+                      画像
                     </label>
-                    <input
-                      type="url"
+                    <ImageUpload
                       value={formData.imageUrl || ""}
-                      onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="画像のURLを入力してください"
+                      onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                      type="knowledge"
                     />
+                    <div className="mt-2">
+                      <p className="text-xs text-gray-500 mb-1">または</p>
+                      <input
+                        type="url"
+                        value={formData.imageUrl || ""}
+                        onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="画像のURLを直接入力"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -536,21 +545,29 @@ export default function AdminKnowledgePage() {
                                   />
                                 </div>
                                 <div className="md:col-span-2">
-                                  <label className="block text-xs font-medium text-gray-700 mb-1">画像URL</label>
-                                  <input
-                                    type="url"
-                                    name="imageUrl"
-                                    value={editingData.imageUrl || ''}
-                                    onChange={(e) => {
-                                      const value = e.target.value;
-                                      setEditingData(prev => ({
-                                        ...prev,
-                                        imageUrl: value
-                                      }));
-                                    }}
-                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="https://example.com/image.jpg"
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">画像</label>
+                                  <ImageUpload
+                                    value={editingData.imageUrl || ""}
+                                    onChange={(url) => setEditingData(prev => ({ ...prev, imageUrl: url }))}
+                                    type="knowledge"
                                   />
+                                  <div className="mt-2">
+                                    <p className="text-xs text-gray-500 mb-1">または</p>
+                                    <input
+                                      type="url"
+                                      name="imageUrl"
+                                      value={editingData.imageUrl || ''}
+                                      onChange={(e) => {
+                                        const value = e.target.value;
+                                        setEditingData(prev => ({
+                                          ...prev,
+                                          imageUrl: value
+                                        }));
+                                      }}
+                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                      placeholder="https://example.com/image.jpg"
+                                    />
+                                  </div>
                                   <p className="text-xs text-gray-500 mt-1">
                                     画像URLを入力すると、左側のプレビューが更新されます
                                   </p>

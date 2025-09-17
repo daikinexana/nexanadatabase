@@ -64,7 +64,7 @@ export async function PUT(
         company,
         sector,
         amount,
-        investors,
+        investors: Array.isArray(investors) ? investors.join(', ') : investors,
         publishedAt: publishedAt ? new Date(publishedAt) : null,
         sourceUrl,
         area,

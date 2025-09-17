@@ -8,6 +8,7 @@ import AdminGuard from "@/components/admin/admin-guard";
 import AdminNav from "@/components/ui/admin-nav";
 import { Trophy, Plus, Edit, Trash2, Save, X } from "lucide-react";
 import SimpleImage from "@/components/ui/simple-image";
+import ImageUpload from "@/components/ui/image-upload";
 
 interface Contest {
   id: string;
@@ -502,23 +503,27 @@ export default function AdminContestsPage() {
                   />
                 </div>
 
-                {/* 画像URL入力 */}
+                {/* 画像アップロード */}
                 <div className="md:col-span-2">
-                  <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-2">
-                    画像URL
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    画像
                   </label>
-                  <input
-                    type="url"
-                    id="imageUrl"
-                    name="imageUrl"
+                  <ImageUpload
                     value={formData.imageUrl}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="https://example.com/image.jpg"
+                    onChange={(url) => setFormData(prev => ({ ...prev, imageUrl: url }))}
+                    type="contests"
                   />
-                  <p className="mt-1 text-xs text-gray-500">
-                    画像のURLを入力してください
-                  </p>
+                  <div className="mt-2">
+                    <label className="block text-xs text-gray-500 mb-1">または直接URLを入力</label>
+                    <input
+                      type="url"
+                      name="imageUrl"
+                      value={formData.imageUrl}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </div>
                 </div>
 
                 {/* ボタン */}
@@ -579,7 +584,7 @@ export default function AdminContestsPage() {
                           {/* 画像プレビュー */}
                           <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden">
                             {editingId === contest.id ? (
-                              // 編集モードでも画像を表示
+                              // 編集モードでも画像を表示（リアルタイム更新）
                               editingData.imageUrl ? (
                                 <SimpleImage
                                   src={editingData.imageUrl}
@@ -627,24 +632,29 @@ export default function AdminContestsPage() {
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-xs font-medium text-gray-700 mb-1">画像URL</label>
-                                    <input
-                                      type="url"
-                                      name="imageUrl"
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">画像</label>
+                                    <ImageUpload
                                       value={editingData.imageUrl || ''}
-                                      onChange={(e) => {
-                                        const value = e.target.value;
-                                        setEditingData(prev => ({
-                                          ...prev,
-                                          imageUrl: value
-                                        }));
-                                      }}
-                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                      placeholder="https://example.com/image.jpg"
+                                      onChange={(url) => setEditingData(prev => ({ ...prev, imageUrl: url }))}
+                                      type="contests"
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                      画像URLを入力すると、左側のプレビューが更新されます
-                                    </p>
+                                    <div className="mt-2">
+                                      <label className="block text-xs text-gray-500 mb-1">または直接URLを入力</label>
+                                      <input
+                                        type="url"
+                                        name="imageUrl"
+                                        value={editingData.imageUrl || ''}
+                                        onChange={(e) => {
+                                          const value = e.target.value;
+                                          setEditingData(prev => ({
+                                            ...prev,
+                                            imageUrl: value
+                                          }));
+                                        }}
+                                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="https://example.com/image.jpg"
+                                      />
+                                    </div>
                                   </div>
                                   <div>
                                     <label className="block text-xs font-medium text-gray-700 mb-1">主催者</label>
@@ -696,6 +706,17 @@ export default function AdminContestsPage() {
                                         }));
                                       }}
                                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">ウェブサイト</label>
+                                    <input
+                                      type="url"
+                                      name="website"
+                                      value={editingData.website || ''}
+                                      onChange={handleEditInputChange}
+                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                      placeholder="https://example.com"
                                     />
                                   </div>
                                 </div>
