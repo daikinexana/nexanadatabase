@@ -237,64 +237,76 @@ export default function OpenCallsPage() {
       <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヘッダー */}
+        {/* ヘッダー - NewsPicks風 */}
         <div className="mb-8">
-          <div className="flex items-center mb-4">
-            <Handshake className="h-8 w-8 text-purple-600 mr-3" />
-            <h1 className="text-3xl font-bold text-gray-900">公募・課題解決パートナー募集</h1>
+          <div className="text-center max-w-3xl mx-auto">
+            {/* バッジ */}
+            <div className="inline-flex items-center px-3 py-1 bg-purple-50 rounded-full mb-4">
+              <span className="text-xs font-medium text-purple-600 uppercase tracking-wider">OPEN CALLS</span>
+            </div>
+            
+            {/* メインタイトル */}
+            <h1 className="text-3xl md:text-4xl font-news-heading text-gray-900 mb-4">
+              Open Calls
+              <span className="block text-lg font-news-subheading text-gray-500 mt-1">公募・課題解決パートナー募集</span>
+            </h1>
+            
+            {/* 説明文 */}
+            <p className="text-lg text-gray-600 font-news leading-relaxed">
+              企業や自治体が募集する課題解決パートナーや協業相手の公募情報を紹介します
+            </p>
           </div>
-          <p className="text-gray-600 text-lg">
-            企業や自治体が募集する課題解決パートナーや協業相手の公募情報を紹介します
-          </p>
         </div>
 
-        {/* 検索・フィルター */}
+        {/* 検索・フィルター - NewsPicks風 */}
         <div className="mb-8">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  placeholder="企業、行政、銀行系、VC、共創型、RFP型、アセット提供型、技術シーズ提供型、全国、東京都、大阪府などで検索..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <input
+                    type="text"
+                    placeholder="企業、行政、銀行系、VC、共創型、RFP型、アセット提供型、技術シーズ提供型、全国、東京都、大阪府などで検索..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="inline-flex items-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-news-subheading text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200"
+              >
+                <FilterIcon className="h-4 w-4 mr-2" />
+                {showFilters ? "フィルターを隠す" : "フィルターを表示"}
+              </button>
+            </div>
+
+            {showFilters && (
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <Filter
+                  onFilterChange={handleFilterChange}
+                  filters={filters}
+                  type="open-call"
                 />
               </div>
-            </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-            >
-              <FilterIcon className="h-4 w-4 mr-2" />
-              {showFilters ? "フィルターを隠す" : "フィルターを表示"}
-            </button>
+            )}
           </div>
-
-          {showFilters && (
-            <div className="mt-4">
-              <Filter
-                onFilterChange={handleFilterChange}
-                filters={filters}
-                type="open-call"
-              />
-            </div>
-          )}
         </div>
 
 
-        {/* 結果表示 */}
+        {/* 結果表示 - NewsPicks風 */}
         <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <p className="text-gray-600">
-              {filteredOpenCalls.length}件の公募が見つかりました
+          <div className="flex items-center justify-between bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+            <p className="text-gray-600 font-news">
+              <span className="font-news-subheading text-gray-900">{filteredOpenCalls.length}</span>件の公募が見つかりました
             </p>
             <button
               onClick={() => setShowPastOpenCalls(!showPastOpenCalls)}
-              className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-news-subheading transition-all duration-200 ${
                 showPastOpenCalls
-                  ? "bg-gray-600 text-white hover:bg-gray-700"
+                  ? "bg-gray-900 text-white hover:bg-gray-800"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
@@ -306,8 +318,8 @@ export default function OpenCallsPage() {
         {/* 公募カード一覧 */}
         {loading ? (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">読み込み中...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 font-news">読み込み中...</p>
           </div>
         ) : filteredOpenCalls.length > 0 ? (
           <div className="space-y-12">
@@ -318,8 +330,8 @@ export default function OpenCallsPage() {
               return (
                 <div key={area}>
                   <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{area}</h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full"></div>
+                    <h2 className="text-2xl font-news-heading text-gray-900 mb-2">{area}</h2>
+                    <div className="h-1 w-20 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full"></div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
                     {areaOpenCalls.map((openCall) => (
@@ -357,7 +369,7 @@ export default function OpenCallsPage() {
               return (
                 <div>
                   <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">その他</h2>
+                    <h2 className="text-2xl font-news-heading text-gray-900 mb-2">その他</h2>
                     <div className="h-1 w-20 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full"></div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
@@ -390,15 +402,17 @@ export default function OpenCallsPage() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <Handshake className="h-12 w-12 mx-auto" />
+            <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-200 max-w-md mx-auto">
+              <div className="text-gray-400 mb-4">
+                <Handshake className="h-12 w-12 mx-auto" />
+              </div>
+              <h3 className="text-lg font-news-heading text-gray-900 mb-2">
+                該当する公募が見つかりませんでした
+              </h3>
+              <p className="text-gray-600 font-news">
+                検索条件を変更して再度お試しください
+              </p>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              該当する公募が見つかりませんでした
-            </h3>
-            <p className="text-gray-600">
-              検索条件を変更して再度お試しください
-            </p>
           </div>
         )}
       </div>

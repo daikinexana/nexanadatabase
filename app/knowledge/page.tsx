@@ -124,34 +124,17 @@ export default function KnowledgePage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <Header />
       
-      {/* ヒーローセクション */}
-      <div className="relative overflow-hidden">
-        {/* 背景画像 */}
-        <div className="absolute inset-0">
-          <div className="w-full h-full bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/80 via-purple-600/80 to-indigo-600/80"></div>
-          <div className="absolute inset-0 bg-black/30"></div>
-        </div>
-        
-        {/* 装飾的な要素 */}
-        <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-40 h-40 bg-purple-300/20 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1s'}}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-blue-300/20 rounded-full blur-2xl animate-pulse" style={{animationDelay: '2s'}}></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      {/* ヒーローセクション - シンプルモダン */}
+      <div className="relative" style={{ background: 'linear-gradient(to right, #F76100, #E55A00)' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              ナレッジ
-              <span className="block bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent mt-2">
-                ベース
-              </span>
+            <h1 className="text-3xl md:text-4xl font-news-heading text-white mb-3">
+              Knowledge Base
+              <span className="block text-white mt-1 text-lg font-news-subheading">ナレッジベース</span>
             </h1>
-            <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
-              スタートアップで今知っておきたい技術情報とトレンドを
-              <br className="hidden sm:block" />
-              厳選してキュレーションしてお届け
+            <p className="text-base text-white max-w-2xl mx-auto font-news">
+              Curated technical information and trends for startups
+              <span className="block text-sm text-white mt-2">スタートアップで今知っておきたい技術情報とトレンドを厳選してキュレーション</span>
             </p>
           </div>
         </div>

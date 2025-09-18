@@ -200,58 +200,70 @@ export default function FacilitiesPage() {
       <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヘッダー */}
+        {/* ヘッダー - NewsPicks風 */}
         <div className="mb-8">
-          <div className="flex items-center mb-4">
-            <Building className="h-8 w-8 text-blue-600 mr-3" />
-            <h1 className="text-3xl font-bold text-gray-900">施設紹介</h1>
+          <div className="text-center max-w-3xl mx-auto">
+            {/* バッジ */}
+            <div className="inline-flex items-center px-3 py-1 bg-blue-50 rounded-full mb-4">
+              <span className="text-xs font-medium text-blue-600 uppercase tracking-wider">FACILITIES</span>
+            </div>
+            
+            {/* メインタイトル */}
+            <h1 className="text-3xl md:text-4xl font-news-heading text-gray-900 mb-4">
+              Facilities
+              <span className="block text-lg font-news-subheading text-gray-500 mt-1">施設紹介</span>
+            </h1>
+            
+            {/* 説明文 */}
+            <p className="text-lg text-gray-600 font-news leading-relaxed">
+              スタートアップ支援施設やイノベーション拠点を紹介します
+            </p>
           </div>
-          <p className="text-gray-600 text-lg">
-            スタートアップ支援施設やイノベーション拠点を紹介します
-          </p>
         </div>
 
-        {/* 検索・フィルター */}
+        {/* 検索・フィルター - NewsPicks風 */}
         <div className="mb-8">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  placeholder="企業、行政、VC、その他、不動産系、企業R&D、東京都、大阪府、アメリカ、UAEなどで検索..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <input
+                    type="text"
+                    placeholder="企業、行政、VC、その他、不動産系、企業R&D、東京都、大阪府、アメリカ、UAEなどで検索..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="inline-flex items-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-news-subheading text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200"
+              >
+                <FilterIcon className="h-4 w-4 mr-2" />
+                フィルター
+              </button>
+            </div>
+
+            {showFilters && (
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <Filter
+                  onFilterChange={handleFilterChange}
+                  filters={filters}
+                  type="facility"
                 />
               </div>
-            </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-            >
-              <FilterIcon className="h-4 w-4 mr-2" />
-              フィルター
-            </button>
+            )}
           </div>
-
-          {showFilters && (
-            <div className="mt-4">
-              <Filter
-                onFilterChange={handleFilterChange}
-                filters={filters}
-                type="facility"
-              />
-            </div>
-          )}
         </div>
 
 
-        {/* 結果表示 */}
+        {/* 結果表示 - NewsPicks風 */}
         <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <p className="text-gray-600">
-              {filteredFacilities.length}件の施設が見つかりました
+          <div className="flex items-center justify-between bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+            <p className="text-gray-600 font-news">
+              <span className="font-news-subheading text-gray-900">{filteredFacilities.length}</span>件の施設が見つかりました
             </p>
           </div>
         </div>
@@ -260,7 +272,7 @@ export default function FacilitiesPage() {
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">読み込み中...</p>
+            <p className="text-gray-600 font-news">読み込み中...</p>
           </div>
         ) : filteredFacilities.length > 0 ? (
           <div className="space-y-12">
@@ -271,7 +283,7 @@ export default function FacilitiesPage() {
               return (
                 <div key={area}>
                   <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{area}</h2>
+                    <h2 className="text-2xl font-news-heading text-gray-900 mb-2">{area}</h2>
                     <div className="h-1 w-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
@@ -307,7 +319,7 @@ export default function FacilitiesPage() {
               return (
                 <div>
                   <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">その他</h2>
+                    <h2 className="text-2xl font-news-heading text-gray-900 mb-2">その他</h2>
                     <div className="h-1 w-20 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full"></div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
@@ -337,15 +349,17 @@ export default function FacilitiesPage() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <Building className="h-12 w-12 mx-auto" />
+            <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-200 max-w-md mx-auto">
+              <div className="text-gray-400 mb-4">
+                <Building className="h-12 w-12 mx-auto" />
+              </div>
+              <h3 className="text-lg font-news-heading text-gray-900 mb-2">
+                該当する施設が見つかりませんでした
+              </h3>
+              <p className="text-gray-600 font-news">
+                検索条件を変更して再度お試しください
+              </p>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              該当する施設が見つかりませんでした
-            </h3>
-            <p className="text-gray-600">
-              検索条件を変更して再度お試しください
-            </p>
           </div>
         )}
       </div>

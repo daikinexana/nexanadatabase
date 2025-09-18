@@ -5,15 +5,16 @@ import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 
 const navigation = [
-  { name: "ホーム", href: "/" },
-  { name: "コンテスト", href: "/contests" },
-  { name: "施設紹介", href: "/facilities" },
-  { name: "イベント", href: "/events" },
-  { name: "公募", href: "/open-calls" },
-  { name: "ニュース", href: "/news" },
-  { name: "ナレッジ", href: "/knowledge" },
+  { name: "ホーム", nameEn: "Home", href: "/" },
+  { name: "コンテスト", nameEn: "Contests", href: "/contests" },
+  { name: "施設紹介", nameEn: "Facilities", href: "/facilities" },
+  { name: "イベント", nameEn: "Events", href: "/events" },
+  { name: "公募", nameEn: "Open Calls", href: "/open-calls" },
+  { name: "ニュース", nameEn: "News", href: "/news" },
+  { name: "ナレッジ", nameEn: "Knowledge", href: "/knowledge" },
 ];
 
 export default function Header() {
@@ -25,11 +26,14 @@ export default function Header() {
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Top">
         <div className="flex w-full items-center justify-between py-6">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="h-8 w-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">N</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">Nexana Database</span>
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/nexanadata.svg"
+                alt="Nexana Database"
+                width={200}
+                height={60}
+                className="h-12 w-auto"
+              />
             </Link>
           </div>
 
@@ -45,7 +49,8 @@ export default function Header() {
                     : "text-gray-700"
                 }`}
               >
-                {item.name}
+                <span className="block">{item.name}</span>
+                <span className="block text-xs text-gray-500 font-normal">{item.nameEn}</span>
               </Link>
             ))}
           </div>
@@ -85,7 +90,8 @@ export default function Header() {
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  {item.name}
+                  <span className="block">{item.name}</span>
+                  <span className="block text-sm text-gray-500 font-normal">{item.nameEn}</span>
                 </Link>
               ))}
             </div>
