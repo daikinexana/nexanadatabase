@@ -3,15 +3,15 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
-import { Trophy, Calendar, Building, ArrowRight, Star, Globe, Zap, Target, TrendingUp, Lightbulb } from "lucide-react";
+import { Trophy, Building, ArrowRight, Star, Globe, Zap, Target, TrendingUp, Lightbulb } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Nexana Database - スタートアップ向け情報キュレーションサイト",
-  description: "スタートアップ向けのコンテスト、展示会、公募、ニュース、ナレッジベースを提供する情報キュレーションサイト",
-  keywords: "スタートアップ, コンテスト, 展示会, 公募, 投資, M&A, イノベーション",
+  description: "スタートアップ向けのコンテスト、公募、ニュース、ナレッジベースを提供する情報キュレーションサイト",
+  keywords: "スタートアップ, コンテスト, 公募, 投資, M&A, イノベーション",
   openGraph: {
     title: "Nexana Database - スタートアップ向け情報キュレーションサイト",
-    description: "スタートアップ向けのコンテスト、展示会、公募、ニュース、ナレッジベースを提供する情報キュレーションサイト",
+    description: "スタートアップ向けのコンテスト、公募、ニュース、ナレッジベースを提供する情報キュレーションサイト",
     type: "website",
     locale: "ja_JP",
   },
@@ -31,30 +31,6 @@ const features = [
     borderColor: "border-amber-200",
   },
   {
-    name: "施設紹介",
-    nameEn: "Facilities",
-    description: "スタートアップ支援施設やイノベーション拠点を紹介",
-    descriptionEn: "Startup support facilities and innovation hubs",
-    href: "/facilities",
-    icon: Building,
-    color: "from-blue-500 to-indigo-600",
-    bgColor: "bg-gradient-to-br from-blue-50 to-indigo-50",
-    textColor: "text-blue-600",
-    borderColor: "border-blue-200",
-  },
-  {
-    name: "展示会・イベント",
-    nameEn: "Events",
-    description: "スタートアップ関連の展示会、カンファレンス、イベント情報を提供",
-    descriptionEn: "Startup exhibitions, conferences, and events",
-    href: "/events",
-    icon: Calendar,
-    color: "from-emerald-500 to-teal-600",
-    bgColor: "bg-gradient-to-br from-emerald-50 to-teal-50",
-    textColor: "text-emerald-600",
-    borderColor: "border-emerald-200",
-  },
-  {
     name: "公募",
     nameEn: "Open Calls",
     description: "企業や自治体が募集する課題解決パートナーや協業相手の公募情報",
@@ -65,6 +41,18 @@ const features = [
     bgColor: "bg-gradient-to-br from-purple-50 to-violet-50",
     textColor: "text-purple-600",
     borderColor: "border-purple-200",
+  },
+  {
+    name: "施設紹介",
+    nameEn: "Facilities",
+    description: "スタートアップ支援施設やイノベーション拠点を紹介",
+    descriptionEn: "Startup support facilities and innovation hubs",
+    href: "/facilities",
+    icon: Building,
+    color: "from-blue-500 to-indigo-600",
+    bgColor: "bg-gradient-to-br from-blue-50 to-indigo-50",
+    textColor: "text-blue-600",
+    borderColor: "border-blue-200",
   },
   {
     name: "ニュース",
@@ -127,7 +115,7 @@ export default function Home() {
               情報で切り拓く
             </h1>
             <p className="text-lg md:text-xl text-gray-200 mb-12 max-w-3xl mx-auto font-news leading-relaxed">
-              コンテスト、展示会、公募、ニュース、ナレッジベースを一箇所で。
+              コンテスト、公募、ニュース、ナレッジベースを一箇所で。
               <br />
               エリアや主催者タイプでフィルタリングして、あなたに最適な情報を見つけましょう。
             </p>
