@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
-import { Trophy, Calendar, Newspaper, BookOpen, Building, Handshake, ArrowRight, Play, Star, Users, Globe, Zap, Target, TrendingUp, Lightbulb, Briefcase, FileText } from "lucide-react";
+import { Trophy, Calendar, Building, ArrowRight, Star, Globe, Zap, Target, TrendingUp, Lightbulb } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Nexana Database - スタートアップ向け情報キュレーションサイト",
@@ -164,7 +164,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
+            {features.map((feature, _) => (
               <Link
                 key={feature.name}
                 href={feature.href}

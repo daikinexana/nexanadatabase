@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { 
   Trophy, 
   Building, 
-  Calendar, 
   Handshake, 
   Newspaper, 
   BookOpen 
@@ -19,22 +18,16 @@ const adminPages = [
     description: "コンテスト情報の管理"
   },
   {
-    name: "施設",
-    href: "/admin/facilities", 
-    icon: Building,
-    description: "施設情報の管理"
-  },
-  {
-    name: "イベント",
-    href: "/admin/events",
-    icon: Calendar,
-    description: "イベント情報の管理"
-  },
-  {
     name: "公募",
     href: "/admin/open-calls",
     icon: Handshake,
     description: "公募情報の管理"
+  },
+  {
+    name: "施設",
+    href: "/admin/facilities", 
+    icon: Building,
+    description: "施設情報の管理"
   },
   {
     name: "ニュース",

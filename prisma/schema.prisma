@@ -38,6 +38,7 @@ model Contest {
   targetArea       String?
   targetAudience   String?
   organizerType    String?
+  isPopular        Boolean?
 
   @@map("contests")
 }
@@ -80,10 +81,8 @@ model OpenCall {
   organizerType      String
   targetArea         String?
   targetAudience     String?
-  openCallType       String?
   availableResources String?
   operatingCompany   String?
-  resourceType       String?
 
   @@map("open_calls")
 }
@@ -125,22 +124,24 @@ model Knowledge {
 }
 
 model Facility {
-  id             String   @id @default(cuid())
-  title          String
-  description    String?
-  imageUrl       String?
-  address        String?
-  area           String?
-  organizer      String
-  website        String?
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  facilityInfo   String?
-  program        String?
-  targetArea     String?
-  targetAudience String?
-  organizerType  String
+  id                String   @id @default(cuid())
+  title             String
+  description       String?
+  imageUrl          String?
+  address           String?
+  area              String?
+  organizer         String
+  website           String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  facilityInfo      String?
+  program           String?
+  targetArea        String?
+  targetAudience    String?
+  organizerType     String
+  isDropinAvailable Boolean  @default(false)
+  isNexanaAvailable Boolean  @default(false)
 
   @@map("facilities")
 }

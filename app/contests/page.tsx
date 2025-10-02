@@ -6,7 +6,7 @@ import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
 import Filter from "@/components/ui/filter";
-import { Search, Filter as FilterIcon, Trophy } from "lucide-react";
+import { Search, Filter as FilterIcon } from "lucide-react";
 
 interface Contest {
   id: string;
@@ -23,6 +23,7 @@ interface Contest {
   targetAudience?: string;
   incentive?: string;
   operatingCompany?: string;
+  isPopular?: boolean;
   createdAt: string;
 }
 
@@ -225,7 +226,7 @@ export default function ContestsPage() {
             
             {/* 説明文 */}
             <p className="text-lg text-gray-600 font-news leading-relaxed">
-              スタートアップコンテスト、ハッカソン、ピッチコンテストなどの情報を掲載しています
+              スタートアップコンテスト、ピッチコンテストなどの情報を掲載しています
             </p>
           </div>
         </div>
@@ -333,6 +334,7 @@ export default function ContestsPage() {
                         targetAudience={contest.targetAudience}
                         incentive={contest.incentive}
                         operatingCompany={contest.operatingCompany}
+                        isPopular={contest.isPopular}
                         type="contest"
                       />
                     ))}
@@ -373,6 +375,7 @@ export default function ContestsPage() {
                         targetAudience={contest.targetAudience}
                         incentive={contest.incentive}
                         operatingCompany={contest.operatingCompany}
+                        isPopular={contest.isPopular}
                         type="contest"
                       />
                     ))}

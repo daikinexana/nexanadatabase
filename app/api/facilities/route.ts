@@ -70,6 +70,8 @@ export async function POST(request: NextRequest) {
       facilityInfo,
       targetAudience,
       program,
+      isDropinAvailable,
+      isNexanaAvailable,
     } = body;
 
     // バリデーション
@@ -94,6 +96,8 @@ export async function POST(request: NextRequest) {
         facilityInfo,
         targetAudience,
         program,
+        isDropinAvailable: isDropinAvailable || false,
+        isNexanaAvailable: isNexanaAvailable || false,
       },
     });
 

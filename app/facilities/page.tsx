@@ -22,6 +22,8 @@ interface Facility {
   facilityInfo?: string;
   targetAudience?: string;
   program?: string;
+  isDropinAvailable?: boolean;
+  isNexanaAvailable?: boolean;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -152,13 +154,25 @@ export default function FacilitiesPage() {
           const organizerTypeMatch = facility.organizerType.toLowerCase() === searchLower;
           const areaMatch = facility.area?.toLowerCase() === searchLower || false;
           
+          // nexana関連の検索（部分一致対応）
+          const nexanaMatch = facility.isNexanaAvailable && (
+            searchLower === 'nexana' || 
+            searchLower === 'nexa' || 
+            searchLower.includes('nexa')
+          );
+          const dropinMatch = facility.isDropinAvailable && (
+            searchLower === 'ドロップイン' || 
+            searchLower === 'ドロップ' || 
+            searchLower.includes('ドロップ')
+          );
+          
           // 部分一致は、完全一致でない場合のみ
           const organizerTypePartialMatch = !organizerTypeMatch && 
                                           facility.organizerType.toLowerCase().includes(searchLower);
           const areaPartialMatch = !areaMatch && 
                                  facility.area?.toLowerCase().includes(searchLower) || false;
           
-          return organizerTypeMatch || areaMatch || organizerTypePartialMatch || areaPartialMatch;
+          return organizerTypeMatch || areaMatch || nexanaMatch || dropinMatch || organizerTypePartialMatch || areaPartialMatch;
         }
       );
     }
@@ -230,7 +244,7 @@ export default function FacilitiesPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <input
                     type="text"
-                    placeholder="企業、行政、VC、その他、不動産系、企業R&D、東京都、大阪府、アメリカ、UAEなどで検索..."
+                    placeholder="企業、行政、VC、その他、東京都、大阪府、nexana、nexa、ドロップイン、ドロップなどで検索..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500"
@@ -304,6 +318,8 @@ export default function FacilitiesPage() {
                         facilityInfo={facility.facilityInfo}
                         targetAudience={facility.targetAudience}
                         program={facility.program}
+                        isDropinAvailable={facility.isDropinAvailable}
+                        isNexanaAvailable={facility.isNexanaAvailable}
                       />
                     ))}
                   </div>
@@ -340,6 +356,8 @@ export default function FacilitiesPage() {
                         facilityInfo={facility.facilityInfo}
                         targetAudience={facility.targetAudience}
                         program={facility.program}
+                        isDropinAvailable={facility.isDropinAvailable}
+                        isNexanaAvailable={facility.isNexanaAvailable}
                       />
                     ))}
                   </div>

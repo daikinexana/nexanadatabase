@@ -125,7 +125,7 @@ export default function KnowledgePage() {
       <Header />
       
       {/* ヒーローセクション - シンプルモダン */}
-      <div className="relative" style={{ background: 'linear-gradient(to right, #F76100, #E55A00)' }}>
+      <div className="relative" style={{ background: 'linear-gradient(to right, #1a1a1a, #2d2d2d)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
             <h1 className="text-3xl md:text-4xl font-news-heading text-white mb-3">
@@ -133,8 +133,8 @@ export default function KnowledgePage() {
               <span className="block text-white mt-1 text-lg font-news-subheading">ナレッジベース</span>
             </h1>
             <p className="text-base text-white max-w-2xl mx-auto font-news">
-              Curated technical information and trends for startups
-              <span className="block text-sm text-white mt-2">スタートアップで今知っておきたい技術情報とトレンドを厳選してキュレーション</span>
+              Introducing the trends you should know now in open innovation.
+              <span className="block text-sm text-white mt-2">オープンイノベーションで今知っておきたいトレンドをご紹介</span>
             </p>
           </div>
         </div>

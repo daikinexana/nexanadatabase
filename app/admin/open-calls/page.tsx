@@ -25,7 +25,6 @@ interface OpenCall {
   targetAudience?: string;
   openCallType?: string;
   availableResources?: string;
-  resourceType?: string;
   operatingCompany?: string;
   isActive: boolean;
   isChecked?: boolean;
@@ -53,7 +52,6 @@ export default function AdminOpenCallsPage() {
     targetAudience: '',
     openCallType: '',
     availableResources: '',
-    resourceType: '',
     operatingCompany: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -138,7 +136,6 @@ export default function AdminOpenCallsPage() {
       targetAudience: openCall.targetAudience,
       openCallType: openCall.openCallType,
       availableResources: openCall.availableResources,
-      resourceType: openCall.resourceType,
       operatingCompany: openCall.operatingCompany,
     });
   };
@@ -241,7 +238,6 @@ export default function AdminOpenCallsPage() {
           targetAudience: '',
           openCallType: '',
           availableResources: '',
-          resourceType: '',
           operatingCompany: '',
         });
         setShowCreateForm(false);
@@ -347,10 +343,10 @@ export default function AdminOpenCallsPage() {
                     />
                   </div>
 
-                  {/* 対象領域 */}
+                  {/* 提供プログラム情報 */}
                   <div>
                     <label htmlFor="targetArea" className="block text-sm font-medium text-gray-700 mb-2">
-                      対象領域
+                      提供プログラム情報
                     </label>
                     <input
                       type="text"
@@ -463,16 +459,21 @@ export default function AdminOpenCallsPage() {
                     <label htmlFor="organizerType" className="block text-sm font-medium text-gray-700 mb-2">
                       主催者タイプ <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="organizerType"
                       name="organizerType"
                       value={formData.organizerType}
                       onChange={handleInputChange}
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="例: 政府・自治体、企業、研究機関など"
-                    />
+                    >
+                      <option value="">選択してください</option>
+                      <option value="企業">企業</option>
+                      <option value="行政">行政</option>
+                      <option value="大学">大学</option>
+                      <option value="CV">CV</option>
+                      <option value="その他">その他</option>
+                    </select>
                   </div>
 
                   {/* ウェブサイト */}
@@ -507,21 +508,6 @@ export default function AdminOpenCallsPage() {
                     />
                   </div>
 
-                  {/* 提供可能なリソース/技術タイプ */}
-                  <div>
-                    <label htmlFor="resourceType" className="block text-sm font-medium text-gray-700 mb-2">
-                      提供可能なリソース/技術タイプ
-                    </label>
-                    <input
-                      type="text"
-                      id="resourceType"
-                      name="resourceType"
-                      value={formData.resourceType}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="例: 資金提供、技術支援、人材派遣、施設提供など"
-                    />
-                  </div>
 
                   {/* 運営企業 */}
                   <div>
@@ -538,6 +524,7 @@ export default function AdminOpenCallsPage() {
                       placeholder="例: 株式会社○○、NPO法人○○など"
                     />
                   </div>
+
 
                   {/* 画像アップロード */}
                   <div className="md:col-span-2">
@@ -681,13 +668,19 @@ export default function AdminOpenCallsPage() {
                                 </div>
                                 <div>
                                   <label className="block text-xs font-medium text-gray-700 mb-1">主催者タイプ</label>
-                                  <input
-                                    type="text"
+                                  <select
                                     name="organizerType"
                                     value={editingData.organizerType || ''}
                                     onChange={handleEditInputChange}
                                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                  />
+                                  >
+                                    <option value="">選択してください</option>
+                                    <option value="企業">企業</option>
+                                    <option value="行政">行政</option>
+                                    <option value="大学">大学</option>
+                                    <option value="CV">CV</option>
+                                    <option value="その他">その他</option>
+                                  </select>
                                 </div>
                                 <div>
                                   <label className="block text-xs font-medium text-gray-700 mb-1">公募タイプ</label>
@@ -765,7 +758,7 @@ export default function AdminOpenCallsPage() {
                                   />
                                 </div>
                                 <div>
-                                  <label className="block text-xs font-medium text-gray-700 mb-1">対象領域</label>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">提供プログラム情報</label>
                                   <input
                                     type="text"
                                     name="targetArea"
@@ -790,16 +783,6 @@ export default function AdminOpenCallsPage() {
                                     type="text"
                                     name="availableResources"
                                     value={editingData.availableResources || ''}
-                                    onChange={handleEditInputChange}
-                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                  />
-                                </div>
-                                <div className="md:col-span-2">
-                                  <label className="block text-xs font-medium text-gray-700 mb-1">提供可能なリソース/技術タイプ</label>
-                                  <input
-                                    type="text"
-                                    name="resourceType"
-                                    value={editingData.resourceType || ''}
                                     onChange={handleEditInputChange}
                                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                                   />
@@ -854,7 +837,7 @@ export default function AdminOpenCallsPage() {
                                   <span>エリア: {openCall.area}</span>
                                 )}
                                 {openCall.targetArea && (
-                                  <span>対象領域: {openCall.targetArea}</span>
+                                  <span>提供プログラム情報: {openCall.targetArea}</span>
                                 )}
                                 {openCall.targetAudience && (
                                   <span>対象者: {openCall.targetAudience}</span>
@@ -866,13 +849,6 @@ export default function AdminOpenCallsPage() {
                                 <div className="mt-2">
                                   <span className="text-sm text-gray-600">
                                     <strong>提供リソース:</strong> {openCall.availableResources}
-                                  </span>
-                                </div>
-                              )}
-                              {openCall.resourceType && (
-                                <div className="mt-1">
-                                  <span className="text-sm text-gray-600">
-                                    <strong>リソースタイプ:</strong> {openCall.resourceType}
                                   </span>
                                 </div>
                               )}

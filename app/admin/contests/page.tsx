@@ -26,6 +26,7 @@ interface Contest {
   incentive?: string;
   operatingCompany?: string;
   isActive: boolean;
+  isPopular?: boolean;
   isChecked?: boolean;
   createdAt: string;
   updatedAt: string;
@@ -51,6 +52,7 @@ export default function AdminContestsPage() {
     targetAudience: '',
     incentive: '',
     operatingCompany: '',
+    isPopular: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -102,10 +104,12 @@ export default function AdminContestsPage() {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+    
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -125,6 +129,7 @@ export default function AdminContestsPage() {
       targetAudience: contest.targetAudience,
       incentive: contest.incentive,
       operatingCompany: contest.operatingCompany,
+      isPopular: contest.isPopular,
     });
   };
 
@@ -134,10 +139,12 @@ export default function AdminContestsPage() {
   };
 
   const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+    
     setEditingData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -230,6 +237,7 @@ export default function AdminContestsPage() {
           targetAudience: '',
           incentive: '',
           operatingCompany: '',
+          isPopular: false,
         });
         setShowCreateForm(false);
         alert('コンテストが正常に追加されました');
@@ -343,15 +351,25 @@ export default function AdminContestsPage() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                       <option value="">選択してください</option>
-                      <option value="行政">行政</option>
-                      <option value="VC">VC</option>
-                      <option value="CVC">CVC</option>
-                      <option value="銀行">銀行</option>
-                      <option value="不動産">不動産</option>
                       <option value="企業">企業</option>
-                      <option value="研究機関">研究機関</option>
+                      <option value="行政">行政</option>
+                      <option value="大学">大学</option>
+                      <option value="CV">CV</option>
                       <option value="その他">その他</option>
                     </select>
+                  </div>
+
+                  {/* 人気 */}
+                  <div>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.isPopular}
+                        onChange={(e) => setFormData({ ...formData, isPopular: e.target.checked })}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">人気</span>
+                    </label>
                   </div>
 
                 </div>
@@ -667,6 +685,34 @@ export default function AdminContestsPage() {
                                     />
                                   </div>
                                   <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">主催者タイプ</label>
+                                    <select
+                                      name="organizerType"
+                                      value={editingData.organizerType || ''}
+                                      onChange={handleEditInputChange}
+                                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    >
+                                      <option value="">選択してください</option>
+                                      <option value="企業">企業</option>
+                                      <option value="行政">行政</option>
+                                      <option value="大学">大学</option>
+                                      <option value="CV">CV</option>
+                                      <option value="その他">その他</option>
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="isPopular"
+                                        checked={editingData.isPopular || false}
+                                        onChange={handleEditInputChange}
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">人気</span>
+                                    </label>
+                                  </div>
+                                  <div>
                                     <label className="block text-xs font-medium text-gray-700 mb-1">エリア</label>
                                     <input
                                       type="text"
@@ -806,6 +852,9 @@ export default function AdminContestsPage() {
                                     <span>エリア: {contest.area}</span>
                                   )}
                                   <span>主催者: {contest.organizer}</span>
+                                  {contest.isPopular && (
+                                    <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">人気</span>
+                                  )}
                                 </div>
                             
                                 {(contest.targetArea || contest.targetAudience || contest.incentive || contest.operatingCompany) && (

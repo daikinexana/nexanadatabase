@@ -20,9 +20,7 @@ interface OpenCall {
   website?: string;
   targetArea?: string;
   targetAudience?: string;
-  openCallType?: string;
   availableResources?: string;
-  resourceType?: string;
   operatingCompany?: string;
   isActive: boolean;
   createdAt: string;
@@ -36,11 +34,9 @@ export default function OpenCallsPage() {
   const [filters, setFilters] = useState<{
     area?: string;
     organizerType?: string;
-    openCallType?: string;
   }>({
     area: undefined,
     organizerType: undefined,
-    openCallType: undefined,
   });
   const [showFilters, setShowFilters] = useState(false);
   const [showPastOpenCalls, setShowPastOpenCalls] = useState(false);
@@ -133,7 +129,6 @@ export default function OpenCallsPage() {
         const params = new URLSearchParams();
         if (filters.area) params.append('area', filters.area);
         if (filters.organizerType) params.append('organizerType', filters.organizerType);
-        if (filters.openCallType) params.append('openCallType', filters.openCallType);
         
         const response = await fetch(`/api/open-calls?${params.toString()}`);
         if (response.ok) {
@@ -164,8 +159,6 @@ export default function OpenCallsPage() {
         (openCall) =>
           // データベースの値での検索のみ
           openCall.organizerType.toLowerCase().includes(searchLower) ||
-          openCall.openCallType?.toLowerCase().includes(searchLower) ||
-          openCall.resourceType?.toLowerCase().includes(searchLower) ||
           openCall.area?.toLowerCase().includes(searchLower) ||
           openCall.targetArea?.toLowerCase().includes(searchLower) ||
           openCall.targetAudience?.toLowerCase().includes(searchLower)
@@ -184,12 +177,6 @@ export default function OpenCallsPage() {
       );
     }
 
-    // 公募タイプでフィルタリング
-    if (filters.openCallType) {
-      filtered = filtered.filter(
-        (openCall) => openCall.openCallType === filters.openCallType
-      );
-    }
 
     // 過去の公募のフィルタリング
     if (!showPastOpenCalls) {
@@ -227,7 +214,6 @@ export default function OpenCallsPage() {
   const handleFilterChange = (newFilters: {
     area?: string;
     organizerType?: string;
-    openCallType?: string;
   }) => {
     setFilters(newFilters);
   };
@@ -248,12 +234,12 @@ export default function OpenCallsPage() {
             {/* メインタイトル */}
             <h1 className="text-3xl md:text-4xl font-news-heading text-gray-900 mb-4">
               Open Calls
-              <span className="block text-lg font-news-subheading text-gray-500 mt-1">公募・課題解決パートナー募集</span>
+              <span className="block text-lg font-news-subheading text-gray-500 mt-1">公募・共創事業者募集</span>
             </h1>
             
             {/* 説明文 */}
             <p className="text-lg text-gray-600 font-news leading-relaxed">
-              企業や自治体が募集する課題解決パートナーや協業相手の公募情報を紹介します
+              企業や行政、大学が募集する共創相手の公募情報を紹介します
             </p>
           </div>
         </div>
@@ -267,7 +253,7 @@ export default function OpenCallsPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <input
                     type="text"
-                    placeholder="企業、行政、銀行系、VC、共創型、RFP型、アセット提供型、技術シーズ提供型、全国、東京都、大阪府などで検索..."
+                    placeholder="企業、行政、大学、CV、全国、東京都、大阪府などで検索..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500"
@@ -349,9 +335,7 @@ export default function OpenCallsPage() {
                         website={openCall.website}
                         targetArea={openCall.targetArea}
                         targetAudience={openCall.targetAudience}
-                        openCallType={openCall.openCallType}
                         availableResources={openCall.availableResources}
-                        resourceType={openCall.resourceType}
                         operatingCompany={openCall.operatingCompany}
                         type="open-call"
                       />
@@ -388,9 +372,7 @@ export default function OpenCallsPage() {
                         website={openCall.website}
                         targetArea={openCall.targetArea}
                         targetAudience={openCall.targetAudience}
-                        openCallType={openCall.openCallType}
                         availableResources={openCall.availableResources}
-                        resourceType={openCall.resourceType}
                         operatingCompany={openCall.operatingCompany}
                         type="open-call"
                       />

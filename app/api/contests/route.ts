@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
       targetAudience,
       incentive,
       operatingCompany,
+      isPopular,
     } = body;
 
     // バリデーション
@@ -112,6 +113,7 @@ export async function POST(request: NextRequest) {
         targetAudience,
         incentive,
         operatingCompany,
+        isPopular,
       },
     });
 

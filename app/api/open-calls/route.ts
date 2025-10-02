@@ -29,9 +29,7 @@ export async function GET(request: NextRequest) {
         { organizer: { contains: search, mode: "insensitive" } },
         { targetArea: { contains: search, mode: "insensitive" } },
         { targetAudience: { contains: search, mode: "insensitive" } },
-        { openCallType: { contains: search, mode: "insensitive" } },
         { availableResources: { contains: search, mode: "insensitive" } },
-        { resourceType: { contains: search, mode: "insensitive" } },
         { operatingCompany: { contains: search, mode: "insensitive" } },
       ];
     }
@@ -52,8 +50,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(openCalls);
   } catch (error) {
     console.error("Error fetching open calls:", error);
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    });
     return NextResponse.json(
-      { error: "Failed to fetch open calls" },
+      { error: "Failed to fetch open calls", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
@@ -77,11 +80,9 @@ export async function POST(request: NextRequest) {
       website,
       targetArea,
       targetAudience,
-      openCallType,
-      availableResources,
-      resourceType,
-      operatingCompany,
-    } = body;
+        availableResources,
+        operatingCompany,
+      } = body;
 
     // バリデーション
     if (!title || !organizer || !organizerType) {
@@ -122,11 +123,9 @@ export async function POST(request: NextRequest) {
         website,
         targetArea,
         targetAudience,
-        openCallType,
         availableResources,
-        resourceType,
         operatingCompany,
-      },
+        },
     });
 
     return NextResponse.json(openCall, { status: 201 });

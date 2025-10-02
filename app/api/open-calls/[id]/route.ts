@@ -51,9 +51,7 @@ export async function PUT(
       website,
       targetArea,
       targetAudience,
-      openCallType,
       availableResources,
-      resourceType,
       operatingCompany,
       isActive,
     } = body;
@@ -98,9 +96,7 @@ export async function PUT(
         website,
         targetArea,
         targetAudience,
-        openCallType,
         availableResources,
-        resourceType,
         operatingCompany,
         isActive: isActive !== undefined ? isActive : true,
       },
@@ -153,9 +149,7 @@ export async function PATCH(
       website,
       targetArea,
       targetAudience,
-      openCallType,
       availableResources,
-      resourceType,
       operatingCompany,
       isActive,
     } = body;
@@ -191,9 +185,7 @@ export async function PATCH(
     if (website !== undefined) updateData.website = website;
     if (targetArea !== undefined) updateData.targetArea = targetArea;
     if (targetAudience !== undefined) updateData.targetAudience = targetAudience;
-    if (openCallType !== undefined) updateData.openCallType = openCallType;
     if (availableResources !== undefined) updateData.availableResources = availableResources;
-    if (resourceType !== undefined) updateData.resourceType = resourceType;
     if (operatingCompany !== undefined) updateData.operatingCompany = operatingCompany;
     if (isActive !== undefined) updateData.isActive = isActive;
 

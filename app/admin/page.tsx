@@ -4,7 +4,7 @@ import Link from "next/link";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
-import { Trophy, Newspaper, BookOpen, Building, Calendar, Handshake } from "lucide-react";
+import { Trophy, Newspaper, BookOpen, Building, Handshake } from "lucide-react";
 
 export default function AdminPage() {
 
@@ -41,40 +41,6 @@ export default function AdminPage() {
               </Link>
 
               <Link
-                href="/admin/facilities"
-                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 group"
-              >
-                <div className="flex items-center mb-3">
-                  <div className="p-3 rounded-lg bg-indigo-500 text-white mr-4">
-                    <Building className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
-                    施設紹介管理
-                  </h3>
-                </div>
-                <p className="text-gray-600 text-sm">
-                  スタートアップ支援施設の管理を行います
-                </p>
-              </Link>
-
-              <Link
-                href="/admin/events"
-                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 group"
-              >
-                <div className="flex items-center mb-3">
-                  <div className="p-3 rounded-lg bg-green-500 text-white mr-4">
-                    <Calendar className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-green-600 transition-colors">
-                    展示会・イベント管理
-                  </h3>
-                </div>
-                <p className="text-gray-600 text-sm">
-                  展示会やイベントの管理を行います
-                </p>
-              </Link>
-
-              <Link
                 href="/admin/open-calls"
                 className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 group"
               >
@@ -88,6 +54,23 @@ export default function AdminPage() {
                 </div>
                 <p className="text-gray-600 text-sm">
                   課題解決パートナー募集などの公募情報を管理します
+                </p>
+              </Link>
+
+              <Link
+                href="/admin/facilities"
+                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 group"
+              >
+                <div className="flex items-center mb-3">
+                  <div className="p-3 rounded-lg bg-indigo-500 text-white mr-4">
+                    <Building className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                    施設紹介管理
+                  </h3>
+                </div>
+                <p className="text-gray-600 text-sm">
+                  スタートアップ支援施設の管理を行います
                 </p>
               </Link>
 

@@ -35,10 +35,11 @@ interface CardProps {
   // Contest specific fields
   incentive?: string;
   operatingCompany?: string;
+  isPopular?: boolean;
   // Open-call specific fields
-  openCallType?: string;
   availableResources?: string;
-  resourceType?: string;
+  isDropinAvailable?: boolean;
+  isNexanaAvailable?: boolean;
   onClick?: () => void;
 }
 
@@ -67,9 +68,10 @@ export default function Card({
   program,
   incentive,
   operatingCompany,
-  openCallType,
+  isPopular,
   availableResources,
-  resourceType,
+  isDropinAvailable,
+  isNexanaAvailable,
   onClick,
 }: CardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -99,13 +101,20 @@ export default function Card({
 
   const getOrganizerTypeLabel = (type: string) => {
     const typeMap: Record<string, string> = {
+      // 新しい5つのカテゴリ
+      "企業": "企業",
+      "行政": "行政", 
+      "大学": "大学",
+      "CV": "CV",
+      "その他": "その他",
+      // 既存の値との互換性のため
       GOVERNMENT: "行政",
-      VC: "VC",
-      CVC: "CVC",
-      BANK: "銀行",
-      REAL_ESTATE: "不動産",
+      VC: "CV",
+      CVC: "CV", 
+      BANK: "企業",
+      REAL_ESTATE: "企業",
       CORPORATION: "企業",
-      RESEARCH_INSTITUTION: "研究機関",
+      RESEARCH_INSTITUTION: "大学",
       OTHER: "その他",
     };
     return typeMap[type] || type;
@@ -113,6 +122,28 @@ export default function Card({
 
   const getOrganizerTypeStyle = (type: string) => {
     const styleMap: Record<string, { className: string; style: React.CSSProperties }> = {
+      // 新しい5つのカテゴリ
+      "企業": { 
+        className: "bg-red-600", 
+        style: { backgroundColor: '#dc2626' } 
+      }, // 企業 - 赤
+      "行政": { 
+        className: "bg-blue-600", 
+        style: { backgroundColor: '#2563eb' } 
+      }, // 行政 - 青
+      "大学": { 
+        className: "bg-green-600", 
+        style: { backgroundColor: '#16a34a' } 
+      }, // 大学 - 緑
+      "CV": { 
+        className: "bg-purple-600", 
+        style: { backgroundColor: '#9333ea' } 
+      }, // CV - 紫
+      "その他": { 
+        className: "bg-gray-600", 
+        style: { backgroundColor: '#4b5563' } 
+      }, // その他 - グレー
+      // 既存の値との互換性のため
       GOVERNMENT: { 
         className: "bg-blue-600", 
         style: { backgroundColor: '#2563eb' } 
@@ -120,27 +151,27 @@ export default function Card({
       VC: { 
         className: "bg-purple-600", 
         style: { backgroundColor: '#9333ea' } 
-      }, // VC - 紫
+      }, // CV - 紫
       CVC: { 
-        className: "bg-indigo-600", 
-        style: { backgroundColor: '#4f46e5' } 
-      }, // CVC - インディゴ
+        className: "bg-purple-600", 
+        style: { backgroundColor: '#9333ea' } 
+      }, // CV - 紫
       BANK: { 
-        className: "bg-green-600", 
-        style: { backgroundColor: '#16a34a' } 
-      }, // 銀行 - 緑
+        className: "bg-red-600", 
+        style: { backgroundColor: '#dc2626' } 
+      }, // 企業 - 赤
       REAL_ESTATE: { 
-        className: "bg-orange-600", 
-        style: { backgroundColor: '#ea580c' } 
-      }, // 不動産 - オレンジ
+        className: "bg-red-600", 
+        style: { backgroundColor: '#dc2626' } 
+      }, // 企業 - 赤
       CORPORATION: { 
         className: "bg-red-600", 
         style: { backgroundColor: '#dc2626' } 
       }, // 企業 - 赤
       RESEARCH_INSTITUTION: { 
-        className: "bg-teal-600", 
-        style: { backgroundColor: '#0d9488' } 
-      }, // 研究機関 - ティール
+        className: "bg-green-600", 
+        style: { backgroundColor: '#16a34a' } 
+      }, // 大学 - 緑
       OTHER: { 
         className: "bg-gray-600", 
         style: { backgroundColor: '#4b5563' } 
@@ -181,10 +212,45 @@ export default function Card({
   return (
     <>
       {/* カード */}
-      <div
-        className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden group h-full flex flex-col"
-        onClick={handleCardClick}
-      >
+        <div
+          className={`${
+            type === "facility" && isNexanaAvailable
+              ? "bg-gradient-to-br from-white to-emerald-50/30 border border-emerald-200/50 rounded-3xl shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden group h-full flex flex-col relative backdrop-blur-sm"
+              : type === "contest" && isPopular
+              ? "bg-gradient-to-br from-white to-red-50/30 border border-red-200/50 rounded-3xl shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden group h-full flex flex-col relative backdrop-blur-sm"
+              : "bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden group h-full flex flex-col"
+          }`}
+          onClick={handleCardClick}
+        >
+        {/* nexana設置施設の特別な装飾 */}
+        {type === "facility" && isNexanaAvailable && (
+          <>
+            {/* モダンなグラデーションアクセントライン */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"></div>
+            {/* スタートアップらしい光る効果 */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-400/20 to-transparent rounded-full blur-2xl"></div>
+            {/* 右下のモダンなアクセント */}
+            <div className="absolute bottom-4 right-4 w-3 h-3 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full shadow-lg"></div>
+            {/* 左上の微細なアクセント */}
+            <div className="absolute top-4 left-4 w-1 h-1 bg-emerald-300 rounded-full opacity-80"></div>
+          </>
+        )}
+
+        {/* 人気コンテストの特別な装飾 */}
+        {type === "contest" && isPopular && (
+          <>
+            {/* モダンなグラデーションアクセントライン */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-400 via-pink-400 to-rose-400"></div>
+            {/* スタートアップらしい光る効果 */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-400/20 to-transparent rounded-full blur-2xl"></div>
+            {/* 右下のモダンなアクセント */}
+            <div className="absolute bottom-4 right-4 w-3 h-3 bg-gradient-to-r from-red-400 to-pink-400 rounded-full shadow-lg"></div>
+            {/* 左上の微細なアクセント */}
+            <div className="absolute top-4 left-4 w-1 h-1 bg-red-300 rounded-full opacity-80"></div>
+          </>
+        )}
+
+        
         {/* 画像 */}
         {imageUrl ? (
           <div className="relative h-48 w-full overflow-hidden">
@@ -196,17 +262,82 @@ export default function Card({
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+            {/* nexana設置施設バッジ - モダンなデザイン */}
+            {type === "facility" && isNexanaAvailable && (
+              <div className="absolute top-4 right-4">
+                <div className="relative group">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 rounded-2xl blur-md opacity-60 group-hover:opacity-90 transition-all duration-500"></div>
+                  <span className="relative px-4 py-2 bg-white/95 text-emerald-700 text-xs font-black rounded-2xl shadow-2xl border border-emerald-200/50 flex items-center backdrop-blur-md">
+                    <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mr-2.5 animate-pulse shadow-sm"></div>
+                    <span className="tracking-wider font-extrabold">NEXANA</span>
+                  </span>
+                </div>
+              </div>
+            )}
+            {/* 人気コンテストバッジ - モダンなデザイン */}
+            {type === "contest" && isPopular && (
+              <div className="absolute top-4 right-4">
+                <div className="relative group">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-red-400 via-pink-400 to-rose-400 rounded-2xl blur-md opacity-60 group-hover:opacity-90 transition-all duration-500"></div>
+                  <span className="relative px-4 py-2 bg-white/95 text-red-700 text-xs font-black rounded-2xl shadow-2xl border border-red-200/50 flex items-center backdrop-blur-md">
+                    <div className="w-2 h-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full mr-2.5 animate-pulse shadow-sm"></div>
+                    <span className="tracking-wider font-extrabold">人気</span>
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="relative h-48 w-full bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
             <Building className="h-16 w-16 text-blue-400" />
+            {/* nexana設置施設バッジ（画像なしの場合） - モダンなデザイン */}
+            {type === "facility" && isNexanaAvailable && (
+              <div className="absolute top-4 right-4">
+                <div className="relative group">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 rounded-2xl blur-md opacity-60 group-hover:opacity-90 transition-all duration-500"></div>
+                  <span className="relative px-4 py-2 bg-white/95 text-emerald-700 text-xs font-black rounded-2xl shadow-2xl border border-emerald-200/50 flex items-center backdrop-blur-md">
+                    <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mr-2.5 animate-pulse shadow-sm"></div>
+                    <span className="tracking-wider font-extrabold">NEXANA</span>
+                  </span>
+                </div>
+              </div>
+            )}
+            {/* 人気コンテストバッジ（画像なしの場合） - モダンなデザイン */}
+            {type === "contest" && isPopular && (
+              <div className="absolute top-4 right-4">
+                <div className="relative group">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-red-400 via-pink-400 to-rose-400 rounded-2xl blur-md opacity-60 group-hover:opacity-90 transition-all duration-500"></div>
+                  <span className="relative px-4 py-2 bg-white/95 text-red-700 text-xs font-black rounded-2xl shadow-2xl border border-red-200/50 flex items-center backdrop-blur-md">
+                    <div className="w-2 h-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full mr-2.5 animate-pulse shadow-sm"></div>
+                    <span className="tracking-wider font-extrabold">人気</span>
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
+
+        {/* nexana設置施設の下部インジケーター - モダンなグラデーション */}
+        {type === "facility" && isNexanaAvailable && (
+          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 shadow-lg"></div>
+        )}
+
+        {/* 人気コンテストの下部インジケーター - モダンなグラデーション */}
+        {type === "contest" && isPopular && (
+          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-red-400 via-pink-400 to-rose-400 shadow-lg"></div>
+        )}
+
 
         <div className="p-6 flex flex-col flex-1">
           {/* タイトル */}
           <div className="h-14 mb-3 flex items-start">
-            <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+            <h3 className={`text-lg font-bold line-clamp-2 transition-colors ${
+              type === "facility" && isNexanaAvailable
+                ? "text-emerald-900 group-hover:text-emerald-800 bg-gradient-to-r from-emerald-900 to-teal-800 bg-clip-text text-transparent"
+                : type === "contest" && isPopular
+                ? "text-red-900 group-hover:text-red-800 bg-gradient-to-r from-red-900 to-pink-800 bg-clip-text text-transparent"
+                : "text-gray-900 group-hover:text-blue-600"
+            }`}>
               {title}
             </h3>
           </div>
@@ -217,65 +348,29 @@ export default function Card({
             <span className="text-sm text-gray-600 truncate">{organizer}</span>
           </div>
 
-          {/* 主催者タイプ */}
-          {organizerType && (
-            <div className="mb-3">
+          {/* 主催者タイプとドロップイン */}
+          <div className="mb-3 flex flex-wrap gap-2">
+            {organizerType && (
               <span 
-                className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${
-                  organizerType === 'GOVERNMENT' || organizerType === '行政' ? 'bg-blue-600' :
-                  organizerType === 'VC' ? 'bg-purple-600' :
-                  organizerType === 'CVC' ? 'bg-indigo-600' :
-                  organizerType === 'BANK' || organizerType === '銀行' ? 'bg-green-600' :
-                  organizerType === 'REAL_ESTATE' || organizerType === '不動産' ? 'bg-orange-600' :
-                  organizerType === 'CORPORATION' || organizerType === '企業' ? 'bg-red-600' :
-                  organizerType === 'RESEARCH_INSTITUTION' || organizerType === '研究機関' ? 'bg-teal-600' :
-                  'bg-gray-600'
-                }`}
-                style={{
-                  backgroundColor: organizerType === 'GOVERNMENT' || organizerType === '行政' ? '#2563eb' :
-                                 organizerType === 'VC' ? '#9333ea' :
-                                 organizerType === 'CVC' ? '#4f46e5' :
-                                 organizerType === 'BANK' || organizerType === '銀行' ? '#16a34a' :
-                                 organizerType === 'REAL_ESTATE' || organizerType === '不動産' ? '#ea580c' :
-                                 organizerType === 'CORPORATION' || organizerType === '企業' ? '#dc2626' :
-                                 organizerType === 'RESEARCH_INSTITUTION' || organizerType === '研究機関' ? '#0d9488' :
-                                 '#4b5563'
-                }}
+                className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${getOrganizerTypeStyle(organizerType).className}`}
+                style={getOrganizerTypeStyle(organizerType).style}
               >
                 {getOrganizerTypeLabel(organizerType)}
               </span>
-            </div>
-          )}
+            )}
+            {type === "contest" && isPopular && (
+              <span className="px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 border border-red-200">
+                人気
+              </span>
+            )}
+            {type === "facility" && isDropinAvailable && (
+              <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                ドロップイン
+              </span>
+            )}
+          </div>
 
-          {/* 公募タイプ（open-call用） */}
-          {type === "open-call" && (
-            <div className="mb-3">
-              {openCallType ? (
-                <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-semibold rounded-full">
-                  {openCallType}
-                </span>
-              ) : (
-                <span className="px-3 py-1 bg-gray-200 text-gray-500 text-xs font-semibold rounded-full">
-                  公募タイプ未定
-                </span>
-              )}
-            </div>
-          )}
 
-          {/* 提供可能なリソース/技術タイプ（open-call用） */}
-          {type === "open-call" && (
-            <div className="mb-3">
-              {resourceType ? (
-                <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-semibold rounded-full">
-                  {resourceType}
-                </span>
-              ) : (
-                <span className="px-3 py-1 bg-gray-200 text-gray-500 text-xs font-semibold rounded-full">
-                  リソースタイプ未定
-                </span>
-              )}
-            </div>
-          )}
 
           {/* 説明（最初の50文字のみ） */}
           {description ? (
@@ -481,29 +576,7 @@ export default function Card({
                       </div>
                     )}
 
-                    {/* 公募タイプ（open-call用） */}
-                    {type === "open-call" && openCallType && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">公募タイプ</label>
-                        <div className="mt-2">
-                          <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold rounded-full">
-                            {openCallType}
-                          </span>
-                        </div>
-                      </div>
-                    )}
 
-                    {/* 提供可能なリソース/技術タイプ（open-call用） */}
-                    {type === "open-call" && resourceType && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供可能なリソース/技術タイプ</label>
-                        <div className="mt-2">
-                          <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-600 text-white text-sm font-semibold rounded-full">
-                            {resourceType}
-                          </span>
-                        </div>
-                      </div>
-                    )}
 
                     {type === "event" && venue && (
                       <div>
@@ -602,7 +675,7 @@ export default function Card({
                     
                     {targetArea && (
                       <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象領域</label>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供プログラム情報</label>
                         <p className="text-gray-900 mt-2 leading-relaxed">{targetArea}</p>
                       </div>
                     )}
@@ -625,7 +698,7 @@ export default function Card({
               )}
 
               {/* Open-call固有の詳細情報 */}
-              {type === "open-call" && (targetArea || targetAudience || openCallType || area || organizer || operatingCompany || organizerType || resourceType || availableResources) && (
+              {type === "open-call" && (targetArea || targetAudience || area || organizer || operatingCompany || organizerType || availableResources) && (
                 <div className="bg-white rounded-2xl p-6 shadow-sm">
                   <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
                     <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-pink-600 rounded-full mr-3"></div>
@@ -635,7 +708,7 @@ export default function Card({
                   <div className="space-y-6">
                     {targetArea && (
                       <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象領域</label>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供プログラム情報</label>
                         <p className="text-gray-900 mt-2 leading-relaxed">{targetArea}</p>
                       </div>
                     )}
@@ -647,12 +720,6 @@ export default function Card({
                       </div>
                     )}
 
-                    {openCallType && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">公募タイプ</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{openCallType}</p>
-                      </div>
-                    )}
 
                     {area && (
                       <div>
@@ -675,27 +742,7 @@ export default function Card({
                       </div>
                     )}
 
-                    {organizerType && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">主催者タイプ</label>
-                        <div className="mt-2">
-                          <span 
-                            className={`px-3 py-1 text-white text-sm font-semibold rounded-full ${getOrganizerTypeStyle(organizerType).className}`}
-                            style={getOrganizerTypeStyle(organizerType).style}
-                          >
-                            {getOrganizerTypeLabel(organizerType)}
-                          </span>
-                        </div>
-                      </div>
-                    )}
 
-
-                    {resourceType && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供可能なリソース/技術タイプ</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{resourceType}</p>
-                      </div>
-                    )}
 
                     {availableResources && (
                       <div>
@@ -741,6 +788,7 @@ export default function Card({
                         </div>
                       </div>
                     )}
+
                   </div>
                 </div>
               )}
@@ -756,7 +804,7 @@ export default function Card({
                   <div className="space-y-6">
                     {targetArea && (
                       <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象領域</label>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供プログラム情報</label>
                         <p className="text-gray-900 mt-2 leading-relaxed">{targetArea}</p>
                       </div>
                     )}
@@ -824,7 +872,7 @@ export default function Card({
               )}
 
               {/* 施設固有の詳細情報 */}
-              {type === "facility" && (targetArea || facilityInfo || targetAudience || program) && (
+              {type === "facility" && (targetArea || facilityInfo || targetAudience || program || isDropinAvailable || isNexanaAvailable) && (
                 <div className="bg-white rounded-2xl p-6 shadow-sm">
                   <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
                     <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-pink-600 rounded-full mr-3"></div>
@@ -834,7 +882,7 @@ export default function Card({
                   <div className="space-y-6">
                     {targetArea && (
                       <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象領域</label>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供プログラム情報</label>
                         <p className="text-gray-900 mt-2 leading-relaxed">{targetArea}</p>
                       </div>
                     )}
@@ -843,6 +891,27 @@ export default function Card({
                       <div>
                         <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">施設情報</label>
                         <p className="text-gray-900 mt-2 leading-relaxed">{facilityInfo}</p>
+                      </div>
+                    )}
+                    
+                    {/* 利用可能性（施設情報内に表示） */}
+                    {(isDropinAvailable || isNexanaAvailable) && (
+                      <div>
+                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">施設情報その他</label>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {isDropinAvailable && (
+                            <span className="px-3 py-1 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 text-sm font-medium rounded-full flex items-center shadow-sm border border-blue-200">
+                              <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mr-2"></div>
+                              ドロップイン可能施設
+                            </span>
+                          )}
+                          {isNexanaAvailable && (
+                            <span className="px-3 py-1 bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-sm font-medium rounded-full flex items-center shadow-sm border border-green-200">
+                              <div className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mr-2"></div>
+                              nexana設置施設
+                            </span>
+                          )}
+                        </div>
                       </div>
                     )}
                     

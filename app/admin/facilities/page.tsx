@@ -24,6 +24,8 @@ interface Facility {
   facilityInfo?: string;
   targetAudience?: string;
   program?: string;
+  isDropinAvailable?: boolean;
+  isNexanaAvailable?: boolean;
   isActive: boolean;
   isChecked?: boolean;
   createdAt: string;
@@ -49,6 +51,8 @@ export default function AdminFacilitiesPage() {
     facilityInfo: '',
     targetAudience: '',
     program: '',
+    isDropinAvailable: false,
+    isNexanaAvailable: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -122,6 +126,8 @@ export default function AdminFacilitiesPage() {
       facilityInfo: facility.facilityInfo,
       targetAudience: facility.targetAudience,
       program: facility.program,
+      isDropinAvailable: facility.isDropinAvailable,
+      isNexanaAvailable: facility.isNexanaAvailable,
     });
   };
 
@@ -219,6 +225,8 @@ export default function AdminFacilitiesPage() {
           facilityInfo: '',
           targetAudience: '',
           program: '',
+          isDropinAvailable: false,
+          isNexanaAvailable: false,
         });
         setShowCreateForm(false);
         alert('施設が正常に追加されました');
@@ -510,6 +518,35 @@ export default function AdminFacilitiesPage() {
                       placeholder="提供しているプログラムを入力してください"
                     />
                   </div>
+
+                  {/* 施設その他 */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      施設その他
+                    </label>
+                    <div className="flex flex-wrap gap-6">
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="isDropinAvailable"
+                          checked={formData.isDropinAvailable}
+                          onChange={(e) => setFormData(prev => ({ ...prev, isDropinAvailable: e.target.checked }))}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">ドロップイン (利用可能)</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="isNexanaAvailable"
+                          checked={formData.isNexanaAvailable}
+                          onChange={(e) => setFormData(prev => ({ ...prev, isNexanaAvailable: e.target.checked }))}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">nexana (利用可能)</span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
 
                 {/* ボタン */}
@@ -760,6 +797,31 @@ export default function AdminFacilitiesPage() {
                                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                                   />
                                 </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-3">施設その他</label>
+                                  <div className="flex flex-wrap gap-4">
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="isDropinAvailable"
+                                        checked={editingData.isDropinAvailable || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, isDropinAvailable: e.target.checked }))}
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">ドロップイン (利用可能)</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="isNexanaAvailable"
+                                        checked={editingData.isNexanaAvailable || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, isNexanaAvailable: e.target.checked }))}
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">nexana (利用可能)</span>
+                                    </label>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           ) : (
@@ -791,6 +853,15 @@ export default function AdminFacilitiesPage() {
                                 <span>主催者: {facility.organizer}</span>
                                 <span>更新日: {new Date(facility.updatedAt).toLocaleDateString('ja-JP')}</span>
                               </div>
+                              {(facility.isDropinAvailable || facility.isNexanaAvailable) && (
+                                <div className="mt-2">
+                                  <span className="text-sm text-gray-600">
+                                    <strong>施設その他:</strong> 
+                                    {facility.isDropinAvailable && <span className="ml-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">ドロップイン</span>}
+                                    {facility.isNexanaAvailable && <span className="ml-1 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">nexana</span>}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>

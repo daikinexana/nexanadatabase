@@ -107,6 +107,7 @@ export async function PUT(
         incentive: body.incentive || null,
         operatingCompany: body.operatingCompany || null,
         isActive: body.isActive !== undefined ? body.isActive : true,
+        isPopular: body.isPopular,
       },
     });
     

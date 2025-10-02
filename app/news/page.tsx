@@ -204,7 +204,7 @@ export default function NewsPage() {
             </h1>
             <p className="text-base text-gray-300 max-w-2xl mx-auto font-news">
               Real-time funding, M&A, and IPO information for Japanese startups
-              <span className="block text-sm text-gray-400 mt-2">日本スタートアップの調達・M&A・IPO情報をリアルタイム配信</span>
+              <span className="block text-sm text-gray-400 mt-2">世界のスタートアップの調達・M&A・IPO情報をリアルタイム配信</span>
             </p>
           </div>
         </div>

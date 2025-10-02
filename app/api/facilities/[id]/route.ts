@@ -54,6 +54,8 @@ export async function PUT(
       facilityInfo,
       targetAudience,
       program,
+      isDropinAvailable,
+      isNexanaAvailable,
       isActive,
     } = body;
 
@@ -92,6 +94,8 @@ export async function PUT(
         facilityInfo,
         targetAudience,
         program,
+        isDropinAvailable: isDropinAvailable !== undefined ? isDropinAvailable : false,
+        isNexanaAvailable: isNexanaAvailable !== undefined ? isNexanaAvailable : false,
         isActive: isActive ?? true,
       },
     });
