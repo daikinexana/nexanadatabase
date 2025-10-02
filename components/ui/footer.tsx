@@ -6,7 +6,6 @@ const navigation = {
     { name: "ホーム", nameEn: "Home", href: "/" },
     { name: "コンテスト", nameEn: "Contests", href: "/contests" },
     { name: "施設紹介", nameEn: "Facilities", href: "/facilities" },
-    { name: "イベント", nameEn: "Events", href: "/events" },
     { name: "公募", nameEn: "Open Calls", href: "/open-calls" },
     { name: "ニュース", nameEn: "News", href: "/news" },
     { name: "ナレッジ", nameEn: "Knowledge", href: "/knowledge" },
