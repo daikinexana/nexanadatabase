@@ -6,7 +6,7 @@ import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 // import Card from "@/components/ui/card";
 import Filter from "@/components/ui/filter";
-import { Search, Filter as FilterIcon, BookOpen, Calendar, ExternalLink, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Search, Filter as FilterIcon, BookOpen, Calendar, ExternalLink, X } from "lucide-react";
 import Image from "next/image";
 
 interface KnowledgeItem {
