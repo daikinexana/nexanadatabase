@@ -805,58 +805,41 @@ export default function Card({
                     {targetArea && (
                       <div>
                         <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供プログラム情報</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{targetArea}</p>
+                        <div className="mt-2">
+                          {targetArea.split(';').map((item, index) => (
+                            <div key={index} className="flex items-start space-x-2 mb-1">
+                              <span className="text-blue-500 font-bold mt-1">•</span>
+                              <span className="text-gray-900">{item.trim()}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                     
                     {targetAudience && (
                       <div>
                         <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象者</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{targetAudience}</p>
+                        <div className="mt-2">
+                          {targetAudience.split(';').map((item, index) => (
+                            <div key={index} className="flex items-start space-x-2 mb-1">
+                              <span className="text-green-500 font-bold mt-1">•</span>
+                              <span className="text-gray-900">{item.trim()}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                     
                     {incentive && (
                       <div>
                         <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">インセンティブ</label>
-                        <div className="mt-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border-l-4 border-blue-500">
-                          <div className="prose prose-sm max-w-none">
-                            <div className="text-gray-900 leading-relaxed whitespace-pre-line">
-                              {incentive.split('\n').map((line, index) => {
-                                // 箇条書きや番号付きリストを検出
-                                if (line.trim().match(/^[\d\-\*\•]\s/)) {
-                                  return (
-                                    <div key={index} className="flex items-start space-x-2 mb-2">
-                                      <span className="text-blue-500 font-bold mt-1">•</span>
-                                      <span className="flex-1">{line.replace(/^[\d\-\*\•]\s/, '')}</span>
-                                    </div>
-                                  );
-                                }
-                                // 見出しを検出（## や ### で始まる行）
-                                if (line.trim().match(/^#{1,3}\s/)) {
-                                  const level = line.match(/^#{1,3}/)?.[0].length || 1;
-                                  const text = line.replace(/^#{1,3}\s/, '');
-                                  return (
-                                    <div key={index} className={`font-bold text-gray-900 mb-3 mt-4 ${
-                                      level === 1 ? 'text-lg' : level === 2 ? 'text-base' : 'text-sm'
-                                    }`}>
-                                      {text}
-                                    </div>
-                                  );
-                                }
-                                // 空行
-                                if (line.trim() === '') {
-                                  return <div key={index} className="h-2"></div>;
-                                }
-                                // 通常のテキスト
-                                return (
-                                  <div key={index} className="mb-2">
-                                    {line}
-                                  </div>
-                                );
-                              })}
+                        <div className="mt-2">
+                          {incentive.split(';').map((item, index) => (
+                            <div key={index} className="flex items-start space-x-2 mb-1">
+                              <span className="text-blue-500 font-bold mt-1">•</span>
+                              <span className="text-gray-900">{item.trim()}</span>
                             </div>
-                          </div>
+                          ))}
                         </div>
                       </div>
                     )}
@@ -883,14 +866,28 @@ export default function Card({
                     {targetArea && (
                       <div>
                         <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供プログラム情報</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{targetArea}</p>
+                        <div className="mt-2">
+                          {targetArea.split(';').map((item, index) => (
+                            <div key={index} className="flex items-start space-x-2 mb-1">
+                              <span className="text-blue-500 font-bold mt-1">•</span>
+                              <span className="text-gray-900">{item.trim()}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                     
                     {facilityInfo && (
                       <div>
                         <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">施設情報</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{facilityInfo}</p>
+                        <div className="mt-2">
+                          {facilityInfo.split(';').map((item, index) => (
+                            <div key={index} className="flex items-start space-x-2 mb-1">
+                              <span className="text-green-500 font-bold mt-1">•</span>
+                              <span className="text-gray-900">{item.trim()}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                     
@@ -918,51 +915,27 @@ export default function Card({
                     {targetAudience && (
                       <div>
                         <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象者</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{targetAudience}</p>
+                        <div className="mt-2">
+                          {targetAudience.split(';').map((item, index) => (
+                            <div key={index} className="flex items-start space-x-2 mb-1">
+                              <span className="text-purple-500 font-bold mt-1">•</span>
+                              <span className="text-gray-900">{item.trim()}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                     
                     {program && (
                       <div>
                         <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">プログラム</label>
-                        <div className="mt-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border-l-4 border-blue-500">
-                          <div className="prose prose-sm max-w-none">
-                            <div className="text-gray-900 leading-relaxed whitespace-pre-line">
-                              {program.split('\n').map((line, index) => {
-                                // 箇条書きや番号付きリストを検出
-                                if (line.trim().match(/^[\d\-\*\•]\s/)) {
-                                  return (
-                                    <div key={index} className="flex items-start space-x-2 mb-2">
-                                      <span className="text-blue-500 font-bold mt-1">•</span>
-                                      <span className="flex-1">{line.replace(/^[\d\-\*\•]\s/, '')}</span>
-                                    </div>
-                                  );
-                                }
-                                // 見出しを検出（## や ### で始まる行）
-                                if (line.trim().match(/^#{1,3}\s/)) {
-                                  const level = line.match(/^#{1,3}/)?.[0].length || 1;
-                                  const text = line.replace(/^#{1,3}\s/, '');
-                                  return (
-                                    <div key={index} className={`font-bold text-gray-900 mb-3 mt-4 ${
-                                      level === 1 ? 'text-lg' : level === 2 ? 'text-base' : 'text-sm'
-                                    }`}>
-                                      {text}
-                                    </div>
-                                  );
-                                }
-                                // 空行
-                                if (line.trim() === '') {
-                                  return <div key={index} className="h-2"></div>;
-                                }
-                                // 通常のテキスト
-                                return (
-                                  <div key={index} className="mb-2">
-                                    {line}
-                                  </div>
-                                );
-                              })}
+                        <div className="mt-2">
+                          {program.split(';').map((item, index) => (
+                            <div key={index} className="flex items-start space-x-2 mb-1">
+                              <span className="text-orange-500 font-bold mt-1">•</span>
+                              <span className="text-gray-900">{item.trim()}</span>
                             </div>
-                          </div>
+                          ))}
                         </div>
                       </div>
                     )}
