@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
@@ -41,6 +41,9 @@ export default function OpenCallsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [showPastOpenCalls, setShowPastOpenCalls] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(25); // 初期表示件数
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // エリアの順序定義（全国/47都道府県/国外）
   const areaOrder = useMemo(() => [
@@ -126,30 +129,53 @@ export default function OpenCallsPage() {
     const fetchOpenCalls = async () => {
       try {
         setLoading(true);
-        const params = new URLSearchParams();
-        if (filters.area) params.append('area', filters.area);
-        if (filters.organizerType) params.append('organizerType', filters.organizerType);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒でタイムアウト
         
-        const response = await fetch(`/api/open-calls?${params.toString()}`);
+        const response = await fetch("/api/open-calls", {
+          headers: {
+            'Cache-Control': 'max-age=300', // 5分間キャッシュ
+          },
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+        
         if (response.ok) {
           const data = await response.json();
-          console.log("Fetched open calls data:", data);
           setOpenCalls(data);
         } else {
-          console.error("Failed to fetch open calls");
+          console.error("Failed to fetch open calls:", response.status);
+          setOpenCalls([]);
         }
       } catch (error) {
-        console.error("Error fetching open calls:", error);
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.error("Request timeout");
+        } else {
+          console.error("Error fetching open calls:", error);
+        }
+        setOpenCalls([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchOpenCalls();
-  }, [filters]);
+  }, []);
 
-  // フィルタリング処理
-  useEffect(() => {
+  // デバウンス付き検索処理
+  const debouncedSearch = useCallback((term: string) => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    searchTimeoutRef.current = setTimeout(() => {
+      setSearchTerm(term);
+    }, 300); // 300msのデバウンス
+  }, []);
+
+  // フィルタリング処理（メモ化）
+  const filteredOpenCallsMemo = useMemo(() => {
     let filtered = openCalls;
 
     // 検索語でフィルタリング（データベースの値のみ）
@@ -208,8 +234,14 @@ export default function OpenCallsPage() {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
-    setFilteredOpenCalls(filtered);
+    return filtered;
   }, [openCalls, searchTerm, filters, showPastOpenCalls, getAreaOrder]);
+
+  // フィルタリング結果を更新
+  useEffect(() => {
+    setFilteredOpenCalls(filteredOpenCallsMemo);
+    setVisibleCount(25); // フィルター変更時は表示件数をリセット
+  }, [filteredOpenCallsMemo]);
 
   const handleFilterChange = (newFilters: {
     area?: string;
@@ -217,6 +249,29 @@ export default function OpenCallsPage() {
   }) => {
     setFilters(newFilters);
   };
+
+  // 表示件数を増やす関数
+  const loadMore = useCallback(() => {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount(prev => prev + 25);
+      setIsLoadingMore(false);
+    }, 300);
+  }, []);
+
+  // 表示する公募を制限
+  const visibleOpenCalls = useMemo(() => {
+    return filteredOpenCalls.slice(0, visibleCount);
+  }, [filteredOpenCalls, visibleCount]);
+
+  // クリーンアップ
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -254,8 +309,7 @@ export default function OpenCallsPage() {
                   <input
                     type="text"
                     placeholder="企業、行政、大学、CV、全国、東京都、大阪府などで検索..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => debouncedSearch(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500"
                   />
                 </div>
@@ -307,10 +361,10 @@ export default function OpenCallsPage() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
             <p className="text-gray-600 font-news">読み込み中...</p>
           </div>
-        ) : filteredOpenCalls.length > 0 ? (
+        ) : visibleOpenCalls.length > 0 ? (
           <div className="space-y-12">
             {areaOrder.map((area) => {
-              const areaOpenCalls = filteredOpenCalls.filter(openCall => openCall.area === area);
+              const areaOpenCalls = visibleOpenCalls.filter(openCall => openCall.area === area);
               if (areaOpenCalls.length === 0) return null;
 
               return (
@@ -347,7 +401,7 @@ export default function OpenCallsPage() {
             
             {/* エリア未設定の公募 */}
             {(() => {
-              const unassignedOpenCalls = filteredOpenCalls.filter(openCall => !areaOrder.includes(openCall.area || ''));
+              const unassignedOpenCalls = visibleOpenCalls.filter(openCall => !areaOrder.includes(openCall.area || ''));
               if (unassignedOpenCalls.length === 0) return null;
 
               return (
@@ -381,6 +435,28 @@ export default function OpenCallsPage() {
                 </div>
               );
             })()}
+            
+            {/* もっと見るボタン */}
+            {visibleCount < filteredOpenCalls.length && (
+              <div className="text-center py-8">
+                <button
+                  onClick={loadMore}
+                  disabled={isLoadingMore}
+                  className="inline-flex items-center px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      読み込み中...
+                    </>
+                  ) : (
+                    <>
+                      もっと見る ({filteredOpenCalls.length - visibleCount}件)
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center py-12">

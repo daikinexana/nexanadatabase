@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 // import { Metadata } from "next";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
@@ -39,6 +39,9 @@ export default function FacilitiesPage() {
   });
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(50); // 初期表示件数
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // エリアの順序定義（全国/47都道府県/国外）
   const areaOrder = useMemo(() => [
@@ -124,15 +127,34 @@ export default function FacilitiesPage() {
     const fetchFacilities = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/facilities");
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒でタイムアウト
+        
+        const response = await fetch("/api/facilities", {
+          headers: {
+            'Cache-Control': 'max-age=300', // 5分間キャッシュ
+          },
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+        
         if (response.ok) {
           const data = await response.json();
           setFacilities(data);
         } else {
-          console.error("Failed to fetch facilities");
+          console.error("Failed to fetch facilities:", response.status);
+          // エラー時は空配列を設定
+          setFacilities([]);
         }
       } catch (error) {
-        console.error("Error fetching facilities:", error);
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.error("Request timeout");
+        } else {
+          console.error("Error fetching facilities:", error);
+        }
+        // エラー時は空配列を設定
+        setFacilities([]);
       } finally {
         setLoading(false);
       }
@@ -141,8 +163,19 @@ export default function FacilitiesPage() {
     fetchFacilities();
   }, []);
 
-  // フィルタリング処理
-  useEffect(() => {
+  // デバウンス付き検索処理
+  const debouncedSearch = useCallback((term: string) => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    searchTimeoutRef.current = setTimeout(() => {
+      setSearchTerm(term);
+    }, 300); // 300msのデバウンス
+  }, []);
+
+  // フィルタリング処理（メモ化）
+  const filteredFacilitiesMemo = useMemo(() => {
     let filtered = facilities;
 
     // 検索語でフィルタリング（データベースの値のみ）
@@ -202,12 +235,41 @@ export default function FacilitiesPage() {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
-    setFilteredFacilities(filtered);
+    return filtered;
   }, [facilities, searchTerm, filters, getAreaOrder]);
+
+  // フィルタリング結果を更新
+  useEffect(() => {
+    setFilteredFacilities(filteredFacilitiesMemo);
+    setVisibleCount(50); // フィルター変更時は表示件数をリセット
+  }, [filteredFacilitiesMemo]);
 
   const handleFilterChange = (newFilters: { area?: string; organizerType?: string; }) => {
     setFilters(newFilters);
   };
+
+  // 表示件数を増やす関数
+  const loadMore = useCallback(() => {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount(prev => prev + 50);
+      setIsLoadingMore(false);
+    }, 300);
+  }, []);
+
+  // 表示する施設を制限
+  const visibleFacilities = useMemo(() => {
+    return filteredFacilities.slice(0, visibleCount);
+  }, [filteredFacilities, visibleCount]);
+
+  // クリーンアップ
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -245,8 +307,7 @@ export default function FacilitiesPage() {
                   <input
                     type="text"
                     placeholder="企業、行政、VC、その他、東京都、大阪府、nexana、nexa、ドロップイン、ドロップなどで検索..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => debouncedSearch(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500"
                   />
                 </div>
@@ -288,10 +349,10 @@ export default function FacilitiesPage() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600 font-news">読み込み中...</p>
           </div>
-        ) : filteredFacilities.length > 0 ? (
+        ) : visibleFacilities.length > 0 ? (
           <div className="space-y-12">
             {areaOrder.map((area) => {
-              const areaFacilities = filteredFacilities.filter(facility => facility.area === area);
+              const areaFacilities = visibleFacilities.filter(facility => facility.area === area);
               if (areaFacilities.length === 0) return null;
 
               return (
@@ -300,7 +361,7 @@ export default function FacilitiesPage() {
                     <h2 className="text-2xl font-news-heading text-gray-900 mb-2">{area}</h2>
                     <div className="h-1 w-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch">
                     {areaFacilities.map((facility) => (
                       <Card
                         key={facility.id}
@@ -329,7 +390,7 @@ export default function FacilitiesPage() {
             
             {/* エリア未設定の施設 */}
             {(() => {
-              const unassignedFacilities = filteredFacilities.filter(facility => !areaOrder.includes(facility.area || ''));
+              const unassignedFacilities = visibleFacilities.filter(facility => !areaOrder.includes(facility.area || ''));
               if (unassignedFacilities.length === 0) return null;
 
               return (
@@ -338,7 +399,7 @@ export default function FacilitiesPage() {
                     <h2 className="text-2xl font-news-heading text-gray-900 mb-2">その他</h2>
                     <div className="h-1 w-20 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full"></div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch">
                     {unassignedFacilities.map((facility) => (
                       <Card
                         key={facility.id}
@@ -364,6 +425,28 @@ export default function FacilitiesPage() {
                 </div>
               );
             })()}
+            
+            {/* もっと見るボタン */}
+            {visibleCount < filteredFacilities.length && (
+              <div className="text-center py-8">
+                <button
+                  onClick={loadMore}
+                  disabled={isLoadingMore}
+                  className="inline-flex items-center px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      読み込み中...
+                    </>
+                  ) : (
+                    <>
+                      もっと見る ({filteredFacilities.length - visibleCount}件)
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center py-12">

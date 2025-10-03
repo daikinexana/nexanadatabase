@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { ImageIcon } from "lucide-react";
 
 interface SimpleImageProps {
   src: string;
@@ -24,54 +25,28 @@ export default function SimpleImage({
 }: SimpleImageProps) {
   const [hasError, setHasError] = useState(false);
 
-  // URLのトリム処理
-  const trimmedSrc = src?.trim();
-
-  // 無効なURLの場合は即座にエラー状態にする
-  // Base64形式の画像も許可する
-  const isValidUrl = trimmedSrc && 
-    (trimmedSrc.startsWith('http') || 
-     trimmedSrc.startsWith('data:image/') ||
-     trimmedSrc.startsWith('/'));
-  
-  if (!isValidUrl) {
+  if (hasError || !src) {
     return (
       <div className={`bg-gray-100 flex items-center justify-center ${className}`}>
         <div className="text-center text-gray-400">
+          <ImageIcon className="h-8 w-8 mx-auto mb-2" />
           <p className="text-xs">画像なし</p>
         </div>
       </div>
     );
   }
 
-  if (hasError) {
-    return (
-      <div className={`bg-gray-100 flex items-center justify-center ${className}`}>
-        <div className="text-center text-gray-400">
-          <p className="text-xs">画像なし</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Base64形式の場合は常にunoptimizedを使用
-  
   return (
     <Image
-      src={trimmedSrc}
+      src={src}
       alt={alt}
+      fill={fill}
+      width={width}
+      height={height}
       className={className}
-      {...(fill ? { fill: true } : { width, height })}
-      loading={priority ? "eager" : "lazy"}
-      onError={() => {
-        console.log('Image load error for:', trimmedSrc.substring(0, 50) + '...');
-        setHasError(true);
-      }}
-      onLoad={() => {
-        console.log('Image loaded successfully:', trimmedSrc.substring(0, 50) + '...');
-      }}
+      onError={() => setHasError(true)}
       unoptimized={true}
-      style={{ display: hasError ? 'none' : 'block' }}
+      loading={priority ? "eager" : "lazy"}
     />
   );
 }

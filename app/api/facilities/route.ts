@@ -39,9 +39,35 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
+      // 必要なフィールドのみ選択してパフォーマンスを向上
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        address: true,
+        area: true,
+        organizer: true,
+        organizerType: true,
+        website: true,
+        targetArea: true,
+        facilityInfo: true,
+        targetAudience: true,
+        program: true,
+        isDropinAvailable: true,
+        isNexanaAvailable: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
-    return NextResponse.json(facilities);
+    const response = NextResponse.json(facilities);
+    
+    // キャッシュヘッダーを設定
+    response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=300');
+    
+    return response;
   } catch (error) {
     console.error("Error fetching facilities:", error);
     return NextResponse.json(

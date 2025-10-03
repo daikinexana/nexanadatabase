@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 // import { Metadata } from "next";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
@@ -86,51 +86,69 @@ export default function NewsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   
-  // ページネーション用の状態
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 50;
+  // 段階的読み込み用の状態
+  const [visibleCount, setVisibleCount] = useState(25); // 初期表示件数
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const fetchNews = useCallback(async () => {
     try {
       setLoading(true);
-      // フィルターパラメータのみでAPIを呼び出す
-      const params = new URLSearchParams();
-      if (filters.area) params.append('area', filters.area);
-      if (filters.category) params.append('type', filters.category);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒でタイムアウト
       
-      const response = await fetch(`/api/news?${params.toString()}`);
+      const response = await fetch("/api/news", {
+        headers: {
+          'Cache-Control': 'max-age=300', // 5分間キャッシュ
+        },
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
       
       if (response.ok) {
         const data = await response.json();
-        console.log("Fetched news data:", data);
         setNews(data);
-        setFilteredNews(data);
       } else {
-        console.error("API Error:", response.status, response.statusText);
+        console.error("Failed to fetch news:", response.status);
         setNews([]);
-        setFilteredNews([]);
       }
     } catch (error) {
-      console.error("Network Error:", error);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error("Request timeout");
+      } else {
+        console.error("Error fetching news:", error);
+      }
       setNews([]);
-      setFilteredNews([]);
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, []);
 
   // データベースからニュースを取得
   useEffect(() => {
     fetchNews();
-  }, [filters, fetchNews]);
+  }, [fetchNews]);
 
-  // 検索機能（データベースの値のみでフィルタリング）
-  useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredNews(news);
-    } else {
+  // デバウンス付き検索処理
+  const debouncedSearch = useCallback((term: string) => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    searchTimeoutRef.current = setTimeout(() => {
+      setSearchTerm(term);
+    }, 300); // 300msのデバウンス
+  }, []);
+
+  // フィルタリング処理（メモ化）
+  const filteredNewsMemo = useMemo(() => {
+    let filtered = news;
+
+    // 検索語でフィルタリング（データベースの値のみ）
+    if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
-      const filtered = news.filter(item => 
+      filtered = filtered.filter(item => 
         // データベースの値での検索のみ
         item.type.toLowerCase().includes(searchLower) ||
         item.area.toLowerCase().includes(searchLower) ||
@@ -140,24 +158,56 @@ export default function NewsPage() {
           investor.toLowerCase().includes(searchLower)
         )
       );
-      setFilteredNews(filtered);
     }
-    // 検索やフィルターが変更されたら1ページ目に戻る
-    setCurrentPage(1);
-  }, [news, searchTerm]);
 
-  // ページネーション用の計算
-  const totalPages = Math.ceil(filteredNews.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentNews = filteredNews.slice(startIndex, endIndex);
+    // エリアでフィルタリング
+    if (filters.area) {
+      filtered = filtered.filter((item) => item.area === filters.area);
+    }
 
-  // ページ変更ハンドラー
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    // ページトップにスクロール
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+    // カテゴリでフィルタリング
+    if (filters.category) {
+      filtered = filtered.filter((item) => item.type === filters.category);
+    }
+
+    // 公開日でソート（新しい順）
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.publishedAt).getTime();
+      const dateB = new Date(b.publishedAt).getTime();
+      return dateB - dateA;
+    });
+
+    return filtered;
+  }, [news, searchTerm, filters]);
+
+  // フィルタリング結果を更新
+  useEffect(() => {
+    setFilteredNews(filteredNewsMemo);
+    setVisibleCount(25); // フィルター変更時は表示件数をリセット
+  }, [filteredNewsMemo]);
+
+  // 表示件数を増やす関数
+  const loadMore = useCallback(() => {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount(prev => prev + 25);
+      setIsLoadingMore(false);
+    }, 300);
+  }, []);
+
+  // 表示するニュースを制限
+  const visibleNews = useMemo(() => {
+    return filteredNews.slice(0, visibleCount);
+  }, [filteredNews, visibleCount]);
+
+  // クリーンアップ
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleFilterChange = (newFilters: {
     area?: string;
@@ -236,8 +286,7 @@ export default function NewsPage() {
                       <input
                         type="text"
                         placeholder="資金調達、M&A、日本、アメリカ、バイオテクノロジー、デジタルマーケティングなどで検索..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => debouncedSearch(e.target.value)}
                         className="w-full pl-12 pr-4 py-4 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-lg transition-all duration-300 hover:shadow-xl"
                       />
                     </div>
@@ -274,9 +323,9 @@ export default function NewsPage() {
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     {filteredNews.length}件のニュース
-                    {totalPages > 1 && (
+                    {visibleCount < filteredNews.length && (
                       <span className="text-lg font-normal text-gray-600 ml-2">
-                        （{currentPage} / {totalPages}ページ）
+                        （{visibleCount}件表示中）
                       </span>
                     )}
                   </h2>
@@ -294,7 +343,7 @@ export default function NewsPage() {
             {/* ニュースカード一覧 */}
             {filteredNews.length > 0 ? (
               <div className="grid gap-4">
-                {currentNews.map((item, index) => (
+                {visibleNews.map((item, index) => (
                   <div 
                     key={item.id} 
                     className="group cursor-pointer"
@@ -312,6 +361,8 @@ export default function NewsPage() {
                               alt={item.title}
                               fill
                               className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                              loading={index < 4 ? "eager" : "lazy"}
+                              unoptimized={true}
                             />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
@@ -427,87 +478,23 @@ export default function NewsPage() {
               </div>
             )}
             
-            {/* ページネーション */}
-            {filteredNews.length > 0 && totalPages > 1 && (
-              <div className="mt-8 flex items-center justify-center">
-                <nav className="flex items-center space-x-2" aria-label="ページネーション">
-                  {/* 最初のページ */}
-                  <button
-                    onClick={() => handlePageChange(1)}
-                    disabled={currentPage === 1}
-                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title="最初のページ"
-                  >
-                    <ChevronsLeft className="h-4 w-4" />
-                  </button>
-                  
-                  {/* 前のページ */}
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title="前のページ"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  
-                  {/* ページ番号 */}
-                  <div className="flex items-center space-x-1">
-                    {(() => {
-                      const pages = [];
-                      const maxVisiblePages = 5;
-                      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-                      const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-                      
-                      if (endPage - startPage + 1 < maxVisiblePages) {
-                        startPage = Math.max(1, endPage - maxVisiblePages + 1);
-                      }
-                      
-                      for (let i = startPage; i <= endPage; i++) {
-                        pages.push(
-                          <button
-                            key={i}
-                            onClick={() => handlePageChange(i)}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                              i === currentPage
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                            }`}
-                          >
-                            {i}
-                          </button>
-                        );
-                      }
-                      
-                      return pages;
-                    })()}
-                  </div>
-                  
-                  {/* 次のページ */}
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title="次のページ"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                  
-                  {/* 最後のページ */}
-                  <button
-                    onClick={() => handlePageChange(totalPages)}
-                    disabled={currentPage === totalPages}
-                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title="最後のページ"
-                  >
-                    <ChevronsRight className="h-4 w-4" />
-                  </button>
-                </nav>
-                
-                {/* ページ情報 */}
-                <div className="ml-4 text-sm text-gray-500">
-                  {startIndex + 1}-{Math.min(endIndex, filteredNews.length)} / {filteredNews.length}件
-                </div>
+            {/* もっと見るボタン */}
+            {filteredNews.length > 0 && visibleCount < filteredNews.length && (
+              <div className="mt-8 flex justify-center">
+                <button
+                  onClick={loadMore}
+                  disabled={isLoadingMore}
+                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {isLoadingMore ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                      <span>読み込み中...</span>
+                    </div>
+                  ) : (
+                    `もっと見る (残り${filteredNews.length - visibleCount}件)`
+                  )}
+                </button>
               </div>
             )}
           </div>

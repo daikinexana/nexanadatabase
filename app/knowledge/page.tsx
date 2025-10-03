@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 // import { Metadata } from "next";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
@@ -34,39 +34,63 @@ export default function KnowledgePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   
-  // ページネーション用の状態
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 50;
+  // 段階的読み込み用の状態
+  const [visibleCount, setVisibleCount] = useState(25); // 初期表示件数
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // APIからデータを取得
-  useEffect(() => {
-    const fetchKnowledge = async () => {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams();
-        if (filters.categoryTag) params.append('categoryTag', filters.categoryTag);
-        if (filters.area) params.append('area', filters.area);
-        
-        const response = await fetch(`/api/knowledge?${params.toString()}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch knowledge');
-        }
+  const fetchKnowledge = useCallback(async () => {
+    try {
+      setLoading(true);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒でタイムアウト
+      
+      const response = await fetch("/api/knowledge", {
+        headers: {
+          'Cache-Control': 'max-age=300', // 5分間キャッシュ
+        },
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
         const data = await response.json();
         setKnowledge(data);
-        setFilteredKnowledge(data);
-      } catch (err) {
-        console.error('Error fetching knowledge:', err);
-        // setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
+      } else {
+        console.error("Failed to fetch knowledge:", response.status);
+        setKnowledge([]);
       }
-    };
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error("Request timeout");
+      } else {
+        console.error("Error fetching knowledge:", error);
+      }
+      setKnowledge([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    fetchKnowledge();
-  }, [filters.categoryTag, filters.area]);
-
-  // フィルタリング処理
   useEffect(() => {
+    fetchKnowledge();
+  }, [fetchKnowledge]);
+
+  // デバウンス付き検索処理
+  const debouncedSearch = useCallback((term: string) => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    searchTimeoutRef.current = setTimeout(() => {
+      setSearchTerm(term);
+    }, 300); // 300msのデバウンス
+  }, []);
+
+  // フィルタリング処理（メモ化）
+  const filteredKnowledgeMemo = useMemo(() => {
     let filtered = knowledge;
 
     // 検索語でフィルタリング
@@ -80,23 +104,54 @@ export default function KnowledgePage() {
       );
     }
 
-    setFilteredKnowledge(filtered);
-    // 検索やフィルターが変更されたら1ページ目に戻る
-    setCurrentPage(1);
-  }, [knowledge, searchTerm]);
+    // カテゴリでフィルタリング
+    if (filters.categoryTag) {
+      filtered = filtered.filter((item) => item.categoryTag === filters.categoryTag);
+    }
 
-  // ページネーション用の計算
-  const totalPages = Math.ceil(filteredKnowledge.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentKnowledge = filteredKnowledge.slice(startIndex, endIndex);
+    // エリアでフィルタリング
+    if (filters.area) {
+      filtered = filtered.filter((item) => item.area === filters.area);
+    }
 
-  // ページ変更ハンドラー
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    // ページトップにスクロール
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+    // 公開日でソート（新しい順）
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.publishedAt || '').getTime();
+      const dateB = new Date(b.publishedAt || '').getTime();
+      return dateB - dateA;
+    });
+
+    return filtered;
+  }, [knowledge, searchTerm, filters]);
+
+  // フィルタリング結果を更新
+  useEffect(() => {
+    setFilteredKnowledge(filteredKnowledgeMemo);
+    setVisibleCount(25); // フィルター変更時は表示件数をリセット
+  }, [filteredKnowledgeMemo]);
+
+  // 表示件数を増やす関数
+  const loadMore = useCallback(() => {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount(prev => prev + 25);
+      setIsLoadingMore(false);
+    }, 300);
+  }, []);
+
+  // 表示するナレッジを制限
+  const visibleKnowledge = useMemo(() => {
+    return filteredKnowledge.slice(0, visibleCount);
+  }, [filteredKnowledge, visibleCount]);
+
+  // クリーンアップ
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleFilterChange = (newFilters: { categoryTag?: string; area?: string; }) => {
     setFilters(newFilters);
@@ -165,8 +220,7 @@ export default function KnowledgePage() {
                       <input
                         type="text"
                         placeholder="記事を検索..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => debouncedSearch(e.target.value)}
                         className="w-full pl-12 pr-4 py-4 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-lg transition-all duration-300 hover:shadow-xl"
                       />
                     </div>
@@ -203,9 +257,9 @@ export default function KnowledgePage() {
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     {filteredKnowledge.length}件の記事
-                    {totalPages > 1 && (
+                    {visibleCount < filteredKnowledge.length && (
                       <span className="text-lg font-normal text-gray-600 ml-2">
-                        （{currentPage} / {totalPages}ページ）
+                        （{visibleCount}件表示中）
                       </span>
                     )}
                   </h2>
@@ -223,7 +277,7 @@ export default function KnowledgePage() {
             {/* 記事カード一覧 */}
             {filteredKnowledge.length > 0 ? (
               <div className="grid gap-4">
-                {currentKnowledge.map((item, index) => (
+                {visibleKnowledge.map((item, index) => (
                   <div 
                     key={item.id} 
                     className="group cursor-pointer"
@@ -241,6 +295,8 @@ export default function KnowledgePage() {
                               alt={item.title}
                               fill
                               className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                              loading={index < 4 ? "eager" : "lazy"}
+                              unoptimized={true}
                             />
                             <div className="absolute top-3 left-3">
                               <span className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full">
@@ -329,87 +385,23 @@ export default function KnowledgePage() {
               </div>
             )}
             
-            {/* ページネーション */}
-            {filteredKnowledge.length > 0 && totalPages > 1 && (
-              <div className="mt-8 flex items-center justify-center">
-                <nav className="flex items-center space-x-2" aria-label="ページネーション">
-                  {/* 最初のページ */}
-                  <button
-                    onClick={() => handlePageChange(1)}
-                    disabled={currentPage === 1}
-                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title="最初のページ"
-                  >
-                    <ChevronsLeft className="h-4 w-4" />
-                  </button>
-                  
-                  {/* 前のページ */}
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title="前のページ"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  
-                  {/* ページ番号 */}
-                  <div className="flex items-center space-x-1">
-                    {(() => {
-                      const pages = [];
-                      const maxVisiblePages = 5;
-                      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-                      const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-                      
-                      if (endPage - startPage + 1 < maxVisiblePages) {
-                        startPage = Math.max(1, endPage - maxVisiblePages + 1);
-                      }
-                      
-                      for (let i = startPage; i <= endPage; i++) {
-                        pages.push(
-                          <button
-                            key={i}
-                            onClick={() => handlePageChange(i)}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                              i === currentPage
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                            }`}
-                          >
-                            {i}
-                          </button>
-                        );
-                      }
-                      
-                      return pages;
-                    })()}
-                  </div>
-                  
-                  {/* 次のページ */}
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title="次のページ"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                  
-                  {/* 最後のページ */}
-                  <button
-                    onClick={() => handlePageChange(totalPages)}
-                    disabled={currentPage === totalPages}
-                    className="p-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    title="最後のページ"
-                  >
-                    <ChevronsRight className="h-4 w-4" />
-                  </button>
-                </nav>
-                
-                {/* ページ情報 */}
-                <div className="ml-4 text-sm text-gray-500">
-                  {startIndex + 1}-{Math.min(endIndex, filteredKnowledge.length)} / {filteredKnowledge.length}件
-                </div>
+            {/* もっと見るボタン */}
+            {filteredKnowledge.length > 0 && visibleCount < filteredKnowledge.length && (
+              <div className="mt-8 flex justify-center">
+                <button
+                  onClick={loadMore}
+                  disabled={isLoadingMore}
+                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {isLoadingMore ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                      <span>読み込み中...</span>
+                    </div>
+                  ) : (
+                    `もっと見る (残り${filteredKnowledge.length - visibleCount}件)`
+                  )}
+                </button>
               </div>
             )}
           </div>
