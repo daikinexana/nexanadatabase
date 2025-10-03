@@ -35,6 +35,7 @@ export default function AdminNewsPage() {
   const [loading, setLoading] = useState(true);
   const [editingNews, setEditingNews] = useState<News | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<News>>({
     title: "",
     description: "",
@@ -92,11 +93,16 @@ export default function AdminNewsPage() {
 
   const handleEdit = (newsItem: News) => {
     setEditingNews(newsItem);
+    setEditingId(newsItem.id);
     setIsCreating(false);
     setFormData({
       ...newsItem,
       publishedAt: newsItem.publishedAt ? newsItem.publishedAt.split('T')[0] : "",
       area: newsItem.area || "",
+      amount: newsItem.amount || "",
+      sector: newsItem.sector || "",
+      investors: newsItem.investors || [],
+      sourceUrl: newsItem.sourceUrl || "",
     });
   };
 
@@ -139,6 +145,7 @@ export default function AdminNewsPage() {
           await fetchNews();
         }
         setEditingNews(null);
+        setEditingId(null);
         setIsCreating(false);
         setFormData({
           title: "",
@@ -168,6 +175,7 @@ export default function AdminNewsPage() {
 
   const handleCancel = () => {
     setEditingNews(null);
+    setEditingId(null);
     setIsCreating(false);
     setFormData({
       title: "",
@@ -260,8 +268,8 @@ export default function AdminNewsPage() {
             </div>
           </div>
 
-          {/* ニュース追加フォーム */}
-          {(isCreating || editingNews) && (
+          {/* ニュース追加フォーム - 新規作成時のみ表示 */}
+          {isCreating && (
             <div className="mb-8 bg-white shadow rounded-lg p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">
                 {isCreating ? "新しいニュースを追加" : "ニュースを編集"}
@@ -276,7 +284,7 @@ export default function AdminNewsPage() {
                     <input
                       type="text"
                       required
-                      value={formData.title}
+                      value={formData.title || ""}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="ニュースのタイトルを入力してください"
@@ -291,7 +299,7 @@ export default function AdminNewsPage() {
                     <input
                       type="text"
                       required
-                      value={formData.company}
+                      value={formData.company || ""}
                       onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="企業名を入力してください"
@@ -304,7 +312,7 @@ export default function AdminNewsPage() {
                       タイプ <span className="text-red-500">*</span>
                     </label>
                     <select
-                      value={formData.type}
+                      value={formData.type || "FUNDING"}
                       onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -324,7 +332,7 @@ export default function AdminNewsPage() {
                     説明
                   </label>
                   <textarea
-                    value={formData.description}
+                    value={formData.description || ""}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -340,7 +348,7 @@ export default function AdminNewsPage() {
                     </label>
                     <input
                       type="text"
-                      value={formData.sector}
+                      value={formData.sector || ""}
                       onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="ヘルステック、AI・機械学習など"
@@ -352,7 +360,7 @@ export default function AdminNewsPage() {
                     </label>
                     <input
                       type="text"
-                      value={formData.amount}
+                      value={formData.amount || ""}
                       onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="3億円、26億円など"
@@ -367,7 +375,7 @@ export default function AdminNewsPage() {
                     </label>
                     <input
                       type="text"
-                      value={formData.area}
+                      value={formData.area || ""}
                       onChange={(e) => setFormData({ ...formData, area: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="東京、大阪、オンラインなど"
@@ -382,7 +390,7 @@ export default function AdminNewsPage() {
                   </label>
                   <input
                     type="date"
-                    value={formData.publishedAt}
+                    value={formData.publishedAt || ""}
                     onChange={(e) => setFormData({ ...formData, publishedAt: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -394,7 +402,7 @@ export default function AdminNewsPage() {
                   </label>
                   <input
                     type="text"
-                    value={formData.investors?.join(', ')}
+                    value={formData.investors?.join(', ') || ""}
                     onChange={(e) => handleInvestorChange(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -414,7 +422,7 @@ export default function AdminNewsPage() {
                     <label className="block text-xs text-gray-500 mb-1">または直接URLを入力</label>
                     <input
                       type="url"
-                      value={formData.imageUrl}
+                      value={formData.imageUrl || ""}
                       onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
                       className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="https://example.com/image.jpg"
@@ -429,7 +437,7 @@ export default function AdminNewsPage() {
                   </label>
                   <input
                     type="url"
-                    value={formData.sourceUrl}
+                    value={formData.sourceUrl || ""}
                     onChange={(e) => setFormData({ ...formData, sourceUrl: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="https://example.com/news-article"
@@ -499,113 +507,319 @@ export default function AdminNewsPage() {
                 ニュース情報がありません
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">
-                        タイトル
-                      </th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
-                        企業
-                      </th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                        タイプ
-                      </th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                        エリア
-                      </th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                        金額
-                      </th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                        ステータス
-                      </th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
-                        操作
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+              <div className="space-y-4">
                     {news.map((newsItem) => (
-                      <tr key={newsItem.id}>
-                        <td className="px-3 py-4">
-                          <div className="flex items-center gap-2">
+                  <div key={newsItem.id} className="bg-white border border-gray-200 rounded-lg shadow-sm">
+                    {/* ニュースアイテムカード */}
+                    <div className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-4 flex-1">
                             {/* 画像プレビュー */}
-                            <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                          <div className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
                               {newsItem.imageUrl ? (
                                 <SimpleImage
                                   src={newsItem.imageUrl.trim()}
                                   alt={newsItem.title}
-                                  width={32}
-                                  height={32}
-                                  className="w-8 h-8 object-cover"
+                                width={64}
+                                height={64}
+                                className="w-16 h-16 object-cover"
                                 />
                               ) : (
-                                <div className="w-8 h-8 bg-gray-100 flex items-center justify-center">
-                                  <div className="w-4 h-4 bg-gray-300 rounded"></div>
+                              <div className="w-16 h-16 bg-gray-100 flex items-center justify-center">
+                                <div className="w-8 h-8 bg-gray-300 rounded"></div>
                                 </div>
                               )}
-                            </div>
-                            <div className="text-sm font-medium text-gray-900 truncate" title={newsItem.title}>
-                              {newsItem.title.length > 30 ? `${newsItem.title.substring(0, 30)}...` : newsItem.title}
-                            </div>
                           </div>
-                        </td>
-                        <td className="px-3 py-4">
-                          <div className="text-sm text-gray-900 truncate" title={newsItem.company}>
-                            {newsItem.company.length > 15 ? `${newsItem.company.substring(0, 15)}...` : newsItem.company}
-                          </div>
-                        </td>
-                        <td className="px-3 py-4">
-                          <span className="px-1 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-green-100 text-green-800">
+                          
+                          {/* コンテンツ */}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                              {newsItem.title}
+                            </h3>
+                            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-2">
+                              <span className="font-medium">{newsItem.company}</span>
+                              <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
                             {newsItem.type === 'FUNDING' ? '投資' : 
                              newsItem.type === 'M_AND_A' ? 'M&A' :
                              newsItem.type === 'IPO' ? 'IPO' :
-                             newsItem.type === 'PARTNERSHIP' ? '提携' : 'その他'}
+                                 newsItem.type === 'PARTNERSHIP' ? 'パートナーシップ' : newsItem.type}
                           </span>
-                        </td>
-                        <td className="px-3 py-4">
-                          <div className="text-sm text-gray-900 truncate" title={newsItem.area || "-"}>
-                            {newsItem.area ? (newsItem.area.length > 8 ? `${newsItem.area.substring(0, 8)}...` : newsItem.area) : "-"}
+                              {newsItem.area && (
+                                <span>{newsItem.area}</span>
+                              )}
+                              {newsItem.amount && (
+                                <span>{newsItem.amount}</span>
+                              )}
+                            </div>
+                            {newsItem.description && (
+                              <p className="text-sm text-gray-600 line-clamp-2">
+                                {newsItem.description}
+                              </p>
+                            )}
                           </div>
-                        </td>
-                        <td className="px-3 py-4">
-                          <div className="text-sm text-gray-900 truncate" title={newsItem.amount || "-"}>
-                            {newsItem.amount ? (newsItem.amount.length > 10 ? `${newsItem.amount.substring(0, 10)}...` : newsItem.amount) : "-"}
                           </div>
-                        </td>
-                        <td className="px-3 py-4">
-                          <span className={`px-1 py-1 inline-flex text-xs leading-4 font-semibold rounded-full ${
+                        
+                        {/* アクションボタン */}
+                        <div className="flex items-center gap-2 ml-4">
+                          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                             newsItem.isActive
                               ? "bg-green-100 text-green-800"
                               : "bg-red-100 text-red-800"
                           }`}>
                             {newsItem.isActive ? "公開" : "非公開"}
                           </span>
-                        </td>
-                        <td className="px-3 py-4 text-sm font-medium">
                           <div className="flex space-x-1">
                             <button
                               onClick={() => handleEdit(newsItem)}
-                              className="text-blue-600 hover:text-blue-900 p-1"
+                              className="text-blue-600 hover:text-blue-900 p-2 rounded hover:bg-blue-50 transition-colors cursor-pointer"
                               title="編集"
+                              type="button"
                             >
                               <Edit className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(newsItem.id)}
-                              className="text-red-600 hover:text-red-900 p-1"
+                              className="text-red-600 hover:text-red-900 p-2 rounded hover:bg-red-50 transition-colors cursor-pointer"
                               title="削除"
+                              type="button"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* 編集フォーム - 該当アイテムの下に表示 */}
+                    {editingId === newsItem.id && (
+                      <div className="border-t border-gray-200 bg-gray-50 p-6">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                          ニュースを編集
+                        </h3>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* タイトル */}
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                タイトル *
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={formData.title || ""}
+                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="ニュースのタイトルを入力"
+                              />
+                            </div>
+
+                            {/* 会社名 */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                会社名 *
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={formData.company || ""}
+                                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="会社名を入力"
+                              />
+                            </div>
+
+                            {/* タイプ */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                タイプ *
+                              </label>
+                              <select
+                                value={formData.type || "FUNDING"}
+                                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              >
+                                <option value="FUNDING">投資</option>
+                                <option value="M_AND_A">M&A</option>
+                                <option value="IPO">IPO</option>
+                                <option value="PARTNERSHIP">パートナーシップ</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* 説明 */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              説明
+                            </label>
+                            <textarea
+                              value={formData.description || ""}
+                              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                              rows={3}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="ニュースの詳細説明を入力"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                セクター
+                              </label>
+                              <input
+                                type="text"
+                                value={formData.sector || ""}
+                                onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="テクノロジー、ヘルスケアなど"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                金額
+                              </label>
+                              <input
+                                type="text"
+                                value={formData.amount || ""}
+                                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="3億円、26億円など"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                エリア
+                              </label>
+                              <input
+                                type="text"
+                                value={formData.area || ""}
+                                onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="東京、シリコンバレーなど"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                公開日
+                              </label>
+                              <input
+                                type="date"
+                                value={formData.publishedAt || ""}
+                                onChange={(e) => setFormData({ ...formData, publishedAt: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              投資家
+                            </label>
+                            <input
+                              type="text"
+                              value={formData.investors?.join(', ') || ""}
+                              onChange={(e) => handleInvestorChange(e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="投資家名をカンマ区切りで入力"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              画像設定
+                            </label>
+                            
+                            {/* 画像アップロード */}
+                            <div className="mb-2">
+                              <ImageUpload
+                                value={formData.imageUrl || ''}
+                                onChange={(imageUrl) => setFormData({ ...formData, imageUrl })}
+                                type="news"
+                                className="w-full"
+                              />
+                            </div>
+                            
+                            {/* または画像URLを直接入力 */}
+                            <div className="relative">
+                              <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                                <div className="w-full border-t border-gray-300" />
+                              </div>
+                              <div className="relative flex justify-center text-xs">
+                                <span className="px-2 bg-white text-gray-500">または</span>
+                              </div>
+                            </div>
+                            
+                            <div className="mt-2">
+                              <input
+                                type="url"
+                                value={formData.imageUrl || ""}
+                                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="https://example.com/image.jpg"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              ソースURL
+                            </label>
+                            <input
+                              type="url"
+                              value={formData.sourceUrl || ""}
+                              onChange={(e) => setFormData({ ...formData, sourceUrl: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="https://example.com/news"
+                            />
+                          </div>
+
+                          <div className="flex items-center">
+                            <input
+                              id="isActive"
+                              type="checkbox"
+                              checked={formData.isActive || false}
+                              onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            />
+                            <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+                              公開する
+                            </label>
+                          </div>
+
+                          {/* ボタン */}
+                          <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
+                            <button
+                              type="button"
+                              onClick={handleCancel}
+                              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                              キャンセル
+                            </button>
+                            <button
+                              type="submit"
+                              disabled={isSubmitting}
+                              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                              {isSubmitting ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                  更新中...
+                                </>
+                              ) : (
+                                <>
+                                  <Save className="h-4 w-4" />
+                                  ニュースを更新
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
