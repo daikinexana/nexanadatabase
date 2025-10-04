@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://db.nexanahq.com'
-  const now = new Date()
+  const now = new Date().toISOString()
 
   return [
     {
