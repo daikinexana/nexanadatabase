@@ -1,10 +1,6 @@
-"use client";
-
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
-import Filter from "@/components/ui/filter";
 import { Search, Filter as FilterIcon, Handshake } from "lucide-react";
 
 interface OpenCall {
@@ -27,26 +23,32 @@ interface OpenCall {
   updatedAt: string;
 }
 
-export default function OpenCallsPage() {
-  const [openCalls, setOpenCalls] = useState<OpenCall[]>([]);
-  const [filteredOpenCalls, setFilteredOpenCalls] = useState<OpenCall[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<{
-    area?: string;
-    organizerType?: string;
-  }>({
-    area: undefined,
-    organizerType: undefined,
-  });
-  const [showFilters, setShowFilters] = useState(false);
-  const [showPastOpenCalls, setShowPastOpenCalls] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [visibleCount, setVisibleCount] = useState(25); // 初期表示件数
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+// サーバーサイドでデータを取得
+async function getOpenCalls(): Promise<OpenCall[]> {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'}/api/open-calls`, {
+      headers: {
+        'Cache-Control': 'max-age=300',
+      },
+    });
+    
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.error("Failed to fetch open calls:", response.status);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching open calls:", error);
+    return [];
+  }
+}
+
+export default async function OpenCallsPage() {
+  const openCalls = await getOpenCalls();
 
   // エリアの順序定義（全国/47都道府県/国外）
-  const areaOrder = useMemo(() => [
+  const areaOrder = [
     '全国',
     '北海道',
     '青森県',
@@ -115,163 +117,42 @@ export default function OpenCallsPage() {
     'UAE（ドバイ/アブダビ）',
     'オーストラリア',
     'その他'
-  ], []);
+  ];
 
   // エリアの順序を取得する関数
-  const getAreaOrder = useCallback((area: string | undefined) => {
+  const getAreaOrder = (area: string | undefined) => {
     if (!area) return 999; // エリアが未設定の場合は最後に配置
     const index = areaOrder.indexOf(area);
     return index === -1 ? 999 : index;
-  }, [areaOrder]);
-
-  // データの取得
-  useEffect(() => {
-    const fetchOpenCalls = async () => {
-      try {
-        setLoading(true);
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒でタイムアウト
-        
-        const response = await fetch("/api/open-calls", {
-          headers: {
-            'Cache-Control': 'max-age=300', // 5分間キャッシュ
-          },
-          signal: controller.signal,
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (response.ok) {
-          const data = await response.json();
-          setOpenCalls(data);
-        } else {
-          console.error("Failed to fetch open calls:", response.status);
-          setOpenCalls([]);
-        }
-      } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
-          console.error("Request timeout");
-        } else {
-          console.error("Error fetching open calls:", error);
-        }
-        setOpenCalls([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOpenCalls();
-  }, []);
-
-  // デバウンス付き検索処理
-  const debouncedSearch = useCallback((term: string) => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-    
-    searchTimeoutRef.current = setTimeout(() => {
-      setSearchTerm(term);
-    }, 300); // 300msのデバウンス
-  }, []);
-
-  // フィルタリング処理（メモ化）
-  const filteredOpenCallsMemo = useMemo(() => {
-    let filtered = openCalls;
-
-    // 検索語でフィルタリング（データベースの値のみ）
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (openCall) =>
-          // データベースの値での検索のみ
-          openCall.organizerType.toLowerCase().includes(searchLower) ||
-          openCall.area?.toLowerCase().includes(searchLower) ||
-          openCall.targetArea?.toLowerCase().includes(searchLower) ||
-          openCall.targetAudience?.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // エリアでフィルタリング
-    if (filters.area) {
-      filtered = filtered.filter((openCall) => openCall.area === filters.area);
-    }
-
-    // 主催者タイプでフィルタリング
-    if (filters.organizerType) {
-      filtered = filtered.filter(
-        (openCall) => openCall.organizerType === filters.organizerType
-      );
-    }
-
-
-    // 過去の公募のフィルタリング
-    if (!showPastOpenCalls) {
-      const now = new Date();
-      filtered = filtered.filter((openCall) => {
-        if (!openCall.deadline) return true; // 締切日が未設定の場合は表示
-        return new Date(openCall.deadline) >= now;
-      });
-    }
-
-    // エリアの順序でソート
-    filtered.sort((a, b) => {
-      const aOrder = getAreaOrder(a.area);
-      const bOrder = getAreaOrder(b.area);
-      
-      if (aOrder !== bOrder) {
-        return aOrder - bOrder;
-      }
-      
-      // 同じエリア内では締切日でソート（締切日が近い順、締切日未設定は最後）
-      const aDeadline = a.deadline ? new Date(a.deadline).getTime() : Number.MAX_SAFE_INTEGER;
-      const bDeadline = b.deadline ? new Date(b.deadline).getTime() : Number.MAX_SAFE_INTEGER;
-      
-      if (aDeadline !== bDeadline) {
-        return aDeadline - bDeadline;
-      }
-      
-      // 締切日が同じ場合は作成日時の降順（新しい順）
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-
-    return filtered;
-  }, [openCalls, searchTerm, filters, showPastOpenCalls, getAreaOrder]);
-
-  // フィルタリング結果を更新
-  useEffect(() => {
-    setFilteredOpenCalls(filteredOpenCallsMemo);
-    setVisibleCount(25); // フィルター変更時は表示件数をリセット
-  }, [filteredOpenCallsMemo]);
-
-  const handleFilterChange = (newFilters: {
-    area?: string;
-    organizerType?: string;
-  }) => {
-    setFilters(newFilters);
   };
 
-  // 表示件数を増やす関数
-  const loadMore = useCallback(() => {
-    setIsLoadingMore(true);
-    setTimeout(() => {
-      setVisibleCount(prev => prev + 25);
-      setIsLoadingMore(false);
-    }, 300);
-  }, []);
-
-  // 表示する公募を制限
-  const visibleOpenCalls = useMemo(() => {
-    return filteredOpenCalls.slice(0, visibleCount);
-  }, [filteredOpenCalls, visibleCount]);
-
-  // クリーンアップ
-  useEffect(() => {
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, []);
+  // フィルタリング処理
+  const filteredOpenCalls = openCalls.filter((openCall) => {
+    // 過去のオープンコールのフィルタリング（現在は全て表示）
+    const now = new Date();
+    if (openCall.deadline) {
+      return new Date(openCall.deadline) >= now;
+    }
+    return true;
+  }).sort((a, b) => {
+    const aOrder = getAreaOrder(a.area);
+    const bOrder = getAreaOrder(b.area);
+    
+    if (aOrder !== bOrder) {
+      return aOrder - bOrder;
+    }
+    
+    // 同じエリア内では締切日でソート（締切日が近い順、締切日未設定は最後）
+    const aDeadline = a.deadline ? new Date(a.deadline).getTime() : Number.MAX_SAFE_INTEGER;
+    const bDeadline = b.deadline ? new Date(b.deadline).getTime() : Number.MAX_SAFE_INTEGER;
+    
+    if (aDeadline !== bDeadline) {
+      return aDeadline - bDeadline;
+    }
+    
+    // 締切日が同じ場合は作成日時の降順（新しい順）
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -282,19 +163,19 @@ export default function OpenCallsPage() {
         <div className="mb-8">
           <div className="text-center max-w-3xl mx-auto">
             {/* バッジ */}
-            <div className="inline-flex items-center px-3 py-1 bg-purple-50 rounded-full mb-4">
-              <span className="text-xs font-medium text-purple-600 uppercase tracking-wider">OPEN CALLS</span>
+            <div className="inline-flex items-center px-3 py-1 bg-green-50 rounded-full mb-4">
+              <span className="text-xs font-medium text-green-600 uppercase tracking-wider">OPEN CALLS</span>
             </div>
             
             {/* メインタイトル */}
             <h1 className="text-3xl md:text-4xl font-news-heading text-gray-900 mb-4">
               Open Calls
-              <span className="block text-lg font-news-subheading text-gray-500 mt-1">公募・共創事業者募集</span>
+              <span className="block text-lg font-news-subheading text-gray-500 mt-1">公募一覧</span>
             </h1>
             
             {/* 説明文 */}
             <p className="text-lg text-gray-600 font-news leading-relaxed">
-              企業や行政、大学が募集する共創相手の公募情報を紹介します
+              企業や自治体が募集する課題解決パートナー、協業相手の公募情報を掲載しています
             </p>
           </div>
         </div>
@@ -308,33 +189,25 @@ export default function OpenCallsPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <input
                     type="text"
-                    placeholder="企業、行政、大学、CV、全国、東京都、大阪府などで検索..."
-                    onChange={(e) => debouncedSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500"
+                    placeholder="企業、行政、大学と研究機関、その他、不動産系、企業R&D、全国、東京都、大阪府、兵庫県、大分県、中国などで検索..."
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500"
+                    disabled
                   />
                 </div>
               </div>
               <button
-                onClick={() => setShowFilters(!showFilters)}
                 className="inline-flex items-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-news-subheading text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200"
+                disabled
               >
                 <FilterIcon className="h-4 w-4 mr-2" />
-                {showFilters ? "フィルターを隠す" : "フィルターを表示"}
+                フィルター
               </button>
             </div>
-
-            {showFilters && (
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <Filter
-                  onFilterChange={handleFilterChange}
-                  filters={filters}
-                  type="open-call"
-                />
-              </div>
-            )}
+            <p className="text-sm text-gray-500 mt-2">
+              ※ 検索・フィルター機能は現在開発中です
+            </p>
           </div>
         </div>
-
 
         {/* 結果表示 - NewsPicks風 */}
         <div className="mb-6">
@@ -342,36 +215,35 @@ export default function OpenCallsPage() {
             <p className="text-gray-600 font-news">
               <span className="font-news-subheading text-gray-900">{filteredOpenCalls.length}</span>件の公募が見つかりました
             </p>
-            <button
-              onClick={() => setShowPastOpenCalls(!showPastOpenCalls)}
-              className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-news-subheading transition-all duration-200 ${
-                showPastOpenCalls
-                  ? "bg-gray-900 text-white hover:bg-gray-800"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {showPastOpenCalls ? "過去の公募を非表示" : "過去の公募も表示"}
-            </button>
+            <div className="text-sm text-gray-500">
+              現在募集中の公募のみ表示
+            </div>
           </div>
         </div>
 
-        {/* 公募カード一覧 */}
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 font-news">読み込み中...</p>
-          </div>
-        ) : visibleOpenCalls.length > 0 ? (
+        {/* オープンコールカード一覧 */}
+        {filteredOpenCalls.length > 0 ? (
           <div className="space-y-12">
             {areaOrder.map((area) => {
-              const areaOpenCalls = visibleOpenCalls.filter(openCall => openCall.area === area);
+              const areaOpenCalls = filteredOpenCalls.filter(openCall => openCall.area === area);
               if (areaOpenCalls.length === 0) return null;
 
               return (
                 <div key={area}>
                   <div className="mb-6">
-                    <h2 className="text-2xl font-news-heading text-gray-900 mb-2">{area}</h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full"></div>
+                    <h2 className="text-2xl font-news-heading text-gray-900 mb-2">
+                      {area}
+                      <span className="block text-sm font-news-subheading text-gray-500 mt-1">
+                        {area === '全国' ? 'Nationwide' : 
+                         area === '東京都' ? 'Tokyo' :
+                         area === '大阪府' ? 'Osaka' :
+                         area === '兵庫県' ? 'Hyogo' :
+                         area === '大分県' ? 'Oita' :
+                         area === '中国' ? 'China' :
+                         area === 'その他' ? 'Others' : area}
+                      </span>
+                    </h2>
+                    <div className="h-1 w-20 bg-gradient-to-r from-green-500 to-blue-600 rounded-full"></div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
                     {areaOpenCalls.map((openCall) => (
@@ -389,7 +261,7 @@ export default function OpenCallsPage() {
                         website={openCall.website}
                         targetArea={openCall.targetArea}
                         targetAudience={openCall.targetAudience}
-                        availableResources={openCall.availableResources}
+                        incentive={openCall.availableResources}
                         operatingCompany={openCall.operatingCompany}
                         type="open-call"
                       />
@@ -399,15 +271,18 @@ export default function OpenCallsPage() {
               );
             })}
             
-            {/* エリア未設定の公募 */}
+            {/* エリア未設定のオープンコール */}
             {(() => {
-              const unassignedOpenCalls = visibleOpenCalls.filter(openCall => !areaOrder.includes(openCall.area || ''));
+              const unassignedOpenCalls = filteredOpenCalls.filter(openCall => !areaOrder.includes(openCall.area || ''));
               if (unassignedOpenCalls.length === 0) return null;
 
               return (
                 <div>
                   <div className="mb-6">
-                    <h2 className="text-2xl font-news-heading text-gray-900 mb-2">その他</h2>
+                    <h2 className="text-2xl font-news-heading text-gray-900 mb-2">
+                      その他
+                      <span className="block text-sm font-news-subheading text-gray-500 mt-1">Others</span>
+                    </h2>
                     <div className="h-1 w-20 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full"></div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
@@ -426,7 +301,7 @@ export default function OpenCallsPage() {
                         website={openCall.website}
                         targetArea={openCall.targetArea}
                         targetAudience={openCall.targetAudience}
-                        availableResources={openCall.availableResources}
+                        incentive={openCall.availableResources}
                         operatingCompany={openCall.operatingCompany}
                         type="open-call"
                       />
@@ -435,28 +310,6 @@ export default function OpenCallsPage() {
                 </div>
               );
             })()}
-            
-            {/* もっと見るボタン */}
-            {visibleCount < filteredOpenCalls.length && (
-              <div className="text-center py-8">
-                <button
-                  onClick={loadMore}
-                  disabled={isLoadingMore}
-                  className="inline-flex items-center px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
-                >
-                  {isLoadingMore ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      読み込み中...
-                    </>
-                  ) : (
-                    <>
-                      もっと見る ({filteredOpenCalls.length - visibleCount}件)
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
           </div>
         ) : (
           <div className="text-center py-12">
