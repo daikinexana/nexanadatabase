@@ -1,19 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "AI・ディープテック技術情報・ナレッジベース | Nexana Database",
-  description: "AI、ディープテック、最新技術情報とトレンドを提供。大学ディープテック事業化、技術移転、研究成果の社会実装支援。",
-  keywords: "AI技術, ディープテック, 最新技術, ナレッジベース, 大学研究, 技術移転, 事業化, 社会実装, イノベーション, 研究開発",
-  openGraph: {
-    title: "AI・ディープテック技術情報・ナレッジベース | Nexana Database",
-    description: "AI、ディープテック、最新技術情報とトレンドを提供。",
-    type: "website",
-    url: "https://db.nexanahq.com/knowledge",
-  },
-};
 // import { Metadata } from "next";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";

@@ -1,19 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "オープンイノベーション公募・課題解決パートナー募集 | Nexana Database",
-  description: "企業や自治体が募集する課題解決パートナー、協業相手の公募情報。オープンイノベーション、産学連携、官民連携の機会を発見。",
-  keywords: "オープンイノベーション, 公募, 課題解決パートナー, 協業募集, 産学連携, 官民連携, 企業連携, 大学連携, 行政連携",
-  openGraph: {
-    title: "オープンイノベーション公募・課題解決パートナー募集 | Nexana Database",
-    description: "企業や自治体が募集する課題解決パートナー、協業相手の公募情報。",
-    type: "website",
-    url: "https://db.nexanahq.com/open-calls",
-  },
-};
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";

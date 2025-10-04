@@ -1,19 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "スタートアップコンテスト・ビジネスコンテスト一覧 | Nexana Database",
-  description: "スタートアップコンテスト、ビジネスコンテスト、ピッチコンテスト、ハッカソン、アイデアコンテストの最新情報。オープンイノベーション、起業支援、投資機会を発見。",
-  keywords: "スタートアップコンテスト, ビジネスコンテスト, ピッチコンテスト, ハッカソン, アイデアコンテスト, オープンイノベーション, 起業支援, 投資機会, business competition, pitch competition",
-  openGraph: {
-    title: "スタートアップコンテスト・ビジネスコンテスト一覧 | Nexana Database",
-    description: "スタートアップコンテスト、ビジネスコンテスト、ピッチコンテスト、ハッカソン、アイデアコンテストの最新情報。",
-    type: "website",
-    url: "https://db.nexanahq.com/contests",
-  },
-};
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";

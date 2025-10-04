@@ -1,19 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "スタートアップ支援施設・インキュベーション施設一覧 | Nexana Database",
-  description: "スタートアップ支援施設、インキュベーション施設、イノベーション拠点の情報。コワーキングスペース、アクセラレーター、インキュベーターを検索。",
-  keywords: "スタートアップ支援施設, インキュベーション施設, イノベーション拠点, コワーキングスペース, アクセラレーター, インキュベーター, 起業支援, オフィス, シェアオフィス",
-  openGraph: {
-    title: "スタートアップ支援施設・インキュベーション施設一覧 | Nexana Database",
-    description: "スタートアップ支援施設、インキュベーション施設、イノベーション拠点の情報。",
-    type: "website",
-    url: "https://db.nexanahq.com/facilities",
-  },
-};
 // import { Metadata } from "next";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
