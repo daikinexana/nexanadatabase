@@ -6,14 +6,16 @@ import Footer from "@/components/ui/footer";
 import { Trophy, Building, ArrowRight, Star, Globe, Zap, Target, TrendingUp, Lightbulb } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Nexana Database - スタートアップ向け情報キュレーションサイト",
-  description: "スタートアップ向けのコンテスト、公募、ニュース、ナレッジベースを提供する情報キュレーションサイト",
-  keywords: "スタートアップ, コンテスト, 公募, 投資, M&A, イノベーション",
+  title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
+  description: "オープンイノベーション、スタートアップコンテスト、ビジネスコンテスト、ピッチコンテスト、インキュベーション施設、スタートアップ調達ニュース、大学ディープテック事業化支援の総合情報データベース。大企業、大学、行政、スタートアップ向けの包括的なサポート情報を提供。",
+  keywords: "オープンイノベーション, スタートアップコンテスト, ビジネスコンテスト, ピッチコンテスト, business competition, インキュベーション施設, スタートアップ調達ニュース, 大学ディープテック, 海外展開支援, マッチングサービス, プロジェクトマネジメント, コミュニティマネージメント, スタートアップ支援, 大企業, 大学, 行政, シェアハウスオーナー",
   openGraph: {
-    title: "Nexana Database - スタートアップ向け情報キュレーションサイト",
-    description: "スタートアップ向けのコンテスト、公募、ニュース、ナレッジベースを提供する情報キュレーションサイト",
+    title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
+    description: "オープンイノベーション、スタートアップコンテスト、ビジネスコンテスト、ピッチコンテスト、インキュベーション施設、スタートアップ調達ニュース、大学ディープテック事業化支援の総合情報データベース。",
     type: "website",
     locale: "ja_JP",
+    url: "https://db.nexanahq.com",
+    siteName: "Nexana Database",
   },
 };
 
