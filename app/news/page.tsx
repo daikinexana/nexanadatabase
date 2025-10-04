@@ -1,6 +1,19 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "スタートアップ調達ニュース・M&A情報 | Nexana Database",
+  description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信。投資ニュース、資金調達、企業買収の最新情報。",
+  keywords: "スタートアップ調達, M&A情報, IPO情報, 投資ニュース, 資金調達, 企業買収, ベンチャー投資, エンジェル投資, シリーズA, シリーズB",
+  openGraph: {
+    title: "スタートアップ調達ニュース・M&A情報 | Nexana Database",
+    description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信。",
+    type: "website",
+    url: "https://db.nexanahq.com/news",
+  },
+};
 // import { Metadata } from "next";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
