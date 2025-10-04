@@ -1,10 +1,6 @@
-"use client";
-
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
-import Filter from "@/components/ui/filter";
 import { Search, Filter as FilterIcon } from "lucide-react";
 
 interface Contest {
@@ -26,61 +22,32 @@ interface Contest {
   createdAt: string;
 }
 
-export default function ContestsPage() {
-  const [contests, setContests] = useState<Contest[]>([]);
-  const [filteredContests, setFilteredContests] = useState<Contest[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<{ area?: string; organizerType?: string; }>({
-    area: undefined,
-  });
-  const [showFilters, setShowFilters] = useState(false);
-  const [showPastContests, setShowPastContests] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [visibleCount, setVisibleCount] = useState(25); // 初期表示件数
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+// サーバーサイドでデータを取得
+async function getContests(): Promise<Contest[]> {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'}/api/contests`, {
+      headers: {
+        'Cache-Control': 'max-age=300',
+      },
+    });
+    
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.error("Failed to fetch contests:", response.status);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching contests:", error);
+    return [];
+  }
+}
 
-  // データの取得
-  useEffect(() => {
-    const fetchContests = async () => {
-      try {
-        setLoading(true);
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒でタイムアウト
-        
-        const response = await fetch("/api/contests", {
-          headers: {
-            'Cache-Control': 'max-age=300', // 5分間キャッシュ
-          },
-          signal: controller.signal,
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (response.ok) {
-          const data = await response.json();
-          setContests(data);
-        } else {
-          console.error("Failed to fetch contests:", response.status);
-          setContests([]);
-        }
-      } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
-          console.error("Request timeout");
-        } else {
-          console.error("Error fetching contests:", error);
-        }
-        setContests([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchContests();
-  }, []);
+export default async function ContestsPage() {
+  const contests = await getContests();
 
   // エリアの順序定義（全国/47都道府県/国外）
-  const areaOrder = useMemo(() => [
+  const areaOrder = [
     '全国',
     '北海道',
     '青森県',
@@ -149,120 +116,42 @@ export default function ContestsPage() {
     'UAE（ドバイ/アブダビ）',
     'オーストラリア',
     'その他'
-  ], []);
+  ];
 
   // エリアの順序を取得する関数
-  const getAreaOrder = useCallback((area: string | undefined) => {
+  const getAreaOrder = (area: string | undefined) => {
     if (!area) return 999; // エリアが未設定の場合は最後に配置
     const index = areaOrder.indexOf(area);
     return index === -1 ? 999 : index;
-  }, [areaOrder]);
-
-  // デバウンス付き検索処理
-  const debouncedSearch = useCallback((term: string) => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-    
-    searchTimeoutRef.current = setTimeout(() => {
-      setSearchTerm(term);
-    }, 300); // 300msのデバウンス
-  }, []);
-
-  // フィルタリング処理（メモ化）
-  const filteredContestsMemo = useMemo(() => {
-    let filtered = contests;
-
-    // 検索語でフィルタリング（データベースの値のみ）
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (contest) => {
-          // データベースの値での検索のみ（完全一致を優先）
-          const organizerTypeMatch = contest.organizerType?.toLowerCase() === searchLower || false;
-          const areaMatch = contest.area?.toLowerCase() === searchLower || false;
-          
-          // 部分一致は、完全一致でない場合のみ
-          const organizerTypePartialMatch = !organizerTypeMatch && 
-                                          contest.organizerType?.toLowerCase().includes(searchLower) || false;
-          const areaPartialMatch = !areaMatch && 
-                                 contest.area?.toLowerCase().includes(searchLower) || false;
-          
-          return organizerTypeMatch || areaMatch || organizerTypePartialMatch || areaPartialMatch;
-        }
-      );
-    }
-
-    // エリアでフィルタリング
-    if (filters.area) {
-      filtered = filtered.filter((contest) => contest.area === filters.area);
-    }
-
-    // 過去のコンテストのフィルタリング
-    if (!showPastContests) {
-      const now = new Date();
-      filtered = filtered.filter((contest) => {
-        if (!contest.deadline) return true; // 締切日が未設定の場合は表示
-        return new Date(contest.deadline) >= now;
-      });
-    }
-
-    // エリアの順序でソート
-    filtered.sort((a, b) => {
-      const aOrder = getAreaOrder(a.area);
-      const bOrder = getAreaOrder(b.area);
-      
-      if (aOrder !== bOrder) {
-        return aOrder - bOrder;
-      }
-      
-      // 同じエリア内では締切日でソート（締切日が近い順、締切日未設定は最後）
-      const aDeadline = a.deadline ? new Date(a.deadline).getTime() : Number.MAX_SAFE_INTEGER;
-      const bDeadline = b.deadline ? new Date(b.deadline).getTime() : Number.MAX_SAFE_INTEGER;
-      
-      if (aDeadline !== bDeadline) {
-        return aDeadline - bDeadline;
-      }
-      
-      // 締切日が同じ場合は作成日時の降順（新しい順）
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-
-    return filtered;
-  }, [contests, searchTerm, filters, showPastContests, getAreaOrder]);
-
-  // フィルタリング結果を更新
-  useEffect(() => {
-    setFilteredContests(filteredContestsMemo);
-    setVisibleCount(25); // フィルター変更時は表示件数をリセット
-  }, [filteredContestsMemo]);
-
-  const handleFilterChange = (newFilters: { area?: string; organizerType?: string; }) => {
-    setFilters(newFilters);
   };
 
-  // 表示件数を増やす関数
-  const loadMore = useCallback(() => {
-    setIsLoadingMore(true);
-    setTimeout(() => {
-      setVisibleCount(prev => prev + 25);
-      setIsLoadingMore(false);
-    }, 300);
-  }, []);
-
-  // 表示するコンテストを制限
-  const visibleContests = useMemo(() => {
-    return filteredContests.slice(0, visibleCount);
-  }, [filteredContests, visibleCount]);
-
-  // クリーンアップ
-  useEffect(() => {
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, []);
+  // フィルタリング処理
+  const filteredContests = contests.filter((contest) => {
+    // 過去のコンテストのフィルタリング（現在は全て表示）
+    const now = new Date();
+    if (contest.deadline) {
+      return new Date(contest.deadline) >= now;
+    }
+    return true;
+  }).sort((a, b) => {
+    const aOrder = getAreaOrder(a.area);
+    const bOrder = getAreaOrder(b.area);
+    
+    if (aOrder !== bOrder) {
+      return aOrder - bOrder;
+    }
+    
+    // 同じエリア内では締切日でソート（締切日が近い順、締切日未設定は最後）
+    const aDeadline = a.deadline ? new Date(a.deadline).getTime() : Number.MAX_SAFE_INTEGER;
+    const bDeadline = b.deadline ? new Date(b.deadline).getTime() : Number.MAX_SAFE_INTEGER;
+    
+    if (aDeadline !== bDeadline) {
+      return aDeadline - bDeadline;
+    }
+    
+    // 締切日が同じ場合は作成日時の降順（新しい順）
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -299,29 +188,22 @@ export default function ContestsPage() {
                   <input
                     type="text"
                     placeholder="企業、行政、大学と研究機関、その他、不動産系、企業R&D、全国、東京都、大阪府、兵庫県、大分県、中国などで検索..."
-                    onChange={(e) => debouncedSearch(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500"
+                    disabled
                   />
                 </div>
               </div>
               <button
-                onClick={() => setShowFilters(!showFilters)}
                 className="inline-flex items-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-news-subheading text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200"
+                disabled
               >
                 <FilterIcon className="h-4 w-4 mr-2" />
                 フィルター
               </button>
             </div>
-
-            {showFilters && (
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <Filter
-                  onFilterChange={handleFilterChange}
-                  filters={filters}
-                  type="contest"
-                />
-              </div>
-            )}
+            <p className="text-sm text-gray-500 mt-2">
+              ※ 検索・フィルター機能は現在開発中です
+            </p>
           </div>
         </div>
 
@@ -332,29 +214,17 @@ export default function ContestsPage() {
             <p className="text-gray-600 font-news">
               <span className="font-news-subheading text-gray-900">{filteredContests.length}</span>件のコンテストが見つかりました
             </p>
-            <button
-              onClick={() => setShowPastContests(!showPastContests)}
-              className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-news-subheading transition-all duration-200 ${
-                showPastContests
-                  ? "bg-gray-900 text-white hover:bg-gray-800"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {showPastContests ? "過去のコンテストを非表示" : "過去のコンテストも表示"}
-            </button>
+            <div className="text-sm text-gray-500">
+              現在募集中のコンテストのみ表示
+            </div>
           </div>
         </div>
 
         {/* コンテストカード一覧 */}
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 font-news">読み込み中...</p>
-          </div>
-        ) : visibleContests.length > 0 ? (
+        {filteredContests.length > 0 ? (
           <div className="space-y-12">
             {areaOrder.map((area) => {
-              const areaContests = visibleContests.filter(contest => contest.area === area);
+              const areaContests = filteredContests.filter(contest => contest.area === area);
               if (areaContests.length === 0) return null;
 
               return (
@@ -403,7 +273,7 @@ export default function ContestsPage() {
             
             {/* エリア未設定のコンテスト */}
             {(() => {
-              const unassignedContests = visibleContests.filter(contest => !areaOrder.includes(contest.area || ''));
+              const unassignedContests = filteredContests.filter(contest => !areaOrder.includes(contest.area || ''));
               if (unassignedContests.length === 0) return null;
 
               return (
@@ -441,28 +311,6 @@ export default function ContestsPage() {
                 </div>
               );
             })()}
-            
-            {/* もっと見るボタン */}
-            {visibleCount < filteredContests.length && (
-              <div className="text-center py-8">
-                <button
-                  onClick={loadMore}
-                  disabled={isLoadingMore}
-                  className="inline-flex items-center px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
-                >
-                  {isLoadingMore ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      読み込み中...
-                    </>
-                  ) : (
-                    <>
-                      もっと見る ({filteredContests.length - visibleCount}件)
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
           </div>
         ) : (
           <div className="text-center py-12">
