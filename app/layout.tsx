@@ -29,6 +29,13 @@ export const metadata: Metadata = {
   authors: [{ name: "Nexana HQ" }],
   creator: "Nexana HQ",
   publisher: "Nexana HQ",
+  icons: {
+    icon: "/logofavicon.ico",
+    shortcut: "/logofavicon.ico",
+    apple: [
+      { url: "/180logo.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   robots: {
     index: true,
     follow: true,
