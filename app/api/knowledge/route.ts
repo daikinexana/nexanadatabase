@@ -7,6 +7,11 @@ export async function GET(request: NextRequest) {
     const categoryTag = searchParams.get("categoryTag");
     const area = searchParams.get("area");
     const search = searchParams.get("search");
+    
+    // ページネーションパラメータ
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "50");
+    const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {
       isActive: true,
@@ -28,6 +33,10 @@ export async function GET(request: NextRequest) {
       ];
     }
 
+    // 総件数を取得
+    const totalCount = await prisma.knowledge.count({ where });
+
+    // ページネーション付きでナレッジを取得
     const knowledge = await prisma.knowledge.findMany({
       where,
       orderBy: {
@@ -46,9 +55,24 @@ export async function GET(request: NextRequest) {
         website: true,
         area: true,
       },
+      skip,
+      take: limit,
     });
 
-    const response = NextResponse.json(knowledge);
+    // ページネーション情報を含めて返す
+    const totalPages = Math.ceil(totalCount / limit);
+    
+    const response = NextResponse.json({
+      data: knowledge,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    });
     
     // キャッシュヘッダーを設定（5分間キャッシュ）
     response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');

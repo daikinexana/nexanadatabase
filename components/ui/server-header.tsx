@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
 
 const navigation = [
   { name: "コンテスト", nameEn: "Contests", href: "/contests" },

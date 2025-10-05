@@ -1,7 +1,7 @@
 import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
-import Card from "@/components/ui/card";
-import { Search, Filter as FilterIcon, Handshake } from "lucide-react";
+import OpenCallsWithFilter from "@/components/ui/open-calls-with-filter";
+import { Handshake } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -36,9 +36,14 @@ interface OpenCall {
 }
 
 // サーバーサイドでデータを取得
-async function getOpenCalls(): Promise<OpenCall[]> {
+async function getOpenCalls(search?: string): Promise<OpenCall[]> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'}/api/open-calls`, {
+    const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'}/api/open-calls`);
+    if (search) {
+      url.searchParams.set('search', search);
+    }
+    
+    const response = await fetch(url.toString(), {
       next: { revalidate: 300 }, // 5分間キャッシュ
       headers: {
         'Cache-Control': 'max-age=300',
@@ -60,11 +65,16 @@ async function getOpenCalls(): Promise<OpenCall[]> {
 // 5分間キャッシュしてISRを有効化
 export const revalidate = 300;
 
-export default async function OpenCallsPage() {
-  const openCalls = await getOpenCalls();
+export default async function OpenCallsPage({ 
+  searchParams 
+}: { 
+  searchParams: Promise<{ search?: string }> 
+}) {
+  const resolvedSearchParams = await searchParams;
+  const openCalls = await getOpenCalls(resolvedSearchParams.search);
 
-  // エリアの順序定義（全国/47都道府県/国外）
-  const areaOrder = [
+  // 日本国内のエリア定義
+  const japanAreas = [
     '全国',
     '北海道',
     '青森県',
@@ -112,7 +122,11 @@ export default async function OpenCallsPage() {
     '大分県',
     '宮崎県',
     '鹿児島県',
-    '沖縄県',
+    '沖縄県'
+  ];
+
+  // 海外のエリア定義
+  const overseasAreas = [
     'アメリカ',
     'カナダ',
     'イギリス',
@@ -135,22 +149,18 @@ export default async function OpenCallsPage() {
     'その他'
   ];
 
+  // 全エリアの順序（日本国内 + 海外）
+  const allAreaOrder = [...japanAreas, ...overseasAreas];
+
   // エリアの順序を取得する関数
   const getAreaOrder = (area: string | undefined) => {
     if (!area) return 999; // エリアが未設定の場合は最後に配置
-    const index = areaOrder.indexOf(area);
+    const index = allAreaOrder.indexOf(area);
     return index === -1 ? 999 : index;
   };
 
-  // フィルタリング処理
-  const filteredOpenCalls = openCalls.filter((openCall) => {
-    // 過去のオープンコールのフィルタリング（現在は全て表示）
-    const now = new Date();
-    if (openCall.deadline) {
-      return new Date(openCall.deadline) >= now;
-    }
-    return true;
-  }).sort((a, b) => {
+  // ソート処理（フィルタリングはクライアントサイドで実行）
+  const sortedOpenCalls = openCalls.sort((a, b) => {
     const aOrder = getAreaOrder(a.area);
     const bOrder = getAreaOrder(b.area);
     
@@ -224,152 +234,12 @@ export default async function OpenCallsPage() {
           </div>
         </div>
 
-        {/* 検索・フィルター - NewsPicks風 */}
-        <div className="mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <input
-                    type="text"
-                    placeholder="企業、行政、大学と研究機関、その他、不動産系、企業R&D、全国、東京都、大阪府、兵庫県、大分県、中国などで検索..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500"
-                    disabled
-                  />
-                </div>
-              </div>
-              <button
-                className="inline-flex items-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-news-subheading text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200"
-                disabled
-              >
-                <FilterIcon className="h-4 w-4 mr-2" />
-                フィルター
-              </button>
-            </div>
-            <p className="text-sm text-gray-500 mt-2">
-              ※ 検索・フィルター機能は現在開発中です
-            </p>
-          </div>
-        </div>
-
-        {/* 結果表示 - NewsPicks風 */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between bg-white rounded-lg p-3 shadow-sm border border-gray-200">
-            <p className="text-gray-600 font-news">
-              <span className="font-news-subheading text-gray-900">{filteredOpenCalls.length}</span>件の公募が見つかりました
-            </p>
-            <div className="text-sm text-gray-500">
-              現在募集中の公募のみ表示
-            </div>
-          </div>
-        </div>
-
-        {/* オープンコールカード一覧 */}
-        {filteredOpenCalls.length > 0 ? (
-          <div className="space-y-12">
-            {areaOrder.map((area) => {
-              const areaOpenCalls = filteredOpenCalls.filter(openCall => openCall.area === area);
-              if (areaOpenCalls.length === 0) return null;
-
-              return (
-                <div key={area}>
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-news-heading text-gray-900 mb-2">
-                      {area}
-                      <span className="block text-sm font-news-subheading text-gray-500 mt-1">
-                        {area === '全国' ? 'Nationwide' : 
-                         area === '東京都' ? 'Tokyo' :
-                         area === '大阪府' ? 'Osaka' :
-                         area === '兵庫県' ? 'Hyogo' :
-                         area === '大分県' ? 'Oita' :
-                         area === '中国' ? 'China' :
-                         area === 'その他' ? 'Others' : area}
-                      </span>
-                    </h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-green-500 to-blue-600 rounded-full"></div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
-                    {areaOpenCalls.map((openCall) => (
-                      <Card
-                        key={openCall.id}
-                        id={openCall.id}
-                        title={openCall.title}
-                        description={openCall.description}
-                        imageUrl={openCall.imageUrl}
-                        deadline={openCall.deadline ? new Date(openCall.deadline) : undefined}
-                        startDate={openCall.startDate ? new Date(openCall.startDate) : undefined}
-                        area={openCall.area}
-                        organizer={openCall.organizer}
-                        organizerType={openCall.organizerType || "その他"}
-                        website={openCall.website}
-                        targetArea={openCall.targetArea}
-                        targetAudience={openCall.targetAudience}
-                        incentive={openCall.availableResources}
-                        operatingCompany={openCall.operatingCompany}
-                        type="open-call"
-                      />
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-            
-            {/* エリア未設定のオープンコール */}
-            {(() => {
-              const unassignedOpenCalls = filteredOpenCalls.filter(openCall => !areaOrder.includes(openCall.area || ''));
-              if (unassignedOpenCalls.length === 0) return null;
-
-              return (
-                <div>
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-news-heading text-gray-900 mb-2">
-                      その他
-                      <span className="block text-sm font-news-subheading text-gray-500 mt-1">Others</span>
-                    </h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full"></div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
-                    {unassignedOpenCalls.map((openCall) => (
-                      <Card
-                        key={openCall.id}
-                        id={openCall.id}
-                        title={openCall.title}
-                        description={openCall.description}
-                        imageUrl={openCall.imageUrl}
-                        deadline={openCall.deadline ? new Date(openCall.deadline) : undefined}
-                        startDate={openCall.startDate ? new Date(openCall.startDate) : undefined}
-                        area={openCall.area}
-                        organizer={openCall.organizer}
-                        organizerType={openCall.organizerType || "その他"}
-                        website={openCall.website}
-                        targetArea={openCall.targetArea}
-                        targetAudience={openCall.targetAudience}
-                        incentive={openCall.availableResources}
-                        operatingCompany={openCall.operatingCompany}
-                        type="open-call"
-                      />
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-200 max-w-md mx-auto">
-              <div className="text-gray-400 mb-4">
-                <Handshake className="h-12 w-12 mx-auto" />
-              </div>
-              <h3 className="text-lg font-news-heading text-gray-900 mb-2">
-                該当する公募が見つかりませんでした
-              </h3>
-              <p className="text-gray-600 font-news">
-                検索条件を変更して再度お試しください
-              </p>
-            </div>
-          </div>
-        )}
+        {/* フィルター機能付き表示 */}
+        <OpenCallsWithFilter
+          initialOpenCalls={sortedOpenCalls}
+          japanAreas={japanAreas}
+          overseasAreas={overseasAreas}
+        />
       </div>
 
       <Footer />

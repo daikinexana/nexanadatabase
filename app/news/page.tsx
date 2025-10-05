@@ -1,6 +1,7 @@
 import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import NewsItem from "@/components/ui/news-item";
+import NewsPagination from "@/components/ui/news-pagination";
 import { Search, Filter as FilterIcon, Newspaper } from "lucide-react";
 import { Metadata } from "next";
 
@@ -33,44 +34,122 @@ interface News {
   updatedAt: string;
 }
 
+// ページネーション情報の型定義
+interface PaginationInfo {
+  page: number;
+  limit: number;
+  totalCount: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+// APIレスポンスの型定義
+interface NewsResponse {
+  data: News[];
+  pagination: PaginationInfo;
+}
+
 // サーバーサイドでデータを取得
-async function getNews(): Promise<News[]> {
+async function getNews(page: number = 1, limit: number = 50): Promise<NewsResponse> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'}/api/news`, {
+    const baseUrl = process.env.NODE_ENV === 'development' 
+      ? 'http://localhost:3001' 
+      : (process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com');
+    const url = `${baseUrl}/api/news?page=${page}&limit=${limit}`;
+    
+    console.log('Fetching news from:', url);
+    
+    const response = await fetch(url, {
       next: { revalidate: 300 }, // 5分間キャッシュ
       headers: {
         'Cache-Control': 'max-age=300',
       },
     });
     
+    console.log('Response status:', response.status);
+    
     if (response.ok) {
-      return await response.json();
+      const data = await response.json();
+      console.log('API Response:', data);
+      
+      // 後方互換性: 古いAPI形式（配列を直接返す）の場合
+      if (Array.isArray(data)) {
+        return {
+          data: data,
+          pagination: {
+            page: 1,
+            limit: data.length,
+            totalCount: data.length,
+            totalPages: 1,
+            hasNext: false,
+            hasPrev: false,
+          },
+        };
+      }
+      
+      // 新しいAPI形式（dataとpaginationを含む）
+      return data;
     } else {
-      console.error("Failed to fetch news:", response.status);
-      return [];
+      console.error("Failed to fetch news:", response.status, response.statusText);
+      return {
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 50,
+          totalCount: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false,
+        },
+      };
     }
   } catch (error) {
     console.error("Error fetching news:", error);
-    return [];
+    return {
+      data: [],
+      pagination: {
+        page: 1,
+        limit: 50,
+        totalCount: 0,
+        totalPages: 0,
+        hasNext: false,
+        hasPrev: false,
+      },
+    };
   }
 }
 
 // 5分間キャッシュしてISRを有効化
 export const revalidate = 300;
 
-export default async function NewsPage() {
-  const news = await getNews();
+export default async function NewsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const currentPage = parseInt(resolvedSearchParams.page || "1");
+  const newsResponse = await getNews(currentPage, 50);
+  
+  // エラーハンドリング: データが存在しない場合のデフォルト値
+  const news = newsResponse?.data || [];
+  const pagination = newsResponse?.pagination || {
+    page: 1,
+    limit: 50,
+    totalCount: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrev: false,
+  };
 
-  // フィルタリング処理
-  const filteredNews = news.filter((item) => {
-    // アクティブなニュースのみ表示
-    return item.isActive;
-  }).sort((a, b) => {
+  // フィルタリング処理（API側で既にフィルタリングされているため、ここではソートのみ）
+  const filteredNews = Array.isArray(news) ? news.sort((a, b) => {
     // 公開日時の降順（新しい順）
     const aDate = a.publishedAt ? new Date(a.publishedAt).getTime() : new Date(a.createdAt).getTime();
     const bDate = b.publishedAt ? new Date(b.publishedAt).getTime() : new Date(b.createdAt).getTime();
     return bDate - aDate;
-  });
+  }) : [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -166,7 +245,7 @@ export default async function NewsPage() {
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white/90 backdrop-blur-sm rounded-xl p-4 sm:p-5 shadow-lg border border-white/20 gap-2 sm:gap-0">
             <p className="text-sm sm:text-base text-gray-600 font-news">
-              <span className="font-news-subheading text-gray-900 text-lg sm:text-xl">{filteredNews.length}</span>件のニュースが見つかりました
+              <span className="font-news-subheading text-gray-900 text-lg sm:text-xl">{pagination.totalCount.toLocaleString()}</span>件のニュースが見つかりました
             </p>
             <div className="text-xs sm:text-sm text-gray-500 bg-gray-50/50 px-3 py-1 rounded-full">
               最新のニュースを表示
@@ -176,25 +255,37 @@ export default async function NewsPage() {
 
         {/* ニュース一覧 - iPhone 16最適化 */}
         {filteredNews.length > 0 ? (
-          <div className="space-y-6 sm:space-y-8">
-            {filteredNews.map((item) => (
-               <NewsItem
-                 key={item.id}
-                 title={item.title}
-                 description={item.description}
-                 imageUrl={item.imageUrl}
-                 company={item.company}
-                 sector={item.sector}
-                 amount={item.amount}
-                 investors={item.investors}
-                 publishedAt={item.publishedAt}
-                 sourceUrl={item.sourceUrl}
-                 type={item.type}
-                 area={item.area}
-                 createdAt={item.createdAt}
-               />
-            ))}
-          </div>
+          <>
+            <div className="space-y-6 sm:space-y-8">
+              {filteredNews.map((item) => (
+                 <NewsItem
+                   key={item.id}
+                   title={item.title}
+                   description={item.description}
+                   imageUrl={item.imageUrl}
+                   company={item.company}
+                   sector={item.sector}
+                   amount={item.amount}
+                   investors={item.investors}
+                   publishedAt={item.publishedAt}
+                   sourceUrl={item.sourceUrl}
+                   type={item.type}
+                   area={item.area}
+                   createdAt={item.createdAt}
+                 />
+              ))}
+            </div>
+
+            {/* ページネーション */}
+            <div className="mt-8 sm:mt-12">
+              <NewsPagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                totalCount={pagination.totalCount}
+                limit={pagination.limit}
+              />
+            </div>
+          </>
         ) : (
           <div className="text-center py-12">
             <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-200 max-w-md mx-auto">

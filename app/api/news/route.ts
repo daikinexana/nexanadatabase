@@ -9,6 +9,11 @@ export async function GET(request: NextRequest) {
     const organizerType = searchParams.get("organizerType");
     const type = searchParams.get("type");
     const search = searchParams.get("search");
+    
+    // ページネーションパラメータ
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "50");
+    const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {
       isActive: true,
@@ -37,11 +42,17 @@ export async function GET(request: NextRequest) {
       where.OR = searchConditions;
     }
 
+    // 総件数を取得
+    const totalCount = await prisma.news.count({ where });
+
+    // ページネーション付きでニュースを取得
     const news = await prisma.news.findMany({
       where,
       orderBy: {
         publishedAt: "desc",
       },
+      skip,
+      take: limit,
     });
 
     // 投資家を配列に変換
@@ -50,7 +61,20 @@ export async function GET(request: NextRequest) {
       investors: newsItem.investors ? newsItem.investors.split(',') : []
     }));
 
-    return NextResponse.json(newsWithArrayInvestors);
+    // ページネーション情報を含めて返す
+    const totalPages = Math.ceil(totalCount / limit);
+    
+    return NextResponse.json({
+      data: newsWithArrayInvestors,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    });
   } catch (error) {
     console.error("Error fetching news:", error);
     return NextResponse.json(

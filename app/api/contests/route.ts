@@ -21,22 +21,68 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      where.OR = [
-        { title: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-        { organizer: { contains: search, mode: "insensitive" } },
-        { targetArea: { contains: search, mode: "insensitive" } },
-        { targetAudience: { contains: search, mode: "insensitive" } },
-        { incentive: { contains: search, mode: "insensitive" } },
-        { operatingCompany: { contains: search, mode: "insensitive" } },
+      // 主催者タイプのキーワード
+      const organizerTypeKeywords = ['企業', '行政', '大学', 'VC', 'その他'];
+      // エリアのキーワード
+      const areaKeywords = [
+        '全国', '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
+        '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
+        '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県', '静岡県',
+        '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県',
+        '鳥取県', '島根県', '岡山県', '広島県', '山口県', '徳島県', '香川県', '愛媛県',
+        '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県',
+        '沖縄県', 'アメリカ', 'カナダ', 'イギリス', 'エストニア', 'オランダ', 'スペイン',
+        'ドイツ', 'フランス', 'ポルトガル', '中国', '台湾', '韓国', 'インドネシア',
+        'シンガポール', 'タイ', 'ベトナム', 'インド', 'UAE（ドバイ/アブダビ）', 'オーストラリア', 'その他'
       ];
+      
+      // 主催者タイプのキーワードかチェック
+      const isOrganizerTypeKeyword = organizerTypeKeywords.some(keyword => 
+        keyword.toLowerCase() === search.toLowerCase()
+      );
+      
+      // エリアのキーワードかチェック（部分一致も含む）
+      const isAreaKeyword = areaKeywords.some(keyword => 
+        keyword.toLowerCase() === search.toLowerCase() ||
+        keyword.toLowerCase().includes(search.toLowerCase()) ||
+        search.toLowerCase().includes(keyword.toLowerCase())
+      );
+      
+      // 人気キーワードかチェック
+      const isPopularKeyword = ['人気', 'popular'].some(keyword => 
+        keyword.toLowerCase() === search.toLowerCase()
+      );
+      
+      if (isOrganizerTypeKeyword) {
+        // 主催者タイプで検索
+        where.organizerType = { contains: search, mode: "insensitive" };
+      } else if (isAreaKeyword) {
+        // エリアで検索（部分一致）
+        where.area = { contains: search, mode: "insensitive" };
+      } else if (isPopularKeyword) {
+        // 人気で検索
+        where.isPopular = true;
+      } else {
+        // その他の場合は、複数フィールドで部分一致検索
+        where.OR = [
+          { title: { contains: search, mode: "insensitive" } },
+          { description: { contains: search, mode: "insensitive" } },
+          { organizer: { contains: search, mode: "insensitive" } },
+          { targetArea: { contains: search, mode: "insensitive" } },
+          { targetAudience: { contains: search, mode: "insensitive" } },
+          { incentive: { contains: search, mode: "insensitive" } },
+          { operatingCompany: { contains: search, mode: "insensitive" } },
+        ];
+      }
     }
 
     const contests = await prisma.contest.findMany({
       where,
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: [
+        { area: "asc" },
+        { deadline: "asc" },
+        { createdAt: "desc" },
+      ],
       select: {
         id: true,
         title: true,

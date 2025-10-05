@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Metadata } from "next";
-import Image from "next/image";
 import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import { Trophy, Building, ArrowRight, Star, Globe, Zap, Target, TrendingUp, Lightbulb } from "lucide-react";
