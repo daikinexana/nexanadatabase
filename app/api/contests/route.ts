@@ -107,8 +107,8 @@ export async function GET(request: NextRequest) {
 
     const response = NextResponse.json(contests);
     
-    // キャッシュヘッダーを設定（5分間キャッシュ）
-    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    // キャッシュヘッダーを設定（開発環境では短いキャッシュ時間）
+    response.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=20');
     
     return response;
   } catch (error) {

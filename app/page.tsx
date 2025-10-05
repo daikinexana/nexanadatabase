@@ -89,8 +89,8 @@ const features = [
 
 
 
-// 10分間キャッシュしてISRを有効化（ホームページは更新頻度が低い）
-export const revalidate = 600;
+// 開発環境では短いキャッシュ時間、本番環境では10分間キャッシュ
+export const revalidate = 30;
 
 export default async function Home() {
   // データベースの統計情報を取得

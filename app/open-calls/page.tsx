@@ -62,8 +62,8 @@ async function getOpenCalls(search?: string): Promise<OpenCall[]> {
   }
 }
 
-// 5分間キャッシュしてISRを有効化
-export const revalidate = 300;
+// 開発環境では短いキャッシュ時間、本番環境では5分間キャッシュ
+export const revalidate = 10;
 
 export default async function OpenCallsPage({ 
   searchParams 

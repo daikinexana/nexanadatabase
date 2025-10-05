@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json(events);
     
     // キャッシュヘッダーを設定（5分間キャッシュ）
-    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    response.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=20');
     
     return response;
   } catch (error) {

@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json(facilities);
     
     // キャッシュヘッダーを設定
-    response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=300');
+    response.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=20');
     
     return response;
   } catch (error) {

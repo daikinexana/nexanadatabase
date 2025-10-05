@@ -41,9 +41,10 @@ export default function ContestsHybridDisplay({
     japanAreas.includes(contest.area || '')
   );
 
-  // 海外のコンテストを取得
+  // 海外のコンテストを取得（その他エリアも含む）
   const overseasContests = filteredContests.filter(contest => 
-    overseasAreas.includes(contest.area || '')
+    overseasAreas.includes(contest.area || '') ||
+    (!japanAreas.includes(contest.area || '') && !overseasAreas.includes(contest.area || ''))
   );
 
   // エリア別にコンテストをグループ化
@@ -61,7 +62,19 @@ export default function ContestsHybridDisplay({
   };
 
   const japanGrouped = groupContestsByArea(japanContests, japanAreas);
+  
+  // 海外コンテストのグループ化（その他エリアも含む）
   const overseasGrouped = groupContestsByArea(overseasContests, overseasAreas);
+  
+  // その他エリアのコンテストを追加
+  const unassignedContests = filteredContests.filter(contest => 
+    !japanAreas.includes(contest.area || '') && 
+    !overseasAreas.includes(contest.area || '')
+  );
+  
+  if (unassignedContests.length > 0) {
+    overseasGrouped['その他'] = unassignedContests;
+  }
 
   // エリアの英語名マッピング
   const getAreaEnglishName = (area: string) => {
@@ -127,17 +140,17 @@ export default function ContestsHybridDisplay({
                   <Trophy className="h-8 w-8 mx-auto" />
                 </div>
                 <h3 className="text-lg font-news-heading text-gray-900 mb-2">
-                  海外のコンテスト
+                  海外・その他のコンテスト
                 </h3>
                 <p className="text-gray-600 font-news text-sm mb-4">
-                  {Object.keys(overseasGrouped).length}の国・地域で
+                  {Object.keys(overseasGrouped).length}の国・地域・その他で
                   {overseasContests.length}件のコンテストがあります
                 </p>
                 <button
                   onClick={() => setShowOverseas(true)}
                   className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 font-medium"
                 >
-                  海外のコンテストを見る
+                  海外・その他のコンテストを見る
                 </button>
               </div>
             </div>
@@ -185,50 +198,6 @@ export default function ContestsHybridDisplay({
         </>
       )}
 
-      {/* エリア未設定のコンテスト */}
-      {(() => {
-        const unassignedContests = filteredContests.filter(contest => 
-          !japanAreas.includes(contest.area || '') && 
-          !overseasAreas.includes(contest.area || '')
-        );
-        
-        if (unassignedContests.length === 0) return null;
-
-        return (
-          <div>
-            <div className="mb-6">
-              <h2 className="text-2xl font-news-heading text-gray-900 mb-2">
-                その他
-                <span className="block text-sm font-news-subheading text-gray-500 mt-1">Others</span>
-              </h2>
-              <div className="h-1 w-20 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full"></div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
-              {unassignedContests.map((contest) => (
-                <Card
-                  key={contest.id}
-                  id={contest.id}
-                  title={contest.title}
-                  description={contest.description}
-                  imageUrl={contest.imageUrl}
-                  deadline={contest.deadline ? new Date(contest.deadline) : undefined}
-                  startDate={contest.startDate ? new Date(contest.startDate) : undefined}
-                  area={contest.area}
-                  organizer={contest.organizer}
-                  organizerType={contest.organizerType || "その他"}
-                  website={contest.website}
-                  targetArea={contest.targetArea}
-                  targetAudience={contest.targetAudience}
-                  incentive={contest.incentive}
-                  operatingCompany={contest.operatingCompany}
-                  isPopular={contest.isPopular}
-                  type="contest"
-                />
-              ))}
-            </div>
-          </div>
-        );
-      })()}
     </div>
   );
 }

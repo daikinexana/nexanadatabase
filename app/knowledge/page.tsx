@@ -116,8 +116,8 @@ async function getKnowledge(page: number = 1, limit: number = 50): Promise<Knowl
   }
 }
 
-// 5分間キャッシュしてISRを有効化
-export const revalidate = 300;
+// 開発環境では短いキャッシュ時間、本番環境では5分間キャッシュ
+export const revalidate = 10;
 
 export default async function KnowledgePage({
   searchParams,
