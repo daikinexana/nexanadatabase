@@ -1,4 +1,4 @@
-import Header from "@/components/ui/header";
+import ServerHeader from "@/components/ui/server-header";
 import Footer from "@/components/ui/footer";
 import { Search, Filter as FilterIcon, BookOpen } from "lucide-react";
 
@@ -53,27 +53,55 @@ export default async function KnowledgePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <ServerHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヘッダー - NewsPicks風 */}
-        <div className="mb-8">
-          <div className="text-center max-w-3xl mx-auto">
-            {/* バッジ */}
-            <div className="inline-flex items-center px-3 py-1 bg-indigo-50 rounded-full mb-4">
-              <span className="text-xs font-medium text-indigo-600 uppercase tracking-wider">KNOWLEDGE</span>
+        {/* ヘッダー - モダンでおしゃれなデザイン */}
+        <div className="mb-12">
+          <div className="relative overflow-hidden">
+            {/* 背景グラデーション */}
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 rounded-3xl"></div>
+            <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-blue-400/10 to-indigo-600/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-purple-400/10 to-pink-400/10 rounded-full blur-3xl"></div>
+            
+            <div className="relative px-8 py-12 text-center">
+              {/* バッジ - より洗練されたデザイン */}
+              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mb-6 shadow-lg">
+                <BookOpen className="w-4 h-4 text-white mr-2" />
+                <span className="text-sm font-semibold text-white uppercase tracking-wider">KNOWLEDGE</span>
+              </div>
+              
+              {/* メインタイトル - より印象的なデザイン */}
+              <div className="mb-6">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mb-3">
+                  Knowledge
+                </h1>
+                <div className="flex items-center justify-center space-x-3">
+                  <div className="h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent flex-1 max-w-24"></div>
+                  <span className="text-lg font-medium text-slate-600 px-4 py-1 bg-white/60 rounded-full backdrop-blur-sm border border-white/20">
+                    ナレッジ一覧
+                  </span>
+                  <div className="h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent flex-1 max-w-24"></div>
+                </div>
+              </div>
+              
+              {/* 説明文 - より魅力的なレイアウト */}
+              <div className="max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl text-slate-700 leading-relaxed font-medium mb-4">
+                  オープインイノベーションや最新トレンドを提供しています
+                </p>
+                <p className="text-sm text-slate-500 font-medium">
+                  We provide AI, deep tech, latest technology information and trends
+                </p>
+              </div>
+              
+              {/* 装飾的な要素 */}
+              <div className="flex justify-center items-center space-x-2 mt-8">
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+              </div>
             </div>
-            
-            {/* メインタイトル */}
-            <h1 className="text-3xl md:text-4xl font-news-heading text-gray-900 mb-4">
-              Knowledge
-              <span className="block text-lg font-news-subheading text-gray-500 mt-1">ナレッジ一覧</span>
-            </h1>
-            
-            {/* 説明文 */}
-            <p className="text-lg text-gray-600 font-news leading-relaxed">
-              AI、ディープテック、最新技術情報とトレンドを提供しています
-            </p>
           </div>
         </div>
 
@@ -123,28 +151,39 @@ export default async function KnowledgePage() {
           <div className="space-y-6">
             {filteredKnowledge.map((item) => (
               <article key={item.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
-                <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex flex-col md:flex-row gap-6">
                   {/* 画像 */}
-                  {item.imageUrl && (
-                    <div className="md:w-48 flex-shrink-0">
+                  {item.imageUrl ? (
+                    <div className="md:w-80 flex-shrink-0">
                       <img
                         src={item.imageUrl}
                         alt={item.title}
-                        className="w-full h-32 md:h-24 object-cover rounded-lg"
+                        className="w-full h-48 md:h-40 object-cover rounded-xl shadow-sm"
                       />
+                    </div>
+                  ) : (
+                    <div className="md:w-80 flex-shrink-0">
+                      <div className="w-full h-48 md:h-40 bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 flex items-center justify-center rounded-xl shadow-sm border border-slate-200">
+                        <div className="text-center">
+                          <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mb-3 mx-auto shadow-lg">
+                            <BookOpen className="h-8 w-8 text-white" />
+                          </div>
+                          <p className="text-sm font-medium text-slate-600">ナレッジ</p>
+                        </div>
+                      </div>
                     </div>
                   )}
                   
                   {/* コンテンツ */}
                   <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
                       {item.categoryTag && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                          {item.categoryTag}
+                        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-800 border border-indigo-200">
+                          📚 {item.categoryTag}
                         </span>
                       )}
                       {item.area && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-slate-100 to-gray-100 text-slate-700 border border-slate-200">
                           {item.area}
                         </span>
                       )}
@@ -160,9 +199,9 @@ export default async function KnowledgePage() {
                       </p>
                     )}
                     
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                      <span>
-                        {item.publishedAt 
+                    <div className="flex flex-wrap items-center gap-4 text-sm">
+                      <span className="text-slate-500">
+                        📅 {item.publishedAt 
                           ? new Date(item.publishedAt).toLocaleDateString('ja-JP')
                           : new Date(item.createdAt).toLocaleDateString('ja-JP')
                         }

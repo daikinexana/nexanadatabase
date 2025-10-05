@@ -1,4 +1,4 @@
-import Header from "@/components/ui/header";
+import ServerHeader from "@/components/ui/server-header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
 import { Search, Filter as FilterIcon, Building2 } from "lucide-react";
@@ -145,27 +145,55 @@ export default async function FacilitiesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <ServerHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヘッダー - NewsPicks風 */}
-        <div className="mb-8">
-          <div className="text-center max-w-3xl mx-auto">
-            {/* バッジ */}
-            <div className="inline-flex items-center px-3 py-1 bg-purple-50 rounded-full mb-4">
-              <span className="text-xs font-medium text-purple-600 uppercase tracking-wider">FACILITIES</span>
+        {/* ヘッダー - モダンでおしゃれなデザイン */}
+        <div className="mb-12">
+          <div className="relative overflow-hidden">
+            {/* 背景グラデーション */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-3xl"></div>
+            <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-blue-400/10 to-indigo-600/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-purple-400/10 to-violet-400/10 rounded-full blur-3xl"></div>
+            
+            <div className="relative px-8 py-12 text-center">
+              {/* バッジ - より洗練されたデザイン */}
+              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mb-6 shadow-lg">
+                <Building2 className="w-4 h-4 text-white mr-2" />
+                <span className="text-sm font-semibold text-white uppercase tracking-wider">FACILITIES</span>
+              </div>
+              
+              {/* メインタイトル - より印象的なデザイン */}
+              <div className="mb-6">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mb-3">
+                  Facilities
+                </h1>
+                <div className="flex items-center justify-center space-x-3">
+                  <div className="h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent flex-1 max-w-24"></div>
+                  <span className="text-lg font-medium text-slate-600 px-4 py-1 bg-white/60 rounded-full backdrop-blur-sm border border-white/20">
+                    施設一覧
+                  </span>
+                  <div className="h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent flex-1 max-w-24"></div>
+                </div>
+              </div>
+              
+              {/* 説明文 - より魅力的なレイアウト */}
+              <div className="max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl text-slate-700 leading-relaxed font-medium mb-4">
+                  スタートアップ支援施設、イノベーション拠点の情報を掲載しています
+                </p>
+                <p className="text-sm text-slate-500 font-medium">
+                  Information about startup support facilities, incubation centers, and innovation hubs
+                </p>
+              </div>
+              
+              {/* 装飾的な要素 */}
+              <div className="flex justify-center items-center space-x-2 mt-8">
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+              </div>
             </div>
-            
-            {/* メインタイトル */}
-            <h1 className="text-3xl md:text-4xl font-news-heading text-gray-900 mb-4">
-              Facilities
-              <span className="block text-lg font-news-subheading text-gray-500 mt-1">施設一覧</span>
-            </h1>
-            
-            {/* 説明文 */}
-            <p className="text-lg text-gray-600 font-news leading-relaxed">
-              スタートアップ支援施設、インキュベーション施設、イノベーション拠点の情報を掲載しています
-            </p>
           </div>
         </div>
 
@@ -250,6 +278,8 @@ export default async function FacilitiesPage() {
                         targetAudience={facility.targetAudience}
                         incentive={facility.facilityInfo}
                         operatingCompany={facility.organizer}
+                        isDropinAvailable={facility.isDropinAvailable}
+                        isNexanaAvailable={facility.isNexanaAvailable}
                         type="facility"
                       />
                     ))}
@@ -288,6 +318,8 @@ export default async function FacilitiesPage() {
                         targetAudience={facility.targetAudience}
                         incentive={facility.facilityInfo}
                         operatingCompany={facility.organizer}
+                        isDropinAvailable={facility.isDropinAvailable}
+                        isNexanaAvailable={facility.isNexanaAvailable}
                         type="facility"
                       />
                     ))}

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Metadata } from "next";
 import Image from "next/image";
-import Header from "@/components/ui/header";
+import ServerHeader from "@/components/ui/server-header";
 import Footer from "@/components/ui/footer";
 import { Trophy, Building, ArrowRight, Star, Globe, Zap, Target, TrendingUp, Lightbulb } from "lucide-react";
 
@@ -28,9 +28,10 @@ const features = [
     href: "/contests",
     icon: Trophy,
     color: "from-amber-500 to-orange-600",
-    bgColor: "bg-gradient-to-br from-amber-50 to-orange-50",
+    bgColor: "bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50",
     textColor: "text-amber-600",
     borderColor: "border-amber-200",
+    accentColor: "bg-amber-400",
   },
   {
     name: "公募",
@@ -40,9 +41,10 @@ const features = [
     href: "/open-calls",
     icon: Target,
     color: "from-purple-500 to-violet-600",
-    bgColor: "bg-gradient-to-br from-purple-50 to-violet-50",
+    bgColor: "bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50",
     textColor: "text-purple-600",
     borderColor: "border-purple-200",
+    accentColor: "bg-purple-400",
   },
   {
     name: "施設紹介",
@@ -52,9 +54,10 @@ const features = [
     href: "/facilities",
     icon: Building,
     color: "from-blue-500 to-indigo-600",
-    bgColor: "bg-gradient-to-br from-blue-50 to-indigo-50",
+    bgColor: "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50",
     textColor: "text-blue-600",
     borderColor: "border-blue-200",
+    accentColor: "bg-blue-400",
   },
   {
     name: "ニュース",
@@ -64,9 +67,10 @@ const features = [
     href: "/news",
     icon: TrendingUp,
     color: "from-rose-500 to-pink-600",
-    bgColor: "bg-gradient-to-br from-rose-50 to-pink-50",
+    bgColor: "bg-gradient-to-br from-rose-50 via-pink-50 to-red-50",
     textColor: "text-rose-600",
     borderColor: "border-rose-200",
+    accentColor: "bg-rose-400",
   },
   {
     name: "ナレッジベース",
@@ -75,10 +79,11 @@ const features = [
     descriptionEn: "Latest tech trends in AI, deep tech, and innovation",
     href: "/knowledge",
     icon: Lightbulb,
-    color: "from-cyan-500 to-sky-600",
-    bgColor: "bg-gradient-to-br from-cyan-50 to-sky-50",
-    textColor: "text-cyan-600",
-    borderColor: "border-cyan-200",
+    color: "from-slate-500 to-blue-600",
+    bgColor: "bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50",
+    textColor: "text-slate-600",
+    borderColor: "border-slate-200",
+    accentColor: "bg-slate-400",
   },
 ];
 
@@ -87,7 +92,7 @@ const features = [
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      <ServerHeader />
       
       {/* ヒーローセクション - スタートアップ画像背景 */}
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -117,9 +122,9 @@ export default function Home() {
               情報で切り拓く
             </h1>
             <p className="text-lg md:text-xl text-gray-200 mb-12 max-w-3xl mx-auto font-news leading-relaxed">
-              コンテスト、公募、ニュース、ナレッジベースを一箇所で。
+              イノベーションに必要な情報を一箇所で探そう。
               <br />
-              エリアや主催者タイプでフィルタリングして、あなたに最適な情報を見つけましょう。
+              エリアや主催者タイプでフィルタリングして、あなたに最適な情報を見つけよう。
             </p>
           </div>
           
@@ -158,31 +163,32 @@ export default function Home() {
               <Link
                 key={feature.name}
                 href={feature.href}
-                className="group relative bg-white rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all duration-500 overflow-hidden"
+                className="group relative bg-white rounded-3xl border border-slate-200 hover:border-slate-300 hover:shadow-2xl transition-all duration-500 overflow-hidden"
               >
                 {/* カードの背景グラデーション */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-8 transition-opacity duration-500`}></div>
+                <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
                 
                 {/* 装飾的な要素 */}
-                <div className={`absolute top-0 right-0 w-20 h-20 ${feature.bgColor} rounded-full -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-700`}></div>
+                <div className={`absolute top-0 right-0 w-32 h-32 ${feature.bgColor} rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-700 opacity-20`}></div>
+                <div className={`absolute bottom-0 left-0 w-24 h-24 ${feature.bgColor} rounded-full translate-y-12 -translate-x-12 group-hover:scale-125 transition-transform duration-700 opacity-10`}></div>
                 
-                <div className="relative p-6">
+                <div className="relative p-8">
                   {/* アイコン */}
-                  <div className={`w-14 h-14 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 group-hover:rotate-2 transition-all duration-500 shadow-sm border ${feature.borderColor}`}>
-                    <feature.icon className={`h-7 w-7 ${feature.textColor}`} />
+                  <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg`}>
+                    <feature.icon className="h-8 w-8 text-white" />
                   </div>
                   
                   {/* コンテンツ */}
-                  <div className="mb-4">
-                    <h3 className="text-lg font-news-subheading text-slate-900 mb-1 group-hover:text-slate-700 transition-colors duration-300">
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-slate-700 transition-colors duration-300">
                       {feature.name}
                     </h3>
-                    <p className="text-sm font-news text-slate-500 mb-3">
+                    <p className="text-sm font-medium text-slate-500 mb-4">
                       {feature.nameEn}
                     </p>
                   </div>
                   
-                  <p className="text-sm text-slate-600 leading-relaxed mb-5 line-clamp-3 font-news">
+                  <p className="text-sm text-slate-600 leading-relaxed mb-6 line-clamp-3 font-news">
                     {feature.description}
                   </p>
                   
@@ -191,10 +197,17 @@ export default function Home() {
                     詳細を見る
                     <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                   </div>
+                  
+                  {/* 装飾的なドット */}
+                  <div className="flex justify-center items-center space-x-1 mt-6">
+                    <div className={`w-1.5 h-1.5 ${feature.accentColor} rounded-full opacity-60`}></div>
+                    <div className={`w-1.5 h-1.5 ${feature.accentColor} rounded-full opacity-40`}></div>
+                    <div className={`w-1.5 h-1.5 ${feature.accentColor} rounded-full opacity-20`}></div>
+                  </div>
                 </div>
                 
                 {/* ホバー時の光る効果 */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
               </Link>
             ))}
           </div>

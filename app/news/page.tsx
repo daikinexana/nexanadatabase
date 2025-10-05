@@ -1,5 +1,6 @@
-import Header from "@/components/ui/header";
+import ServerHeader from "@/components/ui/server-header";
 import Footer from "@/components/ui/footer";
+import NewsItem from "@/components/ui/news-item";
 import { Search, Filter as FilterIcon, Newspaper } from "lucide-react";
 
 interface News {
@@ -57,27 +58,55 @@ export default async function NewsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <ServerHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヘッダー - NewsPicks風 */}
-        <div className="mb-8">
-          <div className="text-center max-w-3xl mx-auto">
-            {/* バッジ */}
-            <div className="inline-flex items-center px-3 py-1 bg-red-50 rounded-full mb-4">
-              <span className="text-xs font-medium text-red-600 uppercase tracking-wider">NEWS</span>
+        {/* ヘッダー - モダンでおしゃれなデザイン */}
+        <div className="mb-12">
+          <div className="relative overflow-hidden">
+            {/* 背景グラデーション */}
+            <div className="absolute inset-0 bg-gradient-to-br from-rose-50 via-pink-50 to-red-50 rounded-3xl"></div>
+            <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-rose-400/10 to-pink-600/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-red-400/10 to-orange-400/10 rounded-full blur-3xl"></div>
+            
+            <div className="relative px-8 py-12 text-center">
+              {/* バッジ - より洗練されたデザイン */}
+              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-600 rounded-full mb-6 shadow-lg">
+                <Newspaper className="w-4 h-4 text-white mr-2" />
+                <span className="text-sm font-semibold text-white uppercase tracking-wider">NEWS</span>
+              </div>
+              
+              {/* メインタイトル - より印象的なデザイン */}
+              <div className="mb-6">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-900 via-rose-900 to-pink-900 bg-clip-text text-transparent mb-3">
+                  News
+                </h1>
+                <div className="flex items-center justify-center space-x-3">
+                  <div className="h-px bg-gradient-to-r from-transparent via-rose-300 to-transparent flex-1 max-w-24"></div>
+                  <span className="text-lg font-medium text-slate-600 px-4 py-1 bg-white/60 rounded-full backdrop-blur-sm border border-white/20">
+                    ニュース一覧
+                  </span>
+                  <div className="h-px bg-gradient-to-r from-transparent via-rose-300 to-transparent flex-1 max-w-24"></div>
+                </div>
+              </div>
+              
+              {/* 説明文 - より魅力的なレイアウト */}
+              <div className="max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl text-slate-700 leading-relaxed font-medium mb-4">
+                  スタートアップの調達、M&A、IPO情報をリアルタイムで配信しています
+                </p>
+                <p className="text-sm text-slate-500 font-medium">
+                  Real-time startup funding, M&A, and IPO news delivery
+                </p>
+              </div>
+              
+              {/* 装飾的な要素 */}
+              <div className="flex justify-center items-center space-x-2 mt-8">
+                <div className="w-2 h-2 bg-rose-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+              </div>
             </div>
-            
-            {/* メインタイトル */}
-            <h1 className="text-3xl md:text-4xl font-news-heading text-gray-900 mb-4">
-              News
-              <span className="block text-lg font-news-subheading text-gray-500 mt-1">ニュース一覧</span>
-            </h1>
-            
-            {/* 説明文 */}
-            <p className="text-lg text-gray-600 font-news leading-relaxed">
-              スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信しています
-            </p>
           </div>
         </div>
 
@@ -126,84 +155,22 @@ export default async function NewsPage() {
         {filteredNews.length > 0 ? (
           <div className="space-y-6">
             {filteredNews.map((item) => (
-              <article key={item.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
-                <div className="flex flex-col md:flex-row gap-4">
-                  {/* 画像 */}
-                  {item.imageUrl && (
-                    <div className="md:w-48 flex-shrink-0">
-                      <img
-                        src={item.imageUrl}
-                        alt={item.title}
-                        className="w-full h-32 md:h-24 object-cover rounded-lg"
-                      />
-                    </div>
-                  )}
-                  
-                  {/* コンテンツ */}
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        {item.type === 'funding' ? '資金調達' : 
-                         item.type === 'm&a' ? 'M&A' : 
-                         item.type === 'ipo' ? 'IPO' : 
-                         item.type}
-                      </span>
-                      {item.sector && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {item.sector}
-                        </span>
-                      )}
-                      {item.area && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                          {item.area}
-                        </span>
-                      )}
-                    </div>
-                    
-                    <h2 className="text-xl font-news-heading text-gray-900 mb-2 line-clamp-2">
-                      {item.title}
-                    </h2>
-                    
-                    {item.description && (
-                      <p className="text-gray-600 font-news mb-3 line-clamp-2">
-                        {item.description}
-                      </p>
-                    )}
-                    
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                      <span className="font-news-subheading text-gray-700">{item.company}</span>
-                      {item.amount && (
-                        <span className="font-medium text-green-600">{item.amount}</span>
-                      )}
-                      {item.investors && (
-                        <span>投資家: {item.investors}</span>
-                      )}
-                      <span>
-                        {item.publishedAt 
-                          ? new Date(item.publishedAt).toLocaleDateString('ja-JP')
-                          : new Date(item.createdAt).toLocaleDateString('ja-JP')
-                        }
-                      </span>
-                    </div>
-                    
-                    {item.sourceUrl && (
-                      <div className="mt-3">
-                        <a
-                          href={item.sourceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium"
-                        >
-                          詳細を見る
-                          <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </article>
+              <NewsItem
+                key={item.id}
+                id={item.id}
+                title={item.title}
+                description={item.description}
+                imageUrl={item.imageUrl}
+                company={item.company}
+                sector={item.sector}
+                amount={item.amount}
+                investors={item.investors}
+                publishedAt={item.publishedAt}
+                sourceUrl={item.sourceUrl}
+                type={item.type}
+                area={item.area}
+                createdAt={item.createdAt}
+              />
             ))}
           </div>
         ) : (

@@ -1,7 +1,7 @@
-import Header from "@/components/ui/header";
+import ServerHeader from "@/components/ui/server-header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
-import { Search, Filter as FilterIcon } from "lucide-react";
+import { Search, Filter as FilterIcon, Trophy } from "lucide-react";
 
 interface Contest {
   id: string;
@@ -155,27 +155,55 @@ export default async function ContestsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <ServerHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヘッダー - NewsPicks風 */}
-        <div className="mb-8">
-          <div className="text-center max-w-3xl mx-auto">
-            {/* バッジ */}
-            <div className="inline-flex items-center px-3 py-1 bg-blue-50 rounded-full mb-4">
-              <span className="text-xs font-medium text-blue-600 uppercase tracking-wider">CONTESTS</span>
+        {/* ヘッダー - モダンでおしゃれなデザイン */}
+        <div className="mb-12">
+          <div className="relative overflow-hidden">
+            {/* 背景グラデーション */}
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 rounded-3xl"></div>
+            <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-amber-400/10 to-orange-600/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-yellow-400/10 to-amber-400/10 rounded-full blur-3xl"></div>
+            
+            <div className="relative px-8 py-12 text-center">
+              {/* バッジ - より洗練されたデザイン */}
+              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full mb-6 shadow-lg">
+                <Trophy className="w-4 h-4 text-white mr-2" />
+                <span className="text-sm font-semibold text-white uppercase tracking-wider">CONTESTS</span>
+              </div>
+              
+              {/* メインタイトル - より印象的なデザイン */}
+              <div className="mb-6">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-900 via-amber-900 to-orange-900 bg-clip-text text-transparent mb-3">
+                  Contests
+                </h1>
+                <div className="flex items-center justify-center space-x-3">
+                  <div className="h-px bg-gradient-to-r from-transparent via-amber-300 to-transparent flex-1 max-w-24"></div>
+                  <span className="text-lg font-medium text-slate-600 px-4 py-1 bg-white/60 rounded-full backdrop-blur-sm border border-white/20">
+                    コンテスト一覧
+                  </span>
+                  <div className="h-px bg-gradient-to-r from-transparent via-amber-300 to-transparent flex-1 max-w-24"></div>
+                </div>
+              </div>
+              
+              {/* 説明文 - より魅力的なレイアウト */}
+              <div className="max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl text-slate-700 leading-relaxed font-medium mb-4">
+                  スタートアップコンテスト、ピッチコンテスト情報を掲載しています
+                </p>
+                <p className="text-sm text-slate-500 font-medium">
+                  Information about startup contests, pitch competitions, and hackathons
+                </p>
+              </div>
+              
+              {/* 装飾的な要素 */}
+              <div className="flex justify-center items-center space-x-2 mt-8">
+                <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+              </div>
             </div>
-            
-            {/* メインタイトル */}
-            <h1 className="text-3xl md:text-4xl font-news-heading text-gray-900 mb-4">
-              Contests
-              <span className="block text-lg font-news-subheading text-gray-500 mt-1">コンテスト一覧</span>
-            </h1>
-            
-            {/* 説明文 */}
-            <p className="text-lg text-gray-600 font-news leading-relaxed">
-              スタートアップコンテスト、ピッチコンテストなどの情報を掲載しています
-            </p>
           </div>
         </div>
         {/* 検索・フィルター - NewsPicks風 */}
