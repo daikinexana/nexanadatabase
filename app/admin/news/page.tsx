@@ -62,11 +62,20 @@ export default function AdminNewsPage() {
       setLoading(true);
       const response = await fetch("/api/news");
       if (response.ok) {
-        const data = await response.json();
-        setNews(data);
+        const result = await response.json();
+        // APIは { data: [...], pagination: {...} } の形式で返す
+        if (result.data && Array.isArray(result.data)) {
+          setNews(result.data);
+        } else if (Array.isArray(result)) {
+          // 後方互換性: 直接配列が返される場合
+          setNews(result);
+        } else {
+          setNews([]);
+        }
       }
     } catch (error) {
       console.error("Error fetching news:", error);
+      setNews([]);
     } finally {
       setLoading(false);
     }

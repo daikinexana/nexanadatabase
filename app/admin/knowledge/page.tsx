@@ -54,11 +54,20 @@ export default function AdminKnowledgePage() {
       setLoading(true);
       const response = await fetch("/api/knowledge");
       if (response.ok) {
-        const data = await response.json();
-        setKnowledge(data);
+        const result = await response.json();
+        // APIは { data: [...], pagination: {...} } の形式で返す
+        if (result.data && Array.isArray(result.data)) {
+          setKnowledge(result.data);
+        } else if (Array.isArray(result)) {
+          // 後方互換性: 直接配列が返される場合
+          setKnowledge(result);
+        } else {
+          setKnowledge([]);
+        }
       }
     } catch (error) {
       console.error("Error fetching knowledge:", error);
+      setKnowledge([]);
     } finally {
       setLoading(false);
     }
