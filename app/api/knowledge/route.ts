@@ -33,9 +33,27 @@ export async function GET(request: NextRequest) {
       orderBy: {
         publishedAt: "desc",
       },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        publishedAt: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        categoryTag: true,
+        website: true,
+        area: true,
+      },
     });
 
-    return NextResponse.json(knowledge);
+    const response = NextResponse.json(knowledge);
+    
+    // キャッシュヘッダーを設定（5分間キャッシュ）
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    
+    return response;
   } catch (error) {
     console.error("Error fetching knowledge:", error);
     return NextResponse.json(

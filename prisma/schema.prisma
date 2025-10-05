@@ -40,6 +40,11 @@ model Contest {
   organizerType    String?
   isPopular        Boolean?
 
+  @@index([isActive])
+  @@index([area])
+  @@index([organizerType])
+  @@index([deadline])
+  @@index([createdAt])
   @@map("contests")
 }
 
@@ -62,6 +67,11 @@ model Event {
   targetArea       String?
   targetAudience   String?
 
+  @@index([isActive])
+  @@index([area])
+  @@index([organizerType])
+  @@index([startDate])
+  @@index([createdAt])
   @@map("events")
 }
 
@@ -84,6 +94,11 @@ model OpenCall {
   availableResources String?
   operatingCompany   String?
 
+  @@index([isActive])
+  @@index([area])
+  @@index([organizerType])
+  @@index([deadline])
+  @@index([createdAt])
   @@map("open_calls")
 }
 
@@ -104,6 +119,11 @@ model News {
   type        String
   area        String?
 
+  @@index([isActive])
+  @@index([type])
+  @@index([area])
+  @@index([publishedAt])
+  @@index([createdAt])
   @@map("news")
 }
 
@@ -120,6 +140,11 @@ model Knowledge {
   website     String?
   area        String?
 
+  @@index([isActive])
+  @@index([categoryTag])
+  @@index([area])
+  @@index([publishedAt])
+  @@index([createdAt])
   @@map("knowledge")
 }
 
@@ -143,6 +168,12 @@ model Facility {
   isDropinAvailable Boolean  @default(false)
   isNexanaAvailable Boolean  @default(false)
 
+  @@index([isActive])
+  @@index([area])
+  @@index([organizerType])
+  @@index([isDropinAvailable])
+  @@index([isNexanaAvailable])
+  @@index([createdAt])
   @@map("facilities")
 }
 

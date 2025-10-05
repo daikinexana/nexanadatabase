@@ -2,6 +2,18 @@ import ServerHeader from "@/components/ui/server-header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
 import { Search, Filter as FilterIcon, Handshake } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "公募一覧 | Nexana Database",
+  description: "企業や自治体が募集する課題解決パートナー、協業相手の公募情報を掲載",
+  keywords: "公募, パートナーシップ, 協業, 課題解決, 企業, 自治体",
+  openGraph: {
+    title: "公募一覧 | Nexana Database",
+    description: "企業や自治体が募集する課題解決パートナー、協業相手の公募情報を掲載",
+    type: "website",
+  },
+};
 
 interface OpenCall {
   id: string;
@@ -27,6 +39,7 @@ interface OpenCall {
 async function getOpenCalls(): Promise<OpenCall[]> {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'}/api/open-calls`, {
+      next: { revalidate: 300 }, // 5分間キャッシュ
       headers: {
         'Cache-Control': 'max-age=300',
       },
@@ -43,6 +56,9 @@ async function getOpenCalls(): Promise<OpenCall[]> {
     return [];
   }
 }
+
+// 5分間キャッシュしてISRを有効化
+export const revalidate = 300;
 
 export default async function OpenCallsPage() {
   const openCalls = await getOpenCalls();

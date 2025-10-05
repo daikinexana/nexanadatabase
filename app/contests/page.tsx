@@ -2,6 +2,18 @@ import ServerHeader from "@/components/ui/server-header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
 import { Search, Filter as FilterIcon, Trophy } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "コンテスト一覧 | Nexana Database",
+  description: "スタートアップコンテスト、ピッチコンテスト、ハッカソンなどの情報を掲載",
+  keywords: "スタートアップ, コンテスト, ピッチ, ハッカソン, 起業",
+  openGraph: {
+    title: "コンテスト一覧 | Nexana Database",
+    description: "スタートアップコンテスト、ピッチコンテスト、ハッカソンなどの情報を掲載",
+    type: "website",
+  },
+};
 
 interface Contest {
   id: string;
@@ -26,6 +38,7 @@ interface Contest {
 async function getContests(): Promise<Contest[]> {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'}/api/contests`, {
+      next: { revalidate: 300 }, // 5分間キャッシュ
       headers: {
         'Cache-Control': 'max-age=300',
       },
@@ -42,6 +55,9 @@ async function getContests(): Promise<Contest[]> {
     return [];
   }
 }
+
+// 5分間キャッシュしてISRを有効化
+export const revalidate = 300;
 
 export default async function ContestsPage() {
   const contests = await getContests();

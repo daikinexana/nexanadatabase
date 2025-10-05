@@ -42,9 +42,33 @@ export async function GET(request: NextRequest) {
       orderBy: {
         startDate: "asc",
       },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        startDate: true,
+        endDate: true,
+        venue: true,
+        area: true,
+        organizer: true,
+        website: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        organizerType: true,
+        operatingCompany: true,
+        targetArea: true,
+        targetAudience: true,
+      },
     });
 
-    return NextResponse.json(events);
+    const response = NextResponse.json(events);
+    
+    // キャッシュヘッダーを設定（5分間キャッシュ）
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    
+    return response;
   } catch (error) {
     console.error("Error fetching events:", error);
     return NextResponse.json(

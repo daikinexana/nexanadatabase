@@ -45,8 +45,8 @@ export default function SimpleImage({
       height={height}
       className={className}
       onError={() => setHasError(true)}
-      unoptimized={true}
       loading={priority ? "eager" : "lazy"}
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
     />
   );
 }

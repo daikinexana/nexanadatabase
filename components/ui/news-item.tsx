@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Newspaper } from "lucide-react";
 import Modal from "./modal";
 
 interface NewsItemProps {
-  id: string;
   title: string;
   description?: string;
   imageUrl?: string;
@@ -21,7 +21,6 @@ interface NewsItemProps {
 }
 
 export default function NewsItem({
-  id,
   title,
   description,
   imageUrl,
@@ -53,14 +52,17 @@ export default function NewsItem({
       >
         <div className="flex flex-col md:flex-row gap-6">
           {/* 画像 */}
-          {imageUrl ? (
-            <div className="md:w-80 flex-shrink-0">
-              <img
-                src={imageUrl}
-                alt={title}
-                className="w-full h-48 md:h-40 object-cover rounded-xl shadow-sm"
-              />
-            </div>
+                 {imageUrl ? (
+                   <div className="md:w-80 flex-shrink-0">
+                     <Image
+                       src={imageUrl}
+                       alt={title}
+                       width={320}
+                       height={192}
+                       className="w-full h-48 md:h-40 object-cover rounded-xl shadow-sm"
+                       sizes="(max-width: 768px) 100vw, 320px"
+                     />
+                   </div>
           ) : (
             <div className="md:w-80 flex-shrink-0">
               <div className="w-full h-48 md:h-40 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center rounded-xl shadow-sm border border-slate-200">
@@ -158,10 +160,12 @@ export default function NewsItem({
               {/* ヒーロー画像セクション */}
               {imageUrl ? (
                 <div className="relative h-80 w-full overflow-hidden">
-                  <img
+                  <Image
                     src={imageUrl}
                     alt={title}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="100vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                   <div className="absolute bottom-6 left-6 right-6">

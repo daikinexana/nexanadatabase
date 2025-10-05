@@ -37,9 +37,34 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        deadline: true,
+        startDate: true,
+        area: true,
+        organizer: true,
+        website: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        incentive: true,
+        operatingCompany: true,
+        targetArea: true,
+        targetAudience: true,
+        organizerType: true,
+        isPopular: true,
+      },
     });
 
-    return NextResponse.json(contests);
+    const response = NextResponse.json(contests);
+    
+    // キャッシュヘッダーを設定（5分間キャッシュ）
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    
+    return response;
   } catch (error) {
     console.error("Error fetching contests:", error);
     return NextResponse.json(

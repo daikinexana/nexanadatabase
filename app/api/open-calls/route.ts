@@ -39,6 +39,25 @@ export async function GET(request: NextRequest) {
       orderBy: {
         deadline: "asc",
       },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        deadline: true,
+        startDate: true,
+        area: true,
+        organizer: true,
+        website: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        organizerType: true,
+        targetArea: true,
+        targetAudience: true,
+        availableResources: true,
+        operatingCompany: true,
+      },
     });
 
     // デバッグ用ログ
@@ -47,7 +66,12 @@ export async function GET(request: NextRequest) {
       console.log("First open call:", JSON.stringify(openCalls[0], null, 2));
     }
 
-    return NextResponse.json(openCalls);
+    const response = NextResponse.json(openCalls);
+    
+    // キャッシュヘッダーを設定（5分間キャッシュ）
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    
+    return response;
   } catch (error) {
     console.error("Error fetching open calls:", error);
     console.error("Error details:", {

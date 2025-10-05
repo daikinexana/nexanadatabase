@@ -2,6 +2,18 @@ import ServerHeader from "@/components/ui/server-header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
 import { Search, Filter as FilterIcon, Building2 } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "施設一覧 | Nexana Database",
+  description: "スタートアップ支援施設、インキュベーション施設、イノベーション拠点の情報を掲載",
+  keywords: "スタートアップ, 施設, インキュベーション, イノベーション, 支援",
+  openGraph: {
+    title: "施設一覧 | Nexana Database",
+    description: "スタートアップ支援施設、インキュベーション施設、イノベーション拠点の情報を掲載",
+    type: "website",
+  },
+};
 
 interface Facility {
   id: string;
@@ -28,6 +40,7 @@ interface Facility {
 async function getFacilities(): Promise<Facility[]> {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'}/api/facilities`, {
+      next: { revalidate: 300 }, // 5分間キャッシュ
       headers: {
         'Cache-Control': 'max-age=300',
       },
@@ -44,6 +57,9 @@ async function getFacilities(): Promise<Facility[]> {
     return [];
   }
 }
+
+// 5分間キャッシュしてISRを有効化
+export const revalidate = 300;
 
 export default async function FacilitiesPage() {
   const facilities = await getFacilities();

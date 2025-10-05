@@ -89,6 +89,9 @@ const features = [
 
 
 
+// 10分間キャッシュしてISRを有効化（ホームページは更新頻度が低い）
+export const revalidate = 600;
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">

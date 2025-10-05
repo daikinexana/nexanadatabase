@@ -2,6 +2,18 @@ import ServerHeader from "@/components/ui/server-header";
 import Footer from "@/components/ui/footer";
 import NewsItem from "@/components/ui/news-item";
 import { Search, Filter as FilterIcon, Newspaper } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "ニュース一覧 | Nexana Database",
+  description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信",
+  keywords: "スタートアップ, 調達, M&A, IPO, 投資, ニュース",
+  openGraph: {
+    title: "ニュース一覧 | Nexana Database",
+    description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信",
+    type: "website",
+  },
+};
 
 interface News {
   id: string;
@@ -25,6 +37,7 @@ interface News {
 async function getNews(): Promise<News[]> {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'}/api/news`, {
+      next: { revalidate: 300 }, // 5分間キャッシュ
       headers: {
         'Cache-Control': 'max-age=300',
       },
@@ -41,6 +54,9 @@ async function getNews(): Promise<News[]> {
     return [];
   }
 }
+
+// 5分間キャッシュしてISRを有効化
+export const revalidate = 300;
 
 export default async function NewsPage() {
   const news = await getNews();
@@ -155,22 +171,21 @@ export default async function NewsPage() {
         {filteredNews.length > 0 ? (
           <div className="space-y-6">
             {filteredNews.map((item) => (
-              <NewsItem
-                key={item.id}
-                id={item.id}
-                title={item.title}
-                description={item.description}
-                imageUrl={item.imageUrl}
-                company={item.company}
-                sector={item.sector}
-                amount={item.amount}
-                investors={item.investors}
-                publishedAt={item.publishedAt}
-                sourceUrl={item.sourceUrl}
-                type={item.type}
-                area={item.area}
-                createdAt={item.createdAt}
-              />
+               <NewsItem
+                 key={item.id}
+                 title={item.title}
+                 description={item.description}
+                 imageUrl={item.imageUrl}
+                 company={item.company}
+                 sector={item.sector}
+                 amount={item.amount}
+                 investors={item.investors}
+                 publishedAt={item.publishedAt}
+                 sourceUrl={item.sourceUrl}
+                 type={item.type}
+                 area={item.area}
+                 createdAt={item.createdAt}
+               />
             ))}
           </div>
         ) : (

@@ -1,6 +1,19 @@
 import ServerHeader from "@/components/ui/server-header";
 import Footer from "@/components/ui/footer";
+import Image from "next/image";
 import { Search, Filter as FilterIcon, BookOpen } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "ナレッジ一覧 | Nexana Database",
+  description: "AI、ディープテック、最新技術情報とトレンドを提供",
+  keywords: "AI, ディープテック, 技術, トレンド, ナレッジ, イノベーション",
+  openGraph: {
+    title: "ナレッジ一覧 | Nexana Database",
+    description: "AI、ディープテック、最新技術情報とトレンドを提供",
+    type: "website",
+  },
+};
 
 interface Knowledge {
   id: string;
@@ -20,6 +33,7 @@ interface Knowledge {
 async function getKnowledge(): Promise<Knowledge[]> {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'}/api/knowledge`, {
+      next: { revalidate: 300 }, // 5分間キャッシュ
       headers: {
         'Cache-Control': 'max-age=300',
       },
@@ -36,6 +50,9 @@ async function getKnowledge(): Promise<Knowledge[]> {
     return [];
   }
 }
+
+// 5分間キャッシュしてISRを有効化
+export const revalidate = 300;
 
 export default async function KnowledgePage() {
   const knowledge = await getKnowledge();
@@ -155,10 +172,13 @@ export default async function KnowledgePage() {
                   {/* 画像 */}
                   {item.imageUrl ? (
                     <div className="md:w-80 flex-shrink-0">
-                      <img
+                      <Image
                         src={item.imageUrl}
                         alt={item.title}
+                        width={320}
+                        height={192}
                         className="w-full h-48 md:h-40 object-cover rounded-xl shadow-sm"
+                        sizes="(max-width: 768px) 100vw, 320px"
                       />
                     </div>
                   ) : (
