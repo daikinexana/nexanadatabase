@@ -206,97 +206,82 @@ export default function Home() {
       </div>
 
 
-      {/* サービス紹介 - iPhone 16専用プレミアムデザイン */}
-      <div className="py-20 sm:py-24 lg:py-32 bg-gradient-to-br from-slate-50 via-white to-blue-50 relative overflow-hidden">
-        {/* 背景装飾 */}
+      {/* サービス紹介 - コンパクトで洗練されたデザイン */}
+      <div className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-slate-50 via-white to-blue-50 relative overflow-hidden">
+        {/* 背景装飾 - 控えめに */}
         <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-500/5 rounded-full blur-3xl"></div>
+          <div className="absolute top-10 left-10 w-48 h-48 bg-blue-500/3 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-64 h-64 bg-purple-500/3 rounded-full blur-3xl"></div>
         </div>
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-20 sm:mb-24">
-            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-full mb-8 shadow-2xl">
-              <div className="w-2 h-2 bg-white rounded-full mr-3 animate-pulse"></div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-full mb-6 shadow-lg">
+              <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
               <span className="text-sm font-bold text-white uppercase tracking-wider">SERVICES</span>
             </div>
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-news-heading text-slate-900 mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-news-heading text-slate-900 mb-4">
               サービス
-              <span className="block text-2xl sm:text-3xl font-news-subheading text-slate-500 mt-3">Services</span>
+              <span className="block text-lg sm:text-xl font-news-subheading text-slate-500 mt-2">Services</span>
             </h2>
-            <p className="text-xl sm:text-2xl text-slate-600 max-w-4xl mx-auto font-news leading-relaxed px-4 sm:px-0">
+            <p className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto font-news leading-relaxed px-4 sm:px-0">
               スタートアップの成長を支援する多様な情報を提供します
             </p>
           </div>
 
-          {/* iPhone 16専用プレミアムカードレイアウト */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
+          {/* コンパクトなカードレイアウト */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {features.map((feature) => (
               <Link
                 key={feature.name}
                 href={feature.href}
-                className="group relative bg-white/80 backdrop-blur-sm rounded-3xl border border-white/20 hover:border-white/40 hover:shadow-2xl transition-all duration-700 overflow-hidden hover:scale-105"
+                className="group relative bg-white/90 backdrop-blur-sm rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all duration-300 overflow-hidden hover:scale-[1.02]"
               >
                 {/* カードの背景グラデーション */}
-                <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-700`}></div>
+                <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-50 transition-opacity duration-300`}></div>
                 
-                {/* 装飾的な要素 - プレミアムデザイン */}
-                <div className={`absolute top-0 right-0 w-32 h-32 ${feature.bgColor} rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-700 opacity-20`}></div>
-                <div className={`absolute bottom-0 left-0 w-24 h-24 ${feature.bgColor} rounded-full translate-y-12 -translate-x-12 group-hover:scale-125 transition-transform duration-700 opacity-15`}></div>
-                <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 ${feature.bgColor} rounded-full group-hover:scale-110 transition-transform duration-700 opacity-5`}></div>
+                {/* 装飾的な要素 - 控えめに */}
+                <div className={`absolute top-0 right-0 w-20 h-20 ${feature.bgColor} rounded-full -translate-y-10 translate-x-10 group-hover:scale-110 transition-transform duration-300 opacity-10`}></div>
                 
-                <div className="relative p-10">
-                  {/* アイコン - プレミアムサイズ */}
-                  <div className={`w-24 h-24 bg-gradient-to-br ${feature.color} rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-12 transition-all duration-700 shadow-2xl relative`}>
-                    <feature.icon className="h-12 w-12 text-white" />
+                <div className="relative p-6 sm:p-8">
+                  {/* アイコン - コンパクトサイズ */}
+                  <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform duration-300 shadow-lg relative`}>
+                    <feature.icon className="h-8 w-8 text-white" />
                     {/* アイコンの光る効果 */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
                   
                   {/* コンテンツ */}
-                  <div className="mb-8">
-                    <h3 className="text-3xl font-bold text-slate-900 mb-3 group-hover:text-slate-700 transition-colors duration-300">
+                  <div className="mb-6">
+                    <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2 group-hover:text-slate-700 transition-colors duration-300">
                       {feature.name}
                     </h3>
-                    <p className="text-base font-semibold text-slate-500 mb-6">
+                    <p className="text-sm font-semibold text-slate-500 mb-4">
                       {feature.nameEn}
                     </p>
                   </div>
                   
-                  <p className="text-base text-slate-600 leading-relaxed mb-8 line-clamp-3 font-news">
+                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed mb-6 line-clamp-3 font-news">
                     {feature.description}
                   </p>
                   
-                  {/* アローアイコン - プレミアムスタイル */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center text-slate-500 group-hover:text-slate-700 font-bold text-base transition-all duration-300">
-                      詳細を見る
-                      <ArrowRight className="h-6 w-6 ml-3 group-hover:translate-x-3 transition-transform duration-300" />
-                    </div>
-                    
-                    {/* 装飾的なドット - プレミアムスタイル */}
-                    <div className="flex items-center space-x-2">
-                      <div className={`w-3 h-3 ${feature.accentColor} rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300`}></div>
-                      <div className={`w-2 h-2 ${feature.accentColor} rounded-full opacity-40 group-hover:opacity-80 transition-opacity duration-300`}></div>
-                      <div className={`w-1 h-1 ${feature.accentColor} rounded-full opacity-20 group-hover:opacity-60 transition-opacity duration-300`}></div>
-                    </div>
+                  {/* アローアイコン - シンプルスタイル */}
+                  <div className="flex items-center text-slate-500 group-hover:text-slate-700 font-semibold text-sm transition-all duration-300">
+                    詳細を見る
+                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                   </div>
                 </div>
                 
-                {/* ホバー時の光る効果 - プレミアム */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                
-                {/* ボーダーグラデーション効果 */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                {/* ホバー時の光る効果 - 控えめに */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
               </Link>
             ))}
           </div>
         </div>
         
-        {/* セクション区切り - 美しい装飾 */}
-        <div className="mt-20 sm:mt-24 flex justify-center">
-          <div className="w-24 h-1 bg-gradient-to-r from-transparent via-slate-300 to-transparent rounded-full"></div>
+        {/* セクション区切り - シンプルに */}
+        <div className="mt-16 sm:mt-20 flex justify-center">
+          <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-slate-300 to-transparent rounded-full"></div>
         </div>
       </div>
 

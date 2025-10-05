@@ -52,6 +52,19 @@ export default function Modal({ isOpen, onClose, children, title }: ModalProps) 
         <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
           {children}
         </div>
+        
+        {/* フッター - 閉じるボタン付き */}
+        <div className="flex-shrink-0 border-t border-gray-100/50 bg-gradient-to-r from-gray-50/80 to-white/80 backdrop-blur-sm p-4 sm:p-6">
+          <div className="flex justify-center">
+            <button
+              onClick={onClose}
+              className="group flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 hover:text-gray-900 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
+            >
+              <X className="h-4 w-4 mr-2 group-hover:rotate-90 transition-transform duration-300" />
+              <span className="font-medium text-sm sm:text-base">閉じる</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
