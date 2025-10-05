@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Metadata } from "next";
 import Image from "next/image";
-import ServerHeader from "@/components/ui/server-header";
+import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import { Trophy, Building, ArrowRight, Star, Globe, Zap, Target, TrendingUp, Lightbulb } from "lucide-react";
 
@@ -66,11 +66,11 @@ const features = [
     descriptionEn: "Real-time startup funding, M&A, and IPO news",
     href: "/news",
     icon: TrendingUp,
-    color: "from-rose-500 to-pink-600",
-    bgColor: "bg-gradient-to-br from-rose-50 via-pink-50 to-red-50",
-    textColor: "text-rose-600",
-    borderColor: "border-rose-200",
-    accentColor: "bg-rose-400",
+    color: "from-emerald-500 to-teal-600",
+    bgColor: "bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50",
+    textColor: "text-emerald-600",
+    borderColor: "border-emerald-200",
+    accentColor: "bg-emerald-400",
   },
   {
     name: "ナレッジベース",
@@ -95,180 +95,263 @@ export const revalidate = 600;
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
-      <ServerHeader />
+      <ClientHeader />
       
-      {/* ヒーローセクション - スタートアップ画像背景 */}
-      <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* 背景画像 */}
-        <div className="absolute inset-0">
-          <Image
-            src="/startup.jpg"
-            alt="スタートアップの未来"
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
+      {/* ヒーローセクション - iPhone 16専用モバイルファーストデザイン */}
+      <div className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 min-h-screen flex items-center justify-center overflow-hidden">
+        {/* 背景装飾 - iPhone 16のDynamic Islandを意識 */}
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-8 bg-black/20 rounded-b-2xl sm:hidden"></div>
         
-        {/* ダークオーバーレイ */}
-        <div className="absolute inset-0 bg-black/50"></div>
+        {/* モバイル用の装飾要素 */}
+        <div className="absolute top-20 left-4 w-40 h-40 bg-blue-500/10 rounded-full blur-2xl"></div>
+        <div className="absolute top-40 right-4 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-32 left-8 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-20 right-8 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl"></div>
         
-        {/* 装飾的な要素 */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+        {/* PC用の装飾要素 */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl hidden lg:block"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl hidden lg:block"></div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl text-white mb-8 max-w-4xl mx-auto font-news-heading">
-              スタートアップの未来を
-              <br className="hidden sm:block" />
-              情報で切り拓く
+            {/* バッジ - iPhone 16風 */}
+            <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full mb-6 border border-white/20">
+              <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+              <span className="text-sm font-medium text-white/90">NEXANA DATABASE</span>
+            </div>
+            
+            {/* メインタイトル - iPhone 16対応 */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white mb-6 sm:mb-8 max-w-4xl mx-auto font-news-heading leading-tight">
+              <span className="block sm:hidden">
+                スタートアップの
+                <br />
+                未来を情報で
+                <br />
+                切り拓く
+              </span>
+              <span className="hidden sm:block">
+                スタートアップの未来を
+                <br className="hidden md:block" />
+                情報で切り拓く
+              </span>
             </h1>
-            <p className="text-lg md:text-xl text-gray-200 mb-12 max-w-3xl mx-auto font-news leading-relaxed">
-              イノベーションに必要な情報を一箇所で探そう。
-              <br />
-              エリアや主催者タイプでフィルタリングして、あなたに最適な情報を見つけよう。
+            
+            {/* サブタイトル */}
+            <p className="text-lg sm:text-xl md:text-2xl text-blue-100 mb-4 sm:mb-6 font-medium">
+              <span className="block sm:hidden">イノベーション情報プラットフォーム</span>
+              <span className="hidden sm:block">イノベーション情報プラットフォーム</span>
+            </p>
+            
+            {/* 説明文 - iPhone用 */}
+            <p className="text-base sm:text-lg text-gray-300 mb-8 sm:mb-12 max-w-2xl mx-auto font-news leading-relaxed px-4 sm:px-0">
+              <span className="block sm:hidden">
+                コンテスト、公募、施設、ニュース、ナレッジを<br />
+                一箇所で検索・発見できる
+              </span>
+              <span className="hidden sm:block">
+                コンテスト、公募、施設、ニュース、ナレッジを一箇所で検索・発見できる
+                <br />
+                スタートアップ支援の総合情報データベース
+              </span>
             </p>
           </div>
           
-          {/* CTAボタン */}
-          <div className="flex justify-center items-center">
+          {/* CTAボタン群 - iPhone 16対応 */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 px-4 sm:px-0">
             <Link
               href="/contests"
-              className="group bg-white text-slate-900 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl"
+              className="group bg-white text-slate-900 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 flex items-center gap-3 shadow-2xl hover:shadow-3xl w-full sm:w-auto"
             >
+              <Trophy className="h-5 w-5" />
               コンテストを見る
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
+            
+            <Link
+              href="/news"
+              className="group bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white/20 transition-all duration-300 flex items-center gap-3 border border-white/20 w-full sm:w-auto"
+            >
+              <TrendingUp className="h-5 w-5" />
+              最新ニュース
+            </Link>
+          </div>
+          
+          {/* 統計情報 - iPhone用 */}
+          <div className="mt-12 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 max-w-2xl mx-auto">
+            <div className="text-center">
+              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">500+</div>
+              <div className="text-sm text-gray-300">コンテスト</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">200+</div>
+              <div className="text-sm text-gray-300">施設</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">1000+</div>
+              <div className="text-sm text-gray-300">ニュース</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">50+</div>
+              <div className="text-sm text-gray-300">ナレッジ</div>
+            </div>
+          </div>
+        </div>
+        
+        {/* スクロールインジケーター - iPhone風 */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 hidden sm:block">
+          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-bounce"></div>
           </div>
         </div>
       </div>
 
 
-      {/* サービス紹介 - コンサル企業風の洗練されたデザイン */}
-      <div className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-slate-100 rounded-full mb-6">
-              <span className="text-sm font-medium text-slate-600 uppercase tracking-wider">SERVICES</span>
+      {/* サービス紹介 - iPhone 16専用プレミアムデザイン */}
+      <div className="py-20 sm:py-24 lg:py-32 bg-gradient-to-br from-slate-50 via-white to-blue-50 relative overflow-hidden">
+        {/* 背景装飾 */}
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-500/5 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-20 sm:mb-24">
+            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-full mb-8 shadow-2xl">
+              <div className="w-2 h-2 bg-white rounded-full mr-3 animate-pulse"></div>
+              <span className="text-sm font-bold text-white uppercase tracking-wider">SERVICES</span>
             </div>
-            <h2 className="text-3xl md:text-4xl font-news-heading text-slate-900 mb-2">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-news-heading text-slate-900 mb-6">
               サービス
-              <span className="block text-xl font-news-subheading text-slate-500 mt-1">Services</span>
+              <span className="block text-2xl sm:text-3xl font-news-subheading text-slate-500 mt-3">Services</span>
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto font-news leading-relaxed">
+            <p className="text-xl sm:text-2xl text-slate-600 max-w-4xl mx-auto font-news leading-relaxed px-4 sm:px-0">
               スタートアップの成長を支援する多様な情報を提供します
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* iPhone 16専用プレミアムカードレイアウト */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
             {features.map((feature) => (
               <Link
                 key={feature.name}
                 href={feature.href}
-                className="group relative bg-white rounded-3xl border border-slate-200 hover:border-slate-300 hover:shadow-2xl transition-all duration-500 overflow-hidden"
+                className="group relative bg-white/80 backdrop-blur-sm rounded-3xl border border-white/20 hover:border-white/40 hover:shadow-2xl transition-all duration-700 overflow-hidden hover:scale-105"
               >
                 {/* カードの背景グラデーション */}
-                <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+                <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-700`}></div>
                 
-                {/* 装飾的な要素 */}
+                {/* 装飾的な要素 - プレミアムデザイン */}
                 <div className={`absolute top-0 right-0 w-32 h-32 ${feature.bgColor} rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-700 opacity-20`}></div>
-                <div className={`absolute bottom-0 left-0 w-24 h-24 ${feature.bgColor} rounded-full translate-y-12 -translate-x-12 group-hover:scale-125 transition-transform duration-700 opacity-10`}></div>
+                <div className={`absolute bottom-0 left-0 w-24 h-24 ${feature.bgColor} rounded-full translate-y-12 -translate-x-12 group-hover:scale-125 transition-transform duration-700 opacity-15`}></div>
+                <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 ${feature.bgColor} rounded-full group-hover:scale-110 transition-transform duration-700 opacity-5`}></div>
                 
-                <div className="relative p-8">
-                  {/* アイコン */}
-                  <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg`}>
-                    <feature.icon className="h-8 w-8 text-white" />
+                <div className="relative p-10">
+                  {/* アイコン - プレミアムサイズ */}
+                  <div className={`w-24 h-24 bg-gradient-to-br ${feature.color} rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-12 transition-all duration-700 shadow-2xl relative`}>
+                    <feature.icon className="h-12 w-12 text-white" />
+                    {/* アイコンの光る効果 */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                   </div>
                   
                   {/* コンテンツ */}
-                  <div className="mb-6">
-                    <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-slate-700 transition-colors duration-300">
+                  <div className="mb-8">
+                    <h3 className="text-3xl font-bold text-slate-900 mb-3 group-hover:text-slate-700 transition-colors duration-300">
                       {feature.name}
                     </h3>
-                    <p className="text-sm font-medium text-slate-500 mb-4">
+                    <p className="text-base font-semibold text-slate-500 mb-6">
                       {feature.nameEn}
                     </p>
                   </div>
                   
-                  <p className="text-sm text-slate-600 leading-relaxed mb-6 line-clamp-3 font-news">
+                  <p className="text-base text-slate-600 leading-relaxed mb-8 line-clamp-3 font-news">
                     {feature.description}
                   </p>
                   
-                  {/* アローアイコン */}
-                  <div className="flex items-center text-slate-500 group-hover:text-slate-700 font-semibold text-sm transition-all duration-300">
-                    詳細を見る
-                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-                  </div>
-                  
-                  {/* 装飾的なドット */}
-                  <div className="flex justify-center items-center space-x-1 mt-6">
-                    <div className={`w-1.5 h-1.5 ${feature.accentColor} rounded-full opacity-60`}></div>
-                    <div className={`w-1.5 h-1.5 ${feature.accentColor} rounded-full opacity-40`}></div>
-                    <div className={`w-1.5 h-1.5 ${feature.accentColor} rounded-full opacity-20`}></div>
+                  {/* アローアイコン - プレミアムスタイル */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-slate-500 group-hover:text-slate-700 font-bold text-base transition-all duration-300">
+                      詳細を見る
+                      <ArrowRight className="h-6 w-6 ml-3 group-hover:translate-x-3 transition-transform duration-300" />
+                    </div>
+                    
+                    {/* 装飾的なドット - プレミアムスタイル */}
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-3 h-3 ${feature.accentColor} rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300`}></div>
+                      <div className={`w-2 h-2 ${feature.accentColor} rounded-full opacity-40 group-hover:opacity-80 transition-opacity duration-300`}></div>
+                      <div className={`w-1 h-1 ${feature.accentColor} rounded-full opacity-20 group-hover:opacity-60 transition-opacity duration-300`}></div>
+                    </div>
                   </div>
                 </div>
                 
-                {/* ホバー時の光る効果 */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                {/* ホバー時の光る効果 - プレミアム */}
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                
+                {/* ボーダーグラデーション効果 */}
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
               </Link>
             ))}
           </div>
         </div>
+        
+        {/* セクション区切り - 美しい装飾 */}
+        <div className="mt-20 sm:mt-24 flex justify-center">
+          <div className="w-24 h-1 bg-gradient-to-r from-transparent via-slate-300 to-transparent rounded-full"></div>
+        </div>
       </div>
 
-      {/* About セクション - シンプルモダン */}
-      <div className="py-24 bg-slate-50">
+      {/* About セクション - iPhone 16専用モバイルファーストデザイン */}
+      <div className="py-20 sm:py-24 lg:py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-slate-200 rounded-full mb-6">
-              <span className="text-sm font-medium text-slate-600 uppercase tracking-wider">ABOUT</span>
+          <div className="text-center mb-16 sm:mb-20">
+            <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full mb-6 border border-white/20">
+              <span className="text-sm font-semibold text-white uppercase tracking-wider">ABOUT</span>
             </div>
-            <h2 className="text-3xl md:text-4xl font-news-heading text-slate-900 mb-2">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-news-heading text-white mb-4">
               About NEXANA DATABASE
             </h2>
-            <p className="text-lg text-slate-600 max-w-3xl mx-auto font-news leading-relaxed">
+            <p className="text-lg sm:text-xl text-blue-100 max-w-3xl mx-auto font-news leading-relaxed px-4 sm:px-0">
               挑戦者を支える情報プラットフォーム
-              <span className="block text-base text-slate-500 mt-1 font-news">Supporting Challengers with Information</span>
+              <span className="block text-base sm:text-lg text-blue-200 mt-2 font-news">Supporting Challengers with Information</span>
             </p>
-            <p className="text-base text-slate-500 mt-4 max-w-2xl mx-auto font-news">
-              私たちは、日本で新しいことに挑戦する人たちをサポートし、<br />
+            <p className="text-base sm:text-lg text-gray-300 mt-6 max-w-2xl mx-auto font-news px-4 sm:px-0">
+              私たちは、日本で新しいことに挑戦する人たちをサポートし、<br className="hidden sm:block" />
               成功への第一歩を踏み出すための情報を提供します。
             </p>
           </div>
 
-          {/* 特徴 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* 特徴 - iPhone 16専用のグリッドレイアウト */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
             <div className="text-center group">
-              <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform duration-300 border border-slate-200">
-                <Globe className="h-8 w-8 text-slate-600" />
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-indigo-600/20 backdrop-blur-sm rounded-3xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 border border-white/10">
+                <Globe className="h-8 w-8 text-blue-300" />
               </div>
-              <h3 className="text-lg font-news-subheading mb-2 text-slate-900">包括的な情報</h3>
-              <p className="text-slate-600 text-sm leading-relaxed font-news">コンテストからニュースまで、スタートアップに必要な情報を網羅</p>
+              <h3 className="text-lg font-news-subheading mb-3 text-white">包括的な情報</h3>
+              <p className="text-gray-300 text-sm leading-relaxed font-news px-2 sm:px-0">コンテストからニュースまで、スタートアップに必要な情報を網羅</p>
             </div>
             
             <div className="text-center group">
-              <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform duration-300 border border-slate-200">
-                <Star className="h-8 w-8 text-slate-600" />
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-600/20 backdrop-blur-sm rounded-3xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 border border-white/10">
+                <Star className="h-8 w-8 text-purple-300" />
               </div>
-              <h3 className="text-lg font-news-subheading mb-2 text-slate-900">厳選された情報</h3>
-              <p className="text-slate-600 text-sm leading-relaxed font-news">質の高い情報のみを厳選して提供</p>
+              <h3 className="text-lg font-news-subheading mb-3 text-white">厳選された情報</h3>
+              <p className="text-gray-300 text-sm leading-relaxed font-news px-2 sm:px-0">質の高い情報のみを厳選して提供</p>
             </div>
             
             <div className="text-center group">
-              <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform duration-300 border border-slate-200">
-                <Zap className="h-8 w-8 text-slate-600" />
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500/20 to-emerald-600/20 backdrop-blur-sm rounded-3xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 border border-white/10">
+                <Zap className="h-8 w-8 text-green-300" />
               </div>
-              <h3 className="text-lg font-news-subheading mb-2 text-slate-900">オープンアクセス</h3>
-              <p className="text-slate-600 text-sm leading-relaxed font-news">すべての情報に誰でもアクセス可能で、挑戦の障壁を下げる</p>
+              <h3 className="text-lg font-news-subheading mb-3 text-white">オープンアクセス</h3>
+              <p className="text-gray-300 text-sm leading-relaxed font-news px-2 sm:px-0">すべての情報に誰でもアクセス可能で、挑戦の障壁を下げる</p>
             </div>
             
             <div className="text-center group">
-              <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform duration-300 border border-slate-200">
-                <Target className="h-8 w-8 text-slate-600" />
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-500/20 to-red-600/20 backdrop-blur-sm rounded-3xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 border border-white/10">
+                <Target className="h-8 w-8 text-orange-300" />
               </div>
-              <h3 className="text-lg font-news-subheading mb-2 text-slate-900">発射台</h3>
-              <p className="text-slate-600 text-sm leading-relaxed font-news">挑戦者を次のステップへと押し上げるプラットフォーム</p>
+              <h3 className="text-lg font-news-subheading mb-3 text-white">発射台</h3>
+              <p className="text-gray-300 text-sm leading-relaxed font-news px-2 sm:px-0">挑戦者を次のステップへと押し上げるプラットフォーム</p>
             </div>
           </div>
         </div>

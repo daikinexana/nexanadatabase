@@ -1,4 +1,4 @@
-import ServerHeader from "@/components/ui/server-header";
+import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
 import { Search, Filter as FilterIcon, Building2 } from "lucide-react";
@@ -161,7 +161,7 @@ export default async function FacilitiesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ServerHeader />
+      <ClientHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* ヘッダー - モダンでおしゃれなデザイン */}

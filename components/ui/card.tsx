@@ -505,54 +505,55 @@ export default function Card({
         title={title}
       >
         <div className="h-full flex flex-col">
-          {/* コンテンツセクション */}
-          <div className="flex-1 overflow-y-auto bg-gray-50">
-            <div className="space-y-8">
-              {/* ヒーロー画像セクション */}
+          {/* コンテンツセクション - iPhone 16最適化 */}
+          <div className="flex-1 overflow-y-auto bg-gradient-to-br from-gray-50 to-white">
+            <div className="space-y-6 sm:space-y-8">
+              {/* ヒーロー画像セクション - iPhone 16対応 */}
               {imageUrl ? (
-                <div className="relative h-80 w-full overflow-hidden">
+                <div className="relative h-64 sm:h-80 w-full overflow-hidden">
                   <Image
                     src={imageUrl}
                     alt={title}
                     fill
                     priority={false}
                     className="object-cover"
+                    sizes="100vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                  <div className="absolute bottom-6 left-6 right-6">
-                    <h2 className="text-3xl font-bold text-white mb-2">{title}</h2>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                  <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2 leading-tight">{title}</h2>
                     {area && (
                       <div className="flex items-center space-x-2 text-white/90">
-                        <MapPin className="h-6 w-6" />
-                        <span className="text-xl font-medium">{area}</span>
+                        <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />
+                        <span className="text-lg sm:text-xl font-medium">{area}</span>
                       </div>
                     )}
                   </div>
                 </div>
               ) : (
-                <div className="relative h-80 w-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                  <div className="text-center">
-                    <Building className="h-24 w-24 text-white/80 mx-auto mb-6" />
-                    <h2 className="text-3xl font-bold text-white mb-4">{title}</h2>
+                <div className="relative h-64 sm:h-80 w-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                  <div className="text-center px-4">
+                    <Building className="h-20 w-20 sm:h-24 sm:w-24 text-white/80 mx-auto mb-4 sm:mb-6" />
+                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4 leading-tight">{title}</h2>
                     {area && (
                       <div className="flex items-center justify-center space-x-2 text-white/90">
-                        <MapPin className="h-6 w-6" />
-                        <span className="text-xl font-medium">{area}</span>
+                        <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />
+                        <span className="text-lg sm:text-xl font-medium">{area}</span>
                       </div>
                     )}
                   </div>
                 </div>
               )}
 
-              <div className="p-8 space-y-8">
-              {/* 基本情報カード */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+              <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
+              {/* 基本情報カード - iPhone 16最適化 */}
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/20">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
                   <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-3"></div>
                   基本情報
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-4">
                     <div>
                       <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">主催者</label>
@@ -646,26 +647,26 @@ export default function Card({
                 </div>
               </div>
 
-              {/* 説明文カード */}
+              {/* 説明文カード - iPhone 16最適化 */}
               {description && (
-                <div className="bg-white rounded-2xl p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/20">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center">
                     <div className="w-1 h-6 bg-gradient-to-b from-green-500 to-emerald-600 rounded-full mr-3"></div>
                     概要
                   </h3>
-                  <p className="text-gray-700 leading-relaxed text-base">{description}</p>
+                  <p className="text-gray-700 leading-relaxed text-sm sm:text-base">{description}</p>
                 </div>
               )}
 
-              {/* イベント固有の詳細情報 */}
+              {/* イベント固有の詳細情報 - iPhone 16最適化 */}
               {type === "event" && (targetArea || targetAudience || operatingCompany || venue) && (
-                <div className="bg-white rounded-2xl p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/20">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
                     <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-pink-600 rounded-full mr-3"></div>
                     詳細情報
                   </h3>
                   
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     {venue && (
                       <div>
                         <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">会場</label>
@@ -963,17 +964,23 @@ export default function Card({
                 </div>
               )}
 
-              {/* ウェブサイトリンク */}
+              {/* ウェブサイトリンク - シンプルで洗練されたモダンデザイン */}
               {website && (
-                <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-center">
+                <div className="text-center">
                   <a
                     href={website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center space-x-3 px-8 py-4 bg-white text-gray-900 rounded-xl hover:bg-gray-50 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl"
+                    className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                   >
-                    <ExternalLink className="h-6 w-6" />
-                    <span>ウェブサイトを見る</span>
+                    {/* 背景の白いエリア */}
+                    <div className="absolute inset-1 bg-white rounded-xl"></div>
+                    
+                    {/* コンテンツ */}
+                    <div className="relative flex items-center justify-center space-x-3 px-6 py-2">
+                      <ExternalLink className="h-5 w-5 text-gray-800 group-hover:text-gray-900 transition-colors duration-300" />
+                      <span className="text-gray-800 group-hover:text-gray-900 font-semibold text-base transition-colors duration-300">ウェブサイトを見る</span>
+                    </div>
                   </a>
                 </div>
               )}

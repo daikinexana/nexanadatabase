@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
 const navigation = [
@@ -10,14 +13,24 @@ const navigation = [
   { name: "ナレッジ", nameEn: "Knowledge", href: "/knowledge" },
 ];
 
-export default function ServerHeader() {
+export default function ClientHeader() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16">
-          {/* ロゴ - iPhone対応 */}
+          {/* ロゴ */}
           <div className="flex-shrink-0">
-            <Link href="/" className="flex items-center">
+            <Link href="/" className="flex items-center" onClick={closeMenu}>
               <Image
                 src="/nexanadata.svg"
                 alt="Nexana Database"
@@ -29,7 +42,7 @@ export default function ServerHeader() {
             </Link>
           </div>
 
-          {/* ナビゲーション - iPhone対応 */}
+          {/* デスクトップナビゲーション */}
           <nav className="hidden md:flex space-x-6 lg:space-x-8">
             {navigation.map((item) => (
               <Link
@@ -47,24 +60,40 @@ export default function ServerHeader() {
             ))}
           </nav>
 
-          {/* iPhone用の簡易ナビゲーション */}
-          <nav className="flex md:hidden space-x-3">
-            {navigation.slice(0, 3).map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-gray-600 hover:text-blue-600 px-2 py-1 text-xs font-medium transition-colors duration-200"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
-
-          {/* 右側のアクション - ログイン・登録ボタンを削除 */}
-          <div className="flex items-center">
-            {/* 将来の機能拡張用のスペース */}
-          </div>
+          {/* ハンバーガーメニューボタン - モバイルのみ */}
+          <button
+            onClick={toggleMenu}
+            className="md:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-200"
+            aria-label="メニューを開く"
+          >
+            {isMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
         </div>
+
+        {/* モバイルメニュー */}
+        {isMenuOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="block px-3 py-3 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+                  onClick={closeMenu}
+                >
+                  <div className="flex flex-col">
+                    <span className="font-semibold">{item.name}</span>
+                    <span className="text-sm text-gray-500">{item.nameEn}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );

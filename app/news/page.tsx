@@ -1,4 +1,4 @@
-import ServerHeader from "@/components/ui/server-header";
+import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import NewsItem from "@/components/ui/news-item";
 import { Search, Filter as FilterIcon, Newspaper } from "lucide-react";
@@ -74,102 +74,109 @@ export default async function NewsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ServerHeader />
+      <ClientHeader />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヘッダー - モダンでおしゃれなデザイン */}
-        <div className="mb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* ヘッダー - iPhone 16専用プレミアムデザイン */}
+        <div className="mb-12 sm:mb-16">
           <div className="relative overflow-hidden">
-            {/* 背景グラデーション */}
-            <div className="absolute inset-0 bg-gradient-to-br from-rose-50 via-pink-50 to-red-50 rounded-3xl"></div>
-            <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-rose-400/10 to-pink-600/10 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-red-400/10 to-orange-400/10 rounded-full blur-3xl"></div>
+            {/* 背景グラデーション - エメラルド系に変更 */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl sm:rounded-3xl"></div>
+            <div className="absolute top-0 right-0 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-br from-emerald-400/10 to-teal-600/10 rounded-full blur-2xl sm:blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-40 h-40 sm:w-64 sm:h-64 bg-gradient-to-tr from-teal-400/10 to-cyan-400/10 rounded-full blur-2xl sm:blur-3xl"></div>
             
-            <div className="relative px-8 py-12 text-center">
-              {/* バッジ - より洗練されたデザイン */}
-              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-600 rounded-full mb-6 shadow-lg">
+            <div className="relative px-4 sm:px-8 py-8 sm:py-12 text-center">
+              {/* バッジ - エメラルド系プレミアムデザイン */}
+              <div className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full mb-6 sm:mb-8 shadow-xl">
+                <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
                 <Newspaper className="w-4 h-4 text-white mr-2" />
-                <span className="text-sm font-semibold text-white uppercase tracking-wider">NEWS</span>
+                <span className="text-sm font-bold text-white uppercase tracking-wider">NEWS</span>
               </div>
               
-              {/* メインタイトル - より印象的なデザイン */}
-              <div className="mb-6">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-900 via-rose-900 to-pink-900 bg-clip-text text-transparent mb-3">
+              {/* メインタイトル - iPhone 16対応 */}
+              <div className="mb-6 sm:mb-8">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-900 via-emerald-900 to-teal-900 bg-clip-text text-transparent mb-3 sm:mb-4 leading-tight">
                   News
                 </h1>
-                <div className="flex items-center justify-center space-x-3">
-                  <div className="h-px bg-gradient-to-r from-transparent via-rose-300 to-transparent flex-1 max-w-24"></div>
-                  <span className="text-lg font-medium text-slate-600 px-4 py-1 bg-white/60 rounded-full backdrop-blur-sm border border-white/20">
+                <div className="flex items-center justify-center space-x-2 sm:space-x-3">
+                  <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent flex-1 max-w-16 sm:max-w-24"></div>
+                  <span className="text-base sm:text-lg font-medium text-slate-600 px-3 sm:px-4 py-1 bg-white/60 rounded-full backdrop-blur-sm border border-white/20">
                     ニュース一覧
                   </span>
-                  <div className="h-px bg-gradient-to-r from-transparent via-rose-300 to-transparent flex-1 max-w-24"></div>
+                  <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent flex-1 max-w-16 sm:max-w-24"></div>
                 </div>
               </div>
               
-              {/* 説明文 - より魅力的なレイアウト */}
-              <div className="max-w-2xl mx-auto">
-                <p className="text-lg md:text-xl text-slate-700 leading-relaxed font-medium mb-4">
-                  スタートアップの調達、M&A、IPO情報をリアルタイムで配信しています
+              {/* 説明文 - iPhone 16最適化 */}
+              <div className="max-w-2xl mx-auto px-4 sm:px-0">
+                <p className="text-base sm:text-lg md:text-xl text-slate-700 leading-relaxed font-medium mb-3 sm:mb-4">
+                  <span className="block sm:hidden">
+                    スタートアップの調達、M&A、IPO情報を<br />
+                    リアルタイムで配信しています
+                  </span>
+                  <span className="hidden sm:block">
+                    スタートアップの調達、M&A、IPO情報をリアルタイムで配信しています
+                  </span>
                 </p>
-                <p className="text-sm text-slate-500 font-medium">
+                <p className="text-xs sm:text-sm text-slate-500 font-medium">
                   Real-time startup funding, M&A, and IPO news delivery
                 </p>
               </div>
               
-              {/* 装飾的な要素 */}
-              <div className="flex justify-center items-center space-x-2 mt-8">
-                <div className="w-2 h-2 bg-rose-400 rounded-full animate-pulse"></div>
-                <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+              {/* 装飾的な要素 - エメラルド系 */}
+              <div className="flex justify-center items-center space-x-2 mt-6 sm:mt-8">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-teal-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 検索・フィルター - NewsPicks風 */}
-        <div className="mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        {/* 検索・フィルター - iPhone 16専用プレミアムデザイン */}
+        <div className="mb-8 sm:mb-10">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
                   <input
                     type="text"
                     placeholder="企業名、セクター、金額、投資家、全国、東京都、大阪府、兵庫県、大分県、中国などで検索..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500"
+                    className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 border border-gray-200/50 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500 bg-white/50 backdrop-blur-sm text-sm sm:text-base"
                     disabled
                   />
                 </div>
               </div>
               <button
-                className="inline-flex items-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-news-subheading text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200"
+                className="inline-flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 border border-gray-200/50 rounded-xl text-sm sm:text-base font-news-subheading text-gray-700 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300 shadow-sm"
                 disabled
               >
-                <FilterIcon className="h-4 w-4 mr-2" />
+                <FilterIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 フィルター
               </button>
             </div>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-xs sm:text-sm text-gray-500 mt-3 text-center">
               ※ 検索・フィルター機能は現在開発中です
             </p>
           </div>
         </div>
 
-        {/* 結果表示 - NewsPicks風 */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between bg-white rounded-lg p-3 shadow-sm border border-gray-200">
-            <p className="text-gray-600 font-news">
-              <span className="font-news-subheading text-gray-900">{filteredNews.length}</span>件のニュースが見つかりました
+        {/* 結果表示 - iPhone 16専用プレミアムデザイン */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white/90 backdrop-blur-sm rounded-xl p-4 sm:p-5 shadow-lg border border-white/20 gap-2 sm:gap-0">
+            <p className="text-sm sm:text-base text-gray-600 font-news">
+              <span className="font-news-subheading text-gray-900 text-lg sm:text-xl">{filteredNews.length}</span>件のニュースが見つかりました
             </p>
-            <div className="text-sm text-gray-500">
+            <div className="text-xs sm:text-sm text-gray-500 bg-gray-50/50 px-3 py-1 rounded-full">
               最新のニュースを表示
             </div>
           </div>
         </div>
 
-        {/* ニュース一覧 */}
+        {/* ニュース一覧 - iPhone 16最適化 */}
         {filteredNews.length > 0 ? (
-          <div className="space-y-6">
+          <div className="space-y-6 sm:space-y-8">
             {filteredNews.map((item) => (
                <NewsItem
                  key={item.id}
