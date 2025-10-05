@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import { Trophy, Building, ArrowRight, Star, Globe, Zap, Target, TrendingUp, Lightbulb } from "lucide-react";
+import { getDatabaseStats } from "@/lib/stats";
 
 export const metadata: Metadata = {
   title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
@@ -91,7 +92,9 @@ const features = [
 // 10分間キャッシュしてISRを有効化（ホームページは更新頻度が低い）
 export const revalidate = 600;
 
-export default function Home() {
+export default async function Home() {
+  // データベースの統計情報を取得
+  const stats = await getDatabaseStats();
   return (
     <div className="min-h-screen bg-white">
       <ClientHeader />
@@ -178,19 +181,19 @@ export default function Home() {
           {/* 統計情報 - iPhone用 */}
           <div className="mt-12 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 max-w-2xl mx-auto">
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">500+</div>
+              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stats.contests}+</div>
               <div className="text-sm text-gray-300">コンテスト</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">200+</div>
+              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stats.facilities}+</div>
               <div className="text-sm text-gray-300">施設</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">1000+</div>
+              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stats.news}+</div>
               <div className="text-sm text-gray-300">ニュース</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">50+</div>
+              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stats.knowledge}+</div>
               <div className="text-sm text-gray-300">ナレッジ</div>
             </div>
           </div>

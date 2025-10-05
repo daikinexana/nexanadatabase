@@ -19,7 +19,7 @@ export default function TermsPage() {
 
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">第1条（適用）</h2>
             <p className="text-gray-600 mb-6">
-              本規約は、Nexana Database（以下「本サービス」）の利用に関する条件を定めるものです。
+              本規約は、ユーザーとNexana Database運営者（以下「当社」）との間の本サービスの利用に関わる一切の関係に適用されるものとします。
             </p>
 
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">第2条（定義）</h2>
@@ -28,8 +28,9 @@ export default function TermsPage() {
             </p>
             <ul className="list-disc pl-6 text-gray-600 mb-6">
               <li>「ユーザー」：本サービスを利用する者</li>
-              <li>「コンテンツ」：本サービスを通じて提供される情報、データ、画像等</li>
+              <li>「コンテンツ」：本サービスを通じて提供される情報、データ、画像等（コンテスト情報、公募情報、施設情報、ニュース、ナレッジ等を含む）</li>
               <li>「アカウント」：本サービスの利用に必要な識別情報</li>
+              <li>「本サービス」：オープンイノベーション・スタートアップ情報プラットフォーム「Nexana Database」</li>
             </ul>
 
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">第3条（利用登録）</h2>
@@ -47,7 +48,10 @@ export default function TermsPage() {
 
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">第4条（利用料金）</h2>
             <p className="text-gray-600 mb-4">
-              本サービスの利用料金は、当社が別途定める料金体系に従うものとします。
+              本サービスの基本機能は無料でご利用いただけます。
+            </p>
+            <p className="text-gray-600 mb-4">
+              有料機能については、当社が別途定める料金体系に従うものとします。
             </p>
             <p className="text-gray-600 mb-6">
               利用料金の支払い方法、支払い時期等については、当社が別途定める方法に従うものとします。
@@ -65,6 +69,8 @@ export default function TermsPage() {
               <li>他のユーザーに関する個人情報等を収集または蓄積する行為</li>
               <li>他のユーザーに成りすます行為</li>
               <li>当社のサービスに関連して、反社会的勢力に対して直接または間接に利益を供与する行為</li>
+              <li>本サービスに掲載されている情報を無断で複製、転載、配布する行為</li>
+              <li>本サービスの検索機能を悪用し、過度な負荷をかける行為</li>
               <li>その他、当社が不適切と判断する行為</li>
             </ul>
 
@@ -135,6 +141,9 @@ export default function TermsPage() {
               <p className="text-sm text-gray-500">
                 制定日：2025年1月1日<br />
                 最終更新日：2025年1月15日
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                お問い合わせ先：<a href="/contact" className="text-blue-600 hover:text-blue-800">お問い合わせページ</a>
               </p>
             </div>
           </div>

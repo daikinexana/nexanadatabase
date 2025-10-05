@@ -41,6 +41,7 @@ export default function ContestsWithFilter({
   const [contests, setContests] = useState<Contest[]>(initialContests);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTimeoutId, setSearchTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [showPastContests, setShowPastContests] = useState(false);
 
   // 検索処理（デバウンス付き）
   useEffect(() => {
@@ -99,16 +100,27 @@ export default function ContestsWithFilter({
     router.replace(`/contests${newUrl}`, { scroll: false });
   }, [searchQuery, router, searchParams]);
 
-  // フィルタリング処理（過去のコンテストを除外）
+  // フィルタリング処理
   const filteredContests = useMemo(() => {
     const now = new Date();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(now.getFullYear() - 1);
+    oneYearAgo.setMonth(now.getMonth() - 6); // 1年半前
+
     return contests.filter(contest => {
       if (contest.deadline) {
-        return new Date(contest.deadline) >= now;
+        const deadline = new Date(contest.deadline);
+        if (showPastContests) {
+          // 過去1年半分のコンテストを表示
+          return deadline >= oneYearAgo;
+        } else {
+          // 現在募集中のコンテストのみ表示
+          return deadline >= now;
+        }
       }
       return true;
     });
-  }, [contests]);
+  }, [contests, showPastContests]);
 
   return (
     <>
@@ -139,14 +151,26 @@ export default function ContestsWithFilter({
         </div>
       </div>
 
-      {/* 結果表示 */}
+      {/* 結果表示とフィルター */}
       <div className="mb-6">
         <div className="flex items-center justify-between bg-white rounded-lg p-3 shadow-sm border border-gray-200">
           <p className="text-gray-600 font-news">
             <span className="font-news-subheading text-gray-900">{filteredContests.length}</span>件のコンテストが見つかりました
           </p>
-          <div className="text-sm text-gray-500">
-            現在募集中のコンテストのみ表示
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-500">
+              {showPastContests ? "過去1年半分のコンテストを表示" : "現在募集中のコンテストのみ表示"}
+            </div>
+            <button
+              onClick={() => setShowPastContests(!showPastContests)}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                showPastContests
+                  ? "bg-amber-100 text-amber-800 border border-amber-200 hover:bg-amber-200"
+                  : "bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200"
+              }`}
+            >
+              {showPastContests ? "募集中のみ表示" : "過去1年半分も表示"}
+            </button>
           </div>
         </div>
       </div>

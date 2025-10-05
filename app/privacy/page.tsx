@@ -24,8 +24,9 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-6 text-gray-600 mb-6">
               <li>氏名、メールアドレス、電話番号などの連絡先情報</li>
               <li>ログ情報、Cookie、利用環境、端末情報など</li>
-              <li>Googleアカウント連携を通じて取得する、Google Calendarのイベント情報（タイトル、日時、場所、参加者など）</li>
-              <li>Google OAuth認証により付与されるアクセストークンおよびリフレッシュトークン</li>
+              <li>検索履歴、閲覧履歴、利用状況などのサービス利用情報</li>
+              <li>お問い合わせ内容、サポート依頼内容などのコミュニケーション情報</li>
+              <li>その他、サービス提供に必要な情報</li>
             </ul>
 
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">2. 利用目的</h2>
@@ -34,28 +35,26 @@ export default function PrivacyPage() {
             </p>
             <ul className="list-disc pl-6 text-gray-600 mb-6">
               <li>Nexana Databaseサービスの提供および運営</li>
+              <li>コンテスト、公募、施設、ニュース、ナレッジ情報の提供</li>
+              <li>検索機能、フィルタリング機能の提供</li>
               <li>サービス提供およびその品質向上のため</li>
               <li>利用者サポート、問い合わせ対応のため</li>
-              <li>Googleカレンダー連携機能を通じた以下の機能提供のため：</li>
-              <ul className="list-disc pl-6 mt-2">
-                <li>ユーザーが作成したイベントのGoogleカレンダーへの登録</li>
-                <li>イベント招待の自動送信</li>
-                <li>招待されたユーザーのカレンダーへのイベント追加</li>
-              </ul>
               <li>サービスの改善および新サービスの開発</li>
+              <li>利用状況の分析および統計情報の作成</li>
               <li>法令に基づく対応</li>
               <li>その他、お客様の同意を得た目的</li>
             </ul>
 
-            <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">3. Google Calendar APIに関する情報</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">3. データの保存期間</h2>
             <p className="text-gray-600 mb-4">
-              当社のGoogleカレンダー連携機能は、Googleが提供するOAuth 2.0を用いた認証により、ユーザーの明示的な同意のもと実行されます。
+              当社は、個人情報を以下の期間保存します：
             </p>
             <ul className="list-disc pl-6 text-gray-600 mb-6">
-              <li>当社が取得・利用するスコープは最小限に限定されており、主に https://www.googleapis.com/auth/calendar.events の権限を利用します。</li>
-              <li>カレンダー情報の読み取り・作成・更新・削除は、ユーザーの操作またはサービス上で必要な自動処理に限定されます。</li>
-              <li>Googleユーザーデータの使用・共有は、「Google API Services User Data Policy」に準拠しています。</li>
-              <li>トークンやカレンダー情報などのユーザーデータは暗号化され、安全なサーバーに保管され、第三者と共有することはありません。</li>
+              <li>アカウント情報：アカウント削除まで</li>
+              <li>利用履歴：サービス提供に必要な期間</li>
+              <li>お問い合わせ情報：対応完了後1年間</li>
+              <li>ログ情報：セキュリティ目的で最大1年間</li>
+              <li>その他の情報：利用目的達成後、法令に基づく保存期間を除き、速やかに削除</li>
             </ul>
 
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">4. 情報の管理と安全対策</h2>
@@ -119,6 +118,9 @@ export default function PrivacyPage() {
               <p className="text-sm text-gray-500">
                 制定日：2025年1月1日<br />
                 最終更新日：2025年1月15日
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                お問い合わせ先：<a href="/contact" className="text-blue-600 hover:text-blue-800">お問い合わせページ</a>
               </p>
             </div>
           </div>

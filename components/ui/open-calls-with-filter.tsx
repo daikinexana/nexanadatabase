@@ -41,6 +41,7 @@ export default function OpenCallsWithFilter({
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [openCalls, setOpenCalls] = useState<OpenCall[]>(initialOpenCalls);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPastOpenCalls, setShowPastOpenCalls] = useState(false);
 
   // 検索処理（デバウンス付き）
   useEffect(() => {
@@ -82,16 +83,27 @@ export default function OpenCallsWithFilter({
     router.replace(`/open-calls${newUrl}`, { scroll: false });
   }, [searchQuery, router, searchParams]);
 
-  // フィルタリング処理（過去のオープンコールを除外）
+  // フィルタリング処理
   const filteredOpenCalls = useMemo(() => {
     const now = new Date();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(now.getFullYear() - 1);
+    oneYearAgo.setMonth(now.getMonth() - 6); // 1年半前
+
     return openCalls.filter(openCall => {
       if (openCall.deadline) {
-        return new Date(openCall.deadline) >= now;
+        const deadline = new Date(openCall.deadline);
+        if (showPastOpenCalls) {
+          // 過去1年半分のオープンコールを表示
+          return deadline >= oneYearAgo;
+        } else {
+          // 現在募集中のオープンコールのみ表示
+          return deadline >= now;
+        }
       }
       return true;
     });
-  }, [openCalls]);
+  }, [openCalls, showPastOpenCalls]);
 
   // 全エリアの順序（日本国内 + 海外）
   const allAreaOrder = useMemo(() => [...japanAreas, ...overseasAreas], [japanAreas, overseasAreas]);
@@ -149,14 +161,26 @@ export default function OpenCallsWithFilter({
         </div>
       </div>
 
-      {/* 結果表示 */}
+      {/* 結果表示とフィルター */}
       <div className="mb-6">
         <div className="flex items-center justify-between bg-white rounded-lg p-3 shadow-sm border border-gray-200">
           <p className="text-gray-600 font-news">
             <span className="font-news-subheading text-gray-900">{filteredOpenCalls.length}</span>件の公募が見つかりました
           </p>
-          <div className="text-sm text-gray-500">
-            現在募集中の公募のみ表示
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-500">
+              {showPastOpenCalls ? "過去1年半分の公募を表示" : "現在募集中の公募のみ表示"}
+            </div>
+            <button
+              onClick={() => setShowPastOpenCalls(!showPastOpenCalls)}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                showPastOpenCalls
+                  ? "bg-green-100 text-green-800 border border-green-200 hover:bg-green-200"
+                  : "bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200"
+              }`}
+            >
+              {showPastOpenCalls ? "募集中のみ表示" : "過去1年半分も表示"}
+            </button>
           </div>
         </div>
       </div>
