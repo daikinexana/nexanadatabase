@@ -48,6 +48,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  alternates: {
+    canonical: "https://db.nexanahq.com",
+  },
   openGraph: {
     type: "website",
     locale: "ja_JP",

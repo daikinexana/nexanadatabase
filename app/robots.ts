@@ -4,11 +4,19 @@ export default function robots(): MetadataRoute.Robots {
   const baseUrl = 'https://db.nexanahq.com'
 
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: ['/admin/', '/api/'],
-    },
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: ['/admin/', '/api/', '/_next/', '/sign-in/', '/sign-up/'],
+      },
+      {
+        userAgent: 'Googlebot',
+        allow: '/',
+        disallow: ['/admin/', '/api/', '/_next/', '/sign-in/', '/sign-up/'],
+      },
+    ],
     sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
   }
 }

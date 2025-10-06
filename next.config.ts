@@ -36,13 +36,26 @@ const nextConfig: NextConfig = {
   // リダイレクト設定（SEO改善）
   async redirects() {
     return [
-      // wwwなしのドメインにリダイレクト
+      // wwwなしのドメインにリダイレクト（HTTPS強制）
       {
         source: '/:path*',
         has: [
           {
             type: 'host',
             value: 'www.db.nexanahq.com',
+          },
+        ],
+        destination: 'https://db.nexanahq.com/:path*',
+        permanent: true,
+      },
+      // HTTPからHTTPSへのリダイレクト
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'header',
+            key: 'x-forwarded-proto',
+            value: 'http',
           },
         ],
         destination: 'https://db.nexanahq.com/:path*',
