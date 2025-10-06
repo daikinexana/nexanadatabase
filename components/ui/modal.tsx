@@ -8,9 +8,10 @@ interface ModalProps {
   onClose: () => void;
   children: React.ReactNode;
   title?: string;
+  shareOptions?: React.ReactNode;
 }
 
-export default function Modal({ isOpen, onClose, children, title }: ModalProps) {
+export default function Modal({ isOpen, onClose, children, title, shareOptions }: ModalProps) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -40,12 +41,18 @@ export default function Modal({ isOpen, onClose, children, title }: ModalProps) 
           {title && (
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 truncate pr-4 leading-tight">{title}</h2>
           )}
-          <button
-            onClick={onClose}
-            className="p-2 sm:p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100/80 rounded-xl transition-all duration-300 flex-shrink-0 group backdrop-blur-sm"
-          >
-            <X className="h-5 w-5 sm:h-6 sm:w-6 group-hover:rotate-90 transition-transform duration-300" />
-          </button>
+          <div className="flex items-center space-x-2">
+            {/* 共有オプション */}
+            {shareOptions}
+            
+            {/* 閉じるボタン */}
+            <button
+              onClick={onClose}
+              className="p-2 sm:p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100/80 rounded-xl transition-all duration-300 flex-shrink-0 group backdrop-blur-sm"
+            >
+              <X className="h-5 w-5 sm:h-6 sm:w-6 group-hover:rotate-90 transition-transform duration-300" />
+            </button>
+          </div>
         </div>
         
         {/* コンテンツ - iPhone 16最適化 */}

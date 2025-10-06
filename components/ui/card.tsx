@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import SimpleImage from "./simple-image";
-import { Calendar, MapPin, Building, ExternalLink, Clock } from "lucide-react";
+import { Calendar, MapPin, Building, ExternalLink, Clock, Copy } from "lucide-react";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import Modal from "./modal";
@@ -75,6 +75,7 @@ export default function Card({
   onClick,
 }: CardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const handleCardClick = () => {
     if (onClick) {
@@ -83,6 +84,29 @@ export default function Card({
       setIsModalOpen(true);
     }
   };
+
+  // 共有機能
+  const getShareUrl = () => {
+    if (typeof window !== 'undefined') {
+      return window.location.origin + `/open-calls?search=${encodeURIComponent(title)}`;
+    }
+    return '';
+  };
+
+  const getShareText = () => {
+    return `${title} - Nexana Database\n\n${description ? description.substring(0, 100) + '...' : ''}\n\n詳細はこちら: ${getShareUrl()}`;
+  };
+
+  const handleCopyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(getShareUrl());
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error('URLのコピーに失敗しました:', err);
+    }
+  };
+
 
   const getDaysRemaining = (date: Date) => {
     const now = new Date();
@@ -964,9 +988,10 @@ export default function Card({
                 </div>
               )}
 
-              {/* ウェブサイトリンク - シンプルで洗練されたモダンデザイン */}
-              {website && (
-                <div className="text-center">
+              {/* アクションボタン - ウェブサイトと共有 */}
+              <div className="text-center space-y-4">
+                {/* ウェブサイトリンク */}
+                {website && (
                   <a
                     href={website}
                     target="_blank"
@@ -982,8 +1007,21 @@ export default function Card({
                       <span className="text-gray-800 group-hover:text-gray-900 font-semibold text-base transition-colors duration-300">ウェブサイトを見る</span>
                     </div>
                   </a>
+                )}
+
+                {/* URLをコピーして共有ボタン */}
+                <div className="flex justify-center">
+                  <button
+                    onClick={handleCopyUrl}
+                    className="group inline-flex items-center justify-center px-6 py-3 bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02]"
+                  >
+                    <Copy className="h-4 w-4 text-gray-600 group-hover:text-gray-800 transition-colors duration-200 mr-2" />
+                    <span className="text-gray-700 group-hover:text-gray-900 font-medium text-sm transition-colors duration-200">
+                      {copySuccess ? 'コピーしました！' : 'URLをコピー'}
+                    </span>
+                  </button>
                 </div>
-              )}
+              </div>
               </div>
             </div>
           </div>
