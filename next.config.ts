@@ -30,6 +30,26 @@ const nextConfig: NextConfig = {
   // 静的生成の最適化
   trailingSlash: false,
   generateEtags: true,
+  // SEO最適化
+  poweredByHeader: false,
+  compress: true,
+  // リダイレクト設定（SEO改善）
+  async redirects() {
+    return [
+      // wwwなしのドメインにリダイレクト
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.db.nexanahq.com',
+          },
+        ],
+        destination: 'https://db.nexanahq.com/:path*',
+        permanent: true,
+      },
+    ]
+  },
 };
 
 export default nextConfig;
