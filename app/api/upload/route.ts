@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       console.log("エラー: AWS環境変数が設定されていません");
       return NextResponse.json({ 
         success: false,
-        error: "AWS S3の設定が不完全です。.env.localファイルでAWS認証情報を設定してください。" 
+        error: "AWS S3の設定が不完全です。管理者にお問い合わせください。" 
       }, { status: 500 });
     }
 
@@ -59,15 +59,18 @@ export async function POST(request: NextRequest) {
     console.log("生成されたS3キー:", key);
     
     // S3にアップロード
-    console.log("S3アップロード開始");
+    console.log("🚀 S3アップロード開始");
     const imageUrl = await uploadToS3(file, key);
-    console.log("S3アップロード完了:", imageUrl);
+    console.log("✅ S3アップロード完了:", imageUrl);
 
-    return NextResponse.json({
+    const response = {
       success: true,
       imageUrl,
       key
-    });
+    };
+    
+    console.log("📤 レスポンス送信:", response);
+    return NextResponse.json(response);
 
   } catch (error) {
     console.error("アップロードエラー:", error);
@@ -75,15 +78,30 @@ export async function POST(request: NextRequest) {
     // AWS認証エラーの場合は具体的なメッセージを返す
     if (error instanceof Error) {
       if (error.message.includes("InvalidAccessKeyId")) {
-        return NextResponse.json({ error: "AWS認証情報が無効です。ローカルアップロードに切り替えます。" }, { status: 500 });
+        return NextResponse.json({ 
+          success: false,
+          error: "AWS認証情報が無効です。管理者にお問い合わせください。" 
+        }, { status: 500 });
       }
       if (error.message.includes("NoSuchBucket")) {
-        return NextResponse.json({ error: "AWS S3バケットが見つかりません。ローカルアップロードに切り替えます。" }, { status: 500 });
+        return NextResponse.json({ 
+          success: false,
+          error: "AWS S3バケットが見つかりません。管理者にお問い合わせください。" 
+        }, { status: 500 });
+      }
+      if (error.message.includes("AccessDenied")) {
+        return NextResponse.json({ 
+          success: false,
+          error: "S3バケットへのアクセスが拒否されました。管理者にお問い合わせください。" 
+        }, { status: 500 });
       }
     }
     
     return NextResponse.json(
-      { error: "画像のアップロードに失敗しました" },
+      { 
+        success: false,
+        error: "画像のアップロードに失敗しました。管理者にお問い合わせください。" 
+      },
       { status: 500 }
     );
   }

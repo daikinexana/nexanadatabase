@@ -39,28 +39,83 @@ export default function ImageUpload({ value, onChange, type, className = "" }: I
       formData.append("file", file);
       formData.append("type", type);
 
+      console.log("🚀 アップロード開始:", { fileName: file.name, fileSize: file.size, fileType: file.type, type });
+      
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
 
+      console.log("📡 レスポンス受信:", { 
+        status: response.status, 
+        ok: response.ok, 
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ HTTPエラー:", errorText);
+        throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+      }
+      
       const result = await response.json();
+      console.log("📋 レスポンス結果:", result);
+      console.log("🔍 結果の詳細:", {
+        success: result.success,
+        hasImageUrl: !!result.imageUrl,
+        imageUrl: result.imageUrl,
+        key: result.key
+      });
 
-      if (result.success) {
+      console.log("🎯 条件チェック開始:");
+      console.log("  - result.success:", result.success);
+      console.log("  - result.imageUrl:", result.imageUrl);
+      console.log("  - result.success && result.imageUrl:", result.success && result.imageUrl);
+
+      if (result.success && result.imageUrl) {
+        console.log("✅ 成功条件を満たしています");
         onChange(result.imageUrl);
+        console.log("✅ S3アップロード成功:", result.imageUrl);
+        // 成功時は静かに処理（アラートは表示しない）
+        return; // 成功時は早期リターン
       } else {
-        console.error("S3アップロードエラー:", result.error);
-        // S3アップロードが失敗した場合、ローカルファイルのURLを生成
-        const localUrl = URL.createObjectURL(file);
-        onChange(localUrl);
-        alert("S3アップロードに失敗しましたが、ローカルプレビューを表示します。保存前に画像URLを手動で設定してください。");
+        console.log("❌ 失敗条件に該当:");
+        console.log("  - success:", result.success);
+        console.log("  - imageUrl:", result.imageUrl);
+        console.log("  - error:", result.error);
+        
+        console.error("❌ S3アップロードエラー:", result.error);
+        
+        // 本番環境ではローカルblob URLを使用しない
+        const isProduction = window.location.hostname !== 'localhost';
+        
+        if (!isProduction) {
+          // 開発環境でのみローカルプレビューを表示
+          const localUrl = URL.createObjectURL(file);
+          onChange(localUrl);
+        }
+        
+        // より詳細なエラーメッセージを表示
+        const errorMessage = result.error || "アップロードに失敗しました";
+        alert(`画像のアップロードに失敗しました: ${errorMessage}\n\n${isProduction ? '画像URLを手動で設定してください。' : 'ローカルプレビューを表示しますが、保存前に画像URLを手動で設定してください。'}`);
       }
     } catch (error) {
-      console.error("アップロードエラー:", error);
-      // エラーの場合もローカルプレビューを表示
-      const localUrl = URL.createObjectURL(file);
-      onChange(localUrl);
-      alert("アップロードに失敗しましたが、ローカルプレビューを表示します。保存前に画像URLを手動で設定してください。");
+      console.error("❌ アップロードエラー:", error);
+      
+      // 本番環境ではローカルblob URLを使用しない
+      const isProduction = window.location.hostname !== 'localhost';
+      
+      if (!isProduction) {
+        // 開発環境でのみローカルプレビューを表示
+        const localUrl = URL.createObjectURL(file);
+        onChange(localUrl);
+      }
+      
+      // ネットワークエラーやその他のエラーの場合
+      const errorMessage = error instanceof Error ? error.message : "不明なエラーが発生しました";
+      console.error("エラー詳細:", errorMessage);
+      alert(`画像のアップロードに失敗しました: ${errorMessage}\n\n${isProduction ? '画像URLを手動で設定してください。' : 'ローカルプレビューを表示しますが、保存前に画像URLを手動で設定してください。'}`);
     } finally {
       setIsUploading(false);
     }

@@ -6,6 +6,7 @@ import Link from "next/link";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
+import ImageUpload from "@/components/ui/image-upload";
 import { ArrowLeft, Save, X } from "lucide-react";
 
 interface Contest {
@@ -369,16 +370,24 @@ export default function EditContestPage({ params }: { params: Promise<{ id: stri
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    画像URL
+                    画像
                   </label>
-                  <input
-                    type="url"
-                    name="imageUrl"
+                  <ImageUpload
                     value={formData.imageUrl}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="https://example.com/image.jpg"
+                    onChange={(url) => setFormData(prev => ({ ...prev, imageUrl: url }))}
+                    type="contests"
                   />
+                  <div className="mt-2">
+                    <label className="block text-xs text-gray-500 mb-1">または直接URLを入力</label>
+                    <input
+                      type="url"
+                      name="imageUrl"
+                      value={formData.imageUrl}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex items-center space-x-3">
