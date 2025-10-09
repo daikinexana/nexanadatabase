@@ -65,7 +65,13 @@ export async function POST(request: NextRequest) {
     });
 
     if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.AWS_S3_BUCKET_NAME) {
-      console.log("エラー: AWS環境変数が設定されていません");
+      console.error("❌ AWS環境変数が設定されていません");
+      console.error("❌ 環境変数の詳細:", {
+        AWS_REGION: process.env.AWS_REGION ? '設定済み' : '未設定',
+        AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID ? '設定済み' : '未設定',
+        AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY ? '設定済み' : '未設定',
+        AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME ? '設定済み' : '未設定'
+      });
       return NextResponse.json({ 
         success: false,
         error: "AWS S3の設定が不完全です。管理者にお問い合わせください。" 
@@ -91,30 +97,46 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response);
 
   } catch (error) {
-    console.error("アップロードエラー:", error);
+    console.error("❌ アップロードエラー:", error);
+    console.error("❌ エラーの詳細:", {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
     
     // AWS認証エラーの場合は具体的なメッセージを返す
     if (error instanceof Error) {
       if (error.message.includes("InvalidAccessKeyId")) {
+        console.error("❌ AWS認証エラー: InvalidAccessKeyId");
         return NextResponse.json({ 
           success: false,
           error: "AWS認証情報が無効です。管理者にお問い合わせください。" 
         }, { status: 500 });
       }
       if (error.message.includes("NoSuchBucket")) {
+        console.error("❌ S3バケットエラー: NoSuchBucket");
         return NextResponse.json({ 
           success: false,
           error: "AWS S3バケットが見つかりません。管理者にお問い合わせください。" 
         }, { status: 500 });
       }
       if (error.message.includes("AccessDenied")) {
+        console.error("❌ S3アクセス拒否エラー: AccessDenied");
         return NextResponse.json({ 
           success: false,
           error: "S3バケットへのアクセスが拒否されました。管理者にお問い合わせください。" 
         }, { status: 500 });
       }
+      if (error.message.includes("RequestEntityTooLarge")) {
+        console.error("❌ ファイルサイズエラー: RequestEntityTooLarge");
+        return NextResponse.json({ 
+          success: false,
+          error: "ファイルサイズが大きすぎます。管理者にお問い合わせください。" 
+        }, { status: 413 });
+      }
     }
     
+    console.error("❌ 一般的なエラーが発生しました");
     return NextResponse.json(
       { 
         success: false,
