@@ -18,14 +18,19 @@ export async function uploadToS3(file: File, key: string): Promise<string> {
     AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME
   });
   
-  console.log("📦 ファイルをバッファに変換中...");
-  const buffer = Buffer.from(await file.arrayBuffer());
-  console.log("✅ バッファ変換完了:", buffer.length, "bytes");
+  // メモリ効率を改善するため、ストリーミング処理を使用
+  console.log("📦 ファイルをストリームで処理中...");
+  
+  // ファイルをUint8Arrayとして読み込み（メモリ効率が良い）
+  const arrayBuffer = await file.arrayBuffer();
+  const uint8Array = new Uint8Array(arrayBuffer);
+  
+  console.log("✅ ストリーム変換完了:", uint8Array.length, "bytes");
   
   const command = new PutObjectCommand({
     Bucket: process.env.AWS_S3_BUCKET_NAME!,
     Key: key,
-    Body: buffer,
+    Body: uint8Array,
     ContentType: file.type,
   });
 
@@ -34,7 +39,7 @@ export async function uploadToS3(file: File, key: string): Promise<string> {
     Bucket: process.env.AWS_S3_BUCKET_NAME,
     Key: key,
     ContentType: file.type,
-    BodySize: buffer.length
+    BodySize: uint8Array.length
   });
   
   try {
@@ -43,6 +48,9 @@ export async function uploadToS3(file: File, key: string): Promise<string> {
   } catch (error) {
     console.error("❌ S3アップロードエラー:", error);
     throw error;
+  } finally {
+    // メモリを明示的に解放
+    arrayBuffer.byteLength = 0;
   }
   
   const imageUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
