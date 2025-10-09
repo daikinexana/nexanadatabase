@@ -7,7 +7,12 @@ export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("アップロードAPI開始");
+    console.log("🚀 アップロードAPI開始");
+    console.log("🔍 リクエスト情報:", {
+      method: request.method,
+      url: request.url,
+      headers: Object.fromEntries(request.headers.entries())
+    });
     
     // Content-Lengthをチェック（10MB制限 - スクリーンショット対応）
     const maxSize = 10 * 1024 * 1024; // 10MB
@@ -19,15 +24,20 @@ export async function POST(request: NextRequest) {
       }, { status: 413 });
     }
     
+    console.log("📦 FormDataを解析中...");
     const formData = await request.formData();
+    console.log("✅ FormData解析完了");
+    
     const file = formData.get("file") as File;
     const type = formData.get("type") as string;
 
-    console.log("受信データ:", { 
+    console.log("📋 受信データ:", { 
       fileName: file?.name, 
       fileSize: file?.size, 
       fileType: file?.type, 
-      type 
+      type,
+      hasFile: !!file,
+      hasType: !!type
     });
 
     if (!file) {
@@ -57,15 +67,24 @@ export async function POST(request: NextRequest) {
     }
 
     // 環境変数チェック
-    console.log("環境変数チェック:", {
+    console.log("🔧 環境変数チェック:", {
       AWS_REGION: process.env.AWS_REGION,
       AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID ? '設定済み' : '未設定',
       AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY ? '設定済み' : '未設定',
-      AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME
+      AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME,
+      NODE_ENV: process.env.NODE_ENV,
+      VERCEL: process.env.VERCEL,
+      VERCEL_ENV: process.env.VERCEL_ENV
     });
 
     if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.AWS_S3_BUCKET_NAME) {
       console.error("❌ AWS環境変数が設定されていません");
+      console.error("❌ 詳細:", {
+        AWS_REGION: process.env.AWS_REGION ? '設定済み' : '未設定',
+        AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID ? '設定済み' : '未設定',
+        AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY ? '設定済み' : '未設定',
+        AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME ? '設定済み' : '未設定'
+      });
       return NextResponse.json({ 
         success: false,
         error: "AWS S3の設定が不完全です。管理者にお問い合わせください。" 
@@ -74,12 +93,23 @@ export async function POST(request: NextRequest) {
 
     // S3キーを生成
     const key = generateImageKey(type, file.name);
-    console.log("生成されたS3キー:", key);
+    console.log("🔑 生成されたS3キー:", key);
     
     // S3にアップロード
     console.log("🚀 S3アップロード開始");
-    const imageUrl = await uploadToS3(file, key);
-    console.log("✅ S3アップロード完了:", imageUrl);
+    let imageUrl: string;
+    try {
+      imageUrl = await uploadToS3(file, key);
+      console.log("✅ S3アップロード完了:", imageUrl);
+    } catch (s3Error) {
+      console.error("❌ S3アップロードでエラーが発生:", s3Error);
+      console.error("❌ S3エラーの詳細:", {
+        name: s3Error instanceof Error ? s3Error.name : 'Unknown',
+        message: s3Error instanceof Error ? s3Error.message : String(s3Error),
+        stack: s3Error instanceof Error ? s3Error.stack : undefined
+      });
+      throw s3Error;
+    }
 
     const response = {
       success: true,
@@ -92,6 +122,11 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error("❌ アップロードエラー:", error);
+    console.error("❌ エラーの詳細:", {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
     
     // AWS認証エラーの場合は具体的なメッセージを返す
     if (error instanceof Error) {
