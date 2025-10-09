@@ -19,19 +19,19 @@ export const metadata: Metadata = {
 interface News {
   id: string;
   title: string;
-  description?: string;
-  imageUrl?: string;
+  description: string | null;
+  imageUrl: string | null;
   company: string;
-  sector?: string;
-  amount?: string;
-  investors?: string;
-  publishedAt?: string;
-  sourceUrl?: string;
+  sector: string | null;
+  amount: string | null;
+  investors: string[];
+  publishedAt: Date | null;
+  sourceUrl: string | null;
   type: string;
-  area?: string;
+  area: string | null;
   isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // ページネーション情報の型定義
@@ -50,60 +50,52 @@ interface NewsResponse {
   pagination: PaginationInfo;
 }
 
-// サーバーサイドでデータを取得
+// サーバーサイドでデータを取得（直接Prismaを使用）
 async function getNews(page: number = 1, limit: number = 50): Promise<NewsResponse> {
   try {
-    const baseUrl = process.env.NODE_ENV === 'development' 
-      ? 'http://localhost:3001' 
-      : (process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com');
-    const url = `${baseUrl}/api/news?page=${page}&limit=${limit}`;
+    const { prisma } = await import("@/lib/prisma");
     
-    console.log('Fetching news from:', url);
+    const skip = (page - 1) * limit;
     
-    const response = await fetch(url, {
-      next: { revalidate: 300 }, // 5分間キャッシュ
-      headers: {
-        'Cache-Control': 'max-age=300',
+    // 総件数を取得
+    const totalCount = await prisma.news.count({
+      where: {
+        isActive: true,
       },
     });
+
+    // ページネーション付きでニュースを取得
+    const news = await prisma.news.findMany({
+      where: {
+        isActive: true,
+      },
+      orderBy: {
+        publishedAt: "desc",
+      },
+      skip,
+      take: limit,
+    });
+
+    // 投資家を配列に変換
+    const newsWithArrayInvestors = news.map(newsItem => ({
+      ...newsItem,
+      investors: newsItem.investors ? newsItem.investors.split(',') : []
+    }));
+
+    // ページネーション情報を含めて返す
+    const totalPages = Math.ceil(totalCount / limit);
     
-    console.log('Response status:', response.status);
-    
-    if (response.ok) {
-      const data = await response.json();
-      console.log('API Response:', data);
-      
-      // 後方互換性: 古いAPI形式（配列を直接返す）の場合
-      if (Array.isArray(data)) {
-        return {
-          data: data,
-          pagination: {
-            page: 1,
-            limit: data.length,
-            totalCount: data.length,
-            totalPages: 1,
-            hasNext: false,
-            hasPrev: false,
-          },
-        };
-      }
-      
-      // 新しいAPI形式（dataとpaginationを含む）
-      return data;
-    } else {
-      console.error("Failed to fetch news:", response.status, response.statusText);
-      return {
-        data: [],
-        pagination: {
-          page: 1,
-          limit: 50,
-          totalCount: 0,
-          totalPages: 0,
-          hasNext: false,
-          hasPrev: false,
-        },
-      };
-    }
+    return {
+      data: newsWithArrayInvestors,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   } catch (error) {
     console.error("Error fetching news:", error);
     return {

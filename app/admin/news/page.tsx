@@ -51,31 +51,44 @@ export default function AdminNewsPage() {
     isActive: true,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // ページネーション用の状態
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [limit] = useState(50); // 1ページあたりの件数
   // const [investorInput, setInvestorInput] = useState('');
 
   useEffect(() => {
     fetchNews();
-  }, []);
+  }, [currentPage]);
 
   const fetchNews = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/news");
+      const response = await fetch(`/api/news?page=${currentPage}&limit=${limit}`);
       if (response.ok) {
         const result = await response.json();
         // APIは { data: [...], pagination: {...} } の形式で返す
         if (result.data && Array.isArray(result.data)) {
           setNews(result.data);
+          setTotalPages(result.pagination?.totalPages || 1);
+          setTotalCount(result.pagination?.totalCount || 0);
         } else if (Array.isArray(result)) {
           // 後方互換性: 直接配列が返される場合
           setNews(result);
+          setTotalPages(1);
+          setTotalCount(result.length);
         } else {
           setNews([]);
+          setTotalPages(1);
+          setTotalCount(0);
         }
       }
     } catch (error) {
       console.error("Error fetching news:", error);
       setNews([]);
+      setTotalPages(1);
+      setTotalCount(0);
     } finally {
       setLoading(false);
     }
@@ -205,6 +218,23 @@ export default function AdminNewsPage() {
   const handleInvestorChange = (value: string) => {
     const investors = value.split(',').map(investor => investor.trim()).filter(investor => investor);
     setFormData({ ...formData, investors });
+  };
+
+  // ページネーション用のハンドラー
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
   // const handleInvestorAdd = () => {
@@ -501,9 +531,14 @@ export default function AdminNewsPage() {
           {/* ニュース一覧 */}
           <div className="bg-white shadow overflow-hidden sm:rounded-md">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-medium text-gray-900">
-                ニュース一覧 ({news.length}件)
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-medium text-gray-900">
+                  ニュース一覧 ({totalCount.toLocaleString()}件)
+                </h2>
+                <div className="text-sm text-gray-500">
+                  ページ {currentPage} / {totalPages} ({limit}件/ページ)
+                </div>
+              </div>
             </div>
             
             {loading ? (
@@ -829,6 +864,96 @@ export default function AdminNewsPage() {
                     )}
                   </div>
                 ))}
+              </div>
+            )}
+            
+            {/* ページネーション */}
+            {totalPages > 1 && (
+              <div className="px-6 py-4 border-t border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-700">
+                    {totalCount > 0 && (
+                      <>
+                        {(currentPage - 1) * limit + 1} - {Math.min(currentPage * limit, totalCount)}件を表示
+                        （全{totalCount.toLocaleString()}件中）
+                      </>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    {/* 前のページボタン */}
+                    <button
+                      onClick={handlePrevPage}
+                      disabled={currentPage === 1}
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      前へ
+                    </button>
+                    
+                    {/* ページ番号 */}
+                    <div className="flex items-center space-x-1">
+                      {/* 最初のページ */}
+                      {currentPage > 3 && (
+                        <>
+                          <button
+                            onClick={() => handlePageChange(1)}
+                            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                          >
+                            1
+                          </button>
+                          {currentPage > 4 && (
+                            <span className="px-2 text-gray-500">...</span>
+                          )}
+                        </>
+                      )}
+                      
+                      {/* 現在のページ周辺 */}
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        const startPage = Math.max(1, currentPage - 2);
+                        const pageNum = startPage + i;
+                        if (pageNum > totalPages) return null;
+                        
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => handlePageChange(pageNum)}
+                            className={`px-3 py-2 text-sm font-medium rounded-md ${
+                              pageNum === currentPage
+                                ? "text-blue-600 bg-blue-50 border border-blue-300"
+                                : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                      
+                      {/* 最後のページ */}
+                      {currentPage < totalPages - 2 && (
+                        <>
+                          {currentPage < totalPages - 3 && (
+                            <span className="px-2 text-gray-500">...</span>
+                          )}
+                          <button
+                            onClick={() => handlePageChange(totalPages)}
+                            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                          >
+                            {totalPages}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                    
+                    {/* 次のページボタン */}
+                    <button
+                      onClick={handleNextPage}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      次へ
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>

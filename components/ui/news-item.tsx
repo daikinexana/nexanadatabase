@@ -7,17 +7,17 @@ import Modal from "./modal";
 
 interface NewsItemProps {
   title: string;
-  description?: string;
-  imageUrl?: string;
+  description: string | null;
+  imageUrl: string | null;
   company: string;
-  sector?: string;
-  amount?: string;
-  investors?: string | string[];
-  publishedAt?: string;
-  sourceUrl?: string;
+  sector: string | null;
+  amount: string | null;
+  investors: string[];
+  publishedAt: Date | null;
+  sourceUrl: string | null;
   type: string;
-  area?: string;
-  createdAt: string;
+  area: string | null;
+  createdAt: Date;
 }
 
 export default function NewsItem({
