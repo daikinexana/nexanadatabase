@@ -14,13 +14,18 @@ export async function POST(request: NextRequest) {
       VERCEL_ENV: process.env.VERCEL_ENV
     });
     
-    // Content-Lengthをチェック（10MB制限 - スクリーンショット対応）
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Content-Lengthをチェック（5MB制限 - メモリ使用量削減のため）
+    const maxSize = 5 * 1024 * 1024; // 5MB
     const contentLength = request.headers.get('content-length');
     if (contentLength && parseInt(contentLength) > maxSize) {
+      console.log("❌ Content-Length超過:", {
+        contentLength: parseInt(contentLength),
+        maxSize: maxSize,
+        sizeMB: (parseInt(contentLength) / 1024 / 1024).toFixed(2)
+      });
       return NextResponse.json({ 
         success: false,
-        error: `ファイルサイズが大きすぎます（10MB以下にしてください）\n現在のサイズ: ${(parseInt(contentLength) / 1024 / 1024).toFixed(2)}MB` 
+        error: `ファイルサイズが大きすぎます（5MB以下にしてください）\n現在のサイズ: ${(parseInt(contentLength) / 1024 / 1024).toFixed(2)}MB` 
       }, { status: 413 });
     }
     
@@ -45,12 +50,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "タイプが指定されていません" }, { status: 400 });
     }
 
-    // ファイルサイズチェック（10MB制限）
+    // ファイルサイズチェック（5MB制限）
     if (file.size > maxSize) {
       const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+      console.log("❌ ファイルサイズ超過:", {
+        fileSize: file.size,
+        maxSize: maxSize,
+        sizeMB: fileSizeMB
+      });
       return NextResponse.json({ 
         success: false,
-        error: `ファイルサイズが大きすぎます（10MB以下にしてください）\n現在のサイズ: ${fileSizeMB}MB` 
+        error: `ファイルサイズが大きすぎます（5MB以下にしてください）\n現在のサイズ: ${fileSizeMB}MB` 
       }, { status: 413 });
     }
 

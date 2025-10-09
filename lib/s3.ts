@@ -30,12 +30,28 @@ function createS3Client() {
 export async function uploadToS3(file: File, key: string): Promise<string> {
   console.log("🚀 S3アップロード開始:", { key, fileType: file.type, fileSize: file.size });
   
+  // メモリ使用量を監視
+  const memBefore = process.memoryUsage();
+  console.log("📊 メモリ使用量（開始）:", {
+    rss: Math.round(memBefore.rss / 1024 / 1024) + "MB",
+    heapUsed: Math.round(memBefore.heapUsed / 1024 / 1024) + "MB",
+    heapTotal: Math.round(memBefore.heapTotal / 1024 / 1024) + "MB"
+  });
+  
   // S3クライアントを初期化
   const s3Client = createS3Client();
   
   console.log("📦 ファイルをバッファに変換中...");
   const buffer = Buffer.from(await file.arrayBuffer());
   console.log("✅ バッファ変換完了:", buffer.length, "bytes");
+  
+  // バッファ変換後のメモリ使用量
+  const memAfterBuffer = process.memoryUsage();
+  console.log("📊 メモリ使用量（バッファ後）:", {
+    rss: Math.round(memAfterBuffer.rss / 1024 / 1024) + "MB",
+    heapUsed: Math.round(memAfterBuffer.heapUsed / 1024 / 1024) + "MB",
+    heapTotal: Math.round(memAfterBuffer.heapTotal / 1024 / 1024) + "MB"
+  });
   
   const command = new PutObjectCommand({
     Bucket: process.env.AWS_S3_BUCKET_NAME!,
@@ -52,6 +68,14 @@ export async function uploadToS3(file: File, key: string): Promise<string> {
     console.error("❌ S3アップロードエラー:", error);
     throw error;
   }
+  
+  // 最終メモリ使用量
+  const memFinal = process.memoryUsage();
+  console.log("📊 メモリ使用量（完了）:", {
+    rss: Math.round(memFinal.rss / 1024 / 1024) + "MB",
+    heapUsed: Math.round(memFinal.heapUsed / 1024 / 1024) + "MB",
+    heapTotal: Math.round(memFinal.heapTotal / 1024 / 1024) + "MB"
+  });
   
   const imageUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
   console.log("🔗 生成されたURL:", imageUrl);
