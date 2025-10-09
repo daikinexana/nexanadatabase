@@ -49,8 +49,7 @@ export async function uploadToS3(file: File, key: string): Promise<string> {
     console.error("❌ S3アップロードエラー:", error);
     throw error;
   } finally {
-    // メモリを明示的に解放
-    arrayBuffer.byteLength = 0;
+    // メモリは自動的にガベージコレクションされるため、明示的な解放は不要
   }
   
   const imageUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
