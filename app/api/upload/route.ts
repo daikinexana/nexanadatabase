@@ -7,7 +7,12 @@ export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("アップロードAPI開始");
+    console.log("🚀 アップロードAPI開始");
+    console.log("🔍 環境情報:", {
+      NODE_ENV: process.env.NODE_ENV,
+      VERCEL: process.env.VERCEL,
+      VERCEL_ENV: process.env.VERCEL_ENV
+    });
     
     // Content-Lengthをチェック（10MB制限 - スクリーンショット対応）
     const maxSize = 10 * 1024 * 1024; // 10MB
@@ -84,8 +89,19 @@ export async function POST(request: NextRequest) {
     
     // S3にアップロード
     console.log("🚀 S3アップロード開始");
-    const imageUrl = await uploadToS3(file, key);
-    console.log("✅ S3アップロード完了:", imageUrl);
+    let imageUrl: string;
+    try {
+      imageUrl = await uploadToS3(file, key);
+      console.log("✅ S3アップロード完了:", imageUrl);
+    } catch (s3Error) {
+      console.error("❌ S3アップロードでエラーが発生:", s3Error);
+      console.error("❌ S3エラーの詳細:", {
+        name: s3Error instanceof Error ? s3Error.name : 'Unknown',
+        message: s3Error instanceof Error ? s3Error.message : String(s3Error),
+        stack: s3Error instanceof Error ? s3Error.stack : undefined
+      });
+      throw s3Error; // エラーを再スローしてcatchブロックで処理
+    }
 
     const response = {
       success: true,
