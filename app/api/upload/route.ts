@@ -55,13 +55,13 @@ export async function POST(request: NextRequest) {
       headers: Object.fromEntries(request.headers.entries())
     });
     
-    // Content-Lengthをチェック（1MB制限 - Vercel制限対応）
-    const maxSize = 1 * 1024 * 1024; // 1MB
+    // Content-Lengthをチェック（ローカル: 10MB、本番: 1MB）
+    const maxSize = process.env.NODE_ENV === 'production' ? 1 * 1024 * 1024 : 10 * 1024 * 1024;
     const contentLength = request.headers.get('content-length');
     if (contentLength && parseInt(contentLength) > maxSize) {
       return NextResponse.json({ 
         success: false,
-        error: `ファイルサイズが大きすぎます（1MB以下にしてください）\n現在のサイズ: ${(parseInt(contentLength) / 1024 / 1024).toFixed(2)}MB` 
+        error: `ファイルサイズが大きすぎます（${process.env.NODE_ENV === 'production' ? '1MB' : '10MB'}以下にしてください）\n現在のサイズ: ${(parseInt(contentLength) / 1024 / 1024).toFixed(2)}MB` 
       }, { status: 413 });
     }
     
@@ -91,12 +91,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "タイプが指定されていません" }, { status: 400 });
     }
 
-    // ファイルサイズチェック（1MB制限）
+    // ファイルサイズチェック（環境別制限）
     if (file.size > maxSize) {
       const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+      const limitText = process.env.NODE_ENV === 'production' ? '1MB' : '10MB';
       return NextResponse.json({ 
         success: false,
-        error: `ファイルサイズが大きすぎます（1MB以下にしてください）\n現在のサイズ: ${fileSizeMB}MB` 
+        error: `ファイルサイズが大きすぎます（${limitText}以下にしてください）\n現在のサイズ: ${fileSizeMB}MB` 
       }, { status: 413 });
     }
 
