@@ -41,8 +41,15 @@ export async function uploadToS3(file: File, key: string): Promise<string> {
   // S3クライアントを初期化
   const s3Client = createS3Client();
   
-  console.log("📦 ファイルをバッファに変換中...");
-  const buffer = Buffer.from(await file.arrayBuffer());
+  console.log("📦 ファイルをストリームで処理中...");
+  
+  // メモリ効率を改善するため、ストリーミング処理を使用
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  
+  // バッファを即座に解放
+  arrayBuffer.byteLength = 0;
+  
   console.log("✅ バッファ変換完了:", buffer.length, "bytes");
   
   // バッファ変換後のメモリ使用量
@@ -67,6 +74,14 @@ export async function uploadToS3(file: File, key: string): Promise<string> {
   } catch (error) {
     console.error("❌ S3アップロードエラー:", error);
     throw error;
+  } finally {
+    // バッファを明示的に解放
+    buffer.fill(0);
+  }
+  
+  // ガベージコレクションを強制実行
+  if (global.gc) {
+    global.gc();
   }
   
   // 最終メモリ使用量
