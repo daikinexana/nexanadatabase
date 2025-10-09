@@ -21,7 +21,7 @@ export default function ImageUpload({ value, onChange, type, className = "" }: I
 
     // ファイルサイズチェック（10MB制限）
     if (file.size > 10 * 1024 * 1024) {
-      alert("ファイルサイズが大きすぎます（10MB以下にしてください）");
+      alert(`ファイルサイズが大きすぎます（10MB以下にしてください）\n現在のサイズ: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
       return;
     }
 

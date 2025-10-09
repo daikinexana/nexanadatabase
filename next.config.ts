@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-select'],
   },
+  // App Routerでは個別のAPIルートで設定
   // コンパイル最適化
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',

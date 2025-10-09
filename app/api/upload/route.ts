@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadToS3, generateImageKey } from "@/lib/s3";
 
+// ペイロードサイズ制限を設定
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+};
+
 export async function POST(request: NextRequest) {
   try {
     console.log("アップロードAPI開始");
@@ -28,7 +37,11 @@ export async function POST(request: NextRequest) {
 
     // ファイルサイズチェック（10MB制限）
     if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: "ファイルサイズが大きすぎます（10MB以下にしてください）" }, { status: 400 });
+      const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+      return NextResponse.json({ 
+        success: false,
+        error: `ファイルサイズが大きすぎます（10MB以下にしてください）\n現在のサイズ: ${fileSizeMB}MB` 
+      }, { status: 413 });
     }
 
     // ファイルタイプチェック
