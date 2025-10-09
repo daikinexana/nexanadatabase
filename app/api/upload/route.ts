@@ -7,22 +7,12 @@ export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("🚀 アップロードAPI開始");
-    console.log("🔍 環境情報:", {
-      NODE_ENV: process.env.NODE_ENV,
-      VERCEL: process.env.VERCEL,
-      VERCEL_ENV: process.env.VERCEL_ENV
-    });
+    console.log("アップロードAPI開始");
     
     // Content-Lengthをチェック（10MB制限 - スクリーンショット対応）
     const maxSize = 10 * 1024 * 1024; // 10MB
     const contentLength = request.headers.get('content-length');
     if (contentLength && parseInt(contentLength) > maxSize) {
-      console.log("❌ Content-Length超過:", {
-        contentLength: parseInt(contentLength),
-        maxSize: maxSize,
-        sizeMB: (parseInt(contentLength) / 1024 / 1024).toFixed(2)
-      });
       return NextResponse.json({ 
         success: false,
         error: `ファイルサイズが大きすぎます（10MB以下にしてください）\n現在のサイズ: ${(parseInt(contentLength) / 1024 / 1024).toFixed(2)}MB` 
@@ -53,11 +43,6 @@ export async function POST(request: NextRequest) {
     // ファイルサイズチェック（10MB制限）
     if (file.size > maxSize) {
       const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
-      console.log("❌ ファイルサイズ超過:", {
-        fileSize: file.size,
-        maxSize: maxSize,
-        sizeMB: fileSizeMB
-      });
       return NextResponse.json({ 
         success: false,
         error: `ファイルサイズが大きすぎます（10MB以下にしてください）\n現在のサイズ: ${fileSizeMB}MB` 
@@ -81,12 +66,6 @@ export async function POST(request: NextRequest) {
 
     if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.AWS_S3_BUCKET_NAME) {
       console.error("❌ AWS環境変数が設定されていません");
-      console.error("❌ 環境変数の詳細:", {
-        AWS_REGION: process.env.AWS_REGION ? '設定済み' : '未設定',
-        AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID ? '設定済み' : '未設定',
-        AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY ? '設定済み' : '未設定',
-        AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME ? '設定済み' : '未設定'
-      });
       return NextResponse.json({ 
         success: false,
         error: "AWS S3の設定が不完全です。管理者にお問い合わせください。" 
@@ -99,19 +78,8 @@ export async function POST(request: NextRequest) {
     
     // S3にアップロード
     console.log("🚀 S3アップロード開始");
-    let imageUrl: string;
-    try {
-      imageUrl = await uploadToS3(file, key);
-      console.log("✅ S3アップロード完了:", imageUrl);
-    } catch (s3Error) {
-      console.error("❌ S3アップロードでエラーが発生:", s3Error);
-      console.error("❌ S3エラーの詳細:", {
-        name: s3Error instanceof Error ? s3Error.name : 'Unknown',
-        message: s3Error instanceof Error ? s3Error.message : String(s3Error),
-        stack: s3Error instanceof Error ? s3Error.stack : undefined
-      });
-      throw s3Error; // エラーを再スローしてcatchブロックで処理
-    }
+    const imageUrl = await uploadToS3(file, key);
+    console.log("✅ S3アップロード完了:", imageUrl);
 
     const response = {
       success: true,
@@ -124,11 +92,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error("❌ アップロードエラー:", error);
-    console.error("❌ エラーの詳細:", {
-      name: error instanceof Error ? error.name : 'Unknown',
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined
-    });
     
     // AWS認証エラーの場合は具体的なメッセージを返す
     if (error instanceof Error) {
