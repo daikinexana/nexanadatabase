@@ -19,10 +19,10 @@ export default function ImageUpload({ value, onChange, type, className = "" }: I
   const handleFileSelect = async (file: File) => {
     if (!file) return;
 
-    // ファイルサイズチェック（2MB制限 - Vercel制限対応）
-    const maxSize = 2 * 1024 * 1024; // 2MB
+    // ファイルサイズチェック（1MB制限 - Vercel制限対応）
+    const maxSize = 1 * 1024 * 1024; // 1MB
     if (file.size > maxSize) {
-      alert(`ファイルサイズが大きすぎます（2MB以下にしてください）\n現在のサイズ: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+      alert(`ファイルサイズが大きすぎます（1MB以下にしてください）\n現在のサイズ: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
       return;
     }
 
@@ -218,7 +218,7 @@ export default function ImageUpload({ value, onChange, type, className = "" }: I
                   画像をドラッグ&ドロップするか、クリックして選択
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  JPEG, PNG, GIF, WebP（最大2MB）
+                  JPEG, PNG, GIF, WebP（最大1MB）
                 </p>
               </div>
             </div>

@@ -1,9 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
-import { uploadToS3, generateImageKey } from "@/lib/s3";
+import { uploadToS3, generateImageKey, getSignedUploadUrl } from "@/lib/s3";
 
 // Vercelでのペイロードサイズ制限を回避するための設定
 export const runtime = 'nodejs';
 export const maxDuration = 30;
+
+// プリサインドURLを取得するエンドポイント
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get('type');
+    const filename = searchParams.get('filename');
+
+    if (!type || !filename) {
+      return NextResponse.json({ error: "typeとfilenameが必要です" }, { status: 400 });
+    }
+
+    // 環境変数チェック
+    if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY || !process.env.AWS_S3_BUCKET_NAME) {
+      return NextResponse.json({ 
+        success: false,
+        error: "AWS S3の設定が不完全です。" 
+      }, { status: 500 });
+    }
+
+    const key = generateImageKey(type, filename);
+    const signedUrl = await getSignedUploadUrl(key, 'image/jpeg');
+
+    return NextResponse.json({
+      success: true,
+      signedUrl,
+      key,
+      imageUrl: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`
+    });
+
+  } catch (error) {
+    console.error("❌ プリサインドURL取得エラー:", error);
+    return NextResponse.json(
+      { 
+        success: false,
+        error: "プリサインドURLの取得に失敗しました。" 
+      },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,13 +55,13 @@ export async function POST(request: NextRequest) {
       headers: Object.fromEntries(request.headers.entries())
     });
     
-    // Content-Lengthをチェック（2MB制限 - Vercel制限対応）
-    const maxSize = 2 * 1024 * 1024; // 2MB
+    // Content-Lengthをチェック（1MB制限 - Vercel制限対応）
+    const maxSize = 1 * 1024 * 1024; // 1MB
     const contentLength = request.headers.get('content-length');
     if (contentLength && parseInt(contentLength) > maxSize) {
       return NextResponse.json({ 
         success: false,
-        error: `ファイルサイズが大きすぎます（2MB以下にしてください）\n現在のサイズ: ${(parseInt(contentLength) / 1024 / 1024).toFixed(2)}MB` 
+        error: `ファイルサイズが大きすぎます（1MB以下にしてください）\n現在のサイズ: ${(parseInt(contentLength) / 1024 / 1024).toFixed(2)}MB` 
       }, { status: 413 });
     }
     
@@ -50,12 +91,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "タイプが指定されていません" }, { status: 400 });
     }
 
-    // ファイルサイズチェック（2MB制限）
+    // ファイルサイズチェック（1MB制限）
     if (file.size > maxSize) {
       const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
       return NextResponse.json({ 
         success: false,
-        error: `ファイルサイズが大きすぎます（2MB以下にしてください）\n現在のサイズ: ${fileSizeMB}MB` 
+        error: `ファイルサイズが大きすぎます（1MB以下にしてください）\n現在のサイズ: ${fileSizeMB}MB` 
       }, { status: 413 });
     }
 
