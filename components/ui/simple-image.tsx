@@ -25,7 +25,10 @@ export default function SimpleImage({
 }: SimpleImageProps) {
   const [hasError, setHasError] = useState(false);
 
-  if (hasError || !src) {
+  // srcの末尾のスペースや制御文字を削除
+  const cleanSrc = src?.trimEnd() || "";
+
+  if (hasError || !cleanSrc) {
     return (
       <div className={`bg-gray-100 flex items-center justify-center ${className}`}>
         <div className="text-center text-gray-400">
@@ -38,7 +41,7 @@ export default function SimpleImage({
 
   return (
     <Image
-      src={src}
+      src={cleanSrc}
       alt={alt}
       fill={fill}
       width={width}
