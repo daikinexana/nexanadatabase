@@ -1,18 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadToS3, generateImageKey } from "@/lib/s3";
 
-// ペイロードサイズ制限を設定
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-  },
-};
+// Vercelでのペイロードサイズ制限を回避するための設定
+export const runtime = 'nodejs';
+export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
   try {
     console.log("アップロードAPI開始");
+    
+    // Content-Lengthをチェック（10MB制限 - スクリーンショット対応）
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const contentLength = request.headers.get('content-length');
+    if (contentLength && parseInt(contentLength) > maxSize) {
+      return NextResponse.json({ 
+        success: false,
+        error: `ファイルサイズが大きすぎます（10MB以下にしてください）\n現在のサイズ: ${(parseInt(contentLength) / 1024 / 1024).toFixed(2)}MB` 
+      }, { status: 413 });
+    }
     
     const formData = await request.formData();
     const file = formData.get("file") as File;
@@ -36,7 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ファイルサイズチェック（10MB制限）
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > maxSize) {
       const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
       return NextResponse.json({ 
         success: false,
