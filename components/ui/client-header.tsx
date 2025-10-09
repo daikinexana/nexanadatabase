@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import HeaderNavLink from "./header-nav-link";
 
 const navigation = [
   { name: "コンテスト", nameEn: "Contests", href: "/contests" },
@@ -30,7 +30,7 @@ export default function ClientHeader() {
         <div className="flex justify-between items-center h-14 sm:h-16">
           {/* ロゴ */}
           <div className="flex-shrink-0">
-            <Link href="/" className="flex items-center" onClick={closeMenu}>
+            <HeaderNavLink href="/" onClick={closeMenu}>
               <Image
                 src="/nexanadata.svg"
                 alt="Nexana Database"
@@ -39,16 +39,16 @@ export default function ClientHeader() {
                 className="h-6 sm:h-8 w-auto"
                 priority
               />
-            </Link>
+            </HeaderNavLink>
           </div>
 
           {/* デスクトップナビゲーション */}
           <nav className="hidden md:flex space-x-6 lg:space-x-8">
             {navigation.map((item) => (
-              <Link
+              <HeaderNavLink
                 key={item.name}
                 href={item.href}
-                className="text-gray-700 hover:text-blue-600 px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium transition-colors duration-200 group"
+                className="group"
               >
                 <div className="flex flex-col items-center">
                   <span className="leading-tight">{item.name}</span>
@@ -56,7 +56,7 @@ export default function ClientHeader() {
                     {item.nameEn}
                   </span>
                 </div>
-              </Link>
+              </HeaderNavLink>
             ))}
           </nav>
 
@@ -79,17 +79,17 @@ export default function ClientHeader() {
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
               {navigation.map((item) => (
-                <Link
+                <HeaderNavLink
                   key={item.name}
                   href={item.href}
-                  className="block px-3 py-3 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+                  isMobile={true}
                   onClick={closeMenu}
                 >
                   <div className="flex flex-col">
                     <span className="font-semibold">{item.name}</span>
                     <span className="text-sm text-gray-500">{item.nameEn}</span>
                   </div>
-                </Link>
+                </HeaderNavLink>
               ))}
             </div>
           </div>

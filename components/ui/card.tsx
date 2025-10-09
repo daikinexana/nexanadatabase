@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import SimpleImage from "./simple-image";
-import { Calendar, MapPin, Building, ExternalLink, Clock, Copy } from "lucide-react";
+import { Calendar, MapPin, Building, ExternalLink, Clock, Copy, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import Modal from "./modal";
@@ -76,11 +76,51 @@ export default function Card({
 }: CardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  // 画像のプリロード
+  useEffect(() => {
+    if (imageUrl && isModalOpen) {
+      setIsImageLoading(true);
+      setImageLoaded(false);
+      
+      const img = new window.Image();
+      img.onload = () => {
+        setIsImageLoading(false);
+        setImageLoaded(true);
+      };
+      img.onerror = () => {
+        setIsImageLoading(false);
+        setImageLoaded(false);
+      };
+      img.src = imageUrl;
+    }
+  }, [imageUrl, isModalOpen]);
+
+  // ホバー時に画像をプリロード
+  const handleCardHover = () => {
+    if (imageUrl && !imageLoaded) {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = imageUrl;
+      document.head.appendChild(link);
+    }
+  };
 
   const handleCardClick = () => {
     if (onClick) {
       onClick();
     } else {
+      // モーダルを開く前に画像をプリロード
+      if (imageUrl) {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = imageUrl;
+        document.head.appendChild(link);
+      }
       setIsModalOpen(true);
     }
   };
@@ -93,9 +133,6 @@ export default function Card({
     return '';
   };
 
-  const getShareText = () => {
-    return `${title} - Nexana Database\n\n${description ? description.substring(0, 100) + '...' : ''}\n\n詳細はこちら: ${getShareUrl()}`;
-  };
 
   const handleCopyUrl = async () => {
     try {
@@ -245,6 +282,7 @@ export default function Card({
               : "bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden group h-full flex flex-col"
           }`}
           onClick={handleCardClick}
+          onMouseEnter={handleCardHover}
         >
         {/* nexana設置施設の特別な装飾 */}
         {type === "facility" && isNexanaAvailable && (
@@ -535,15 +573,40 @@ export default function Card({
               {/* ヒーロー画像セクション - iPhone 16対応 */}
               {imageUrl ? (
                 <div className="relative h-64 sm:h-80 w-full overflow-hidden">
+                  {/* ローディング状態 */}
+                  {isImageLoading && (
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center z-10">
+                      <div className="text-center">
+                        <Loader2 className="h-8 w-8 text-gray-400 animate-spin mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">画像を読み込み中...</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* 画像 */}
                   <Image
                     src={imageUrl}
                     alt={title}
                     fill
-                    priority={false}
-                    className="object-cover"
+                    priority={true}
+                    className={`object-cover transition-opacity duration-300 ${
+                      imageLoaded ? 'opacity-100' : 'opacity-0'
+                    }`}
                     sizes="100vw"
+                    onLoad={() => {
+                      setIsImageLoading(false);
+                      setImageLoaded(true);
+                    }}
+                    onError={() => {
+                      setIsImageLoading(false);
+                      setImageLoaded(false);
+                    }}
                   />
+                  
+                  {/* グラデーションオーバーレイ */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                  
+                  {/* タイトルとエリア情報 */}
                   <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6">
                     <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2 leading-tight">{title}</h2>
                     {area && (

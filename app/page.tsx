@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { Metadata } from "next";
 import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
+import EnhancedButton from "@/components/ui/enhanced-button";
+import EnhancedCardButton from "@/components/ui/enhanced-card-button";
 import { Trophy, Building, ArrowRight, Star, Globe, Zap, Target, TrendingUp, Lightbulb } from "lucide-react";
 import { getDatabaseStats } from "@/lib/stats";
 
@@ -160,22 +161,25 @@ export default async function Home() {
           
           {/* CTAボタン群 - iPhone 16対応 */}
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 px-4 sm:px-0">
-            <Link
+            <EnhancedButton
               href="/contests"
-              className="group bg-white text-slate-900 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 flex items-center gap-3 shadow-2xl hover:shadow-3xl w-full sm:w-auto"
+              variant="primary"
+              size="md"
+              className="w-full sm:w-auto whitespace-nowrap"
+              loadingText="コンテストを読み込み中..."
             >
-              <Trophy className="h-5 w-5" />
               コンテストを見る
-              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            </EnhancedButton>
             
-            <Link
+            <EnhancedButton
               href="/news"
-              className="group bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white/20 transition-all duration-300 flex items-center gap-3 border border-white/20 w-full sm:w-auto"
+              variant="secondary"
+              size="md"
+              className="w-full sm:w-auto whitespace-nowrap"
+              loadingText="ニュースを読み込み中..."
             >
-              <TrendingUp className="h-5 w-5" />
               最新ニュース
-            </Link>
+            </EnhancedButton>
           </div>
           
           {/* 統計情報 - iPhone用 */}
@@ -234,10 +238,11 @@ export default async function Home() {
           {/* コンパクトなカードレイアウト */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {features.map((feature) => (
-              <Link
+              <EnhancedCardButton
                 key={feature.name}
                 href={feature.href}
                 className="group relative bg-white/90 backdrop-blur-sm rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all duration-300 overflow-hidden hover:scale-[1.02]"
+                loadingText={`${feature.name}を読み込み中...`}
               >
                 {/* カードの背景グラデーション */}
                 <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-50 transition-opacity duration-300`}></div>
@@ -255,10 +260,10 @@ export default async function Home() {
                   
                   {/* コンテンツ */}
                   <div className="mb-6">
-                    <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2 group-hover:text-slate-700 transition-colors duration-300">
+                    <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2 group-hover:text-slate-700 transition-colors duration-300 whitespace-nowrap">
                       {feature.name}
                     </h3>
-                    <p className="text-sm font-semibold text-slate-500 mb-4">
+                    <p className="text-sm font-semibold text-slate-500 mb-4 whitespace-nowrap">
                       {feature.nameEn}
                     </p>
                   </div>
@@ -268,15 +273,15 @@ export default async function Home() {
                   </p>
                   
                   {/* アローアイコン - シンプルスタイル */}
-                  <div className="flex items-center text-slate-500 group-hover:text-slate-700 font-semibold text-sm transition-all duration-300">
-                    詳細を見る
-                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                  <div className="flex items-center text-slate-500 group-hover:text-slate-700 font-semibold text-sm transition-all duration-300 whitespace-nowrap">
+                    <span>詳細を見る</span>
+                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0" />
                   </div>
                 </div>
                 
                 {/* ホバー時の光る効果 - 控えめに */}
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-              </Link>
+              </EnhancedCardButton>
             ))}
           </div>
         </div>
