@@ -1,5 +1,5 @@
 import { defineConfig } from 'prisma/config';
 
 export default defineConfig({
-  seed: 'tsx prisma/seed.ts',
+  // Prisma 7対応の設定
 });
