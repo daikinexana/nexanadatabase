@@ -11,5 +11,10 @@
   "installCommand": "npm install",
   "env": {
     "MAX_FILE_SIZE": "1048576"
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
   }
 }
