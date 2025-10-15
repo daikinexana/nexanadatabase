@@ -20,6 +20,14 @@ const nextConfig: NextConfig = {
   // パフォーマンス最適化
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-select'],
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
   },
   // App Routerでは個別のAPIルートで設定
   // コンパイル最適化

@@ -16,5 +16,9 @@
     "env": {
       "NODE_ENV": "production"
     }
+  },
+  "crons": [],
+  "buildCache": {
+    "enabled": true
   }
 }
