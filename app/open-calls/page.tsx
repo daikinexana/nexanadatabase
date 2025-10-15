@@ -6,11 +6,11 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "公募一覧 | Nexana Database",
-  description: "企業や自治体が募集する課題解決パートナー、協業相手の公募情報を掲載",
+  description: "企業や行政が募集する課題解決パートナー、協業相手の公募情報を掲載",
   keywords: "公募, パートナーシップ, 協業, 課題解決, 企業, 自治体",
   openGraph: {
     title: "公募一覧 | Nexana Database",
-    description: "企業や自治体が募集する課題解決パートナー、協業相手の公募情報を掲載",
+    description: "企業や行政が募集する課題解決パートナー、協業相手の公募情報を掲載",
     type: "website",
   },
 };
@@ -185,50 +185,56 @@ export default async function OpenCallsPage({
       <ClientHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヘッダー - モダンでおしゃれなデザイン */}
+        {/* ヒーローセクション - 背景画像を使用 */}
         <div className="mb-12">
-          <div className="relative overflow-hidden">
-            {/* 背景グラデーション */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50 rounded-3xl"></div>
-            <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-purple-400/10 to-violet-600/10 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-indigo-400/10 to-blue-400/10 rounded-full blur-3xl"></div>
+          <div className="relative overflow-hidden rounded-3xl min-h-[500px] flex items-center">
+            {/* 背景画像 */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage: "url('/open-calls.image.png')"
+              }}
+            ></div>
             
-            <div className="relative px-8 py-12 text-center">
-              {/* バッジ - より洗練されたデザイン */}
+            {/* オーバーレイ - 左側に紫色のグラデーション */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 via-violet-800/60 to-transparent"></div>
+            
+            {/* コンテンツ */}
+            <div className="relative px-8 py-16 text-left max-w-4xl">
+              {/* バッジ */}
               <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full mb-6 shadow-lg">
                 <Handshake className="w-4 h-4 text-white mr-2" />
                 <span className="text-sm font-semibold text-white uppercase tracking-wider">OPEN CALLS</span>
               </div>
               
-              {/* メインタイトル - より印象的なデザイン */}
+              {/* メインタイトル */}
               <div className="mb-6">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-900 via-purple-900 to-violet-900 bg-clip-text text-transparent mb-3">
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight">
                   Open Calls
                 </h1>
-                <div className="flex items-center justify-center space-x-3">
-                  <div className="h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent flex-1 max-w-24"></div>
-                  <span className="text-lg font-medium text-slate-600 px-4 py-1 bg-white/60 rounded-full backdrop-blur-sm border border-white/20">
+                <div className="flex items-center space-x-3">
+                  <div className="h-px bg-gradient-to-r from-purple-300 to-transparent flex-1 max-w-32"></div>
+                  <span className="text-lg font-medium text-purple-100 px-4 py-1 bg-white/20 rounded-full backdrop-blur-sm border border-white/30">
                     公募一覧
                   </span>
-                  <div className="h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent flex-1 max-w-24"></div>
                 </div>
               </div>
               
-              {/* 説明文 - より魅力的なレイアウト */}
-              <div className="max-w-2xl mx-auto">
-                <p className="text-lg md:text-xl text-slate-700 leading-relaxed font-medium mb-4">
-                  企業や自治体、大学が募集する協業の公募情報を掲載しています
+              {/* 説明文 */}
+              <div className="max-w-2xl">
+                <p className="text-xl md:text-2xl text-white leading-relaxed font-medium mb-4">
+                  企業や行政、大学が募集する協業、アクセラの公募情報を掲載
                 </p>
-                <p className="text-sm text-slate-500 font-medium">
-                  Open calls for partnership and collaboration opportunities from companies and municipalities
+                <p className="text-base text-purple-100 font-medium">
+                  Open calls for partnership and collaboration opportunities
                 </p>
               </div>
               
               {/* 装飾的な要素 */}
-              <div className="flex justify-center items-center space-x-2 mt-8">
-                <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-                <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+              <div className="flex items-center space-x-2 mt-8">
+                <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
+                <div className="w-3 h-3 bg-violet-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-3 h-3 bg-indigo-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
               </div>
             </div>
           </div>

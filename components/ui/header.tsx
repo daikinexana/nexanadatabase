@@ -23,15 +23,15 @@ export default function Header() {
   return (
     <header className="bg-white shadow-sm border-b">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Top">
-        <div className="flex w-full items-center justify-between py-6">
+        <div className="flex w-full items-center justify-between py-8">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <Image
                 src="/nexanadata.svg"
                 alt="Nexana Database"
-                width={200}
-                height={60}
-                className="h-12 w-auto"
+                width={400}
+                height={120}
+                className="h-24 w-auto"
               />
             </Link>
           </div>

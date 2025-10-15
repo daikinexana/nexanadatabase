@@ -181,50 +181,56 @@ export default async function FacilitiesPage({
       <ClientHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヘッダー - モダンでおしゃれなデザイン */}
+        {/* ヒーローセクション - 背景画像を使用 */}
         <div className="mb-12">
-          <div className="relative overflow-hidden">
-            {/* 背景グラデーション */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-3xl"></div>
-            <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-blue-400/10 to-indigo-600/10 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-purple-400/10 to-violet-400/10 rounded-full blur-3xl"></div>
+          <div className="relative overflow-hidden rounded-3xl min-h-[500px] flex items-center">
+            {/* 背景画像 */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage: "url('/facilities.image.png')"
+              }}
+            ></div>
             
-            <div className="relative px-8 py-12 text-center">
-              {/* バッジ - より洗練されたデザイン */}
+            {/* オーバーレイ - 左側に青色のグラデーション */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-indigo-800/60 to-transparent"></div>
+            
+            {/* コンテンツ */}
+            <div className="relative px-8 py-16 text-left max-w-4xl">
+              {/* バッジ */}
               <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mb-6 shadow-lg">
                 <Building2 className="w-4 h-4 text-white mr-2" />
                 <span className="text-sm font-semibold text-white uppercase tracking-wider">FACILITIES</span>
               </div>
               
-              {/* メインタイトル - より印象的なデザイン */}
+              {/* メインタイトル */}
               <div className="mb-6">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mb-3">
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight">
                   Facilities
                 </h1>
-                <div className="flex items-center justify-center space-x-3">
-                  <div className="h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent flex-1 max-w-24"></div>
-                  <span className="text-lg font-medium text-slate-600 px-4 py-1 bg-white/60 rounded-full backdrop-blur-sm border border-white/20">
+                <div className="flex items-center space-x-3">
+                  <div className="h-px bg-gradient-to-r from-blue-300 to-transparent flex-1 max-w-32"></div>
+                  <span className="text-lg font-medium text-blue-100 px-4 py-1 bg-white/20 rounded-full backdrop-blur-sm border border-white/30">
                     施設一覧
                   </span>
-                  <div className="h-px bg-gradient-to-r from-transparent via-blue-300 to-transparent flex-1 max-w-24"></div>
                 </div>
               </div>
               
-              {/* 説明文 - より魅力的なレイアウト */}
-              <div className="max-w-2xl mx-auto">
-                <p className="text-lg md:text-xl text-slate-700 leading-relaxed font-medium mb-4">
-                  スタートアップ支援施設、イノベーション拠点の情報を掲載しています
+              {/* 説明文 */}
+              <div className="max-w-2xl">
+                <p className="text-xl md:text-2xl text-white leading-relaxed font-medium mb-4">
+                  スタートアップ支援施設、イノベーション拠点の情報を掲載
                 </p>
-                <p className="text-sm text-slate-500 font-medium">
-                  Information about startup support facilities, incubation centers, and innovation hubs
+                <p className="text-base text-blue-100 font-medium">
+                  Information about startup support facilities and innovation hubs
                 </p>
               </div>
               
               {/* 装飾的な要素 */}
-              <div className="flex justify-center items-center space-x-2 mt-8">
-                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+              <div className="flex items-center space-x-2 mt-8">
+                <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
+                <div className="w-3 h-3 bg-indigo-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
               </div>
             </div>
           </div>

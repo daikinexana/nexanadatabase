@@ -27,9 +27,9 @@ export default function Footer() {
             <Image
               src="/nexanadataw.svg"
               alt="Nexana Database"
-              width={150}
-              height={45}
-              className="h-8 w-auto"
+              width={300}
+              height={90}
+              className="h-16 w-auto"
             />
           </div>
           <p className="text-center text-xs leading-5 text-gray-400 md:text-left">

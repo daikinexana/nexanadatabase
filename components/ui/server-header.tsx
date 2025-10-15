@@ -13,16 +13,16 @@ export default function ServerHeader() {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-14 sm:h-16">
+        <div className="flex justify-between items-center h-20 sm:h-24">
           {/* ロゴ - iPhone対応 */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
               <Image
                 src="/nexanadata.svg"
                 alt="Nexana Database"
-                width={120}
-                height={32}
-                className="h-6 sm:h-8 w-auto"
+                width={240}
+                height={64}
+                className="h-12 sm:h-16 w-auto"
                 priority
               />
             </Link>

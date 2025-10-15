@@ -148,57 +148,56 @@ export default async function NewsPage({
       <ClientHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* ヘッダー - iPhone 16専用プレミアムデザイン */}
-        <div className="mb-12 sm:mb-16">
-          <div className="relative overflow-hidden">
-            {/* 背景グラデーション - エメラルド系に変更 */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl sm:rounded-3xl"></div>
-            <div className="absolute top-0 right-0 w-48 h-48 sm:w-72 sm:h-72 bg-gradient-to-br from-emerald-400/10 to-teal-600/10 rounded-full blur-2xl sm:blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-40 h-40 sm:w-64 sm:h-64 bg-gradient-to-tr from-teal-400/10 to-cyan-400/10 rounded-full blur-2xl sm:blur-3xl"></div>
+        {/* ヒーローセクション - 背景画像を使用 */}
+        <div className="mb-12">
+          <div className="relative overflow-hidden rounded-3xl min-h-[500px] flex items-center">
+            {/* 背景画像 */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage: "url('/news.image.png')"
+              }}
+            ></div>
             
-            <div className="relative px-4 sm:px-8 py-8 sm:py-12 text-center">
-              {/* バッジ - エメラルド系プレミアムデザイン */}
-              <div className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full mb-6 sm:mb-8 shadow-xl">
-                <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
+            {/* オーバーレイ - 左側に緑色のグラデーション */}
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/80 via-teal-800/60 to-transparent"></div>
+            
+            {/* コンテンツ */}
+            <div className="relative px-8 py-16 text-left max-w-4xl">
+              {/* バッジ */}
+              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full mb-6 shadow-lg">
                 <Newspaper className="w-4 h-4 text-white mr-2" />
-                <span className="text-sm font-bold text-white uppercase tracking-wider">NEWS</span>
+                <span className="text-sm font-semibold text-white uppercase tracking-wider">NEWS</span>
               </div>
               
-              {/* メインタイトル - iPhone 16対応 */}
-              <div className="mb-6 sm:mb-8">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-900 via-emerald-900 to-teal-900 bg-clip-text text-transparent mb-3 sm:mb-4 leading-tight">
+              {/* メインタイトル */}
+              <div className="mb-6">
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight">
                   News
                 </h1>
-                <div className="flex items-center justify-center space-x-2 sm:space-x-3">
-                  <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent flex-1 max-w-16 sm:max-w-24"></div>
-                  <span className="text-base sm:text-lg font-medium text-slate-600 px-3 sm:px-4 py-1 bg-white/60 rounded-full backdrop-blur-sm border border-white/20">
+                <div className="flex items-center space-x-3">
+                  <div className="h-px bg-gradient-to-r from-emerald-300 to-transparent flex-1 max-w-32"></div>
+                  <span className="text-lg font-medium text-emerald-100 px-4 py-1 bg-white/20 rounded-full backdrop-blur-sm border border-white/30">
                     ニュース一覧
                   </span>
-                  <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent flex-1 max-w-16 sm:max-w-24"></div>
                 </div>
               </div>
               
-              {/* 説明文 - iPhone 16最適化 */}
-              <div className="max-w-2xl mx-auto px-4 sm:px-0">
-                <p className="text-base sm:text-lg md:text-xl text-slate-700 leading-relaxed font-medium mb-3 sm:mb-4">
-                  <span className="block sm:hidden">
-                    スタートアップの調達、M&A、IPO情報を<br />
-                    リアルタイムで配信しています
-                  </span>
-                  <span className="hidden sm:block">
-                    スタートアップの調達、M&A、IPO情報をリアルタイムで配信しています
-                  </span>
+              {/* 説明文 */}
+              <div className="max-w-2xl">
+                <p className="text-xl md:text-2xl text-white leading-relaxed font-medium mb-4">
+                  スタートアップの調達、M&A、IPO情報をリアルタイムで配信
                 </p>
-                <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                <p className="text-base text-emerald-100 font-medium">
                   Real-time startup funding, M&A, and IPO news delivery
                 </p>
               </div>
               
-              {/* 装飾的な要素 - エメラルド系 */}
-              <div className="flex justify-center items-center space-x-2 mt-6 sm:mt-8">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                <div className="w-2 h-2 bg-teal-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+              {/* 装飾的な要素 */}
+              <div className="flex items-center space-x-2 mt-8">
+                <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+                <div className="w-3 h-3 bg-teal-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
               </div>
             </div>
           </div>
