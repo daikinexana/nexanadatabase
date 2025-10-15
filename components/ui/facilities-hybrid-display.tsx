@@ -67,22 +67,17 @@ export default function FacilitiesHybridDisplay({
       {/* 日本国内の施設 */}
       {japanGroups.map(({ area, facilities }) => (
         <div key={area}>
-          <div className="mb-6">
-            <h2 className="text-2xl font-news-heading text-gray-900 mb-2">
-              {area}
-              <span className="block text-sm font-news-subheading text-gray-500 mt-1">
-                {area === '全国' ? 'Nationwide' : 
-                 area === '東京都' ? 'Tokyo' :
-                 area === '大阪府' ? 'Osaka' :
-                 area === '兵庫県' ? 'Hyogo' :
-                 area === '大分県' ? 'Oita' :
-                 area === '中国' ? 'China' :
-                 area === 'その他' ? 'Others' : area}
-              </span>
-            </h2>
-            <div className="h-1 w-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
+          <div className="mb-8">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">F</span>
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900">
+                {area}
+              </h2>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {facilities.map((facility) => (
               <Card
                 key={facility.id}
@@ -112,7 +107,7 @@ export default function FacilitiesHybridDisplay({
         <div className="text-center py-8">
           <button
             onClick={() => setShowOverseas(true)}
-            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-news-subheading rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-gray-800 to-black text-white font-news-subheading rounded-lg hover:from-gray-900 hover:to-gray-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           >
             <Building2 className="w-5 h-5 mr-2" />
             海外の施設を見る ({overseasFacilities.length}件)
@@ -123,22 +118,17 @@ export default function FacilitiesHybridDisplay({
       {/* 海外の施設 */}
       {showOverseas && overseasGroups.map(({ area, facilities }) => (
         <div key={area}>
-          <div className="mb-6">
-            <h2 className="text-2xl font-news-heading text-gray-900 mb-2">
-              {area}
-              <span className="block text-sm font-news-subheading text-gray-500 mt-1">
-                {area === '全国' ? 'Nationwide' : 
-                 area === '東京都' ? 'Tokyo' :
-                 area === '大阪府' ? 'Osaka' :
-                 area === '兵庫県' ? 'Hyogo' :
-                 area === '大分県' ? 'Oita' :
-                 area === '中国' ? 'China' :
-                 area === 'その他' ? 'Others' : area}
-              </span>
-            </h2>
-            <div className="h-1 w-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
+          <div className="mb-8">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">F</span>
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900">
+                {area}
+              </h2>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {facilities.map((facility) => (
               <Card
                 key={facility.id}
@@ -173,14 +163,17 @@ export default function FacilitiesHybridDisplay({
 
         return (
           <div>
-            <div className="mb-6">
-              <h2 className="text-2xl font-news-heading text-gray-900 mb-2">
-                その他
-                <span className="block text-sm font-news-subheading text-gray-500 mt-1">Others</span>
-              </h2>
-              <div className="h-1 w-20 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full"></div>
+            <div className="mb-8">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">F</span>
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900">
+                  その他
+                </h2>
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {unassignedFacilities.map((facility) => (
                 <Card
                   key={facility.id}

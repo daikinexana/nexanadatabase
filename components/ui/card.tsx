@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import SimpleImage from "./simple-image";
-import { Calendar, MapPin, Building, ExternalLink, Clock, Copy, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Building, ExternalLink, Clock, Copy, Loader2, Star } from "lucide-react";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import Modal from "./modal";
@@ -272,292 +272,156 @@ export default function Card({
 
   return (
     <>
-      {/* カード */}
+      {/* カード - 統一されたサイズのデザイン */}
         <div
           className={`${
             type === "facility" && isNexanaAvailable
-              ? "bg-gradient-to-br from-white to-emerald-50/30 border border-emerald-200/50 rounded-3xl shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden group h-full flex flex-col relative backdrop-blur-sm"
+              ? "bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group h-[500px] flex flex-col relative border border-gray-200"
               : type === "contest" && isPopular
-              ? "bg-gradient-to-br from-white to-red-50/30 border border-red-200/50 rounded-3xl shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden group h-full flex flex-col relative backdrop-blur-sm"
-              : "bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden group h-full flex flex-col"
+              ? "bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group h-[500px] flex flex-col relative border border-red-100"
+              : "bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group h-[500px] flex flex-col relative border border-gray-200"
           }`}
           onClick={handleCardClick}
           onMouseEnter={handleCardHover}
         >
-        {/* nexana設置施設の特別な装飾 */}
-        {type === "facility" && isNexanaAvailable && (
-          <>
-            {/* モダンなグラデーションアクセントライン */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"></div>
-            {/* スタートアップらしい光る効果 */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-400/20 to-transparent rounded-full blur-2xl"></div>
-            {/* 右下のモダンなアクセント */}
-            <div className="absolute bottom-4 right-4 w-3 h-3 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full shadow-lg"></div>
-            {/* 左上の微細なアクセント */}
-            <div className="absolute top-4 left-4 w-1 h-1 bg-emerald-300 rounded-full opacity-80"></div>
-          </>
-        )}
+          {/* 施設のバッジ - カードの右上角に表示 */}
+          {type === "facility" && (isNexanaAvailable || isDropinAvailable) && (
+            <div className="absolute top-3 right-3 z-20 flex flex-col gap-2">
+              {/* nexana設置施設のバッジ */}
+              {isNexanaAvailable && (
+                <div className="px-3 py-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold rounded-full shadow-lg border border-blue-500">
+                  NEXANA
+                </div>
+              )}
+              {/* ドロップイン可能施設のバッジ */}
+              {isDropinAvailable && (
+                <div className="px-3 py-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs font-bold rounded-full shadow-lg border border-green-500">
+                  ドロップイン
+                </div>
+              )}
+            </div>
+          )}
 
-        {/* 人気コンテストの特別な装飾 */}
-        {type === "contest" && isPopular && (
-          <>
-            {/* モダンなグラデーションアクセントライン */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-400 via-pink-400 to-rose-400"></div>
-            {/* スタートアップらしい光る効果 */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-400/20 to-transparent rounded-full blur-2xl"></div>
-            {/* 右下のモダンなアクセント */}
-            <div className="absolute bottom-4 right-4 w-3 h-3 bg-gradient-to-r from-red-400 to-pink-400 rounded-full shadow-lg"></div>
-            {/* 左上の微細なアクセント */}
-            <div className="absolute top-4 left-4 w-1 h-1 bg-red-300 rounded-full opacity-80"></div>
-          </>
-        )}
 
         
-        {/* 画像 */}
-        {imageUrl ? (
-          <div className="relative h-48 w-full overflow-hidden">
-            <SimpleImage
-              src={imageUrl}
-              alt={title}
-              fill
-              priority={false}
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-            {/* nexana設置施設バッジ - モダンなデザイン */}
-            {type === "facility" && isNexanaAvailable && (
-              <div className="absolute top-4 right-4">
-                <div className="relative group">
-                  <div className="absolute -inset-2 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 rounded-2xl blur-md opacity-60 group-hover:opacity-90 transition-all duration-500"></div>
-                  <span className="relative px-4 py-2 bg-white/95 text-emerald-700 text-xs font-black rounded-2xl shadow-2xl border border-emerald-200/50 flex items-center backdrop-blur-md">
-                    <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mr-2.5 animate-pulse shadow-sm"></div>
-                    <span className="tracking-wider font-extrabold">NEXANA</span>
-                  </span>
-                </div>
+        {/* コンテンツエリア - 厳密に統一されたレイアウト */}
+        <div className="p-6 flex flex-col h-[252px]">
+          {/* ヘッダー部分 - カテゴリと日付（厳密に固定高さ） */}
+          <div className="flex items-center justify-between mb-4 h-8">
+            {/* カテゴリアイコン - 左上 */}
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                <span className="text-white text-xs font-bold">
+                  {organizerType === "企業" ? "企" : 
+                   organizerType === "行政" ? "行" : 
+                   organizerType === "大学" ? "大" : 
+                   organizerType === "CV" ? "VC" : "他"}
+                </span>
               </div>
-            )}
-            {/* 人気コンテストバッジ - モダンなデザイン */}
-            {type === "contest" && isPopular && (
-              <div className="absolute top-4 right-4">
-                <div className="relative group">
-                  <div className="absolute -inset-2 bg-gradient-to-r from-red-400 via-pink-400 to-rose-400 rounded-2xl blur-md opacity-60 group-hover:opacity-90 transition-all duration-500"></div>
-                  <span className="relative px-4 py-2 bg-white/95 text-red-700 text-xs font-black rounded-2xl shadow-2xl border border-red-200/50 flex items-center backdrop-blur-md">
-                    <div className="w-2 h-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full mr-2.5 animate-pulse shadow-sm"></div>
-                    <span className="tracking-wider font-extrabold">人気</span>
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="relative h-48 w-full bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-            <Building className="h-16 w-16 text-blue-400" />
-            {/* nexana設置施設バッジ（画像なしの場合） - モダンなデザイン */}
-            {type === "facility" && isNexanaAvailable && (
-              <div className="absolute top-4 right-4">
-                <div className="relative group">
-                  <div className="absolute -inset-2 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 rounded-2xl blur-md opacity-60 group-hover:opacity-90 transition-all duration-500"></div>
-                  <span className="relative px-4 py-2 bg-white/95 text-emerald-700 text-xs font-black rounded-2xl shadow-2xl border border-emerald-200/50 flex items-center backdrop-blur-md">
-                    <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mr-2.5 animate-pulse shadow-sm"></div>
-                    <span className="tracking-wider font-extrabold">NEXANA</span>
-                  </span>
-                </div>
-              </div>
-            )}
-            {/* 人気コンテストバッジ（画像なしの場合） - モダンなデザイン */}
-            {type === "contest" && isPopular && (
-              <div className="absolute top-4 right-4">
-                <div className="relative group">
-                  <div className="absolute -inset-2 bg-gradient-to-r from-red-400 via-pink-400 to-rose-400 rounded-2xl blur-md opacity-60 group-hover:opacity-90 transition-all duration-500"></div>
-                  <span className="relative px-4 py-2 bg-white/95 text-red-700 text-xs font-black rounded-2xl shadow-2xl border border-red-200/50 flex items-center backdrop-blur-md">
-                    <div className="w-2 h-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full mr-2.5 animate-pulse shadow-sm"></div>
-                    <span className="tracking-wider font-extrabold">人気</span>
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* nexana設置施設の下部インジケーター - モダンなグラデーション */}
-        {type === "facility" && isNexanaAvailable && (
-          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 shadow-lg"></div>
-        )}
-
-        {/* 人気コンテストの下部インジケーター - モダンなグラデーション */}
-        {type === "contest" && isPopular && (
-          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-red-400 via-pink-400 to-rose-400 shadow-lg"></div>
-        )}
-
-
-        <div className="p-6 flex flex-col flex-1">
-          {/* タイトル */}
-          <div className="h-14 mb-3 flex items-start">
-            <h3 className={`text-lg font-bold line-clamp-2 transition-colors ${
-              type === "facility" && isNexanaAvailable
-                ? "text-emerald-900 group-hover:text-emerald-800 bg-gradient-to-r from-emerald-900 to-teal-800 bg-clip-text text-transparent"
-                : type === "contest" && isPopular
-                ? "text-red-900 group-hover:text-red-800 bg-gradient-to-r from-red-900 to-pink-800 bg-clip-text text-transparent"
-                : "text-gray-900 group-hover:text-blue-600"
-            }`}>
-              {title}
-            </h3>
-          </div>
-
-          {/* 主催者 */}
-          <div className="flex items-center space-x-2 mb-3">
-            <Building className="h-4 w-4 text-gray-400 flex-shrink-0" />
-            <span className="text-sm text-gray-600 truncate">{organizer}</span>
-          </div>
-
-          {/* 主催者タイプとドロップイン */}
-          <div className="mb-3 flex flex-wrap gap-2">
-            {organizerType && (
-              <span 
-                className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${getOrganizerTypeStyle(organizerType).className}`}
-                style={getOrganizerTypeStyle(organizerType).style}
-              >
-                {getOrganizerTypeLabel(organizerType)}
-              </span>
-            )}
-            {type === "contest" && isPopular && (
-              <span className="px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 border border-red-200">
-                人気
-              </span>
-            )}
-            {type === "facility" && isDropinAvailable && (
-              <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                ドロップイン
-              </span>
-            )}
-          </div>
-
-
-
-          {/* 説明（最初の50文字のみ） */}
-          {description ? (
-            <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-3">
-              {description.length > 50 ? `${description.substring(0, 50)}...` : description}
-            </p>
-          ) : (
-            <div className="mb-3">
-              <div className="h-4 bg-gray-100 rounded animate-pulse mb-2"></div>
-              <div className="h-4 bg-gray-100 rounded animate-pulse w-3/4"></div>
-            </div>
-          )}
-
-          {/* 締切日（facility以外、締切日がある場合のみ） */}
-          {type !== "facility" && deadline && (
-            <div className="flex items-center space-x-2 mb-3">
-              <Clock className="h-4 w-4 text-red-500 flex-shrink-0" />
-              <span className="text-sm text-gray-600 font-medium">
-                締切: {format(deadline, "yyyy年MM月dd日", { locale: ja })}
+              <span className="text-xs text-gray-600 font-medium">
+                {type === "facility" ? "施設" : 
+                 type === "open-call" ? "公募" : "コンテスト"}
               </span>
             </div>
-          )}
 
-          {/* 開始日・終了日（イベント用） */}
-          {type === "event" && startDate && (
-            <div className="flex items-center space-x-2 mb-3">
-              <Calendar className="h-4 w-4 text-green-500 flex-shrink-0" />
-              <span className="text-sm text-gray-600 font-medium">
-                {format(startDate, "yyyy年MM月dd日", { locale: ja })}
-                {endDate && ` 〜 ${format(endDate, "MM月dd日", { locale: ja })}`}
-              </span>
-            </div>
-          )}
-
-          {/* 会場（イベント用） */}
-          {type === "event" && venue && (
-            <div className="flex items-center space-x-2 mb-3">
-              <Building className="h-4 w-4 text-purple-500 flex-shrink-0" />
-              <span className="text-sm text-gray-600 font-medium truncate">{venue}</span>
-            </div>
-          )}
-
-          {/* エリア */}
-          {area ? (
-            <div className="flex items-center space-x-2 mb-3">
-              <MapPin className="h-4 w-4 text-blue-500 flex-shrink-0" />
-              <span className="text-sm text-gray-600 font-medium">{area}</span>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-2 mb-3">
-              <MapPin className="h-4 w-4 text-gray-300 flex-shrink-0" />
-              <span className="text-sm text-gray-400 italic">エリア未定</span>
-            </div>
-          )}
-
-          {/* カウントダウンバッジ（エリアの下、facility以外） */}
-          {type !== "facility" && deadline && (
-            <div className="mb-4 flex justify-center">
-              <div className={`relative px-4 py-2 text-sm font-bold rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 ${getStatusColor(deadline)}`}>
-                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-full"></div>
-                <div className="relative flex items-center space-x-2">
-                  <Clock className="h-4 w-4" />
-                  <span>
-                    {(() => {
-                      const days = getDaysRemaining(deadline);
-                      if (days < 0) return "締切済み";
-                      if (days === 0) return "今日締切！";
-                      if (days === 1) return "明日締切！";
-                      if (days <= 7) return `残り${days}日`;
-                      return `残り${days}日`;
-                    })()}
-                  </span>
+            {/* 締切日 - 右上に大きく表示（月.日の順） */}
+            {deadline && (
+              <div className="text-right relative">
+                <div className="text-3xl font-bold text-gray-900 leading-none">
+                  {format(deadline, "MM.dd", { locale: ja })}
                 </div>
               </div>
-            </div>
-          )}
+            )}
+            
+          </div>
 
-          {/* イベント開始日までのカウントダウンバッジ（イベント用） */}
-          {type === "event" && startDate && (
-            <div className="mb-4 flex justify-center">
-              <div className={`relative px-4 py-2 text-sm font-bold rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 ${getStatusColor(startDate)}`}>
-                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-full"></div>
-                <div className="relative flex items-center space-x-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>
-                    {(() => {
-                      const days = getDaysRemaining(startDate);
-                      if (days < 0) return "開催済み";
-                      if (days === 0) return "今日開催！";
-                      if (days === 1) return "明日開催！";
-                      if (days <= 7) return `開催まで${days}日`;
-                      return `開催まで${days}日`;
-                    })()}
-                  </span>
-                </div>
+          {/* タイトル - 見切れないように高さを調整 */}
+          <div className="mb-4 h-9 flex items-center overflow-hidden">
+            <div className="flex items-center space-x-2 w-full">
+              {/* 人気コンテストの星アイコン */}
+              {type === "contest" && isPopular && (
+                <Star className="h-4 w-4 text-amber-500 fill-amber-500 flex-shrink-0" />
+              )}
+              <h3 className="text-lg font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-gray-700 transition-colors flex-1">
+                {title}
+              </h3>
+            </div>
+          </div>
+
+          {/* 主催者とエリア情報 - 厳密に固定高さで統一 */}
+          <div className="mb-4 h-12 flex flex-col justify-center space-y-1">
+            <div className="flex items-center space-x-2">
+              <Building className="h-4 w-4 text-gray-400 flex-shrink-0" />
+              <span className="text-sm text-gray-600 truncate">{organizer}</span>
+            </div>
+            {area && (
+              <div className="flex items-center space-x-2">
+                <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                <span className="text-sm text-gray-600 font-medium">{area}</span>
               </div>
-            </div>
-          )}
-
-          {/* 追加情報のプレースホルダー */}
-          <div className="mt-3 space-y-2">
-            {type === "open-call" && (
-              <>
-                <div className="flex items-center space-x-2">
-                  <div className="h-3 w-3 bg-gray-200 rounded-full"></div>
-                  <span className="text-xs text-gray-400">詳細情報あり</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="h-3 w-3 bg-gray-200 rounded-full"></div>
-                  <span className="text-xs text-gray-400">応募条件・要件</span>
-                </div>
-              </>
             )}
           </div>
 
-          {/* ホバー時の詳細表示インジケーター */}
-          <div className="mt-auto pt-4 flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-              <span>詳細を見る</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
+          {/* 説明文 - 1行表示に制限 */}
+          <div className="mb-4 h-6 flex items-center overflow-hidden">
+            {description && (
+              <p className="text-gray-600 text-sm leading-tight line-clamp-1 w-full">
+                {description}
+              </p>
+            )}
+          </div>
+
+          {/* ステータスバッジ - 洗練されたデザイン */}
+          <div className="mt-auto h-8 flex items-center">
+            {type !== "facility" && deadline && (
+              <div className={`inline-flex items-center px-4 py-2 text-sm font-semibold rounded-full border transition-all duration-200 ${
+                (() => {
+                  const days = getDaysRemaining(deadline);
+                  if (days < 0) return "bg-gray-100 text-gray-600 border-gray-200";
+                  if (days === 0) return "bg-black text-white border-black";
+                  if (days === 1) return "bg-gray-800 text-white border-gray-800";
+                  if (days <= 7) return "bg-gray-200 text-gray-800 border-gray-300";
+                  return "bg-white text-gray-800 border-gray-300";
+                })()
+              }`}>
+                <Clock className="h-4 w-4 mr-2" />
+                <span>
+                  {(() => {
+                    const days = getDaysRemaining(deadline);
+                    if (days < 0) return "締切済み";
+                    if (days === 0) return "今日締切！";
+                    if (days === 1) return "明日締切！";
+                    if (days <= 7) return `残り${days}日`;
+                    return `残り${days}日`;
+                  })()}
+                </span>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* 画像 - 横長画像に対応した表示 */}
+        {imageUrl ? (
+          <div className="relative w-[calc(100%-48px)] mx-auto mb-4 overflow-hidden border border-gray-200 rounded-lg">
+            <div className="relative w-full h-[200px] sm:h-[240px]">
+              <SimpleImage
+                src={imageUrl}
+                alt={title}
+                fill
+                priority={false}
+                className="object-contain group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="relative h-[200px] w-[calc(100%-48px)] mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center border border-gray-200 rounded-lg">
+            <Building className="h-16 w-16 text-gray-400" />
+          </div>
+        )}
+
+
+
+
       </div>
 
       {/* モーダル */}

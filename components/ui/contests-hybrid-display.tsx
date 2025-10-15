@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
 import Card from "./card";
-import { Trophy } from "lucide-react";
 
 interface Contest {
   id: string;
@@ -34,7 +32,6 @@ export default function ContestsHybridDisplay({
   overseasAreas,
   filteredContests,
 }: ContestsHybridDisplayProps) {
-  const [showOverseas, setShowOverseas] = useState(false);
 
   // 日本国内のコンテストを取得
   const japanContests = filteredContests.filter(contest => 
@@ -95,16 +92,17 @@ export default function ContestsHybridDisplay({
       {/* 日本国内のエリア */}
       {Object.entries(japanGrouped).map(([area, areaContests]) => (
         <div key={area}>
-          <div className="mb-6">
-            <h2 className="text-2xl font-news-heading text-gray-900 mb-2">
-              {area}
-              <span className="block text-sm font-news-subheading text-gray-500 mt-1">
-                {getAreaEnglishName(area)}
-              </span>
-            </h2>
-            <div className="h-1 w-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></div>
+          <div className="mb-8">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">C</span>
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900">
+                {area}
+              </h2>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {areaContests.map((contest) => (
               <Card
                 key={contest.id}
@@ -130,73 +128,44 @@ export default function ContestsHybridDisplay({
         </div>
       ))}
 
-      {/* 海外エリアの表示切り替え */}
-      {Object.keys(overseasGrouped).length > 0 && (
-        <>
-          {!showOverseas ? (
-            <div className="text-center py-8">
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 max-w-md mx-auto">
-                <div className="text-gray-400 mb-4">
-                  <Trophy className="h-8 w-8 mx-auto" />
-                </div>
-                <h3 className="text-lg font-news-heading text-gray-900 mb-2">
-                  海外・その他のコンテスト
-                </h3>
-                <p className="text-gray-600 font-news text-sm mb-4">
-                  {Object.keys(overseasGrouped).length}の国・地域・その他で
-                  {overseasContests.length}件のコンテストがあります
-                </p>
-                <button
-                  onClick={() => setShowOverseas(true)}
-                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 font-medium"
-                >
-                  海外・その他のコンテストを見る
-                </button>
+      {/* 海外のエリア */}
+      {Object.entries(overseasGrouped).map(([area, areaContests]) => (
+        <div key={area}>
+          <div className="mb-8">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">C</span>
               </div>
+              <h2 className="text-3xl font-bold text-gray-900">
+                {area}
+              </h2>
             </div>
-          ) : (
-            <>
-              {/* 海外のエリア */}
-              {Object.entries(overseasGrouped).map(([area, areaContests]) => (
-                <div key={area}>
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-news-heading text-gray-900 mb-2">
-                      {area}
-                      <span className="block text-sm font-news-subheading text-gray-500 mt-1">
-                        {getAreaEnglishName(area)}
-                      </span>
-                    </h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full"></div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
-                    {areaContests.map((contest) => (
-                      <Card
-                        key={contest.id}
-                        id={contest.id}
-                        title={contest.title}
-                        description={contest.description}
-                        imageUrl={contest.imageUrl}
-                        deadline={contest.deadline ? new Date(contest.deadline) : undefined}
-                        startDate={contest.startDate ? new Date(contest.startDate) : undefined}
-                        area={contest.area}
-                        organizer={contest.organizer}
-                        organizerType={contest.organizerType || "その他"}
-                        website={contest.website}
-                        targetArea={contest.targetArea}
-                        targetAudience={contest.targetAudience}
-                        incentive={contest.incentive}
-                        operatingCompany={contest.operatingCompany}
-                        isPopular={contest.isPopular}
-                        type="contest"
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </>
-          )}
-        </>
-      )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {areaContests.map((contest) => (
+              <Card
+                key={contest.id}
+                id={contest.id}
+                title={contest.title}
+                description={contest.description}
+                imageUrl={contest.imageUrl}
+                deadline={contest.deadline ? new Date(contest.deadline) : undefined}
+                startDate={contest.startDate ? new Date(contest.startDate) : undefined}
+                area={contest.area}
+                organizer={contest.organizer}
+                organizerType={contest.organizerType || "その他"}
+                website={contest.website}
+                targetArea={contest.targetArea}
+                targetAudience={contest.targetAudience}
+                incentive={contest.incentive}
+                operatingCompany={contest.operatingCompany}
+                isPopular={contest.isPopular}
+                type="contest"
+              />
+            ))}
+          </div>
+        </div>
+      ))}
 
     </div>
   );

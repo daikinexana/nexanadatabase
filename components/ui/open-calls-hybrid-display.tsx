@@ -66,22 +66,17 @@ export default function OpenCallsHybridDisplay({
       {/* 日本国内の公募 */}
       {japanGroups.map(({ area, openCalls }) => (
         <div key={area}>
-          <div className="mb-6">
-            <h2 className="text-2xl font-news-heading text-gray-900 mb-2">
-              {area}
-              <span className="block text-sm font-news-subheading text-gray-500 mt-1">
-                {area === '全国' ? 'Nationwide' : 
-                 area === '東京都' ? 'Tokyo' :
-                 area === '大阪府' ? 'Osaka' :
-                 area === '兵庫県' ? 'Hyogo' :
-                 area === '大分県' ? 'Oita' :
-                 area === '中国' ? 'China' :
-                 area === 'その他' ? 'Others' : area}
-              </span>
-            </h2>
-            <div className="h-1 w-20 bg-gradient-to-r from-green-500 to-blue-600 rounded-full"></div>
+          <div className="mb-8">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">O</span>
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900">
+                {area}
+              </h2>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {openCalls.map((openCall) => (
               <Card
                 key={openCall.id}
@@ -122,22 +117,17 @@ export default function OpenCallsHybridDisplay({
       {/* 海外の公募 */}
       {showOverseas && overseasGroups.map(({ area, openCalls }) => (
         <div key={area}>
-          <div className="mb-6">
-            <h2 className="text-2xl font-news-heading text-gray-900 mb-2">
-              {area}
-              <span className="block text-sm font-news-subheading text-gray-500 mt-1">
-                {area === '全国' ? 'Nationwide' : 
-                 area === '東京都' ? 'Tokyo' :
-                 area === '大阪府' ? 'Osaka' :
-                 area === '兵庫県' ? 'Hyogo' :
-                 area === '大分県' ? 'Oita' :
-                 area === '中国' ? 'China' :
-                 area === 'その他' ? 'Others' : area}
-              </span>
-            </h2>
-            <div className="h-1 w-20 bg-gradient-to-r from-green-500 to-blue-600 rounded-full"></div>
+          <div className="mb-8">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">O</span>
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900">
+                {area}
+              </h2>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {openCalls.map((openCall) => (
               <Card
                 key={openCall.id}
@@ -172,14 +162,17 @@ export default function OpenCallsHybridDisplay({
 
         return (
           <div>
-            <div className="mb-6">
-              <h2 className="text-2xl font-news-heading text-gray-900 mb-2">
-                その他
-                <span className="block text-sm font-news-subheading text-gray-500 mt-1">Others</span>
-              </h2>
-              <div className="h-1 w-20 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full"></div>
+            <div className="mb-8">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">O</span>
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900">
+                  その他
+                </h2>
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {unassignedOpenCalls.map((openCall) => (
                 <Card
                   key={openCall.id}

@@ -28,11 +28,11 @@ const features = [
     descriptionEn: "Startup contests, hackathons, pitch competitions and more",
     href: "/contests",
     icon: Trophy,
-    color: "from-amber-500 to-orange-600",
-    bgColor: "bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50",
-    textColor: "text-amber-600",
-    borderColor: "border-amber-200",
-    accentColor: "bg-amber-400",
+    color: "from-gray-500 to-gray-700",
+    bgColor: "bg-gradient-to-br from-white via-gray-50 to-gray-100",
+    textColor: "text-gray-700",
+    borderColor: "border-gray-200",
+    accentColor: "bg-gray-500",
   },
   {
     name: "公募",
@@ -41,11 +41,11 @@ const features = [
     descriptionEn: "Open calls for partnerships and collaborations",
     href: "/open-calls",
     icon: Target,
-    color: "from-purple-500 to-violet-600",
-    bgColor: "bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50",
-    textColor: "text-purple-600",
-    borderColor: "border-purple-200",
-    accentColor: "bg-purple-400",
+    color: "from-gray-600 to-gray-800",
+    bgColor: "bg-gradient-to-br from-white via-gray-50 to-gray-100",
+    textColor: "text-gray-700",
+    borderColor: "border-gray-200",
+    accentColor: "bg-gray-600",
   },
   {
     name: "施設紹介",
@@ -54,11 +54,11 @@ const features = [
     descriptionEn: "Startup support facilities and innovation hubs",
     href: "/facilities",
     icon: Building,
-    color: "from-blue-500 to-indigo-600",
-    bgColor: "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50",
-    textColor: "text-blue-600",
-    borderColor: "border-blue-200",
-    accentColor: "bg-blue-400",
+    color: "from-slate-500 to-slate-700",
+    bgColor: "bg-gradient-to-br from-white via-gray-50 to-gray-100",
+    textColor: "text-gray-700",
+    borderColor: "border-gray-200",
+    accentColor: "bg-slate-500",
   },
   {
     name: "ニュース",
@@ -67,11 +67,11 @@ const features = [
     descriptionEn: "Real-time startup funding, M&A, and IPO news",
     href: "/news",
     icon: TrendingUp,
-    color: "from-emerald-500 to-teal-600",
-    bgColor: "bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50",
-    textColor: "text-emerald-600",
-    borderColor: "border-emerald-200",
-    accentColor: "bg-emerald-400",
+    color: "from-zinc-500 to-zinc-700",
+    bgColor: "bg-gradient-to-br from-white via-gray-50 to-gray-100",
+    textColor: "text-gray-700",
+    borderColor: "border-gray-200",
+    accentColor: "bg-zinc-500",
   },
   {
     name: "ナレッジベース",
@@ -80,11 +80,11 @@ const features = [
     descriptionEn: "Latest tech trends in AI, deep tech, and innovation",
     href: "/knowledge",
     icon: Lightbulb,
-    color: "from-slate-500 to-blue-600",
-    bgColor: "bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50",
-    textColor: "text-slate-600",
-    borderColor: "border-slate-200",
-    accentColor: "bg-slate-400",
+    color: "from-neutral-500 to-neutral-700",
+    bgColor: "bg-gradient-to-br from-white via-gray-50 to-gray-100",
+    textColor: "text-gray-700",
+    borderColor: "border-gray-200",
+    accentColor: "bg-neutral-500",
   },
 ];
 
@@ -212,25 +212,25 @@ export default async function Home() {
       </div>
 
 
-      {/* サービス紹介 - コンパクトで洗練されたデザイン */}
-      <div className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-slate-50 via-white to-blue-50 relative overflow-hidden">
+      {/* サービス紹介 - モダンでシンプルなデザイン */}
+      <div className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-white via-gray-50 to-gray-100 relative overflow-hidden">
         {/* 背景装飾 - 控えめに */}
         <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute top-10 left-10 w-48 h-48 bg-blue-500/3 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 right-10 w-64 h-64 bg-purple-500/3 rounded-full blur-3xl"></div>
+          <div className="absolute top-10 left-10 w-48 h-48 bg-gray-500/3 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-64 h-64 bg-slate-500/3 rounded-full blur-3xl"></div>
         </div>
         
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12 sm:mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-full mb-6 shadow-lg">
+            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800 rounded-full mb-6 shadow-lg border border-gray-600">
               <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
               <span className="text-sm font-bold text-white uppercase tracking-wider">SERVICES</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-news-heading text-slate-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-news-heading text-gray-900 mb-4">
               サービス
-              <span className="block text-lg sm:text-xl font-news-subheading text-slate-500 mt-2">Services</span>
+              <span className="block text-lg sm:text-xl font-news-subheading text-gray-600 mt-2">Services</span>
             </h2>
-            <p className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto font-news leading-relaxed px-4 sm:px-0">
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto font-news leading-relaxed px-4 sm:px-0">
               スタートアップの成長を支援する多様な情報を提供します
             </p>
           </div>
@@ -241,11 +241,11 @@ export default async function Home() {
               <EnhancedCardButton
                 key={feature.name}
                 href={feature.href}
-                className="group relative bg-white/90 backdrop-blur-sm rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all duration-300 overflow-hidden hover:scale-[1.02]"
+                className="group relative bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-200 hover:border-gray-300 hover:shadow-xl transition-all duration-300 overflow-hidden hover:scale-[1.02]"
                 loadingText={`${feature.name}を読み込み中...`}
               >
                 {/* カードの背景グラデーション */}
-                <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-50 transition-opacity duration-300`}></div>
+                <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-30 transition-opacity duration-300`}></div>
                 
                 {/* 装飾的な要素 - 控えめに */}
                 <div className={`absolute top-0 right-0 w-20 h-20 ${feature.bgColor} rounded-full -translate-y-10 translate-x-10 group-hover:scale-110 transition-transform duration-300 opacity-10`}></div>
@@ -260,27 +260,27 @@ export default async function Home() {
                   
                   {/* コンテンツ */}
                   <div className="mb-6">
-                    <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2 group-hover:text-slate-700 transition-colors duration-300 whitespace-nowrap">
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 group-hover:text-gray-700 transition-colors duration-300 whitespace-nowrap">
                       {feature.name}
                     </h3>
-                    <p className="text-sm font-semibold text-slate-500 mb-4 whitespace-nowrap">
+                    <p className="text-sm font-semibold text-gray-500 mb-4 whitespace-nowrap">
                       {feature.nameEn}
                     </p>
                   </div>
                   
-                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed mb-6 line-clamp-3 font-news">
+                  <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-6 line-clamp-3 font-news">
                     {feature.description}
                   </p>
                   
                   {/* アローアイコン - シンプルスタイル */}
-                  <div className="flex items-center text-slate-500 group-hover:text-slate-700 font-semibold text-sm transition-all duration-300 whitespace-nowrap">
+                  <div className="flex items-center text-gray-500 group-hover:text-gray-700 font-semibold text-sm transition-all duration-300 whitespace-nowrap">
                     <span>詳細を見る</span>
                     <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0" />
                   </div>
                 </div>
                 
                 {/* ホバー時の光る効果 - 控えめに */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-gray-100/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
               </EnhancedCardButton>
             ))}
           </div>
@@ -288,7 +288,7 @@ export default async function Home() {
         
         {/* セクション区切り - シンプルに */}
         <div className="mt-16 sm:mt-20 flex justify-center">
-          <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-slate-300 to-transparent rounded-full"></div>
+          <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-gray-300 to-transparent rounded-full"></div>
         </div>
       </div>
 
