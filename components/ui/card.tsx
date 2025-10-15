@@ -423,10 +423,10 @@ export default function Card({
         title={title}
       >
         <div className="h-full flex flex-col">
-          {/* コンテンツセクション - 左半分固定、右半分スクロール */}
-          <div className="flex-1 flex bg-white overflow-hidden">
-            {/* 左半分: 固定 */}
-            <div className="w-80 flex-shrink-0 p-6 border-r border-gray-200">
+          {/* コンテンツセクション - PC版: 左半分固定、右半分スクロール / スマホ版: 縦積み */}
+          <div className="flex-1 flex flex-col lg:flex-row bg-white overflow-hidden">
+            {/* 左半分: 固定 (PC版のみ) */}
+            <div className="hidden lg:block w-80 flex-shrink-0 p-6 border-r border-gray-200">
               {/* 左側コンテンツ */}
               <div className="flex flex-col h-full">
                 {/* 画像セクション - 上部に配置 */}
@@ -535,35 +535,82 @@ export default function Card({
               </div>
             </div>
 
-            {/* 右半分: スクロール可能 */}
-            <div className="flex-1 overflow-y-auto p-6">
-              <div className="space-y-6">
+            {/* 右半分: スクロール可能 (PC版) / 全体: スクロール可能 (スマホ版) */}
+            <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+              <div className="space-y-4 lg:space-y-6">
+                {/* スマホ版: 画像を上部に表示 */}
+                <div className="lg:hidden">
+                  {imageUrl ? (
+                    <div className="relative h-48 w-full overflow-hidden rounded-lg border border-gray-200 mb-4">
+                      <Image
+                        src={imageUrl}
+                        alt={title}
+                        fill
+                        priority={true}
+                        className="object-cover"
+                        sizes="100vw"
+                      />
+                    </div>
+                  ) : (
+                    <div className="relative h-48 w-full bg-gray-100 flex items-center justify-center rounded-lg border border-gray-200 mb-4">
+                      <div className="text-center">
+                        <Building className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                        <p className="text-gray-500 text-sm">画像なし</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* スマホ版: アクションボタンを画像の下に配置 */}
+                  <div className="flex flex-col space-y-2 mb-6">
+                    {/* ウェブサイトリンク */}
+                    {website && (
+                      <a
+                        href={website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full inline-flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-base"
+                      >
+                        <ExternalLink className="h-5 w-5 mr-2" />
+                        ウェブサイトを見る
+                      </a>
+                    )}
+
+                    {/* URLをコピーして共有ボタン */}
+                    <button
+                      onClick={handleCopyUrl}
+                      className="w-full inline-flex items-center justify-center px-4 py-3 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 font-semibold rounded-lg transition-all duration-200 text-base"
+                    >
+                      <Copy className="h-5 w-5 mr-2" />
+                      {copySuccess ? 'コピーしました！' : 'URLをコピー'}
+                    </button>
+                  </div>
+                </div>
                 {/* 基本情報カード - モダンで洗練されたモノクロ調 */}
-                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                <div className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 lg:mb-6 flex items-center">
                     <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
                       <span className="text-white text-sm font-bold">i</span>
                     </div>
                     基本情報
                   </h3>
                   
-                  <div className="space-y-6">
-                      <div className="border-l-4 border-gray-300 pl-4">
+                  <div className="space-y-4 lg:space-y-6">
+                      <div className="border-l-4 border-gray-300 pl-3 lg:pl-4">
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">主催者</label>
-                        <div className="flex items-center space-x-3 mt-2">
-                          <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
-                            <Building className="h-3 w-3 text-gray-600" />
+                        <div className="flex items-center space-x-2 lg:space-x-3 mt-2">
+                          <div className="w-5 h-5 lg:w-6 lg:h-6 bg-gray-100 rounded-full flex items-center justify-center">
+                            <Building className="h-2.5 w-2.5 lg:h-3 lg:w-3 text-gray-600" />
                           </div>
-                          <span className="text-gray-900 font-semibold text-lg">{organizer}</span>
+                          <span className="text-gray-900 font-semibold text-base lg:text-lg">{organizer}</span>
                         </div>
                       </div>
 
                       {organizerType && (
-                        <div className="border-l-4 border-gray-300 pl-4">
+                        <div className="border-l-4 border-gray-300 pl-3 lg:pl-4">
                           <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">主催者タイプ</label>
                           <div className="mt-2">
                             <span 
-                              className={`px-4 py-2 text-white text-sm font-bold rounded-full ${getOrganizerTypeStyle(organizerType).className}`}
+                              className={`px-3 lg:px-4 py-1.5 lg:py-2 text-white text-sm font-bold rounded-full ${getOrganizerTypeStyle(organizerType).className}`}
                               style={getOrganizerTypeStyle(organizerType).style}
                             >
                               {getOrganizerTypeLabel(organizerType)}
@@ -573,13 +620,13 @@ export default function Card({
                       )}
 
                       {area && (
-                        <div className="border-l-4 border-gray-300 pl-4">
+                        <div className="border-l-4 border-gray-300 pl-3 lg:pl-4">
                           <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">エリア</label>
-                          <div className="flex items-center space-x-3 mt-2">
-                            <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
-                              <MapPin className="h-3 w-3 text-gray-600" />
+                          <div className="flex items-center space-x-2 lg:space-x-3 mt-2">
+                            <div className="w-5 h-5 lg:w-6 lg:h-6 bg-gray-100 rounded-full flex items-center justify-center">
+                              <MapPin className="h-2.5 w-2.5 lg:h-3 lg:w-3 text-gray-600" />
                             </div>
-                            <span className="text-gray-900 font-semibold text-lg">{area}</span>
+                            <span className="text-gray-900 font-semibold text-base lg:text-lg">{area}</span>
                           </div>
                         </div>
                       )}
@@ -635,15 +682,15 @@ export default function Card({
 
                   {/* 概要カード - モダンで洗練されたモノクロ調 */}
                   {description && (
-                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                      <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                    <div className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
+                      <h3 className="text-lg font-bold text-gray-900 mb-4 lg:mb-6 flex items-center">
                         <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
                           <span className="text-white text-sm font-bold">D</span>
                         </div>
                         概要
                       </h3>
-                      <div className="border-l-4 border-gray-300 pl-4">
-                        <p className="text-gray-800 leading-relaxed text-base font-medium">{description}</p>
+                      <div className="border-l-4 border-gray-300 pl-3 lg:pl-4">
+                        <p className="text-gray-800 leading-relaxed text-sm lg:text-base font-medium">{description}</p>
                       </div>
                     </div>
                   )}
