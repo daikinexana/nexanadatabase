@@ -21,15 +21,6 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-select'],
   },
-  // Turbopack設定（Next.js 15対応）
-  turbopack: {
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
-      },
-    },
-  },
   // App Routerでは個別のAPIルートで設定
   // コンパイル最適化
   compiler: {
