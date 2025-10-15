@@ -11,6 +11,7 @@ interface HeaderNavLinkProps {
   className?: string;
   onClick?: () => void;
   isMobile?: boolean;
+  isLogo?: boolean;
 }
 
 export default function HeaderNavLink({
@@ -18,7 +19,8 @@ export default function HeaderNavLink({
   children,
   className = '',
   onClick,
-  isMobile = false
+  isMobile = false,
+  isLogo = false
 }: HeaderNavLinkProps) {
   const [isPending, startTransition] = useTransition();
   const [isClicked, setIsClicked] = useState(false);
@@ -70,20 +72,20 @@ export default function HeaderNavLink({
       `}
       aria-label={isPending ? '読み込み中...' : undefined}
     >
-      {/* ローディングスピナー */}
-      {isPending && (
+      {/* ローディングスピナー - ロゴの場合は表示しない */}
+      {isPending && !isLogo && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-lg">
           <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
         </div>
       )}
       
-      {/* クリック時のリップル効果 */}
-      {isClicked && (
+      {/* クリック時のリップル効果 - ロゴの場合は表示しない */}
+      {isClicked && !isLogo && (
         <div className="absolute inset-0 bg-blue-100/50 rounded-lg animate-ping" />
       )}
       
       {/* コンテンツ */}
-      <div className={isPending ? 'opacity-50' : ''}>
+      <div className={isPending && !isLogo ? 'opacity-50' : ''}>
         {children}
       </div>
     </Link>

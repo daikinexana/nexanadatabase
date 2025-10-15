@@ -3,7 +3,6 @@
 import { ReactNode, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 
 interface EnhancedButtonProps {
   href: string;
@@ -91,12 +90,7 @@ export default function EnhancedButton({
       aria-label={isPending ? (loadingText || '読み込み中...') : undefined}
     >
       {/* ボタンコンテンツコンテナ */}
-      <div className="flex items-center gap-3 flex-nowrap">
-        {/* ローディングスピナー */}
-        {isPending && (
-          <Loader2 className="h-5 w-5 animate-spin flex-shrink-0" />
-        )}
-        
+      <div className="flex items-center justify-center flex-nowrap">
         {/* ボタンテキスト */}
         <span className={`${isPending ? 'opacity-70' : ''} whitespace-nowrap flex-shrink-0`}>
           {isPending ? (loadingText || '読み込み中...') : children}
@@ -108,9 +102,9 @@ export default function EnhancedButton({
         <div className="absolute inset-0 bg-white/20 rounded-2xl animate-ping" />
       )}
       
-      {/* ローディング時のオーバーレイ効果 */}
+      {/* ローディング時のオーバーレイ効果 - 控えめに */}
       {isPending && (
-        <div className="absolute inset-0 bg-white/10 rounded-2xl animate-pulse" />
+        <div className="absolute inset-0 bg-white/5 rounded-2xl" />
       )}
     </Link>
   );

@@ -30,7 +30,7 @@ export default function ClientHeader() {
         <div className="flex justify-between items-center h-20 sm:h-24">
           {/* ロゴ */}
           <div className="flex-shrink-0">
-            <HeaderNavLink href="/" onClick={closeMenu}>
+            <HeaderNavLink href="/" onClick={closeMenu} isLogo={true}>
               <Image
                 src="/nexanadata.svg"
                 alt="Nexana Database"
