@@ -152,14 +152,6 @@ export default function Card({
     return diffDays;
   };
 
-  const getStatusColor = (date: Date) => {
-    const days = getDaysRemaining(date);
-    if (days < 0) return "bg-red-100 text-red-800";
-    if (days <= 7) return "bg-orange-100 text-orange-800";
-    if (days <= 30) return "bg-yellow-100 text-yellow-800";
-    return "bg-green-100 text-green-800";
-  };
-
   const getOrganizerTypeLabel = (type: string) => {
     const typeMap: Record<string, string> = {
       // 新しい5つのカテゴリ
@@ -431,524 +423,542 @@ export default function Card({
         title={title}
       >
         <div className="h-full flex flex-col">
-          {/* コンテンツセクション - iPhone 16最適化 */}
-          <div className="flex-1 overflow-y-auto bg-gradient-to-br from-gray-50 to-white">
-            <div className="space-y-6 sm:space-y-8">
-              {/* ヒーロー画像セクション - iPhone 16対応 */}
-              {imageUrl ? (
-                <div className="relative h-64 sm:h-80 w-full overflow-hidden">
-                  {/* ローディング状態 */}
-                  {isImageLoading && (
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center z-10">
-                      <div className="text-center">
-                        <Loader2 className="h-8 w-8 text-gray-400 animate-spin mx-auto mb-2" />
-                        <p className="text-sm text-gray-500">画像を読み込み中...</p>
+          {/* コンテンツセクション - 左半分固定、右半分スクロール */}
+          <div className="flex-1 flex bg-white overflow-hidden">
+            {/* 左半分: 固定 */}
+            <div className="w-80 flex-shrink-0 p-6 border-r border-gray-200">
+              {/* 左側コンテンツ */}
+              <div className="flex flex-col h-full">
+                {/* 画像セクション - 上部に配置 */}
+                {imageUrl ? (
+                  <div className="relative h-60 w-full overflow-hidden rounded-lg border border-gray-200 flex-shrink-0 mb-4">
+                    {/* ローディング状態 */}
+                    {isImageLoading && (
+                      <div className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10">
+                        <div className="text-center">
+                          <Loader2 className="h-8 w-8 text-gray-400 animate-spin mx-auto mb-2" />
+                          <p className="text-sm text-gray-500">画像を読み込み中...</p>
+                        </div>
                       </div>
+                    )}
+                    
+                    {/* 画像 */}
+                    <Image
+                      src={imageUrl}
+                      alt={title}
+                      fill
+                      priority={true}
+                      className={`object-cover transition-opacity duration-300 ${
+                        imageLoaded ? 'opacity-100' : 'opacity-0'
+                      }`}
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      onLoad={() => {
+                        setIsImageLoading(false);
+                        setImageLoaded(true);
+                      }}
+                      onError={() => {
+                        setIsImageLoading(false);
+                        setImageLoaded(false);
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="relative h-60 w-full bg-gray-100 flex items-center justify-center rounded-lg border border-gray-200 flex-shrink-0 mb-4">
+                    <div className="text-center">
+                      <Building className="h-16 w-16 text-gray-400 mx-auto mb-3" />
+                      <p className="text-gray-500 text-sm">画像なし</p>
                     </div>
-                  )}
-                  
-                  {/* 画像 */}
-                  <Image
-                    src={imageUrl}
-                    alt={title}
-                    fill
-                    priority={true}
-                    className={`object-cover transition-opacity duration-300 ${
-                      imageLoaded ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    sizes="100vw"
-                    onLoad={() => {
-                      setIsImageLoading(false);
-                      setImageLoaded(true);
-                    }}
-                    onError={() => {
-                      setIsImageLoading(false);
-                      setImageLoaded(false);
-                    }}
-                  />
-                  
-                  {/* グラデーションオーバーレイ */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                  
-                  {/* タイトルとエリア情報 */}
-                  <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2 leading-tight">{title}</h2>
-                    {area && (
-                      <div className="flex items-center space-x-2 text-white/90">
-                        <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />
-                        <span className="text-lg sm:text-xl font-medium">{area}</span>
-                      </div>
-                    )}
                   </div>
-                </div>
-              ) : (
-                <div className="relative h-64 sm:h-80 w-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                  <div className="text-center px-4">
-                    <Building className="h-20 w-20 sm:h-24 sm:w-24 text-white/80 mx-auto mb-4 sm:mb-6" />
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4 leading-tight">{title}</h2>
-                    {area && (
-                      <div className="flex items-center justify-center space-x-2 text-white/90">
-                        <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />
-                        <span className="text-lg sm:text-xl font-medium">{area}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
-              {/* 基本情報カード - iPhone 16最適化 */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/20">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
-                  <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-3"></div>
-                  基本情報
-                </h3>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">主催者</label>
-                      <div className="flex items-center space-x-3 mt-2">
-                        <Building className="h-5 w-5 text-gray-400" />
-                        <span className="text-gray-900 font-medium">{organizer}</span>
-                      </div>
-                    </div>
-
-                    {organizerType && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">主催者タイプ</label>
-                        <div className="mt-2">
-                          <span 
-                            className={`px-3 py-1 text-white text-sm font-semibold rounded-full ${getOrganizerTypeStyle(organizerType).className}`}
-                            style={getOrganizerTypeStyle(organizerType).style}
-                          >
-                            {getOrganizerTypeLabel(organizerType)}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-
-
-                    {type === "event" && venue && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">会場</label>
-                        <div className="flex items-center space-x-3 mt-2">
-                          <Building className="h-5 w-5 text-purple-500" />
-                          <span className="text-gray-900 font-medium">{venue}</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {area && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">エリア</label>
-                        <div className="flex items-center space-x-3 mt-2">
-                          <MapPin className="h-5 w-5 text-blue-500" />
-                          <span className="text-gray-900 font-medium">{area}</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-4">
-                    {type !== "facility" && deadline && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">締切日</label>
-                        <div className="flex items-center space-x-3 mt-2">
-                          <Clock className="h-5 w-5 text-red-500" />
-                          <span className="text-gray-900 font-medium">
-                            {format(deadline, "yyyy年MM月dd日 HH:mm", { locale: ja })}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {startDate && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-                          {type === "event" ? "開催日" : "開始日"}
-                        </label>
-                        <div className="flex items-center space-x-3 mt-2">
-                          <Calendar className="h-5 w-5 text-green-500" />
-                          <span className="text-gray-900 font-medium">
-                            {format(startDate, "yyyy年MM月dd日 HH:mm", { locale: ja })}
-                            {type === "event" && endDate && (
-                              <span className="ml-2 text-gray-600">
-                                〜 {format(endDate, "yyyy年MM月dd日 HH:mm", { locale: ja })}
-                              </span>
-                            )}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {type === "event" && endDate && !startDate && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">終了日</label>
-                        <div className="flex items-center space-x-3 mt-2">
-                          <Calendar className="h-5 w-5 text-red-500" />
-                          <span className="text-gray-900 font-medium">
-                            {format(endDate, "yyyy年MM月dd日 HH:mm", { locale: ja })}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* 説明文カード - iPhone 16最適化 */}
-              {description && (
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/20">
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center">
-                    <div className="w-1 h-6 bg-gradient-to-b from-green-500 to-emerald-600 rounded-full mr-3"></div>
-                    概要
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed text-sm sm:text-base">{description}</p>
-                </div>
-              )}
-
-              {/* イベント固有の詳細情報 - iPhone 16最適化 */}
-              {type === "event" && (targetArea || targetAudience || operatingCompany || venue) && (
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/20">
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
-                    <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-pink-600 rounded-full mr-3"></div>
-                    詳細情報
-                  </h3>
-                  
-                  <div className="space-y-4 sm:space-y-6">
-                    {venue && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">会場</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{venue}</p>
-                      </div>
-                    )}
-                    
-                    {targetArea && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供プログラム情報</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{targetArea}</p>
-                      </div>
-                    )}
-                    
-                    {targetAudience && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象者</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{targetAudience}</p>
-                      </div>
-                    )}
-
-                    {operatingCompany && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">運営企業</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{operatingCompany}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Open-call固有の詳細情報 */}
-              {type === "open-call" && (targetArea || targetAudience || area || organizer || operatingCompany || organizerType || availableResources) && (
-                <div className="bg-white rounded-2xl p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
-                    <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-pink-600 rounded-full mr-3"></div>
-                    詳細情報
-                  </h3>
-                  
-                  <div className="space-y-6">
-                    {targetArea && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供プログラム情報</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{targetArea}</p>
-                      </div>
-                    )}
-                    
-                    {targetAudience && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象者</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{targetAudience}</p>
-                      </div>
-                    )}
-
-
-                    {area && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">エリア</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{area}</p>
-                      </div>
-                    )}
-
-                    {organizer && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">主催者</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{organizer}</p>
-                      </div>
-                    )}
-
-                    {operatingCompany && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">運営企業</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{operatingCompany}</p>
-                      </div>
-                    )}
-
-
-
-                    {availableResources && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供可能なリソース/技術</label>
-                        <div className="mt-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border-l-4 border-blue-500">
-                          <div className="prose prose-sm max-w-none">
-                            <div className="text-gray-900 leading-relaxed whitespace-pre-line">
-                              {availableResources.split('\n').map((line, index) => {
-                                // 箇条書きや番号付きリストを検出
-                                if (line.trim().match(/^[\d\-\*\•]\s/)) {
-                                  return (
-                                    <div key={index} className="flex items-start space-x-2 mb-2">
-                                      <span className="text-blue-500 font-bold mt-1">•</span>
-                                      <span className="flex-1">{line.replace(/^[\d\-\*\•]\s/, '')}</span>
-                                    </div>
-                                  );
-                                }
-                                // 見出しを検出（## や ### で始まる行）
-                                if (line.trim().match(/^#{1,3}\s/)) {
-                                  const level = line.match(/^#{1,3}/)?.[0].length || 1;
-                                  const text = line.replace(/^#{1,3}\s/, '');
-                                  return (
-                                    <div key={index} className={`font-bold text-gray-900 mb-3 mt-4 ${
-                                      level === 1 ? 'text-lg' : level === 2 ? 'text-base' : 'text-sm'
-                                    }`}>
-                                      {text}
-                                    </div>
-                                  );
-                                }
-                                // 空行
-                                if (line.trim() === '') {
-                                  return <div key={index} className="h-2"></div>;
-                                }
-                                // 通常のテキスト
-                                return (
-                                  <div key={index} className="mb-2">
-                                    {line}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                  </div>
-                </div>
-              )}
-
-              {/* コンテスト固有の詳細情報 */}
-              {type === "contest" && (targetArea || targetAudience || incentive || operatingCompany) && (
-                <div className="bg-white rounded-2xl p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
-                    <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-pink-600 rounded-full mr-3"></div>
-                    詳細情報
-                  </h3>
-                  
-                  <div className="space-y-6">
-                    {targetArea && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供プログラム情報</label>
-                        <div className="mt-2">
-                          {targetArea.split(';').map((item, index) => (
-                            <div key={index} className="flex items-start space-x-2 mb-1">
-                              <span className="text-blue-500 font-bold mt-1">•</span>
-                              <span className="text-gray-900">{item.trim()}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {targetAudience && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象者</label>
-                        <div className="mt-2">
-                          {targetAudience.split(';').map((item, index) => (
-                            <div key={index} className="flex items-start space-x-2 mb-1">
-                              <span className="text-green-500 font-bold mt-1">•</span>
-                              <span className="text-gray-900">{item.trim()}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {incentive && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">インセンティブ</label>
-                        <div className="mt-2">
-                          {incentive.split(';').map((item, index) => (
-                            <div key={index} className="flex items-start space-x-2 mb-1">
-                              <span className="text-blue-500 font-bold mt-1">•</span>
-                              <span className="text-gray-900">{item.trim()}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {operatingCompany && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">運営企業</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed">{operatingCompany}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* 施設固有の詳細情報 */}
-              {type === "facility" && (targetArea || facilityInfo || targetAudience || program || isDropinAvailable || isNexanaAvailable) && (
-                <div className="bg-white rounded-2xl p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
-                    <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-pink-600 rounded-full mr-3"></div>
-                    詳細情報
-                  </h3>
-                  
-                  <div className="space-y-6">
-                    {targetArea && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供プログラム情報</label>
-                        <div className="mt-2">
-                          {targetArea.split(';').map((item, index) => (
-                            <div key={index} className="flex items-start space-x-2 mb-1">
-                              <span className="text-blue-500 font-bold mt-1">•</span>
-                              <span className="text-gray-900">{item.trim()}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {facilityInfo && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">施設情報</label>
-                        <div className="mt-2">
-                          {facilityInfo.split(';').map((item, index) => (
-                            <div key={index} className="flex items-start space-x-2 mb-1">
-                              <span className="text-green-500 font-bold mt-1">•</span>
-                              <span className="text-gray-900">{item.trim()}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* 利用可能性（施設情報内に表示） */}
-                    {(isDropinAvailable || isNexanaAvailable) && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">施設情報その他</label>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {isDropinAvailable && (
-                            <span className="px-3 py-1 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 text-sm font-medium rounded-full flex items-center shadow-sm border border-blue-200">
-                              <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mr-2"></div>
-                              ドロップイン可能施設
-                            </span>
-                          )}
-                          {isNexanaAvailable && (
-                            <span className="px-3 py-1 bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-sm font-medium rounded-full flex items-center shadow-sm border border-green-200">
-                              <div className="w-2 h-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mr-2"></div>
-                              nexana設置施設
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {targetAudience && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">対象者</label>
-                        <div className="mt-2">
-                          {targetAudience.split(';').map((item, index) => (
-                            <div key={index} className="flex items-start space-x-2 mb-1">
-                              <span className="text-purple-500 font-bold mt-1">•</span>
-                              <span className="text-gray-900">{item.trim()}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {program && (
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">プログラム</label>
-                        <div className="mt-2">
-                          {program.split(';').map((item, index) => (
-                            <div key={index} className="flex items-start space-x-2 mb-1">
-                              <span className="text-orange-500 font-bold mt-1">•</span>
-                              <span className="text-gray-900">{item.trim()}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* タグ */}
-              {tags && tags.length > 0 && (
-                <div className="bg-white rounded-2xl p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                    <div className="w-1 h-6 bg-gradient-to-b from-orange-500 to-red-600 rounded-full mr-3"></div>
-                    タグ
-                  </h3>
-                  <div className="flex flex-wrap gap-3">
-                    {tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-full hover:bg-gray-200 transition-colors"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* アクションボタン - ウェブサイトと共有 */}
-              <div className="text-center space-y-4">
-                {/* ウェブサイトリンク */}
-                {website && (
-                  <a
-                    href={website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                  >
-                    {/* 背景の白いエリア */}
-                    <div className="absolute inset-1 bg-white rounded-xl"></div>
-                    
-                    {/* コンテンツ */}
-                    <div className="relative flex items-center justify-center space-x-3 px-6 py-2">
-                      <ExternalLink className="h-5 w-5 text-gray-800 group-hover:text-gray-900 transition-colors duration-300" />
-                      <span className="text-gray-800 group-hover:text-gray-900 font-semibold text-base transition-colors duration-300">ウェブサイトを見る</span>
-                    </div>
-                  </a>
                 )}
 
-                {/* URLをコピーして共有ボタン */}
-                <div className="flex justify-center">
+                {/* 期限情報（あれば） - 画像の下に配置 */}
+                {deadline && (
+                  <div className="bg-white border border-gray-200 rounded-lg p-3 mb-4 flex-shrink-0">
+                    <h3 className="text-base font-bold text-gray-900 mb-2 flex items-center">
+                      <Clock className="h-4 w-4 text-red-500 mr-2" />
+                      期限
+                    </h3>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-gray-900 mb-1">
+                        {format(deadline, "MM月dd日", { locale: ja })}
+                      </div>
+                      <div className="text-xs text-gray-600 mb-2">
+                        {format(deadline, "yyyy年", { locale: ja })}
+                      </div>
+                      <div className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
+                        (() => {
+                          const days = getDaysRemaining(deadline);
+                          if (days < 0) return "bg-gray-100 text-gray-600";
+                          if (days === 0) return "bg-red-100 text-red-800";
+                          if (days === 1) return "bg-orange-100 text-orange-800";
+                          if (days <= 7) return "bg-yellow-100 text-yellow-800";
+                          return "bg-green-100 text-green-800";
+                        })()
+                      }`}>
+                        {(() => {
+                          const days = getDaysRemaining(deadline);
+                          if (days < 0) return "締切済み";
+                          if (days === 0) return "今日締切！";
+                          if (days === 1) return "明日締切！";
+                          if (days <= 7) return `残り${days}日`;
+                          return `残り${days}日`;
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* アクションボタン - 期限の真下に配置 */}
+                <div className="space-y-2 flex-shrink-0">
+                  {/* ウェブサイトリンク */}
+                  {website && (
+                    <a
+                      href={website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full group inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-sm"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      ウェブサイトを見る
+                    </a>
+                  )}
+
+                  {/* URLをコピーして共有ボタン */}
                   <button
                     onClick={handleCopyUrl}
-                    className="group inline-flex items-center justify-center px-6 py-3 bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02]"
+                    className="w-full group inline-flex items-center justify-center px-4 py-2.5 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 font-semibold rounded-lg transition-all duration-200 text-sm"
                   >
-                    <Copy className="h-4 w-4 text-gray-600 group-hover:text-gray-800 transition-colors duration-200 mr-2" />
-                    <span className="text-gray-700 group-hover:text-gray-900 font-medium text-sm transition-colors duration-200">
-                      {copySuccess ? 'コピーしました！' : 'URLをコピー'}
-                    </span>
+                    <Copy className="h-4 w-4 mr-2" />
+                    {copySuccess ? 'コピーしました！' : 'URLをコピー'}
                   </button>
                 </div>
               </div>
+            </div>
+
+            {/* 右半分: スクロール可能 */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="space-y-6">
+                {/* 基本情報カード - モダンで洗練されたモノクロ調 */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">i</span>
+                    </div>
+                    基本情報
+                  </h3>
+                  
+                  <div className="space-y-6">
+                      <div className="border-l-4 border-gray-300 pl-4">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">主催者</label>
+                        <div className="flex items-center space-x-3 mt-2">
+                          <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
+                            <Building className="h-3 w-3 text-gray-600" />
+                          </div>
+                          <span className="text-gray-900 font-semibold text-lg">{organizer}</span>
+                        </div>
+                      </div>
+
+                      {organizerType && (
+                        <div className="border-l-4 border-gray-300 pl-4">
+                          <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">主催者タイプ</label>
+                          <div className="mt-2">
+                            <span 
+                              className={`px-4 py-2 text-white text-sm font-bold rounded-full ${getOrganizerTypeStyle(organizerType).className}`}
+                              style={getOrganizerTypeStyle(organizerType).style}
+                            >
+                              {getOrganizerTypeLabel(organizerType)}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {area && (
+                        <div className="border-l-4 border-gray-300 pl-4">
+                          <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">エリア</label>
+                          <div className="flex items-center space-x-3 mt-2">
+                            <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
+                              <MapPin className="h-3 w-3 text-gray-600" />
+                            </div>
+                            <span className="text-gray-900 font-semibold text-lg">{area}</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {type === "event" && venue && (
+                        <div className="border-l-4 border-gray-300 pl-4">
+                          <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">会場</label>
+                          <div className="flex items-center space-x-3 mt-2">
+                            <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
+                              <Building className="h-3 w-3 text-gray-600" />
+                            </div>
+                            <span className="text-gray-900 font-semibold text-lg">{venue}</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {startDate && (
+                        <div className="border-l-4 border-gray-300 pl-4">
+                          <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                            {type === "event" ? "開催日" : "開始日"}
+                          </label>
+                          <div className="flex items-center space-x-3 mt-2">
+                            <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
+                              <Calendar className="h-3 w-3 text-gray-600" />
+                            </div>
+                            <span className="text-gray-900 font-semibold text-lg">
+                              {format(startDate, "yyyy年MM月dd日 HH:mm", { locale: ja })}
+                              {type === "event" && endDate && (
+                                <span className="ml-2 text-gray-600">
+                                  〜 {format(endDate, "yyyy年MM月dd日 HH:mm", { locale: ja })}
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {type === "event" && endDate && !startDate && (
+                        <div className="border-l-4 border-gray-300 pl-4">
+                          <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">終了日</label>
+                          <div className="flex items-center space-x-3 mt-2">
+                            <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
+                              <Calendar className="h-3 w-3 text-gray-600" />
+                            </div>
+                            <span className="text-gray-900 font-semibold text-lg">
+                              {format(endDate, "yyyy年MM月dd日 HH:mm", { locale: ja })}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 概要カード - モダンで洗練されたモノクロ調 */}
+                  {description && (
+                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                      <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                        <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
+                          <span className="text-white text-sm font-bold">D</span>
+                        </div>
+                        概要
+                      </h3>
+                      <div className="border-l-4 border-gray-300 pl-4">
+                        <p className="text-gray-800 leading-relaxed text-base font-medium">{description}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* イベント固有の詳細情報 - モダンで洗練されたモノクロ調 */}
+                  {type === "event" && (targetArea || targetAudience || operatingCompany || venue) && (
+                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                      <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                        <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
+                          <span className="text-white text-sm font-bold">E</span>
+                        </div>
+                        詳細情報
+                      </h3>
+                      
+                      <div className="space-y-6">
+                        {venue && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">会場</label>
+                            <p className="text-gray-900 mt-2 leading-relaxed text-base font-medium">{venue}</p>
+                          </div>
+                        )}
+                        
+                        {targetArea && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">提供プログラム情報</label>
+                            <p className="text-gray-900 mt-2 leading-relaxed text-base font-medium">{targetArea}</p>
+                          </div>
+                        )}
+                        
+                        {targetAudience && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">対象者</label>
+                            <p className="text-gray-900 mt-2 leading-relaxed text-base font-medium">{targetAudience}</p>
+                          </div>
+                        )}
+
+                        {operatingCompany && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">運営企業</label>
+                            <p className="text-gray-900 mt-2 leading-relaxed text-base font-medium">{operatingCompany}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Open-call固有の詳細情報 - モダンで洗練されたモノクロ調 */}
+                  {type === "open-call" && (targetArea || targetAudience || area || organizer || operatingCompany || organizerType || availableResources) && (
+                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                      <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                        <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
+                          <span className="text-white text-sm font-bold">O</span>
+                        </div>
+                        詳細情報
+                      </h3>
+                      
+                      <div className="space-y-6">
+                        {targetArea && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">提供プログラム情報</label>
+                            <p className="text-gray-900 mt-2 leading-relaxed text-base font-medium">{targetArea}</p>
+                          </div>
+                        )}
+                        
+                        {targetAudience && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">対象者</label>
+                            <p className="text-gray-900 mt-2 leading-relaxed text-base font-medium">{targetAudience}</p>
+                          </div>
+                        )}
+
+                        {area && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">エリア</label>
+                            <p className="text-gray-900 mt-2 leading-relaxed text-base font-medium">{area}</p>
+                          </div>
+                        )}
+
+                        {organizer && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">主催者</label>
+                            <p className="text-gray-900 mt-2 leading-relaxed text-base font-medium">{organizer}</p>
+                          </div>
+                        )}
+
+                        {operatingCompany && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">運営企業</label>
+                            <p className="text-gray-900 mt-2 leading-relaxed text-base font-medium">{operatingCompany}</p>
+                          </div>
+                        )}
+
+                        {availableResources && (
+                          <div>
+                            <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">提供可能なリソース/技術</label>
+                            <div className="mt-3 bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                              <div className="text-gray-900 leading-relaxed whitespace-pre-line">
+                                {availableResources.split('\n').map((line, index) => {
+                                  // 箇条書きや番号付きリストを検出
+                                  if (line.trim().match(/^[\d\-\*\•]\s/)) {
+                                    return (
+                                      <div key={index} className="flex items-start space-x-2 mb-2">
+                                        <span className="text-blue-500 font-bold mt-1">•</span>
+                                        <span className="flex-1">{line.replace(/^[\d\-\*\•]\s/, '')}</span>
+                                      </div>
+                                    );
+                                  }
+                                  // 見出しを検出（## や ### で始まる行）
+                                  if (line.trim().match(/^#{1,3}\s/)) {
+                                    const level = line.match(/^#{1,3}/)?.[0].length || 1;
+                                    const text = line.replace(/^#{1,3}\s/, '');
+                                    return (
+                                      <div key={index} className={`font-bold text-gray-900 mb-3 mt-4 ${
+                                        level === 1 ? 'text-lg' : level === 2 ? 'text-base' : 'text-sm'
+                                      }`}>
+                                        {text}
+                                      </div>
+                                    );
+                                  }
+                                  // 空行
+                                  if (line.trim() === '') {
+                                    return <div key={index} className="h-2"></div>;
+                                  }
+                                  // 通常のテキスト
+                                  return (
+                                    <div key={index} className="mb-2">
+                                      {line}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* コンテスト固有の詳細情報 - モダンで洗練されたモノクロ調 */}
+                  {type === "contest" && (targetArea || targetAudience || incentive || operatingCompany) && (
+                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                      <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                        <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
+                          <span className="text-white text-sm font-bold">C</span>
+                        </div>
+                        詳細情報
+                      </h3>
+                      
+                      <div className="space-y-6">
+                        {targetArea && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">提供プログラム情報</label>
+                            <div className="mt-2">
+                              {targetArea.split(';').map((item, index) => (
+                                <div key={index} className="flex items-start space-x-2 mb-2">
+                                  <span className="text-gray-600 font-bold mt-1">•</span>
+                                  <span className="text-gray-900 text-base font-medium">{item.trim()}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {targetAudience && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">対象者</label>
+                            <div className="mt-2">
+                              {targetAudience.split(';').map((item, index) => (
+                                <div key={index} className="flex items-start space-x-2 mb-2">
+                                  <span className="text-gray-600 font-bold mt-1">•</span>
+                                  <span className="text-gray-900 text-base font-medium">{item.trim()}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {incentive && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">インセンティブ</label>
+                            <div className="mt-2">
+                              {incentive.split(';').map((item, index) => (
+                                <div key={index} className="flex items-start space-x-2 mb-2">
+                                  <span className="text-gray-600 font-bold mt-1">•</span>
+                                  <span className="text-gray-900 text-base font-medium">{item.trim()}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {operatingCompany && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">運営企業</label>
+                            <p className="text-gray-900 mt-2 leading-relaxed text-base font-medium">{operatingCompany}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 施設固有の詳細情報 - モダンで洗練されたモノクロ調 */}
+                  {type === "facility" && (targetArea || facilityInfo || targetAudience || program || isDropinAvailable || isNexanaAvailable) && (
+                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                      <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                        <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
+                          <span className="text-white text-sm font-bold">F</span>
+                        </div>
+                        詳細情報
+                      </h3>
+                      
+                      <div className="space-y-6">
+                        {targetArea && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">提供プログラム情報</label>
+                            <div className="mt-2">
+                              {targetArea.split(';').map((item, index) => (
+                                <div key={index} className="flex items-start space-x-2 mb-2">
+                                  <span className="text-gray-600 font-bold mt-1">•</span>
+                                  <span className="text-gray-900 text-base font-medium">{item.trim()}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {facilityInfo && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">施設情報</label>
+                            <div className="mt-2">
+                              {facilityInfo.split(';').map((item, index) => (
+                                <div key={index} className="flex items-start space-x-2 mb-2">
+                                  <span className="text-gray-600 font-bold mt-1">•</span>
+                                  <span className="text-gray-900 text-base font-medium">{item.trim()}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* 利用可能性（施設情報内に表示） */}
+                        {(isDropinAvailable || isNexanaAvailable) && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">施設情報その他</label>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {isDropinAvailable && (
+                                <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm font-medium rounded-full flex items-center shadow-sm border border-gray-200">
+                                  <div className="w-2 h-2 bg-gray-600 rounded-full mr-2"></div>
+                                  ドロップイン可能施設
+                                </span>
+                              )}
+                              {isNexanaAvailable && (
+                                <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm font-medium rounded-full flex items-center shadow-sm border border-gray-200">
+                                  <div className="w-2 h-2 bg-gray-600 rounded-full mr-2"></div>
+                                  nexana設置施設
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {targetAudience && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">対象者</label>
+                            <div className="mt-2">
+                              {targetAudience.split(';').map((item, index) => (
+                                <div key={index} className="flex items-start space-x-2 mb-2">
+                                  <span className="text-gray-600 font-bold mt-1">•</span>
+                                  <span className="text-gray-900 text-base font-medium">{item.trim()}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {program && (
+                          <div className="border-l-4 border-gray-300 pl-4">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">プログラム</label>
+                            <div className="mt-2">
+                              {program.split(';').map((item, index) => (
+                                <div key={index} className="flex items-start space-x-2 mb-2">
+                                  <span className="text-gray-600 font-bold mt-1">•</span>
+                                  <span className="text-gray-900 text-base font-medium">{item.trim()}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* タグ - モダンで洗練されたモノクロ調 */}
+                  {tags && tags.length > 0 && (
+                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                      <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                        <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
+                          <span className="text-white text-sm font-bold">T</span>
+                        </div>
+                        タグ
+                      </h3>
+                      <div className="border-l-4 border-gray-300 pl-4">
+                        <div className="flex flex-wrap gap-3">
+                          {tags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className="px-4 py-2 bg-gray-100 text-gray-800 text-sm font-medium rounded-full hover:bg-gray-200 transition-colors border border-gray-200"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
               </div>
             </div>
           </div>

@@ -110,8 +110,8 @@ export default function NewsItem({
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm">
               <span className="font-semibold text-slate-800 text-sm sm:text-base">{company}</span>
               {amount && (
-                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md">
-                  💰 {amount}
+                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                  {amount}
                 </span>
               )}
               {investors && (
@@ -154,162 +154,152 @@ export default function NewsItem({
         title={title}
       >
         <div className="h-full flex flex-col">
-          {/* コンテンツセクション - iPhone 16最適化 */}
-          <div className="flex-1 overflow-y-auto bg-gradient-to-br from-gray-50 to-white">
-            <div className="space-y-6 sm:space-y-8">
-              {/* ヒーロー画像セクション - iPhone 16対応 */}
-              {imageUrl ? (
-                <div className="relative h-64 sm:h-80 w-full overflow-hidden">
-                  <Image
-                    src={imageUrl}
-                    alt={title}
-                    fill
-                    className="object-cover"
-                    sizes="100vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                  <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2 leading-tight">{title}</h2>
-                    {area && (
-                      <div className="flex items-center space-x-2 text-white/90">
-                        <span className="text-lg sm:text-xl font-medium">{area}</span>
-                      </div>
-                    )}
+          {/* コンテンツセクション - 左半分固定、右半分スクロール */}
+          <div className="flex-1 flex bg-white overflow-hidden">
+            {/* 左半分: 固定 */}
+            <div className="w-80 flex-shrink-0 p-6 border-r border-gray-200">
+              {/* 左側コンテンツ */}
+              <div className="flex flex-col h-full">
+                {/* 画像セクション - 上部に配置 */}
+                {imageUrl ? (
+                  <div className="relative h-60 w-full overflow-hidden rounded-lg border border-gray-200 flex-shrink-0 mb-4">
+                    <Image
+                      src={imageUrl}
+                      alt={title}
+                      fill
+                      priority={true}
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
                   </div>
-                </div>
-              ) : (
-                <div className="relative h-64 sm:h-80 w-full bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center">
-                  <div className="text-center px-4">
-                    <div className="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center mb-4 sm:mb-6 mx-auto backdrop-blur-sm">
-                      <Newspaper className="h-10 w-10 text-white" />
+                ) : (
+                  <div className="relative h-60 w-full bg-gray-100 flex items-center justify-center rounded-lg border border-gray-200 flex-shrink-0 mb-4">
+                    <div className="text-center">
+                      <Newspaper className="h-16 w-16 text-gray-400 mx-auto mb-3" />
+                      <p className="text-gray-500 text-sm">画像なし</p>
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4 leading-tight">{title}</h2>
-                    {area && (
-                      <div className="flex items-center justify-center space-x-2 text-white/90">
-                        <span className="text-lg sm:text-xl font-medium">{area}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
-                {/* 基本情報カード - iPhone 16最適化 */}
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/20">
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
-                    <div className="w-1 h-6 bg-gradient-to-b from-red-500 to-red-600 rounded-full mr-3"></div>
-                    基本情報
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">企業名</label>
-                        <p className="text-gray-900 font-medium mt-2">{company}</p>
-                      </div>
-
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">ニュースタイプ</label>
-                        <div className="mt-2">
-                          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 border border-emerald-200">
-                            {type === 'funding' ? '💰 資金調達' : 
-                             type === 'm&a' ? '🤝 M&A' : 
-                             type === 'ipo' ? '📈 IPO' : 
-                             type}
-                          </span>
-                        </div>
-                      </div>
-
-                      {sector && (
-                        <div>
-                          <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">セクター</label>
-                          <div className="mt-2">
-                            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200">
-                              {sector}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-
-                      {area && (
-                        <div>
-                          <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">エリア</label>
-                          <div className="mt-2">
-                            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-gradient-to-r from-slate-100 to-gray-100 text-slate-700 border border-slate-200">
-                              {area}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="space-y-4">
-                      {amount && (
-                        <div>
-                          <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">金額</label>
-                          <div className="mt-2">
-                            <span className="inline-flex items-center px-4 py-2 rounded-xl text-lg font-bold bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg">
-                              💰 {amount}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-
-                      {investors && (
-                        <div>
-                          <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">投資家</label>
-                          <p className="text-gray-900 mt-2 leading-relaxed">
-                            {Array.isArray(investors) ? investors.join(', ') : investors}
-                          </p>
-                        </div>
-                      )}
-
-                      <div>
-                        <label className="text-sm font-semibold text-gray-500 uppercase tracking-wide">公開日</label>
-                        <p className="text-gray-900 mt-2">
-                          {publishedAt 
-                            ? new Date(publishedAt).toLocaleDateString('ja-JP')
-                            : new Date(createdAt).toLocaleDateString('ja-JP')
-                          }
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 説明文カード */}
-                {description && (
-                  <div className="bg-white rounded-2xl p-6 shadow-sm">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                      <div className="w-1 h-6 bg-gradient-to-b from-green-500 to-emerald-600 rounded-full mr-3"></div>
-                      概要
-                    </h3>
-                    <p className="text-gray-700 leading-relaxed text-base">{description}</p>
                   </div>
                 )}
 
-                {/* ソースリンク - シンプルで洗練されたモダンデザイン */}
-                {sourceUrl && (
-                  <div className="text-center">
+                {/* アクションボタン - 画像の下に配置 */}
+                <div className="space-y-2 flex-shrink-0">
+                  {/* ソースリンク */}
+                  {sourceUrl && (
                     <a
                       href={sourceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 relative overflow-hidden"
+                      className="w-full group inline-flex items-center justify-center px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 hover:text-gray-900 font-semibold rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-sm border border-gray-200"
                     >
-                      {/* 背景の白いエリア */}
-                      <div className="absolute inset-1 bg-white rounded-xl"></div>
-                      
-                      {/* コンテンツ */}
-                      <div className="relative flex items-center justify-center space-x-3 px-6 py-2">
-                        <svg className="w-5 h-5 text-gray-800 group-hover:text-gray-900 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                        <span className="text-gray-800 group-hover:text-gray-900 font-semibold text-base transition-colors duration-300">詳細を見る</span>
-                      </div>
+                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      詳細を見る
                     </a>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 右半分: スクロール可能 */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="space-y-6">
+                {/* 基本情報カード - モダンで洗練されたモノクロ調 */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">N</span>
+                    </div>
+                    基本情報
+                  </h3>
+                  
+                  <div className="space-y-6">
+                    <div className="border-l-4 border-gray-300 pl-4">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">企業名</label>
+                      <p className="text-gray-900 font-semibold text-lg mt-2">{company}</p>
+                    </div>
+
+                    <div className="border-l-4 border-gray-300 pl-4">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">ニュースタイプ</label>
+                      <div className="mt-2">
+                        <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gray-100 text-gray-800 border border-gray-200">
+                          {type === 'funding' ? '💰 資金調達' : 
+                           type === 'm&a' ? '🤝 M&A' : 
+                           type === 'ipo' ? '📈 IPO' : 
+                           type}
+                        </span>
+                      </div>
+                    </div>
+
+                    {sector && (
+                      <div className="border-l-4 border-gray-300 pl-4">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">セクター</label>
+                        <div className="mt-2">
+                          <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gray-100 text-gray-800 border border-gray-200">
+                            {sector}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {area && (
+                      <div className="border-l-4 border-gray-300 pl-4">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">エリア</label>
+                        <div className="mt-2">
+                          <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gray-100 text-gray-800 border border-gray-200">
+                            {area}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {amount && (
+                      <div className="border-l-4 border-gray-300 pl-4">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">金額</label>
+                        <div className="mt-2">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                            {amount}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {investors && (
+                      <div className="border-l-4 border-gray-300 pl-4">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">投資家</label>
+                        <p className="text-gray-900 mt-2 leading-relaxed text-base font-medium">
+                          {Array.isArray(investors) ? investors.join(', ') : investors}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="border-l-4 border-gray-300 pl-4">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">公開日</label>
+                      <p className="text-gray-900 mt-2 text-base font-medium">
+                        {publishedAt 
+                          ? new Date(publishedAt).toLocaleDateString('ja-JP')
+                          : new Date(createdAt).toLocaleDateString('ja-JP')
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 説明文カード - モダンで洗練されたモノクロ調 */}
+                {description && (
+                  <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                    <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                      <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
+                        <span className="text-white text-sm font-bold">D</span>
+                      </div>
+                      概要
+                    </h3>
+                    <div className="border-l-4 border-gray-300 pl-4">
+                      <p className="text-gray-800 leading-relaxed text-base font-medium">{description}</p>
+                    </div>
                   </div>
                 )}
+
               </div>
             </div>
           </div>

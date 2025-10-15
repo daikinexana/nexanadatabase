@@ -28,44 +28,50 @@ export default function Modal({ isOpen, onClose, children, title, shareOptions }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
-      {/* オーバーレイ - iPhone 16対応 */}
+      {/* オーバーレイ - 洗練された黒背景 */}
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-lg"
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
       
-      {/* モーダルコンテンツ - iPhone 16専用デザイン */}
-      <div className="relative bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-4xl h-[95vh] sm:h-[90vh] flex flex-col overflow-hidden animate-in fade-in-0 zoom-in-95 duration-500 border border-white/20">
-        {/* ヘッダー - iPhone 16風 */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100/50 flex-shrink-0 bg-gradient-to-r from-white/80 to-gray-50/80 backdrop-blur-sm">
+      {/* モーダルコンテンツ - 白・黒・グレー基調の洗練されたデザイン */}
+      <div className="relative bg-white shadow-2xl w-full max-w-6xl h-[95vh] sm:h-[90vh] flex flex-col overflow-hidden animate-in fade-in-0 zoom-in-95 duration-500 border border-gray-200 rounded-lg">
+        {/* ヘッダー - 洗練された白・黒・グレーデザイン */}
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0 bg-white">
           {title && (
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 truncate pr-4 leading-tight">{title}</h2>
+            <div className="flex items-center space-x-3">
+              {/* コンテストカードと同じアイコン */}
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">C</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 truncate pr-4 leading-tight">{title}</h2>
+            </div>
           )}
           <div className="flex items-center space-x-2">
             {/* 共有オプション */}
             {shareOptions}
             
-            {/* 閉じるボタン */}
+            {/* 閉じるボタン - 洗練されたグレーデザイン */}
             <button
               onClick={onClose}
-              className="p-2 sm:p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100/80 rounded-xl transition-all duration-300 flex-shrink-0 group backdrop-blur-sm"
+              className="p-2 sm:p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-300 flex-shrink-0 group"
             >
               <X className="h-5 w-5 sm:h-6 sm:w-6 group-hover:rotate-90 transition-transform duration-300" />
             </button>
           </div>
         </div>
         
-        {/* コンテンツ - iPhone 16最適化 */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+        {/* コンテンツ - 洗練された白背景 */}
+        <div className="flex-1 overflow-y-auto bg-white">
           {children}
         </div>
         
-        {/* フッター - 閉じるボタン付き */}
-        <div className="flex-shrink-0 border-t border-gray-100/50 bg-gradient-to-r from-gray-50/80 to-white/80 backdrop-blur-sm p-4 sm:p-6">
+        {/* フッター - 洗練された白・黒・グレーボタン */}
+        <div className="flex-shrink-0 border-t border-gray-200 bg-white p-4 sm:p-6">
           <div className="flex justify-center">
             <button
               onClick={onClose}
-              className="group flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 hover:text-gray-900 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
+              className="group flex items-center justify-center px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md"
             >
               <X className="h-4 w-4 mr-2 group-hover:rotate-90 transition-transform duration-300" />
               <span className="font-medium text-sm sm:text-base">閉じる</span>

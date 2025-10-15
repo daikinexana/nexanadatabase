@@ -73,19 +73,6 @@ export default function ContestsHybridDisplay({
     overseasGrouped['その他'] = unassignedContests;
   }
 
-  // エリアの英語名マッピング
-  const getAreaEnglishName = (area: string) => {
-    const mapping: Record<string, string> = {
-      '全国': 'Nationwide',
-      '東京都': 'Tokyo',
-      '大阪府': 'Osaka',
-      '兵庫県': 'Hyogo',
-      '大分県': 'Oita',
-      '中国': 'China',
-      'その他': 'Others',
-    };
-    return mapping[area] || area;
-  };
 
   return (
     <div className="space-y-12">
