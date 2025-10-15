@@ -626,7 +626,7 @@ export default function AdminKnowledgePage() {
                               </div>
                               
                               {knowledgeItem.description && (
-                                <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                                <p className="text-sm text-gray-600 mb-3 overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
                                   {knowledgeItem.description}
                                 </p>
                               )}

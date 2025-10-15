@@ -295,12 +295,12 @@ export default async function KnowledgePage({
                         )}
                       </div>
                       
-                      <h2 className="text-xl font-news-heading text-gray-900 mb-2 line-clamp-2">
+                      <h2 className="text-xl font-news-heading text-gray-900 mb-2 overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
                         {item.title}
                       </h2>
                       
                       {item.description && (
-                        <p className="text-gray-600 font-news mb-3 line-clamp-2">
+                        <p className="text-gray-600 font-news mb-3 overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
                           {item.description}
                         </p>
                       )}

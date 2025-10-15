@@ -268,7 +268,7 @@ export default async function Home() {
                     </p>
                   </div>
                   
-                  <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-6 line-clamp-3 font-news">
+                  <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-6 overflow-hidden font-news" style={{display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical'}}>
                     {feature.description}
                   </p>
                   

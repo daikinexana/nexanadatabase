@@ -841,7 +841,7 @@ export default function AdminFacilitiesPage() {
                               </div>
                               
                               {facility.description && (
-                                <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                                <p className="mt-1 text-sm text-gray-600 overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
                                   {facility.description}
                                 </p>
                               )}

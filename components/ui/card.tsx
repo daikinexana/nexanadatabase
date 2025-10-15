@@ -342,7 +342,7 @@ export default function Card({
               {type === "contest" && isPopular && (
                 <Star className="h-4 w-4 text-amber-500 fill-amber-500 flex-shrink-0" />
               )}
-              <h3 className="text-lg font-bold text-gray-900 leading-tight line-clamp-1 group-hover:text-gray-700 transition-colors flex-1">
+              <h3 className="text-lg font-bold text-gray-900 leading-tight group-hover:text-gray-700 transition-colors flex-1 overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical'}}>
                 {title}
               </h3>
             </div>
@@ -365,7 +365,7 @@ export default function Card({
           {/* 説明文 - 1行表示に制限 */}
           <div className="mb-4 h-6 flex items-center overflow-hidden">
             {description && (
-              <p className="text-gray-600 text-sm leading-tight line-clamp-1 w-full">
+              <p className="text-gray-600 text-sm leading-tight w-full overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical'}}>
                 {description}
               </p>
             )}

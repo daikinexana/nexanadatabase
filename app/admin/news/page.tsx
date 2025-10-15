@@ -577,7 +577,7 @@ export default function AdminNewsPage() {
                           
                           {/* コンテンツ */}
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2 overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
                               {newsItem.title}
                             </h3>
                             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-2">
@@ -596,7 +596,7 @@ export default function AdminNewsPage() {
                               )}
                             </div>
                             {newsItem.description && (
-                              <p className="text-sm text-gray-600 line-clamp-2">
+                              <p className="text-sm text-gray-600 overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
                                 {newsItem.description}
                               </p>
                             )}

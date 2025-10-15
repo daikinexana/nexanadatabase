@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #ffffff;
@@ -27,13 +29,7 @@
   background-color: rgba(156, 163, 175, 0.8);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-jp: var(--font-noto-sans-jp);
-  --font-mono: var(--font-jetbrains-mono);
-}
+/* Tailwind CSS v3用のカスタムプロパティ */
 
 @media (prefers-color-scheme: dark) {
   :root {

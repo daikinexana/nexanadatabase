@@ -821,7 +821,7 @@ export default function AdminOpenCallsPage() {
                               </div>
                               
                               {openCall.description && (
-                                <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                                <p className="mt-1 text-sm text-gray-600 overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
                                   {openCall.description}
                                 </p>
                               )}

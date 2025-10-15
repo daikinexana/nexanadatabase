@@ -97,12 +97,12 @@ export default function NewsItem({
               )}
             </div>
             
-            <h2 className="text-lg sm:text-xl font-news-heading text-gray-900 mb-2 sm:mb-3 line-clamp-2 leading-tight">
+            <h2 className="text-lg sm:text-xl font-news-heading text-gray-900 mb-2 sm:mb-3 leading-tight overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
               {title}
             </h2>
             
             {description && (
-              <p className="text-sm sm:text-base text-gray-600 font-news mb-3 sm:mb-4 line-clamp-2 leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-600 font-news mb-3 sm:mb-4 leading-relaxed overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
                 {description}
               </p>
             )}
