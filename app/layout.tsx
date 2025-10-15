@@ -31,10 +31,13 @@ export const metadata: Metadata = {
   publisher: "Nexana HQ",
   metadataBase: new URL('https://db.nexanahq.com'),
   icons: {
-    icon: "/nexana-favicon.svg",
-    shortcut: "/nexana-favicon.svg",
+    icon: [
+      { url: "/logofavicon.ico", sizes: "any" },
+      { url: "/nexana-favicon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/logofavicon.ico",
     apple: [
-      { url: "/nexana-favicon.svg", sizes: "180x180", type: "image/svg+xml" },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
   robots: {
@@ -60,7 +63,7 @@ export const metadata: Metadata = {
     description: "オープンイノベーション、スタートアップコンテスト、ビジネスコンテスト、ピッチコンテスト、インキュベーション施設、スタートアップ調達ニュース、大学ディープテック事業化支援の総合情報データベース。",
     images: [
       {
-        url: "https://db.nexanahq.com/nexana-favicon.svg",
+        url: "https://db.nexanahq.com/180logo.png",
         width: 1200,
         height: 630,
         alt: "Nexana Database - オープンイノベーション・スタートアップ情報プラットフォーム",
@@ -71,7 +74,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
     description: "オープンイノベーション、スタートアップコンテスト、ビジネスコンテスト、ピッチコンテスト、インキュベーション施設、スタートアップ調達ニュースの総合情報データベース。",
-    images: ["https://db.nexanahq.com/nexana-favicon.svg"],
+    images: ["https://db.nexanahq.com/180logo.png"],
   },
   verification: {
     google: process.env.GOOGLE_VERIFICATION_CODE || "your-google-verification-code",
