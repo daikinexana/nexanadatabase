@@ -52,19 +52,6 @@ const nextConfig: NextConfig = {
         destination: 'https://db.nexanahq.com/:path*',
         permanent: true,
       },
-      // HTTPからHTTPSへのリダイレクト
-      {
-        source: '/:path*',
-        has: [
-          {
-            type: 'header',
-            key: 'x-forwarded-proto',
-            value: 'http',
-          },
-        ],
-        destination: 'https://db.nexanahq.com/:path*',
-        permanent: true,
-      },
     ]
   },
 };

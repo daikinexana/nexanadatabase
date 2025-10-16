@@ -51,6 +51,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  verification: {
+    google: process.env.GOOGLE_VERIFICATION_CODE || "your-google-verification-code",
+  },
   alternates: {
     canonical: "https://db.nexanahq.com",
   },
@@ -75,9 +78,6 @@ export const metadata: Metadata = {
     title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
     description: "オープンイノベーション、スタートアップコンテスト、ビジネスコンテスト、ピッチコンテスト、インキュベーション施設、スタートアップ調達ニュースの総合情報データベース。",
     images: ["https://db.nexanahq.com/180logo.png"],
-  },
-  verification: {
-    google: process.env.GOOGLE_VERIFICATION_CODE || "your-google-verification-code",
   },
 };
 

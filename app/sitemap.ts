@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://db.nexanahq.com'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'
   const now = new Date().toISOString()
 
   // 静的ページ
