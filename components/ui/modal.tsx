@@ -37,17 +37,17 @@ export default function Modal({ isOpen, onClose, children, title, shareOptions }
       {/* モーダルコンテンツ - 白・黒・グレー基調の洗練されたデザイン */}
       <div className="relative bg-white shadow-2xl w-full max-w-6xl h-[95vh] sm:h-[90vh] flex flex-col overflow-hidden animate-in fade-in-0 zoom-in-95 duration-500 border border-gray-200 rounded-lg">
         {/* ヘッダー - 洗練された白・黒・グレーデザイン */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0 bg-white">
+        <div className="flex items-start justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0 bg-white">
           {title && (
-            <div className="flex items-center space-x-3">
+            <div className="flex items-start space-x-3 flex-1 min-w-0">
               {/* コンテストカードと同じアイコン */}
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-white text-sm font-bold">C</span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 truncate pr-4 leading-tight">{title}</h2>
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 leading-tight break-words overflow-wrap-anywhere">{title}</h2>
             </div>
           )}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-shrink-0 ml-3">
             {/* 共有オプション */}
             {shareOptions}
             
