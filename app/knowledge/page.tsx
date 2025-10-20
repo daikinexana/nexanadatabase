@@ -116,7 +116,8 @@ async function getKnowledge(page: number = 1, limit: number = 50): Promise<Knowl
   }
 }
 
-// 開発環境では短いキャッシュ時間、本番環境では5分間キャッシュ
+// 静的生成を強制してGoogleクローラーの問題を解決
+export const dynamic = 'force-static';
 export const revalidate = 3600; // 1時間キャッシュ
 
 export default async function KnowledgePage({
