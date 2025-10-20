@@ -41,10 +41,10 @@ export const metadata: Metadata = {
     ],
   },
   robots: {
-    index: process.env.NODE_ENV === 'production',
+    index: true,
     follow: true,
     googleBot: {
-      index: process.env.NODE_ENV === 'production',
+      index: true,
       follow: true,
       "max-video-preview": -1,
       "max-image-preview": "large",
