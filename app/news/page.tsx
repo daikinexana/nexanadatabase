@@ -113,7 +113,7 @@ async function getNews(page: number = 1, limit: number = 50): Promise<NewsRespon
 }
 
 // 開発環境では短いキャッシュ時間、本番環境では5分間キャッシュ
-export const revalidate = 10;
+export const revalidate = 3600; // 1時間キャッシュ
 
 export default async function NewsPage({
   searchParams,

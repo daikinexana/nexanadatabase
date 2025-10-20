@@ -91,7 +91,7 @@ const features = [
 
 
 // 開発環境では短いキャッシュ時間、本番環境では10分間キャッシュ
-export const revalidate = 30;
+export const revalidate = 3600; // 1時間キャッシュ
 
 export default async function Home() {
   // データベースの統計情報を取得
