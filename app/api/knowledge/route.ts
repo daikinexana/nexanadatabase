@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
     });
     
     // キャッシュヘッダーを設定（5分間キャッシュ）
-    response.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=20');
+    response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
     
     return response;
   } catch (error) {

@@ -37,6 +37,20 @@ const nextConfig: NextConfig = {
   // SEO最適化
   poweredByHeader: false,
   compress: true,
+  // ヘッダー設定（SEO改善）
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+          },
+        ],
+      },
+    ]
+  },
   // リダイレクト設定（SEO改善）
   async redirects() {
     return [
