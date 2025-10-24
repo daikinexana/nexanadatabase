@@ -65,6 +65,20 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // メインページの特別な設定
+      {
+        source: '/',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=1800, s-maxage=1800, stale-while-revalidate=86400',
+          },
+          {
+            key: 'X-Robots-Tag',
+            value: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
+          },
+        ],
+      },
     ]
   },
   // リダイレクト設定（SEO改善）

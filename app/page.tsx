@@ -90,12 +90,13 @@ const features = [
 
 
 
-// 静的生成を強制してGoogleクローラーの問題を解決
+// メインページの静的生成を最強化
 export const dynamic = 'force-static';
 export const runtime = 'nodejs';
-export const revalidate = 3600; // 1時間キャッシュ
+export const revalidate = 1800; // 30分キャッシュ（メインページは頻繁に更新）
 export const fetchCache = 'force-cache';
 export const preferredRegion = 'auto';
+export const generateStaticParams = true;
 
 export default async function Home() {
   // データベースの統計情報を取得
