@@ -4,9 +4,6 @@ import { prisma } from '@/lib/prisma'
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'
   const now = new Date().toISOString()
-  
-  // サイトマップの生成を確実にするため、エラーハンドリングを追加
-  try {
 
   // 静的ページ
   const staticPages = [
@@ -72,6 +69,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
+  // サイトマップの生成を確実にするため、エラーハンドリングを追加
   try {
     // 動的ページを取得
     const [contests, openCalls, facilities, news, knowledge, events] = await Promise.all([
