@@ -4,6 +4,9 @@ import { prisma } from '@/lib/prisma'
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'
   const now = new Date().toISOString()
+  
+  // サイトマップの生成を確実にするため、エラーハンドリングを追加
+  try {
 
   // 静的ページ
   const staticPages = [
@@ -138,10 +141,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })),
     ]
 
-    return [...staticPages, ...dynamicPages]
+  return [...staticPages, ...dynamicPages]
   } catch (error) {
-    console.error('Error generating sitemap:', error)
-    // エラーの場合は静的ページのみ返す
-    return staticPages
+    console.error('Error generating sitemap:', error);
+    // エラー時は静的ページのみを返す
+    return staticPages;
   }
 }

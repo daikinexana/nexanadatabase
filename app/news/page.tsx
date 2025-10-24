@@ -116,6 +116,8 @@ async function getNews(page: number = 1, limit: number = 50): Promise<NewsRespon
 export const dynamic = 'force-static';
 export const runtime = 'nodejs';
 export const revalidate = 3600; // 1時間キャッシュ
+export const fetchCache = 'force-cache';
+export const preferredRegion = 'auto';
 
 export default async function NewsPage({
   searchParams,

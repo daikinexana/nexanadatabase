@@ -120,6 +120,8 @@ async function getKnowledge(page: number = 1, limit: number = 50): Promise<Knowl
 export const dynamic = 'force-static';
 export const runtime = 'nodejs';
 export const revalidate = 3600; // 1時間キャッシュ
+export const fetchCache = 'force-cache';
+export const preferredRegion = 'auto';
 
 export default async function KnowledgePage({
   searchParams,
