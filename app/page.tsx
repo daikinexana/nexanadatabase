@@ -96,7 +96,6 @@ export const runtime = 'nodejs';
 export const revalidate = 1800; // 30分キャッシュ（メインページは頻繁に更新）
 export const fetchCache = 'force-cache';
 export const preferredRegion = 'auto';
-export const generateStaticParams = true;
 
 export default async function Home() {
   // データベースの統計情報を取得
