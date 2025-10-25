@@ -71,11 +71,15 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=1800, s-maxage=1800, stale-while-revalidate=86400',
+            value: 'no-cache, no-store, must-revalidate',
           },
           {
             key: 'X-Robots-Tag',
             value: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
           },
         ],
       },

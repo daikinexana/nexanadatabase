@@ -1,8 +1,9 @@
 import { MetadataRoute } from 'next'
 
-// キャッシュを無効化
+// キャッシュを完全に無効化
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+export const fetchCache = 'force-no-store'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'

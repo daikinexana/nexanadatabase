@@ -93,8 +93,8 @@ const features = [
 // メインページの静的生成を最強化
 export const dynamic = 'force-static';
 export const runtime = 'nodejs';
-export const revalidate = 1800; // 30分キャッシュ（メインページは頻繁に更新）
-export const fetchCache = 'force-cache';
+export const revalidate = 0; // キャッシュを無効化
+export const fetchCache = 'force-no-store';
 export const preferredRegion = 'auto';
 
 export default async function Home() {
