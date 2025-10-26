@@ -8,10 +8,14 @@ export const metadata: Metadata = {
   title: "施設一覧 | Nexana Database",
   description: "スタートアップ支援施設、インキュベーション施設、イノベーション拠点の情報を掲載",
   keywords: "スタートアップ, 施設, インキュベーション, イノベーション, 支援",
+  alternates: {
+    canonical: "https://db.nexanahq.com/facilities",
+  },
   openGraph: {
     title: "施設一覧 | Nexana Database",
     description: "スタートアップ支援施設、インキュベーション施設、イノベーション拠点の情報を掲載",
     type: "website",
+    url: "https://db.nexanahq.com/facilities",
   },
 };
 

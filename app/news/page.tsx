@@ -9,10 +9,14 @@ export const metadata: Metadata = {
   title: "ニュース一覧 | Nexana Database",
   description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信",
   keywords: "スタートアップ, 調達, M&A, IPO, 投資, ニュース",
+  alternates: {
+    canonical: "https://db.nexanahq.com/news",
+  },
   openGraph: {
     title: "ニュース一覧 | Nexana Database",
     description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信",
     type: "website",
+    url: "https://db.nexanahq.com/news",
   },
 };
 

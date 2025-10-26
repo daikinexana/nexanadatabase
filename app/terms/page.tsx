@@ -3,6 +3,12 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "利用規約 | Nexana Database",
   description: "Nexana Databaseの利用規約について",
+  keywords: "利用規約, サービス利用規約, 利用条件, 規約",
+  openGraph: {
+    title: "利用規約 | Nexana Database",
+    description: "Nexana Databaseの利用規約について",
+    type: "website",
+  },
 };
 
 export default function TermsPage() {

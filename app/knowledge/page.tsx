@@ -9,10 +9,14 @@ export const metadata: Metadata = {
   title: "ナレッジ一覧 | Nexana Database",
   description: "AI、ディープテック、最新技術情報とトレンドを提供",
   keywords: "AI, ディープテック, 技術, トレンド, ナレッジ, イノベーション",
+  alternates: {
+    canonical: "https://db.nexanahq.com/knowledge",
+  },
   openGraph: {
     title: "ナレッジ一覧 | Nexana Database",
     description: "AI、ディープテック、最新技術情報とトレンドを提供",
     type: "website",
+    url: "https://db.nexanahq.com/knowledge",
   },
 };
 

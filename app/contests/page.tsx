@@ -8,10 +8,14 @@ export const metadata: Metadata = {
   title: "コンテスト一覧 | Nexana Database",
   description: "スタートアップコンテスト、ピッチコンテスト、ハッカソンなどの情報を掲載",
   keywords: "スタートアップ, コンテスト, ピッチ, ハッカソン, 起業",
+  alternates: {
+    canonical: "https://db.nexanahq.com/contests",
+  },
   openGraph: {
     title: "コンテスト一覧 | Nexana Database",
     description: "スタートアップコンテスト、ピッチコンテスト、ハッカソンなどの情報を掲載",
     type: "website",
+    url: "https://db.nexanahq.com/contests",
   },
 };
 

@@ -1,12 +1,24 @@
-"use client";
-
-import { useState, useEffect, useCallback, useMemo } from "react";
-// import { Metadata } from "next";
-import Header from "@/components/ui/header";
+import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
 import Filter from "@/components/ui/filter";
 import { Search, Filter as FilterIcon, Calendar } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "イベント一覧 | Nexana Database",
+  description: "スタートアップ関連の展示会、イベント、セミナー情報を掲載",
+  keywords: "スタートアップ, イベント, 展示会, セミナー, 起業",
+  alternates: {
+    canonical: "https://db.nexanahq.com/events",
+  },
+  openGraph: {
+    title: "イベント一覧 | Nexana Database",
+    description: "スタートアップ関連の展示会、イベント、セミナー情報を掲載",
+    type: "website",
+    url: "https://db.nexanahq.com/events",
+  },
+};
 
 interface Event {
   id: string;
@@ -28,20 +40,50 @@ interface Event {
   updatedAt: string;
 }
 
-export default function EventsPage() {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<{ area?: string; organizerType?: string; }>({
-    area: undefined,
-    organizerType: undefined,
-  });
-  const [showFilters, setShowFilters] = useState(false);
-  const [showPastEvents, setShowPastEvents] = useState(false);
-  const [loading, setLoading] = useState(true);
+// サーバーサイドでデータを取得
+async function getEvents(search?: string): Promise<Event[]> {
+  try {
+    const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'}/api/events`);
+    if (search) {
+      url.searchParams.set('search', search);
+    }
+    
+    const response = await fetch(url.toString(), {
+      next: { revalidate: 300 }, // 5分間キャッシュ
+      headers: {
+        'Cache-Control': 'max-age=300',
+      },
+    });
+    
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.error("Failed to fetch events:", response.status);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    return [];
+  }
+}
 
-  // エリアの順序定義（全国/47都道府県/国外）
-  const areaOrder = useMemo(() => [
+// 静的生成を強制してGoogleクローラーの問題を解決
+export const dynamic = 'force-static';
+export const runtime = 'nodejs';
+export const revalidate = 3600; // 1時間キャッシュ
+export const fetchCache = 'force-cache';
+export const preferredRegion = 'auto';
+
+export default async function EventsPage({ 
+  searchParams 
+}: { 
+  searchParams: Promise<{ search?: string }> 
+}) {
+  const resolvedSearchParams = await searchParams;
+  const events = await getEvents(resolvedSearchParams.search);
+
+  // 日本国内のエリア定義
+  const japanAreas = [
     '全国',
     '北海道',
     '青森県',
@@ -89,7 +131,11 @@ export default function EventsPage() {
     '大分県',
     '宮崎県',
     '鹿児島県',
-    '沖縄県',
+    '沖縄県'
+  ];
+
+  // 海外のエリア定義
+  const overseasAreas = [
     'アメリカ',
     'カナダ',
     'イギリス',
@@ -110,195 +156,119 @@ export default function EventsPage() {
     'UAE（ドバイ/アブダビ）',
     'オーストラリア',
     'その他'
-  ], []);
+  ];
+
+  // 全エリアの順序（日本国内 + 海外）
+  const allAreaOrder = [...japanAreas, ...overseasAreas];
 
   // エリアの順序を取得する関数
-  const getAreaOrder = useCallback((area: string | undefined) => {
+  const getAreaOrder = (area: string | undefined) => {
     if (!area) return 999; // エリアが未設定の場合は最後に配置
-    const index = areaOrder.indexOf(area);
+    const index = allAreaOrder.indexOf(area);
     return index === -1 ? 999 : index;
-  }, [areaOrder]);
-
-  // データの取得
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams();
-        if (filters.area) params.append('area', filters.area);
-        if (filters.organizerType) params.append('organizerType', filters.organizerType);
-        
-        const response = await fetch(`/api/events?${params.toString()}`);
-        if (response.ok) {
-          const data = await response.json();
-          setEvents(data);
-        } else {
-          console.error("Failed to fetch events");
-        }
-      } catch (error) {
-        console.error("Error fetching events:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEvents();
-  }, [filters]);
-
-  // フィルタリング処理
-  useEffect(() => {
-    let filtered = events;
-
-    // 検索語でフィルタリング（データベースの値のみ）
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (event) => {
-          // データベースの値での検索のみ（完全一致を優先）
-          const organizerTypeMatch = event.organizerType.toLowerCase() === searchLower;
-          const areaMatch = event.area?.toLowerCase() === searchLower || false;
-          
-          // 部分一致は、完全一致でない場合のみ
-          const organizerTypePartialMatch = !organizerTypeMatch && 
-                                          event.organizerType.toLowerCase().includes(searchLower);
-          const areaPartialMatch = !areaMatch && 
-                                 event.area?.toLowerCase().includes(searchLower) || false;
-          
-          return organizerTypeMatch || areaMatch || organizerTypePartialMatch || areaPartialMatch;
-        }
-      );
-    }
-
-    // 過去のイベントのフィルタリング
-    if (!showPastEvents) {
-      const now = new Date();
-      filtered = filtered.filter((event) => {
-        if (!event.startDate) return true; // 開始日が未設定の場合は表示
-        return new Date(event.startDate) >= now;
-      });
-    }
-
-    // エリアの順序でソート
-    filtered.sort((a, b) => {
-      const aOrder = getAreaOrder(a.area);
-      const bOrder = getAreaOrder(b.area);
-      
-      if (aOrder !== bOrder) {
-        return aOrder - bOrder;
-      }
-      
-      // 同じエリア内では開始日でソート（開始日が近い順、開始日未設定は最後）
-      const aStartDate = a.startDate ? new Date(a.startDate).getTime() : Number.MAX_SAFE_INTEGER;
-      const bStartDate = b.startDate ? new Date(b.startDate).getTime() : Number.MAX_SAFE_INTEGER;
-      
-      if (aStartDate !== bStartDate) {
-        return aStartDate - bStartDate;
-      }
-      
-      // 開始日が同じ場合は作成日時の降順（新しい順）
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-
-    setFilteredEvents(filtered);
-  }, [events, searchTerm, filters, showPastEvents, getAreaOrder]);
-
-  const handleFilterChange = (newFilters: { area?: string; organizerType?: string; }) => {
-    setFilters(newFilters);
   };
 
+  // ソート処理（フィルタリングはクライアントサイドで実行）
+  const sortedEvents = events.filter((event) => {
+    // アクティブなイベントのみ表示
+    return event.isActive;
+  }).sort((a, b) => {
+    const aOrder = getAreaOrder(a.area);
+    const bOrder = getAreaOrder(b.area);
+    
+    if (aOrder !== bOrder) {
+      return aOrder - bOrder;
+    }
+    
+    // 同じエリア内では開始日でソート（開始日が近い順、開始日未設定は最後）
+    const aStartDate = a.startDate ? new Date(a.startDate).getTime() : Number.MAX_SAFE_INTEGER;
+    const bStartDate = b.startDate ? new Date(b.startDate).getTime() : Number.MAX_SAFE_INTEGER;
+    
+    if (aStartDate !== bStartDate) {
+      return aStartDate - bStartDate;
+    }
+    
+    // 開始日が同じ場合は作成日時の降順（新しい順）
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
+    <div className="min-h-screen bg-white">
+      <ClientHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヘッダー - NewsPicks風 */}
-        <div className="mb-8">
-          <div className="text-center max-w-3xl mx-auto">
-            {/* バッジ */}
-            <div className="inline-flex items-center px-3 py-1 bg-emerald-50 rounded-full mb-4">
-              <span className="text-xs font-medium text-emerald-600 uppercase tracking-wider">EVENTS</span>
-            </div>
+        {/* ヒーローセクション - 背景画像を使用 */}
+        <div className="mb-12">
+          <div className="relative overflow-hidden rounded-3xl min-h-[500px] flex items-center">
+            {/* 背景画像 */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage: "url('/events.image.png')"
+              }}
+            ></div>
             
-            {/* メインタイトル */}
-            <h1 className="text-3xl md:text-4xl font-news-heading text-gray-900 mb-4">
-              Events
-              <span className="block text-lg font-news-subheading text-gray-500 mt-1">展示会・イベント</span>
-            </h1>
+            {/* オーバーレイ - 左側に緑色のグラデーション */}
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/80 via-teal-800/60 to-transparent"></div>
             
-            {/* 説明文 */}
-            <p className="text-lg text-gray-600 font-news leading-relaxed">
-              スタートアップ関連の展示会やイベント情報を紹介します
-            </p>
-          </div>
-        </div>
-
-        {/* 検索・フィルター - NewsPicks風 */}
-        <div className="mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <input
-                    type="text"
-                    placeholder="企業、行政、VC、東京都、大阪府、アメリカ、シンガポールなどで検索..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500"
-                  />
+            {/* コンテンツ */}
+            <div className="relative px-8 py-16 text-left max-w-4xl">
+              {/* バッジ */}
+              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full mb-6 shadow-lg">
+                <Calendar className="w-4 h-4 text-white mr-2" />
+                <span className="text-sm font-semibold text-white uppercase tracking-wider">EVENTS</span>
+              </div>
+              
+              {/* メインタイトル */}
+              <div className="mb-6">
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight">
+                  Events
+                </h1>
+                <div className="flex items-center space-x-3">
+                  <div className="h-px bg-gradient-to-r from-emerald-300 to-transparent flex-1 max-w-32"></div>
+                  <span className="text-lg font-medium text-emerald-100 px-4 py-1 bg-white/20 rounded-full backdrop-blur-sm border border-white/30">
+                    イベント一覧
+                  </span>
                 </div>
               </div>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="inline-flex items-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-news-subheading text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200"
-              >
-                <FilterIcon className="h-4 w-4 mr-2" />
-                フィルター
-              </button>
-            </div>
-
-            {showFilters && (
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <Filter
-                  onFilterChange={handleFilterChange}
-                  filters={filters}
-                  type="event"
-                />
+              
+              {/* 説明文 */}
+              <div className="max-w-2xl">
+                <p className="text-xl md:text-2xl text-white leading-relaxed font-medium mb-4">
+                  スタートアップ関連の展示会、イベント、セミナー情報を掲載
+                </p>
+                <p className="text-base text-emerald-100 font-medium">
+                  Information about startup-related exhibitions, events, and seminars
+                </p>
               </div>
-            )}
+              
+              {/* 装飾的な要素 */}
+              <div className="flex items-center space-x-2 mt-8">
+                <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+                <div className="w-3 h-3 bg-teal-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+              </div>
+            </div>
           </div>
         </div>
 
-
-        {/* 結果表示 - NewsPicks風 */}
+        {/* 結果表示 */}
         <div className="mb-6">
           <div className="flex items-center justify-between bg-white rounded-lg p-3 shadow-sm border border-gray-200">
             <p className="text-gray-600 font-news">
-              <span className="font-news-subheading text-gray-900">{filteredEvents.length}</span>件のイベントが見つかりました
+              <span className="font-news-subheading text-gray-900">{sortedEvents.length}</span>件のイベントが見つかりました
             </p>
-            <button
-              onClick={() => setShowPastEvents(!showPastEvents)}
-              className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-news-subheading transition-all duration-200 ${
-                showPastEvents
-                  ? "bg-gray-900 text-white hover:bg-gray-800"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {showPastEvents ? "過去のイベントを非表示" : "過去のイベントも表示"}
-            </button>
+            <div className="text-sm text-gray-500">
+              最新のイベントを表示
+            </div>
           </div>
         </div>
 
         {/* イベントカード一覧 */}
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 font-news">読み込み中...</p>
-          </div>
-        ) : filteredEvents.length > 0 ? (
+        {sortedEvents.length > 0 ? (
           <div className="space-y-12">
-            {areaOrder.map((area) => {
-              const areaEvents = filteredEvents.filter(event => event.area === area);
+            {allAreaOrder.map((area) => {
+              const areaEvents = sortedEvents.filter(event => event.area === area);
               if (areaEvents.length === 0) return null;
 
               return (
@@ -335,7 +305,7 @@ export default function EventsPage() {
             
             {/* エリア未設定のイベント */}
             {(() => {
-              const unassignedEvents = filteredEvents.filter(event => !areaOrder.includes(event.area || ''));
+              const unassignedEvents = sortedEvents.filter(event => !allAreaOrder.includes(event.area || ''));
               if (unassignedEvents.length === 0) return null;
 
               return (

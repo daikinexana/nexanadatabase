@@ -8,10 +8,14 @@ export const metadata: Metadata = {
   title: "公募一覧 | Nexana Database",
   description: "企業や行政が募集する課題解決パートナー、協業相手の公募情報を掲載",
   keywords: "公募, パートナーシップ, 協業, 課題解決, 企業, 自治体",
+  alternates: {
+    canonical: "https://db.nexanahq.com/open-calls",
+  },
   openGraph: {
     title: "公募一覧 | Nexana Database",
     description: "企業や行政が募集する課題解決パートナー、協業相手の公募情報を掲載",
     type: "website",
+    url: "https://db.nexanahq.com/open-calls",
   },
 };
 

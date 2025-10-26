@@ -3,6 +3,12 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "プライバシーポリシー | Nexana Database",
   description: "Nexana Databaseのプライバシーポリシーについて",
+  keywords: "プライバシーポリシー, 個人情報保護, データ保護, プライバシー",
+  openGraph: {
+    title: "プライバシーポリシー | Nexana Database",
+    description: "Nexana Databaseのプライバシーポリシーについて",
+    type: "website",
+  },
 };
 
 export default function PrivacyPage() {

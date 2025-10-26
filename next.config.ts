@@ -71,7 +71,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate',
+            value: 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
           },
           {
             key: 'X-Robots-Tag',
