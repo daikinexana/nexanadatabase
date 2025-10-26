@@ -37,69 +37,40 @@ const nextConfig: NextConfig = {
   // SEO最適化
   poweredByHeader: false,
   compress: true,
-  // ヘッダー設定（SEO改善）
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
-          },
-          {
-            key: 'X-Robots-Tag',
-            value: 'index, follow',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
-          },
-        ],
-      },
-      // メインページの特別な設定
-      {
-        source: '/',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
-          },
-          {
-            key: 'X-Robots-Tag',
-            value: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-        ],
-      },
-    ]
-  },
-  // リダイレクト設定（SEO改善）
+        // ヘッダー設定（SEO改善）
+        async headers() {
+          return [
+            {
+              source: '/(.*)',
+              headers: [
+                {
+                  key: 'Cache-Control',
+                  value: 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+                },
+                {
+                  key: 'X-Robots-Tag',
+                  value: 'index, follow',
+                },
+                {
+                  key: 'X-Content-Type-Options',
+                  value: 'nosniff',
+                },
+                {
+                  key: 'X-Frame-Options',
+                  value: 'DENY',
+                },
+                {
+                  key: 'Referrer-Policy',
+                  value: 'strict-origin-when-cross-origin',
+                },
+              ],
+            },
+          ]
+        },
+  // リダイレクト設定を一時的に無効化（Googleインデックス問題解決のため）
   async redirects() {
     return [
-      // wwwなしのドメインにリダイレクト（HTTPS強制）
-      {
-        source: '/:path*',
-        has: [
-          {
-            type: 'host',
-            value: 'www.db.nexanahq.com',
-          },
-        ],
-        destination: 'https://db.nexanahq.com/:path*',
-        permanent: true,
-      },
+      // リダイレクトを無効化してGoogleクローラーの問題を解決
     ]
   },
 };
