@@ -67,11 +67,9 @@ const nextConfig: NextConfig = {
             },
           ]
         },
-  // リダイレクト設定を一時的に無効化（Googleインデックス問題解決のため）
+  // リダイレクト設定を完全に無効化（Googleインデックス問題解決のため）
   async redirects() {
-    return [
-      // リダイレクトを無効化してGoogleクローラーの問題を解決
-    ]
+    return []
   },
 };
 
