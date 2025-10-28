@@ -37,7 +37,7 @@ const nextConfig: NextConfig = {
   // SEO最適化
   poweredByHeader: false,
   compress: true,
-        // ヘッダー設定（SEO改善）
+        // ヘッダー設定（SEO改善・HTTPS最適化）
         async headers() {
           return [
             {
@@ -63,6 +63,14 @@ const nextConfig: NextConfig = {
                   key: 'Referrer-Policy',
                   value: 'strict-origin-when-cross-origin',
                 },
+                {
+                  key: 'Strict-Transport-Security',
+                  value: 'max-age=31536000; includeSubDomains',
+                },
+                {
+                  key: 'Content-Security-Policy',
+                  value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;",
+                },
               ],
             },
           ]
@@ -70,6 +78,15 @@ const nextConfig: NextConfig = {
   // リダイレクト設定を完全に無効化（Googleインデックス問題解決のため）
   async redirects() {
     return []
+  },
+  // サブドメイン専用の設定
+  async rewrites() {
+    return [
+      {
+        source: '/google-site-verification.html',
+        destination: '/google-site-verification.html',
+      },
+    ]
   },
 };
 

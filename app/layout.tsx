@@ -30,6 +30,7 @@ export const metadata: Metadata = {
   creator: "Nexana HQ",
   publisher: "Nexana HQ",
   metadataBase: new URL('https://db.nexanahq.com'),
+  // サブドメイン専用の設定
   icons: {
     icon: [
       { url: "/logofavicon.ico", sizes: "any" },
@@ -53,6 +54,10 @@ export const metadata: Metadata = {
   },
   verification: {
     google: process.env.GOOGLE_VERIFICATION_CODE || "your-google-verification-code",
+  },
+  // サブドメイン専用のcanonical URL設定
+  other: {
+    'canonical': 'https://db.nexanahq.com',
   },
   alternates: {
     canonical: "https://db.nexanahq.com",

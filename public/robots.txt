@@ -1,0 +1,24 @@
+# Google Search Console用のサブドメイン設定
+# db.nexanahq.com専用の設定
+
+User-agent: *
+Allow: /
+
+# サブドメイン間の競合を避けるため、他のサブドメインを明示的に除外
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /sign-in/
+Disallow: /sign-up/
+
+# Googlebot専用設定
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /sign-in/
+Disallow: /sign-up/
+
+# サイトマップの指定
+Sitemap: https://db.nexanahq.com/sitemap.xml

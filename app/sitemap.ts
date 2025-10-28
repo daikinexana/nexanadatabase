@@ -6,10 +6,11 @@ export const revalidate = 0
 export const fetchCache = 'force-no-store'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'
+  // サブドメイン専用のURLを明示的に設定
+  const baseUrl = 'https://db.nexanahq.com'
   const now = new Date().toISOString()
 
-  // メインページのみ（データベース型サイトなので動的ページは除外）
+  // サブドメイン専用のサイトマップ（db.nexanahq.com）
   return [
     {
       url: baseUrl,

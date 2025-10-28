@@ -6,6 +6,15 @@ const isProtectedRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
+  // Googlebotのクロールを妨げないようにする
+  const userAgent = req.headers.get('user-agent') || '';
+  const isGooglebot = userAgent.includes('Googlebot') || userAgent.includes('googlebot');
+  
+  // Googlebotの場合は認証チェックをスキップ
+  if (isGooglebot) {
+    return;
+  }
+  
   // 保護されたルートのみ認証チェック
   if (isProtectedRoute(req)) {
     await auth.protect();
