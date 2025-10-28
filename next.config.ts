@@ -17,6 +17,18 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Clerkの読み込み最適化
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    return config;
+  },
   // パフォーマンス最適化
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-select'],
@@ -39,6 +51,8 @@ const nextConfig: NextConfig = {
   compress: true,
         // ヘッダー設定（SEO改善・HTTPS最適化）
         async headers() {
+          const isDevelopment = process.env.NODE_ENV === 'development';
+          
           return [
             {
               source: '/(.*)',
@@ -69,7 +83,9 @@ const nextConfig: NextConfig = {
                 },
                 {
                   key: 'Content-Security-Policy',
-                  value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;",
+                  value: isDevelopment 
+                    ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https:;"
+                    : "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev; style-src 'self' 'unsafe-inline' https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev; img-src 'self' data: https:; font-src 'self' data: https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev; connect-src 'self' https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev; frame-src 'self' https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev;",
                 },
               ],
             },

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Noto_Sans_JP, JetBrains_Mono } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkProvider, ClerkLoaded, ClerkLoading, ClerkFailed } from "@clerk/nextjs";
+import { CustomClerkFailed } from "@/components/ui/clerk-failed";
 import "./globals.css";
 
 const inter = Inter({
@@ -146,7 +147,29 @@ export default function RootLayout({
   };
 
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
+      signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL}
+      afterSignInUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL}
+      afterSignUpUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL}
+      appearance={{
+        baseTheme: undefined,
+        variables: {
+          colorPrimary: "#2563eb",
+          colorBackground: "#ffffff",
+          colorInputBackground: "#ffffff",
+          colorInputText: "#000000",
+        },
+      }}
+      localization={{
+        locale: "ja",
+      }}
+      // デバッグモードを有効化（開発環境のみ）
+      {...(process.env.NODE_ENV === 'development' && { 
+        debug: true 
+      })}
+    >
       <html lang="ja">
         <head>
           <script
@@ -160,7 +183,20 @@ export default function RootLayout({
           className={`${inter.variable} ${notoSansJP.variable} ${jetBrainsMono.variable} antialiased`}
           suppressHydrationWarning={true}
         >
-          {children}
+          <ClerkLoaded>
+            {children}
+          </ClerkLoaded>
+          <ClerkLoading>
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">読み込み中...</p>
+              </div>
+            </div>
+          </ClerkLoading>
+          <ClerkFailed>
+            <CustomClerkFailed />
+          </ClerkFailed>
         </body>
       </html>
     </ClerkProvider>
