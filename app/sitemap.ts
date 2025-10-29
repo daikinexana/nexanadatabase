@@ -1,76 +1,196 @@
 import { MetadataRoute } from 'next'
+import { prisma } from '@/lib/prisma'
 
-// キャッシュを完全に無効化
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
-export const fetchCache = 'force-no-store'
+// サイトマップは1時間に1回再生成（SEO最適化のため）
+// データベースから最新情報を取得するため、動的生成が必要
+export const revalidate = 3600 // 1時間キャッシュ
+export const fetchCache = 'force-cache'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // サブドメイン専用のURLを明示的に設定
   const baseUrl = 'https://db.nexanahq.com'
-  const now = new Date().toISOString()
+  
+  // 現在の日時
+  const now = new Date()
 
-  // サブドメイン専用のサイトマップ（db.nexanahq.com）
-  return [
-    {
-      url: baseUrl,
-      lastModified: now,
-      changeFrequency: 'daily' as const,
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/contests`,
-      lastModified: now,
-      changeFrequency: 'daily' as const,
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/open-calls`,
-      lastModified: now,
-      changeFrequency: 'daily' as const,
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/facilities`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/news`,
-      lastModified: now,
-      changeFrequency: 'hourly' as const,
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/knowledge`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/events`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: now,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/privacy`,
-      lastModified: now,
-      changeFrequency: 'yearly' as const,
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/terms`,
-      lastModified: now,
-      changeFrequency: 'yearly' as const,
-      priority: 0.3,
-    },
-  ]
+  try {
+    // データベースから各カテゴリの最新更新日時を取得
+    const [
+      latestContest,
+      latestOpenCall,
+      latestFacility,
+      latestNews,
+      latestKnowledge,
+      latestEvent,
+    ] = await Promise.all([
+      prisma.contest.findFirst({
+        where: { isActive: true },
+        orderBy: { updatedAt: 'desc' },
+        select: { updatedAt: true },
+      }),
+      prisma.openCall.findFirst({
+        where: { isActive: true },
+        orderBy: { updatedAt: 'desc' },
+        select: { updatedAt: true },
+      }),
+      prisma.facility.findFirst({
+        where: { isActive: true },
+        orderBy: { updatedAt: 'desc' },
+        select: { updatedAt: true },
+      }),
+      prisma.news.findFirst({
+        where: { isActive: true },
+        orderBy: { updatedAt: 'desc' },
+        select: { updatedAt: true },
+      }),
+      prisma.knowledge.findFirst({
+        where: { isActive: true },
+        orderBy: { updatedAt: 'desc' },
+        select: { updatedAt: true },
+      }),
+      prisma.event.findFirst({
+        where: { isActive: true },
+        orderBy: { updatedAt: 'desc' },
+        select: { updatedAt: true },
+      }),
+    ])
+
+    // 各ページのlastModifiedを設定（データベースの最新更新日時があれば使用、なければ現在時刻）
+    const homeLastModified = now.toISOString()
+    const contestsLastModified = latestContest?.updatedAt.toISOString() || now.toISOString()
+    const openCallsLastModified = latestOpenCall?.updatedAt.toISOString() || now.toISOString()
+    const facilitiesLastModified = latestFacility?.updatedAt.toISOString() || now.toISOString()
+    const newsLastModified = latestNews?.updatedAt.toISOString() || now.toISOString()
+    const knowledgeLastModified = latestKnowledge?.updatedAt.toISOString() || now.toISOString()
+    const eventsLastModified = latestEvent?.updatedAt.toISOString() || now.toISOString()
+
+    // サブドメイン専用のサイトマップ（db.nexanahq.com）
+    return [
+      {
+        url: baseUrl,
+        lastModified: homeLastModified,
+        changeFrequency: 'daily' as const,
+        priority: 1.0,
+      },
+      {
+        url: `${baseUrl}/contests`,
+        lastModified: contestsLastModified,
+        changeFrequency: 'daily' as const,
+        priority: 0.9,
+      },
+      {
+        url: `${baseUrl}/open-calls`,
+        lastModified: openCallsLastModified,
+        changeFrequency: 'daily' as const,
+        priority: 0.9,
+      },
+      {
+        url: `${baseUrl}/facilities`,
+        lastModified: facilitiesLastModified,
+        changeFrequency: 'weekly' as const,
+        priority: 0.9,
+      },
+      {
+        url: `${baseUrl}/news`,
+        lastModified: newsLastModified,
+        changeFrequency: 'hourly' as const,
+        priority: 0.9,
+      },
+      {
+        url: `${baseUrl}/knowledge`,
+        lastModified: knowledgeLastModified,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      },
+      {
+        url: `${baseUrl}/events`,
+        lastModified: eventsLastModified,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      },
+      {
+        url: `${baseUrl}/contact`,
+        lastModified: now.toISOString(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.5,
+      },
+      {
+        url: `${baseUrl}/privacy`,
+        lastModified: now.toISOString(),
+        changeFrequency: 'yearly' as const,
+        priority: 0.3,
+      },
+      {
+        url: `${baseUrl}/terms`,
+        lastModified: now.toISOString(),
+        changeFrequency: 'yearly' as const,
+        priority: 0.3,
+      },
+    ]
+  } catch (error) {
+    console.error('Error generating sitemap:', error)
+    // エラー時は現在時刻を使用してフォールバック
+    const fallbackDate = now.toISOString()
+    return [
+      {
+        url: baseUrl,
+        lastModified: fallbackDate,
+        changeFrequency: 'daily' as const,
+        priority: 1.0,
+      },
+      {
+        url: `${baseUrl}/contests`,
+        lastModified: fallbackDate,
+        changeFrequency: 'daily' as const,
+        priority: 0.9,
+      },
+      {
+        url: `${baseUrl}/open-calls`,
+        lastModified: fallbackDate,
+        changeFrequency: 'daily' as const,
+        priority: 0.9,
+      },
+      {
+        url: `${baseUrl}/facilities`,
+        lastModified: fallbackDate,
+        changeFrequency: 'weekly' as const,
+        priority: 0.9,
+      },
+      {
+        url: `${baseUrl}/news`,
+        lastModified: fallbackDate,
+        changeFrequency: 'hourly' as const,
+        priority: 0.9,
+      },
+      {
+        url: `${baseUrl}/knowledge`,
+        lastModified: fallbackDate,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      },
+      {
+        url: `${baseUrl}/events`,
+        lastModified: fallbackDate,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      },
+      {
+        url: `${baseUrl}/contact`,
+        lastModified: fallbackDate,
+        changeFrequency: 'monthly' as const,
+        priority: 0.5,
+      },
+      {
+        url: `${baseUrl}/privacy`,
+        lastModified: fallbackDate,
+        changeFrequency: 'yearly' as const,
+        priority: 0.3,
+      },
+      {
+        url: `${baseUrl}/terms`,
+        lastModified: fallbackDate,
+        changeFrequency: 'yearly' as const,
+        priority: 0.3,
+      },
+    ]
+  }
 }
