@@ -15,9 +15,22 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "50");
     const skip = (page - 1) * limit;
 
-    const where: Record<string, unknown> = {
-      isActive: true,
-    };
+    // 管理者かどうかを確認（エラーが発生しても続行）
+    let isAdmin = false;
+    try {
+      await requireAdmin();
+      isAdmin = true;
+    } catch {
+      // 管理者でない場合は通常ユーザーとして処理
+      isAdmin = false;
+    }
+
+    const where: Record<string, unknown> = {};
+    
+    // 管理者でない場合のみ isActive フィルターを適用
+    if (!isAdmin) {
+      where.isActive = true;
+    }
 
     if (area) {
       where.area = area;
@@ -64,17 +77,26 @@ export async function GET(request: NextRequest) {
     // ページネーション情報を含めて返す
     const totalPages = Math.ceil(totalCount / limit);
     
-    return NextResponse.json({
-      data: newsWithArrayInvestors,
-      pagination: {
-        page,
-        limit,
-        totalCount,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1,
+    return NextResponse.json(
+      {
+        data: newsWithArrayInvestors,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1,
+        },
       },
-    });
+      {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      }
+    );
   } catch (error) {
     console.error("Error fetching news:", error);
     return NextResponse.json(

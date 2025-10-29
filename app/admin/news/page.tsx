@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 // import { useRouter } from "next/navigation";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
@@ -58,14 +58,16 @@ export default function AdminNewsPage() {
   const [limit] = useState(50); // 1ページあたりの件数
   // const [investorInput, setInvestorInput] = useState('');
 
-  useEffect(() => {
-    fetchNews();
-  }, [currentPage]);
-
-  const fetchNews = async () => {
+  const fetchNews = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/news?page=${currentPage}&limit=${limit}`);
+      const response = await fetch(`/api/news?page=${currentPage}&limit=${limit}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+        },
+      });
       if (response.ok) {
         const result = await response.json();
         // APIは { data: [...], pagination: {...} } の形式で返す
@@ -92,7 +94,11 @@ export default function AdminNewsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, limit]);
+
+  useEffect(() => {
+    fetchNews();
+  }, [fetchNews]);
 
   const handleCreate = () => {
     setIsCreating(true);
