@@ -37,6 +37,7 @@ export default function ClientHeader() {
                 width={240}
                 height={64}
                 className="h-12 sm:h-16 w-auto"
+                style={{ width: "auto", height: "auto" }}
                 priority
               />
             </HeaderNavLink>
