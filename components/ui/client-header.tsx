@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import HeaderNavLink from "./header-nav-link";
 
@@ -14,6 +14,11 @@ const navigation = [
 
 export default function ClientHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -28,17 +33,20 @@ export default function ClientHeader() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 sm:h-24">
           {/* ロゴ */}
-          <div className="flex-shrink-0" suppressHydrationWarning>
+          <div className="flex-shrink-0">
             <HeaderNavLink href="/" onClick={closeMenu} isLogo={true}>
-              <img
-                src="/nexanadata.svg"
-                alt="Nexana Database"
-                width={240}
-                height={64}
-                className="h-12 sm:h-16 w-auto"
-                decoding="async"
-                suppressHydrationWarning
-              />
+              {isMounted ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src="/nexanadata.svg"
+                  alt="Nexana Database"
+                  width={240}
+                  height={64}
+                  className="h-12 sm:h-16 w-auto"
+                />
+              ) : (
+                <div className="h-12 sm:h-16 w-[240px] bg-gray-100 animate-pulse rounded" />
+              )}
             </HeaderNavLink>
           </div>
 
