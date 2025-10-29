@@ -189,9 +189,13 @@ export default function RootLayout({
     );
   }
 
-  // 非推奨のafterSignInUrl/afterSignUpUrlをfallbackRedirectUrlに置き換え
-  const fallbackRedirectUrl = 
+  // Clerkのリダイレクト設定
+  const signInFallbackRedirectUrl = 
     process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL || 
+    process.env.NEXT_PUBLIC_CLERK_FALLBACK_REDIRECT_URL || 
+    '/';
+  const signUpFallbackRedirectUrl = 
+    process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL || 
     process.env.NEXT_PUBLIC_CLERK_FALLBACK_REDIRECT_URL || 
     '/';
 
@@ -200,7 +204,8 @@ export default function RootLayout({
       publishableKey={clerkPublishableKey}
       signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
       signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL}
-      fallbackRedirectUrl={fallbackRedirectUrl}
+      signInFallbackRedirectUrl={signInFallbackRedirectUrl}
+      signUpFallbackRedirectUrl={signUpFallbackRedirectUrl}
       appearance={{
         baseTheme: undefined,
         variables: {
