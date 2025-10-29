@@ -87,72 +87,120 @@ export const metadata: Metadata = {
   },
 };
 
+// 構造化データを関数外に定義し、安全にシリアライズ
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Nexana Database",
+  "alternateName": "Nexana Database - オープンイノベーション・スタートアップ情報プラットフォーム",
+  "url": "https://db.nexanahq.com",
+  "description": "オープンイノベーション、スタートアップコンテスト、ビジネスコンテスト、ピッチコンテスト、インキュベーション施設、スタートアップ調達ニュース、大学ディープテック事業化支援の総合情報データベース",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Nexana HQ",
+    "url": "https://db.nexanahq.com"
+  },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://db.nexanahq.com/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  },
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "コンテスト",
+        "url": "https://db.nexanahq.com/contests"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "公募",
+        "url": "https://db.nexanahq.com/open-calls"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "施設紹介",
+        "url": "https://db.nexanahq.com/facilities"
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": "ニュース",
+        "url": "https://db.nexanahq.com/news"
+      },
+      {
+        "@type": "ListItem",
+        "position": 5,
+        "name": "ナレッジ",
+        "url": "https://db.nexanahq.com/knowledge"
+      }
+    ]
+  }
+};
+
+// 安全にJSON-LDを文字列化する関数
+function getStructuredDataScript(): string {
+  try {
+    // JSON.stringifyは自動的に適切なエスケープを行います
+    return JSON.stringify(structuredData);
+  } catch (error) {
+    console.error("Error stringifying structured data:", error);
+    return "{}";
+  }
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Nexana Database",
-    "alternateName": "Nexana Database - オープンイノベーション・スタートアップ情報プラットフォーム",
-    "url": "https://db.nexanahq.com",
-    "description": "オープンイノベーション、スタートアップコンテスト、ビジネスコンテスト、ピッチコンテスト、インキュベーション施設、スタートアップ調達ニュース、大学ディープテック事業化支援の総合情報データベース",
-    "publisher": {
-      "@type": "Organization",
-      "name": "Nexana HQ",
-      "url": "https://db.nexanahq.com"
-    },
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://db.nexanahq.com/search?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    },
-    "mainEntity": {
-      "@type": "ItemList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "コンテスト",
-          "url": "https://db.nexanahq.com/contests"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "公募",
-          "url": "https://db.nexanahq.com/open-calls"
-        },
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": "施設紹介",
-          "url": "https://db.nexanahq.com/facilities"
-        },
-        {
-          "@type": "ListItem",
-          "position": 4,
-          "name": "ニュース",
-          "url": "https://db.nexanahq.com/news"
-        },
-        {
-          "@type": "ListItem",
-          "position": 5,
-          "name": "ナレッジ",
-          "url": "https://db.nexanahq.com/knowledge"
-        }
-      ]
-    }
-  };
+  // 一時的にstructuredDataを無効化（エラー原因の切り分け）
+  const enableStructuredData = false; // デバッグ用：一時的に無効化
+  const structuredDataScript = enableStructuredData ? getStructuredDataScript() : null;
+
+  const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  
+  // Clerkの環境変数が設定されていない場合は、ClerkProviderを使わずに直接レンダリング
+  if (!clerkPublishableKey) {
+    console.warn("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not set. Running without authentication.");
+    return (
+      <html lang="ja">
+        <head>
+          {structuredDataScript && (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: structuredDataScript,
+              }}
+            />
+          )}
+        </head>
+        <body
+          className={`${inter.variable} ${notoSansJP.variable} ${jetBrainsMono.variable} antialiased`}
+          suppressHydrationWarning={true}
+        >
+          {children}
+        </body>
+      </html>
+    );
+  }
+
+  // 非推奨のafterSignInUrl/afterSignUpUrlをfallbackRedirectUrlに置き換え
+  const fallbackRedirectUrl = 
+    process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL || 
+    process.env.NEXT_PUBLIC_CLERK_FALLBACK_REDIRECT_URL || 
+    '/';
 
   return (
     <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      publishableKey={clerkPublishableKey}
       signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
       signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL}
-      afterSignInUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL}
-      afterSignUpUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL}
+      fallbackRedirectUrl={fallbackRedirectUrl}
       appearance={{
         baseTheme: undefined,
         variables: {
@@ -172,12 +220,14 @@ export default function RootLayout({
     >
       <html lang="ja">
         <head>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify(structuredData),
-            }}
-          />
+          {structuredDataScript && (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: structuredDataScript,
+              }}
+            />
+          )}
         </head>
         <body
           className={`${inter.variable} ${notoSansJP.variable} ${jetBrainsMono.variable} antialiased`}
@@ -191,6 +241,7 @@ export default function RootLayout({
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                 <p className="text-gray-600">読み込み中...</p>
+                <p className="text-sm text-gray-400 mt-2">時間がかかる場合は、ページを再読み込みしてください</p>
               </div>
             </div>
           </ClerkLoading>

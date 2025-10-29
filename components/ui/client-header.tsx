@@ -31,14 +31,16 @@ export default function ClientHeader() {
           {/* ロゴ */}
           <div className="flex-shrink-0">
             <HeaderNavLink href="/" onClick={closeMenu} isLogo={true}>
-              <Image
-                src="/nexanadata.svg"
-                alt="Nexana Database"
-                width={240}
-                height={64}
-                className="h-12 sm:h-16 w-auto"
-                priority
-              />
+              <div className="relative h-12 sm:h-16 w-auto">
+                <Image
+                  src="/nexanadata.svg"
+                  alt="Nexana Database"
+                  fill
+                  className="object-contain"
+                  priority
+                  sizes="(max-width: 768px) 180px, 240px"
+                />
+              </div>
             </HeaderNavLink>
           </div>
 
