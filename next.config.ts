@@ -54,8 +54,9 @@ const nextConfig: NextConfig = {
           const isDevelopment = process.env.NODE_ENV === 'development';
           
           return [
+            // パブリックページ用のヘッダー
             {
-              source: '/(.*)',
+              source: '/((?!admin|api/user|sign-in|sign-up).*)',
               headers: [
                 {
                   key: 'Cache-Control',
@@ -86,6 +87,32 @@ const nextConfig: NextConfig = {
                   value: isDevelopment 
                     ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https:; worker-src 'self' blob:;"
                     : "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev; style-src 'self' 'unsafe-inline' https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev; img-src 'self' data: https:; font-src 'self' data: https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev; connect-src 'self' https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev; frame-src 'self' https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev; worker-src 'self' blob:;",
+                },
+              ],
+            },
+            // /admin配下はnoindex, nofollow（検索エンジンにインデックスされないように）
+            {
+              source: '/admin/:path*',
+              headers: [
+                {
+                  key: 'X-Robots-Tag',
+                  value: 'noindex, nofollow',
+                },
+                {
+                  key: 'Cache-Control',
+                  value: 'private, no-cache, no-store, must-revalidate',
+                },
+                {
+                  key: 'X-Content-Type-Options',
+                  value: 'nosniff',
+                },
+                {
+                  key: 'X-Frame-Options',
+                  value: 'DENY',
+                },
+                {
+                  key: 'Strict-Transport-Security',
+                  value: 'max-age=31536000; includeSubDomains',
                 },
               ],
             },

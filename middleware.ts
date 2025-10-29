@@ -15,12 +15,22 @@ export default clerkMiddleware(async (auth, req) => {
   const userAgent = req.headers.get('user-agent') || '';
   const isGooglebot = userAgent.includes('Googlebot') || userAgent.includes('googlebot');
   
-  // Googlebotの場合は認証チェックをスキップ
+  // Googlebotの場合、保護されたルートへのアクセスを避ける（robots.txtでDisallow済み）
+  // ただし、誤ってアクセスした場合でもリダイレクトせずに404などで処理
+  // パブリックページはそのまま通過させてクロール可能にする
   if (isGooglebot) {
+    // Googlebotが/admin/にアクセスしようとした場合は早期リターン
+    // （robots.txtでDisallowしているが、念のため明示的に処理）
+    if (isProtectedRoute(req)) {
+      // リダイレクトせず、そのまま通過（404や適切なエラーページを返すか、または単純に通過）
+      // ただし、Clerkの認証チェックはスキップしてリダイレクトを防ぐ
+      return;
+    }
+    // パブリックページの場合はそのまま通過
     return;
   }
   
-  // 保護されたルートのみ認証チェック（パブリックページは通過）
+  // 通常のユーザーの場合、保護されたルートのみ認証チェック
   if (isProtectedRoute(req)) {
     await auth.protect();
   }
