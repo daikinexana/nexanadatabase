@@ -28,7 +28,7 @@ export default function ClientHeader() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 sm:h-24">
           {/* ロゴ */}
-          <div className="flex-shrink-0" suppressHydrationWarning>
+          <div className="flex-shrink-0">
             <HeaderNavLink href="/" onClick={closeMenu} isLogo={true}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -36,8 +36,9 @@ export default function ClientHeader() {
                 alt="Nexana Database"
                 width={240}
                 height={64}
-                className="h-12 sm:h-16 w-auto"
-                suppressHydrationWarning
+                className="h-12 sm:h-16 w-auto max-w-[180px] sm:max-w-[240px]"
+                decoding="async"
+                style={{ color: 'transparent' }}
               />
             </HeaderNavLink>
           </div>

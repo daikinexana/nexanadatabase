@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 
 const navigation = [
   { name: "コンテスト", nameEn: "Contests", href: "/contests" },
@@ -17,13 +16,15 @@ export default function ServerHeader() {
           {/* ロゴ - iPhone対応 */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
-              <Image
-                src="/nexanadata.svg"
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/nexanadata.png"
                 alt="Nexana Database"
                 width={240}
                 height={64}
-                className="h-12 sm:h-16 w-auto"
-                priority
+                className="h-12 sm:h-16 w-auto max-w-[180px] sm:max-w-[240px]"
+                decoding="async"
+                style={{ color: 'transparent' }}
               />
             </Link>
           </div>

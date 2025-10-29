@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
@@ -22,7 +22,7 @@ export default function HeaderNavLink({
   isMobile = false,
   isLogo = false
 }: HeaderNavLinkProps) {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const router = useRouter();
 
@@ -34,6 +34,7 @@ export default function HeaderNavLink({
 
     // 即座の視覚的フィードバック
     setIsClicked(true);
+    setIsPending(true);
     
     // 触覚フィードバック（対応デバイスのみ）
     if ('vibrate' in navigator) {
@@ -46,14 +47,13 @@ export default function HeaderNavLink({
     }
 
     // ナビゲーション処理
-    startTransition(() => {
-      router.push(href);
-    });
-
-    // クリック状態をリセット（短時間後）
+    router.push(href);
+    
+    // ローディング状態をリセット（短時間後）
     setTimeout(() => {
+      setIsPending(false);
       setIsClicked(false);
-    }, 150);
+    }, 300);
   };
 
   const baseClasses = isMobile 

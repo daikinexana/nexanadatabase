@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import Image from "next/image";
 
 const navigation = [
   { name: "ホーム", nameEn: "Home", href: "/" },
@@ -26,12 +25,15 @@ export default function Header() {
         <div className="flex w-full items-center justify-between py-8">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <Image
-                src="/nexanadata.svg"
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/nexanadata.png"
                 alt="Nexana Database"
                 width={400}
                 height={120}
-                className="h-24 w-auto"
+                className="h-24 w-auto max-w-[300px]"
+                decoding="async"
+                style={{ color: 'transparent' }}
               />
             </Link>
           </div>

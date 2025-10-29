@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useState, useTransition } from 'react';
+import { ReactNode, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -25,7 +25,7 @@ export default function EnhancedButton({
   loadingText,
   onClick
 }: EnhancedButtonProps) {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const router = useRouter();
 
@@ -61,15 +61,16 @@ export default function EnhancedButton({
       onClick();
     }
 
+    setIsPending(true);
+    
     // ナビゲーション処理
-    startTransition(() => {
-      router.push(href);
-    });
+    router.push(href);
 
-    // クリック状態をリセット（短時間後）
+    // ローディング状態をリセット（短時間後）
     setTimeout(() => {
+      setIsPending(false);
       setIsClicked(false);
-    }, 200);
+    }, 300);
   };
 
 
