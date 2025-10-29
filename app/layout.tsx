@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Noto_Sans_JP, JetBrains_Mono } from "next/font/google";
-import { ClerkProvider, ClerkLoaded, ClerkLoading, ClerkFailed } from "@clerk/nextjs";
-import { CustomClerkFailed } from "@/components/ui/clerk-failed";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 const inter = Inter({
@@ -218,10 +217,6 @@ export default function RootLayout({
       localization={{
         locale: "ja",
       }}
-      // デバッグモードを有効化（開発環境のみ）
-      {...(process.env.NODE_ENV === 'development' && { 
-        debug: true 
-      })}
     >
       <html lang="ja">
         <head>
@@ -238,21 +233,8 @@ export default function RootLayout({
           className={`${inter.variable} ${notoSansJP.variable} ${jetBrainsMono.variable} antialiased`}
           suppressHydrationWarning={true}
         >
-          <ClerkLoaded>
-            {children}
-          </ClerkLoaded>
-          <ClerkLoading>
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">読み込み中...</p>
-                <p className="text-sm text-gray-400 mt-2">時間がかかる場合は、ページを再読み込みしてください</p>
-              </div>
-            </div>
-          </ClerkLoading>
-          <ClerkFailed>
-            <CustomClerkFailed />
-          </ClerkFailed>
+          {/* パブリックページは即座に表示（Clerkの読み込みを待たない） */}
+          {children}
         </body>
       </html>
     </ClerkProvider>
