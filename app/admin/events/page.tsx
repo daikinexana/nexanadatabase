@@ -60,7 +60,18 @@ export default function AdminEventsPage() {
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch('/api/events');
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/events?_t=${timestamp}&_r=${random}`, {
+        cache: 'no-store',
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
+        },
+      });
         if (response.ok) {
           const data = await response.json();
           // 作成日時で降順ソート（新しいものが上に来る）
@@ -89,12 +100,22 @@ export default function AdminEventsPage() {
     if (!confirm('このイベントを削除しますか？')) return;
 
     try {
-      const response = await fetch(`/api/events/${id}`, {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/events/${id}?_t=${timestamp}&_r=${random}`, {
         method: 'DELETE',
+        cache: 'no-store',
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
+        },
       });
 
       if (response.ok) {
-        setEvents(events.filter(event => event.id !== id));
+        await fetchEvents(); // 最新データを再取得
       }
     } catch (error) {
       console.error('削除に失敗しました:', error);
@@ -160,10 +181,18 @@ export default function AdminEventsPage() {
 
       console.log('Sending data to API:', dataToSend);
 
-      const response = await fetch(`/api/events/${id}`, {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/events/${id}?_t=${timestamp}&_r=${random}`, {
         method: 'PUT',
+        cache: 'no-store',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
         },
         body: JSON.stringify(dataToSend),
       });
@@ -172,10 +201,7 @@ export default function AdminEventsPage() {
       console.log('Response ok:', response.ok);
 
       if (response.ok) {
-        const updatedEvent = await response.json();
-        setEvents(events.map(event => 
-          event.id === id ? updatedEvent : event
-        ));
+        await fetchEvents(); // 最新データを再取得
         setEditingId(null);
         setEditingData({});
         alert('イベントが正常に更新されました');
@@ -209,17 +235,24 @@ export default function AdminEventsPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/events', {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/events?_t=${timestamp}&_r=${random}`, {
         method: 'POST',
+        cache: 'no-store',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        const newEvent = await response.json();
-        setEvents([newEvent, ...events]);
+        await fetchEvents(); // 最新データを再取得
         setFormData({
           title: '',
           description: '',

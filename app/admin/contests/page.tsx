@@ -62,7 +62,18 @@ export default function AdminContestsPage() {
 
   const fetchContests = async () => {
     try {
-      const response = await fetch('/api/contests?admin=true');
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/contests?admin=true&_t=${timestamp}&_r=${random}`, {
+        cache: 'no-store',
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
+        },
+      });
         if (response.ok) {
           const data = await response.json();
           // 作成日時で降順ソート（新しいものが上に来る）
@@ -91,12 +102,23 @@ export default function AdminContestsPage() {
     if (!confirm('このコンテストを削除しますか？')) return;
 
     try {
-      const response = await fetch(`/api/contests/${id}`, {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/contests/${id}?_t=${timestamp}&_r=${random}`, {
         method: 'DELETE',
+        cache: 'no-store',
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
+        },
       });
 
       if (response.ok) {
         setContests(contests.filter(contest => contest.id !== id));
+        await fetchContests(); // 最新データを再取得
       }
     } catch (error) {
       console.error('削除に失敗しました:', error);
@@ -162,10 +184,18 @@ export default function AdminContestsPage() {
       console.log('Contest ID:', id);
       console.log('Editing data:', editingData);
 
-      const response = await fetch(`/api/contests/${id}`, {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/contests/${id}?_t=${timestamp}&_r=${random}`, {
         method: 'PUT',
+        cache: 'no-store',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
         },
         body: JSON.stringify(dataToSend),
       });
@@ -174,10 +204,7 @@ export default function AdminContestsPage() {
       console.log('Response ok:', response.ok);
 
       if (response.ok) {
-        const updatedContest = await response.json();
-        setContests(contests.map(contest => 
-          contest.id === id ? updatedContest : contest
-        ));
+        await fetchContests(); // 最新データを再取得
         setEditingId(null);
         setEditingData({});
         alert('コンテストが正常に更新されました');
@@ -212,17 +239,24 @@ export default function AdminContestsPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/contests', {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/contests?_t=${timestamp}&_r=${random}`, {
         method: 'POST',
+        cache: 'no-store',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        const newContest = await response.json();
-        setContests([newContest, ...contests]);
+        await fetchContests(); // 最新データを再取得
         setFormData({
           title: '',
           description: '',

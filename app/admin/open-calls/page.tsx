@@ -62,7 +62,18 @@ export default function AdminOpenCallsPage() {
 
   const fetchOpenCalls = async () => {
     try {
-      const response = await fetch('/api/open-calls');
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/open-calls?_t=${timestamp}&_r=${random}`, {
+        cache: 'no-store',
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
+        },
+      });
         if (response.ok) {
           const data = await response.json();
           // 作成日時で降順ソート（新しいものが上に来る）
@@ -91,12 +102,22 @@ export default function AdminOpenCallsPage() {
     if (!confirm('この公募を削除しますか？')) return;
 
     try {
-      const response = await fetch(`/api/open-calls/${id}`, {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/open-calls/${id}?_t=${timestamp}&_r=${random}`, {
         method: 'DELETE',
+        cache: 'no-store',
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
+        },
       });
 
       if (response.ok) {
-        setOpenCalls(openCalls.filter(openCall => openCall.id !== id));
+        await fetchOpenCalls(); // 最新データを再取得
       }
     } catch (error) {
       console.error('削除に失敗しました:', error);
@@ -164,10 +185,18 @@ export default function AdminOpenCallsPage() {
 
       console.log('Sending data to API:', dataToSend);
 
-      const response = await fetch(`/api/open-calls/${id}`, {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/open-calls/${id}?_t=${timestamp}&_r=${random}`, {
         method: 'PUT',
+        cache: 'no-store',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
         },
         body: JSON.stringify(dataToSend),
       });
@@ -176,10 +205,7 @@ export default function AdminOpenCallsPage() {
       console.log('Response ok:', response.ok);
 
       if (response.ok) {
-        const updatedOpenCall = await response.json();
-        setOpenCalls(openCalls.map(openCall => 
-          openCall.id === id ? updatedOpenCall : openCall
-        ));
+        await fetchOpenCalls(); // 最新データを再取得
         setEditingId(null);
         setEditingData({});
         alert('公募が正常に更新されました');
@@ -213,17 +239,24 @@ export default function AdminOpenCallsPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/open-calls', {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/open-calls?_t=${timestamp}&_r=${random}`, {
         method: 'POST',
+        cache: 'no-store',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        const newOpenCall = await response.json();
-        setOpenCalls([newOpenCall, ...openCalls]);
+        await fetchOpenCalls(); // 最新データを再取得
         setFormData({
           title: '',
           description: '',

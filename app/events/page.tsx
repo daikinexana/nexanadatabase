@@ -1,8 +1,7 @@
 import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import Card from "@/components/ui/card";
-import Filter from "@/components/ui/filter";
-import { Search, Filter as FilterIcon, Calendar } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

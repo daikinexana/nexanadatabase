@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 // import { useRouter } from "next/navigation";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
 import AdminNav from "@/components/ui/admin-nav";
-import { Plus, Edit, Trash2, Save } from "lucide-react";
+import { Plus, Edit, Trash2, Save, RefreshCw } from "lucide-react";
 import SimpleImage from "@/components/ui/simple-image";
 import ImageUpload from "@/components/ui/image-upload";
 
@@ -57,19 +57,58 @@ export default function AdminNewsPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [limit] = useState(50); // 1ページあたりの件数
   // const [investorInput, setInvestorInput] = useState('');
+  
+  // 最新のリクエストIDを追跡するためのref
+  const latestRequestIdRef = useRef<string | null>(null);
+  // 進行中のリクエストをキャンセルするためのAbortController
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchNews = useCallback(async () => {
+    // 前のリクエストがあればキャンセル
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // 新しいAbortControllerを作成
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    // リクエストIDを生成
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(7);
+    const requestId = `${timestamp}-${random}`;
+    latestRequestIdRef.current = requestId;
+
     try {
       setLoading(true);
-      const response = await fetch(`/api/news?page=${currentPage}&limit=${limit}`, {
+      // タイムスタンプとランダム文字列を追加してブラウザキャッシュを完全に回避
+      const response = await fetch(`/api/news?page=${currentPage}&limit=${limit}&_t=${timestamp}&_r=${random}`, {
         cache: 'no-store',
+        credentials: 'include',
+        signal: abortController.signal,
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
           'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': requestId, // リクエストIDを追加してキャッシュを回避
         },
       });
+      
+      // このリクエストが最新でない場合（別のリクエストが開始されている場合）は結果を無視
+      if (latestRequestIdRef.current !== requestId) {
+        console.log('Ignoring stale response:', requestId);
+        return;
+      }
+
       if (response.ok) {
         const result = await response.json();
+        
+        // 再度、このリクエストが最新かどうかを確認
+        if (latestRequestIdRef.current !== requestId) {
+          console.log('Ignoring stale response after parsing:', requestId);
+          return;
+        }
+
         // APIは { data: [...], pagination: {...} } の形式で返す
         if (result.data && Array.isArray(result.data)) {
           setNews(result.data);
@@ -86,18 +125,44 @@ export default function AdminNewsPage() {
           setTotalCount(0);
         }
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      // AbortErrorは無視（別のリクエストが開始されたため）
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('Request aborted:', requestId);
+        return;
+      }
+      
+      // エラーの場合も、最新のリクエストかどうかを確認
+      if (latestRequestIdRef.current !== requestId) {
+        console.log('Ignoring error from stale request:', requestId);
+        return;
+      }
       console.error("Error fetching news:", error);
       setNews([]);
       setTotalPages(1);
       setTotalCount(0);
     } finally {
-      setLoading(false);
+      // このリクエストが最新の場合のみloadingを解除
+      if (latestRequestIdRef.current === requestId || latestRequestIdRef.current === null) {
+        setLoading(false);
+      }
+      // このリクエストが完了した場合、AbortControllerをクリア
+      if (abortControllerRef.current === abortController) {
+        abortControllerRef.current = null;
+      }
     }
   }, [currentPage, limit]);
 
   useEffect(() => {
     fetchNews();
+    
+    // クリーンアップ: コンポーネントのアンマウント時または依存配列が変わった時にリクエストをキャンセル
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+    };
   }, [fetchNews]);
 
   const handleCreate = () => {
@@ -137,11 +202,21 @@ export default function AdminNewsPage() {
   const handleDelete = async (id: string) => {
     if (confirm("本当に削除しますか？")) {
       try {
-        const response = await fetch(`/api/news/${id}`, {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(7);
+        const response = await fetch(`/api/news/${id}?_t=${timestamp}&_r=${random}`, {
           method: "DELETE",
+          cache: 'no-store',
+          credentials: 'include',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'X-Request-ID': `${timestamp}-${random}`,
+          },
         });
         if (response.ok) {
-          await fetchNews();
+          await fetchNews(); // 最新データを再取得
         }
       } catch (error) {
         console.error("Error deleting news:", error);
@@ -154,24 +229,28 @@ export default function AdminNewsPage() {
     setIsSubmitting(true);
 
     try {
-      const url = isCreating ? "/api/news" : `/api/news/${editingNews?.id}`;
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const url = isCreating ? `/api/news?_t=${timestamp}&_r=${random}` : `/api/news/${editingNews?.id}?_t=${timestamp}&_r=${random}`;
       const method = isCreating ? "POST" : "PUT";
       
       const response = await fetch(url, {
         method,
+        cache: 'no-store',
+        credentials: 'include',
         headers: {
           "Content-Type": "application/json",
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        const newNews = await response.json();
-        if (isCreating) {
-          setNews([newNews, ...news]);
-        } else {
-          await fetchNews();
-        }
+        // 作成・更新後は常に最新データを再取得（Neonデータベースの変更を確実に反映）
+        await fetchNews();
         setEditingNews(null);
         setEditingId(null);
         setIsCreating(false);
@@ -303,13 +382,29 @@ export default function AdminNewsPage() {
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">ニュース管理</h1>
                 <p className="text-gray-600">投資、M&A、IPO、パートナーシップなどのニュース情報の管理と編集を行います</p>
               </div>
-              <button
-                onClick={handleCreate}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-              >
-                <Plus className="h-5 w-5" />
-                新しいニュースを追加
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    console.log('更新ボタンがクリックされました');
+                    fetchNews();
+                  }}
+                  disabled={loading}
+                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="最新データを再読み込み"
+                  type="button"
+                >
+                  <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+                  更新
+                </button>
+                <button
+                  onClick={handleCreate}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                  type="button"
+                >
+                  <Plus className="h-5 w-5" />
+                  新しいニュースを追加
+                </button>
+              </div>
             </div>
           </div>
 

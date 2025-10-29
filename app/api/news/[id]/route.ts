@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// 常に動的に実行されるように設定（キャッシュを完全に無効化）
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -20,7 +24,13 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(news);
+    return NextResponse.json(news, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
+    });
   } catch (error) {
     console.error("Error fetching news:", error);
     return NextResponse.json(
@@ -72,7 +82,13 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json(news);
+    return NextResponse.json(news, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
+    });
   } catch (error) {
     console.error("Error updating news:", error);
     return NextResponse.json(
@@ -94,7 +110,16 @@ export async function DELETE(
       },
     });
 
-    return NextResponse.json({ message: "News deleted successfully" });
+    return NextResponse.json(
+      { message: "News deleted successfully" },
+      {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      }
+    );
   } catch (error) {
     console.error("Error deleting news:", error);
     return NextResponse.json(

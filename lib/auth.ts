@@ -22,16 +22,23 @@ export async function getCurrentUser() {
         const clerkUser = await currentUser();
         
         if (clerkUser) {
+          // Clerkのメタデータから権限を取得（publicMetadataまたはprivateMetadataから）
+          const metadata = clerkUser.publicMetadata as Record<string, unknown> || clerkUser.privateMetadata as Record<string, unknown> || {};
+          const roleFromMetadata = metadata.role as string;
+          
+          // メタデータにroleが設定されている場合はそれを使用、なければデフォルトでMEMBER
+          const userRole = roleFromMetadata === "ADMIN" || roleFromMetadata === "EDITOR" ? roleFromMetadata : "MEMBER";
+
           user = await prisma.user.create({
             data: {
               clerkId: clerkUser.id,
               email: clerkUser.emailAddresses[0]?.emailAddress || "",
               name: `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim(),
-              role: "MEMBER", // デフォルトでメンバー権限を付与
+              role: userRole,
             },
           });
           
-          console.log(`User created automatically: ${user.email}`);
+          console.log(`User created automatically: ${user.email} with role: ${userRole}`);
         }
       } catch (error) {
         console.error("Error creating user automatically:", error);

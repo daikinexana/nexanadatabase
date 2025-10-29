@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3002",
+    "clear-port": "node scripts/clear-port.js",
+    "stop": "node scripts/stop-server.js",
+    "dev": "next dev",
     "build": "prisma generate && next build",
     "build:fast": "next build",
     "start": "next start",

@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 
   if (eventType === "user.created") {
     const data = evt.data as Record<string, unknown>;
-    const { id, email_addresses, first_name, last_name } = data;
+    const { id, email_addresses, first_name, last_name, public_metadata, private_metadata } = data;
     const userId = id as string;
 
     try {
@@ -62,16 +62,23 @@ export async function POST(req: NextRequest) {
       });
 
       if (!existingUser) {
+        // Clerkのメタデータから権限を取得（public_metadataまたはprivate_metadataから）
+        const metadata = (public_metadata as Record<string, unknown>) || (private_metadata as Record<string, unknown>) || {};
+        const roleFromMetadata = metadata.role as string;
+        
+        // メタデータにroleが設定されている場合はそれを使用、なければデフォルトでMEMBER
+        const userRole = roleFromMetadata === "ADMIN" || roleFromMetadata === "EDITOR" ? roleFromMetadata : "MEMBER";
+
         await prisma.user.create({
           data: {
             clerkId: userId,
             email: (email_addresses as Array<{ email_address: string }>)?.[0]?.email_address || "",
             name: `${(first_name as string) || ""} ${(last_name as string) || ""}`.trim(),
-            role: "MEMBER", // デフォルトでメンバー権限を付与
+            role: userRole,
           },
         });
 
-        console.log(`User created via webhook: ${(email_addresses as Array<{ email_address: string }>)?.[0]?.email_address}`);
+        console.log(`User created via webhook: ${(email_addresses as Array<{ email_address: string }>)?.[0]?.email_address} with role: ${userRole}`);
       } else {
         console.log(`User already exists: ${(email_addresses as Array<{ email_address: string }>)?.[0]?.email_address}`);
       }
@@ -82,7 +89,7 @@ export async function POST(req: NextRequest) {
 
   if (eventType === "user.updated") {
     const data = evt.data as Record<string, unknown>;
-    const { id, email_addresses, first_name, last_name } = data;
+    const { id, email_addresses, first_name, last_name, public_metadata, private_metadata } = data;
     const userId = id as string;
 
     try {
@@ -93,6 +100,15 @@ export async function POST(req: NextRequest) {
       });
 
       if (existingUser) {
+        // Clerkのメタデータから権限を取得（public_metadataまたはprivate_metadataから）
+        const metadata = (public_metadata as Record<string, unknown>) || (private_metadata as Record<string, unknown>) || {};
+        const roleFromMetadata = metadata.role as string;
+        
+        // メタデータにroleが設定されている場合はそれを使用、なければ既存のroleを維持
+        const userRole = roleFromMetadata === "ADMIN" || roleFromMetadata === "EDITOR" 
+          ? roleFromMetadata 
+          : existingUser.role;
+
         await prisma.user.update({
           where: {
             clerkId: userId,
@@ -100,22 +116,27 @@ export async function POST(req: NextRequest) {
           data: {
             email: (email_addresses as Array<{ email_address: string }>)?.[0]?.email_address || existingUser.email,
             name: `${first_name || ""} ${last_name || ""}`.trim() || existingUser.name,
+            role: userRole,
           },
         });
 
-        console.log(`User updated via webhook: ${(email_addresses as Array<{ email_address: string }>)?.[0]?.email_address}`);
+        console.log(`User updated via webhook: ${(email_addresses as Array<{ email_address: string }>)?.[0]?.email_address} with role: ${userRole}`);
       } else {
         // ユーザーが存在しない場合は新規作成
+        const metadata = (public_metadata as Record<string, unknown>) || (private_metadata as Record<string, unknown>) || {};
+        const roleFromMetadata = metadata.role as string;
+        const userRole = roleFromMetadata === "ADMIN" || roleFromMetadata === "EDITOR" ? roleFromMetadata : "MEMBER";
+
         await prisma.user.create({
           data: {
             clerkId: userId,
             email: (email_addresses as Array<{ email_address: string }>)?.[0]?.email_address || "",
             name: `${(first_name as string) || ""} ${(last_name as string) || ""}`.trim(),
-            role: "MEMBER",
+            role: userRole,
           },
         });
 
-        console.log(`User created via webhook (update event): ${(email_addresses as Array<{ email_address: string }>)?.[0]?.email_address}`);
+        console.log(`User created via webhook (update event): ${(email_addresses as Array<{ email_address: string }>)?.[0]?.email_address} with role: ${userRole}`);
       }
     } catch (error) {
       console.error("Error updating user via webhook:", error);

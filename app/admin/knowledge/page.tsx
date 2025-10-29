@@ -52,7 +52,18 @@ export default function AdminKnowledgePage() {
   const fetchKnowledge = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/knowledge");
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/knowledge?_t=${timestamp}&_r=${random}`, {
+        cache: 'no-store',
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
+        },
+      });
       if (response.ok) {
         const result = await response.json();
         // APIは { data: [...], pagination: {...} } の形式で返す
@@ -126,10 +137,18 @@ export default function AdminKnowledgePage() {
 
       console.log('Sending data to API:', dataToSend);
 
-      const response = await fetch(`/api/knowledge/${id}`, {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/knowledge/${id}?_t=${timestamp}&_r=${random}`, {
         method: 'PUT',
+        cache: 'no-store',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
         },
         body: JSON.stringify(dataToSend),
       });
@@ -138,10 +157,7 @@ export default function AdminKnowledgePage() {
       console.log('Response ok:', response.ok);
 
       if (response.ok) {
-        const updatedKnowledge = await response.json();
-        setKnowledge(knowledge.map(knowledgeItem => 
-          knowledgeItem.id === id ? updatedKnowledge : knowledgeItem
-        ));
+        await fetchKnowledge(); // 最新データを再取得
         setEditingId(null);
         setEditingData({});
         alert('ナレッジが正常に更新されました');
@@ -172,8 +188,18 @@ export default function AdminKnowledgePage() {
   const handleDelete = async (id: string) => {
     if (confirm("本当に削除しますか？")) {
       try {
-        const response = await fetch(`/api/knowledge/${id}`, {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(7);
+        const response = await fetch(`/api/knowledge/${id}?_t=${timestamp}&_r=${random}`, {
           method: "DELETE",
+          cache: 'no-store',
+          credentials: 'include',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'X-Request-ID': `${timestamp}-${random}`,
+          },
         });
         if (response.ok) {
           await fetchKnowledge();
@@ -189,24 +215,27 @@ export default function AdminKnowledgePage() {
     setIsSubmitting(true);
 
     try {
-      const url = isCreating ? "/api/knowledge" : `/api/knowledge/${editingKnowledge?.id}`;
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const url = isCreating ? `/api/knowledge?_t=${timestamp}&_r=${random}` : `/api/knowledge/${editingKnowledge?.id}?_t=${timestamp}&_r=${random}`;
       const method = isCreating ? "POST" : "PUT";
       
       const response = await fetch(url, {
         method,
+        cache: 'no-store',
+        credentials: 'include',
         headers: {
           "Content-Type": "application/json",
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        const newKnowledge = await response.json();
-        if (isCreating) {
-          setKnowledge([newKnowledge, ...knowledge]);
-        } else {
-          await fetchKnowledge();
-        }
+        await fetchKnowledge(); // 常に最新データを再取得
         setEditingKnowledge(null);
         setIsCreating(false);
         setFormData({

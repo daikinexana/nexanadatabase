@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import HeaderNavLink from "./header-nav-link";
@@ -29,16 +28,16 @@ export default function ClientHeader() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 sm:h-24">
           {/* ロゴ */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0" suppressHydrationWarning>
             <HeaderNavLink href="/" onClick={closeMenu} isLogo={true}>
-              <Image
+              <img
                 src="/nexanadata.svg"
                 alt="Nexana Database"
                 width={240}
                 height={64}
                 className="h-12 sm:h-16 w-auto"
-                style={{ width: "auto", height: "auto" }}
-                priority
+                decoding="async"
+                suppressHydrationWarning
               />
             </HeaderNavLink>
           </div>

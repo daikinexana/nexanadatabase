@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 
+// 常に動的に実行されるように設定（キャッシュを完全に無効化）
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -150,7 +154,17 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(news, { status: 201 });
+    return NextResponse.json(
+      news,
+      {
+        status: 201,
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      }
+    );
   } catch (error) {
     console.error("Error creating news:", error);
     

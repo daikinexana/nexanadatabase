@@ -62,7 +62,18 @@ export default function AdminFacilitiesPage() {
 
   const fetchFacilities = async () => {
     try {
-      const response = await fetch('/api/facilities');
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/facilities?_t=${timestamp}&_r=${random}`, {
+        cache: 'no-store',
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
+        },
+      });
         if (response.ok) {
           const data = await response.json();
           // 作成日時で降順ソート（新しいものが上に来る）
@@ -91,12 +102,22 @@ export default function AdminFacilitiesPage() {
     if (!confirm('この施設情報を削除しますか？')) return;
 
     try {
-      const response = await fetch(`/api/facilities/${id}`, {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/facilities/${id}?_t=${timestamp}&_r=${random}`, {
         method: 'DELETE',
+        cache: 'no-store',
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
+        },
       });
 
       if (response.ok) {
-        setFacilities(facilities.filter(facility => facility.id !== id));
+        await fetchFacilities(); // 最新データを再取得
       }
     } catch (error) {
       console.error('削除に失敗しました:', error);
@@ -152,10 +173,18 @@ export default function AdminFacilitiesPage() {
 
       console.log('Sending data to API:', dataToSend);
 
-      const response = await fetch(`/api/facilities/${id}`, {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/facilities/${id}?_t=${timestamp}&_r=${random}`, {
         method: 'PUT',
+        cache: 'no-store',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
         },
         body: JSON.stringify(dataToSend),
       });
@@ -164,10 +193,7 @@ export default function AdminFacilitiesPage() {
       console.log('Response ok:', response.ok);
 
       if (response.ok) {
-        const updatedFacility = await response.json();
-        setFacilities(facilities.map(facility => 
-          facility.id === id ? updatedFacility : facility
-        ));
+        await fetchFacilities(); // 最新データを再取得
         setEditingId(null);
         setEditingData({});
         alert('施設が正常に更新されました');
@@ -201,17 +227,24 @@ export default function AdminFacilitiesPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/facilities', {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/facilities?_t=${timestamp}&_r=${random}`, {
         method: 'POST',
+        cache: 'no-store',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Request-ID': `${timestamp}-${random}`,
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        const newFacility = await response.json();
-        setFacilities([newFacility, ...facilities]);
+        await fetchFacilities(); // 最新データを再取得
         setFormData({
           title: '',
           description: '',
