@@ -6,9 +6,9 @@ import { Search, Filter as FilterIcon, BookOpen } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "ナレッジ一覧 | Nexana Database",
-  description: "AI、ディープテック、最新技術情報とトレンドを提供",
-  keywords: "AI, ディープテック, 技術, トレンド, ナレッジ, イノベーション",
+  title: "ナレッジ一覧 | Nexana Database | スタートアップ・イノベーション情報",
+  description: "AI、ディープテック、最新技術情報とトレンドを提供。スタートアップ・オープンイノベーション・イノベーションに関するナレッジをデータベース化。ネクサナ（nexana）が運営するプラットフォーム。",
+  keywords: "AI, ディープテック, 技術, トレンド, ナレッジ, イノベーション, スタートアップ, オープンイノベーション, プラットフォーム, データベース, ネクサナ, nexana",
   alternates: {
     canonical: "https://db.nexanahq.com/knowledge",
   },

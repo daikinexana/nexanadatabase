@@ -5,9 +5,9 @@ import { Building2 } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "施設一覧 | Nexana Database",
-  description: "スタートアップ支援施設、インキュベーション施設、イノベーション拠点の情報を掲載",
-  keywords: "スタートアップ, 施設, インキュベーション, イノベーション, 支援",
+  title: "施設一覧 | Nexana Database | スタートアップ・インキュベーション施設",
+  description: "スタートアップ支援施設、インキュベーション施設、イノベーション拠点、アクセラレーション施設の情報を掲載。スタートアップ・オープンイノベーション支援施設をデータベース化。ネクサナ（nexana）が運営するプラットフォーム。",
+  keywords: "スタートアップ, 施設, インキュベーション, イノベーション, 支援, アクセラ, アクセラレーション, プログラム, プラットフォーム, データベース, ネクサナ, nexana",
   alternates: {
     canonical: "https://db.nexanahq.com/facilities",
   },

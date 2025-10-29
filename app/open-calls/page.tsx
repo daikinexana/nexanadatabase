@@ -5,9 +5,9 @@ import { Handshake } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "公募一覧 | Nexana Database",
-  description: "企業や行政が募集する課題解決パートナー、協業相手の公募情報を掲載",
-  keywords: "公募, パートナーシップ, 協業, 課題解決, 企業, 自治体",
+  title: "公募一覧 | Nexana Database | オープンイノベーション公募・募集情報",
+  description: "企業や行政が募集する課題解決パートナー、協業相手の公募・募集情報を掲載。スタートアップ・大企業向けのオープンイノベーション情報をデータベース化。ネクサナ（nexana）が運営するイノベーションプラットフォーム。",
+  keywords: "公募, 募集, パートナーシップ, 協業, 課題解決, 企業, 自治体, スタートアップ, オープンイノベーション, イノベーション, プラットフォーム, データベース, ネクサナ, nexana",
   alternates: {
     canonical: "https://db.nexanahq.com/open-calls",
   },

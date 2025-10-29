@@ -20,7 +20,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       latestFacility,
       latestNews,
       latestKnowledge,
-      latestEvent,
     ] = await Promise.all([
       prisma.contest.findFirst({
         where: { isActive: true },
@@ -47,11 +46,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         orderBy: { updatedAt: 'desc' },
         select: { updatedAt: true },
       }),
-      prisma.event.findFirst({
-        where: { isActive: true },
-        orderBy: { updatedAt: 'desc' },
-        select: { updatedAt: true },
-      }),
     ])
 
     // 各ページのlastModifiedを設定（データベースの最新更新日時があれば使用、なければ現在時刻）
@@ -61,7 +55,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const facilitiesLastModified = latestFacility?.updatedAt.toISOString() || now.toISOString()
     const newsLastModified = latestNews?.updatedAt.toISOString() || now.toISOString()
     const knowledgeLastModified = latestKnowledge?.updatedAt.toISOString() || now.toISOString()
-    const eventsLastModified = latestEvent?.updatedAt.toISOString() || now.toISOString()
 
     // サブドメイン専用のサイトマップ（db.nexanahq.com）
     return [
@@ -98,12 +91,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       {
         url: `${baseUrl}/knowledge`,
         lastModified: knowledgeLastModified,
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-      },
-      {
-        url: `${baseUrl}/events`,
-        lastModified: eventsLastModified,
         changeFrequency: 'weekly' as const,
         priority: 0.8,
       },
@@ -163,12 +150,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
       {
         url: `${baseUrl}/knowledge`,
-        lastModified: fallbackDate,
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-      },
-      {
-        url: `${baseUrl}/events`,
         lastModified: fallbackDate,
         changeFrequency: 'weekly' as const,
         priority: 0.8,

@@ -6,9 +6,9 @@ import { Search, Filter as FilterIcon, Newspaper } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "ニュース一覧 | Nexana Database",
-  description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信",
-  keywords: "スタートアップ, 調達, M&A, IPO, 投資, ニュース",
+  title: "ニュース一覧 | Nexana Database | スタートアップ調達・M&A情報",
+  description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信。イノベーション・オープンイノベーションに関する最新ニュースをデータベース化。ネクサナ（nexana）が運営するプラットフォーム。",
+  keywords: "スタートアップ, 調達, M&A, IPO, 投資, ニュース, イノベーション, オープンイノベーション, プラットフォーム, データベース, ネクサナ, nexana",
   alternates: {
     canonical: "https://db.nexanahq.com/news",
   },

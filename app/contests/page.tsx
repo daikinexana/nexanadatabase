@@ -5,9 +5,9 @@ import { Trophy } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "コンテスト一覧 | Nexana Database",
-  description: "スタートアップコンテスト、ピッチコンテスト、ハッカソンなどの情報を掲載",
-  keywords: "スタートアップ, コンテスト, ピッチ, ハッカソン, 起業",
+  title: "コンテスト一覧 | Nexana Database | スタートアップ・ビジネスコンテスト情報",
+  description: "スタートアップ・ビジネスコンテスト、ピッチコンテスト、ハッカソン、アクセラレーションプログラムの情報を掲載。公募・募集・開催情報をデータベース化。ネクサナ（nexana）が運営するイノベーションプラットフォーム。",
+  keywords: "スタートアップ, コンテスト, ビジネスコンテスト, ピッチ, ハッカソン, アクセラ, アクセラレーション, プログラム, 公募, 募集, 開催, 起業, イノベーション, プラットフォーム, データベース, ネクサナ, nexana",
   alternates: {
     canonical: "https://db.nexanahq.com/contests",
   },
