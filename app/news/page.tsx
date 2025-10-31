@@ -116,11 +116,11 @@ async function getNews(page: number = 1, limit: number = 50): Promise<NewsRespon
   }
 }
 
-// 静的生成を強制してGoogleクローラーの問題を解決
-export const dynamic = 'force-static';
+// 動的レンダリングに変更して最新データを常に取得（削除されたデータを即座に反映）
+export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-export const revalidate = 3600; // 1時間キャッシュ
-export const fetchCache = 'force-cache';
+export const revalidate = 0; // キャッシュを無効化
+export const fetchCache = 'force-no-store'; // キャッシュを保存しない
 export const preferredRegion = 'auto';
 
 export default async function NewsPage({
