@@ -1,4 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 /**
  * 保護されたルート（認証が必要なページ）
@@ -10,34 +12,70 @@ const isProtectedRoute = createRouteMatcher([
   "/api/user(.*)",
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
-  // Googlebotのクロールを妨げないようにする（SEO対策）
+/**
+ * パブリックルート（認証不要なページ）
+ * これらのルートはClerkの認証チェックを完全にスキップ
+ */
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/contests(.*)",
+  "/open-calls(.*)",
+  "/facilities(.*)",
+  "/news(.*)",
+  "/knowledge(.*)",
+  "/contact",
+  "/privacy",
+  "/terms",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/icon.svg",
+  "/apple-icon.svg",
+  "/google-site-verification.html",
+]);
+
+/**
+ * Googlebotを検出する関数
+ */
+function isGooglebot(userAgent: string): boolean {
+  if (!userAgent) return false;
+  const ua = userAgent.toLowerCase();
+  return (
+    ua.includes('googlebot') ||
+    ua.includes('google-inspectiontool') ||
+    ua.includes('mediapartners-google') ||
+    ua.includes('apis-google') ||
+    ua.includes('feedfetcher-google')
+  );
+}
+
+export default clerkMiddleware(async (auth, req: NextRequest) => {
   const userAgent = req.headers.get('user-agent') || '';
-  const isGooglebot = 
-    userAgent.includes('Googlebot') || 
-    userAgent.includes('googlebot') ||
-    userAgent.includes('Google-InspectionTool') ||
-    userAgent.includes('Mediapartners-Google');
+  const pathname = req.nextUrl.pathname;
   
-  // パブリックページ（/admin以外）は常に認証チェックなしで通過
-  // Googlebotを含むすべてのクローラーがリダイレクトされないようにする
-  if (!isProtectedRoute(req)) {
-    // パブリックページの場合は認証チェックなしでそのまま通過
-    // レスポンスヘッダーにキャッシュ情報を追加してSEOを最適化
-    return;
+  // Googlebotの場合は、Clerkの処理を完全にスキップしてリダイレクトを防ぐ
+  if (isGooglebot(userAgent)) {
+    // パブリックページはそのまま通過（リダイレクトなし）
+    if (isPublicRoute(req)) {
+      return NextResponse.next();
+    }
+    // 保護されたページは403を返す（リダイレクトしない）
+    if (isProtectedRoute(req)) {
+      return new NextResponse(null, { status: 403 });
+    }
+    // その他のページも通過
+    return NextResponse.next();
   }
   
-  // 保護されたルート（/admin、/api/user）へのアクセス
-  if (isGooglebot) {
-    // Googlebotが保護されたルートにアクセスしようとした場合
-    // robots.txtでDisallowしているが、念のためリダイレクトせずに処理をスキップ
-    // 404を返すか、または認証なしでスキップ（リダイレクトしないことが重要）
-    return;
+  // 通常のユーザーアクセス
+  // パブリックページは認証チェックなしで通過
+  if (isPublicRoute(req)) {
+    return NextResponse.next();
   }
   
-  // 通常のユーザーが保護されたルートにアクセスする場合のみ認証チェック
-  // auth.protect()はリダイレクトを発生させる可能性があるため、Googlebotの場合は既に処理済み
-  await auth.protect();
+  // 保護されたルートのみ認証チェック（auth.protect()はリダイレクトする可能性がある）
+  if (isProtectedRoute(req)) {
+    await auth.protect();
+  }
 });
 
 export const config = {
