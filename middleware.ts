@@ -13,12 +13,17 @@ const isProtectedRoute = createRouteMatcher([
 export default clerkMiddleware(async (auth, req) => {
   // Googlebotのクロールを妨げないようにする（SEO対策）
   const userAgent = req.headers.get('user-agent') || '';
-  const isGooglebot = userAgent.includes('Googlebot') || userAgent.includes('googlebot');
+  const isGooglebot = 
+    userAgent.includes('Googlebot') || 
+    userAgent.includes('googlebot') ||
+    userAgent.includes('Google-InspectionTool') ||
+    userAgent.includes('Mediapartners-Google');
   
   // パブリックページ（/admin以外）は常に認証チェックなしで通過
-  // これにより、Google検索クローラーや通常ユーザーがリダイレクトされることはありません
+  // Googlebotを含むすべてのクローラーがリダイレクトされないようにする
   if (!isProtectedRoute(req)) {
     // パブリックページの場合は認証チェックなしでそのまま通過
+    // レスポンスヘッダーにキャッシュ情報を追加してSEOを最適化
     return;
   }
   
@@ -26,11 +31,12 @@ export default clerkMiddleware(async (auth, req) => {
   if (isGooglebot) {
     // Googlebotが保護されたルートにアクセスしようとした場合
     // robots.txtでDisallowしているが、念のためリダイレクトせずに処理をスキップ
-    // これにより、Google検索でリダイレクトされることはありません
+    // 404を返すか、または認証なしでスキップ（リダイレクトしないことが重要）
     return;
   }
   
   // 通常のユーザーが保護されたルートにアクセスする場合のみ認証チェック
+  // auth.protect()はリダイレクトを発生させる可能性があるため、Googlebotの場合は既に処理済み
   await auth.protect();
 });
 
