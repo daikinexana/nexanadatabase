@@ -53,10 +53,14 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   const pathname = req.nextUrl.pathname;
   
   // Googlebotの場合は、Clerkの処理を完全にスキップしてリダイレクトを防ぐ
+  // これが最も重要：GooglebotにはClerkの認証処理を一切実行させない
   if (isGooglebot(userAgent)) {
-    // パブリックページはそのまま通過（リダイレクトなし）
+    // すべてのパブリックページはそのまま通過（リダイレクトなし）
     if (isPublicRoute(req)) {
-      return NextResponse.next();
+      const response = NextResponse.next();
+      // SEO用のヘッダーを追加
+      response.headers.set('X-Robots-Tag', 'index, follow');
+      return response;
     }
     // 保護されたページは403を返す（リダイレクトしない）
     if (isProtectedRoute(req)) {
@@ -67,15 +71,19 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   }
   
   // 通常のユーザーアクセス
-  // パブリックページは認証チェックなしで通過
+  // パブリックページは認証チェックなしで通過（早期リターンでClerkの処理を最小化）
   if (isPublicRoute(req)) {
     return NextResponse.next();
   }
   
-  // 保護されたルートのみ認証チェック（auth.protect()はリダイレクトする可能性がある）
+  // 保護されたルートのみ認証チェック
+  // auth.protect()は未認証時にリダイレクトを発生させるが、パブリックルートは既に通過済み
   if (isProtectedRoute(req)) {
     await auth.protect();
   }
+  
+  // その他のケースは通過
+  return NextResponse.next();
 });
 
 export const config = {
