@@ -155,7 +155,7 @@ function getStructuredDataScript(): string {
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -166,29 +166,64 @@ export default function RootLayout({
 
   const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
   
-  // Clerkの環境変数が設定されていない場合は、ClerkProviderを使わずに直接レンダリング
+  // サーバーサイドでUser-Agentをチェック（Googlebot検出）
+  // headers()を使って、middleware.tsで設定したX-Is-Googlebotヘッダーを確認
+  let isGooglebot = false;
+  try {
+    const { headers } = await import('next/headers');
+    const headersList = await headers();
+    const isGooglebotHeader = headersList.get('x-is-googlebot');
+    isGooglebot = isGooglebotHeader === 'true';
+    
+    // フォールバック: User-Agentを直接チェック
+    if (!isGooglebot) {
+      const userAgent = headersList.get('user-agent') || '';
+      const ua = userAgent.toLowerCase();
+      isGooglebot = (
+        ua.includes('googlebot') ||
+        ua.includes('google-inspectiontool') ||
+        ua.includes('mediapartners-google') ||
+        ua.includes('apis-google') ||
+        ua.includes('feedfetcher-google')
+      );
+    }
+  } catch (error) {
+    // headers()が利用できない場合は通常ユーザーとして扱う
+    console.warn('Could not check User-Agent:', error);
+  }
+  
+  // 基本的なHTML構造（ClerkProviderなしでも動作）
+  const baseHtml = (
+    <html lang="ja">
+      <head>
+        {structuredDataScript && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: structuredDataScript,
+            }}
+          />
+        )}
+      </head>
+      <body
+        className={`${inter.variable} ${notoSansJP.variable} ${jetBrainsMono.variable} antialiased`}
+        suppressHydrationWarning={true}
+      >
+        {children}
+      </body>
+    </html>
+  );
+  
+  // Googlebotの場合は、ClerkProviderを使わずに直接レンダリング
+  // これによりクライアントサイドでのリダイレクトを完全に防ぐ
+  if (isGooglebot) {
+    return baseHtml;
+  }
+  
+  // Clerkの環境変数が設定されていない場合も直接レンダリング
   if (!clerkPublishableKey) {
     console.warn("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not set. Running without authentication.");
-    return (
-      <html lang="ja">
-        <head>
-          {structuredDataScript && (
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{
-                __html: structuredDataScript,
-              }}
-            />
-          )}
-        </head>
-        <body
-          className={`${inter.variable} ${notoSansJP.variable} ${jetBrainsMono.variable} antialiased`}
-          suppressHydrationWarning={true}
-        >
-          {children}
-        </body>
-      </html>
-    );
+    return baseHtml;
   }
 
   // Clerkのリダイレクト設定
@@ -201,6 +236,7 @@ export default function RootLayout({
     process.env.NEXT_PUBLIC_CLERK_FALLBACK_REDIRECT_URL || 
     '/';
 
+  // 通常ユーザーの場合のみClerkProviderを使用
   return (
     <ClerkProvider
       publishableKey={clerkPublishableKey}
@@ -221,25 +257,7 @@ export default function RootLayout({
         locale: "ja",
       }}
     >
-      <html lang="ja">
-        <head>
-          {structuredDataScript && (
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{
-                __html: structuredDataScript,
-              }}
-            />
-          )}
-        </head>
-        <body
-          className={`${inter.variable} ${notoSansJP.variable} ${jetBrainsMono.variable} antialiased`}
-          suppressHydrationWarning={true}
-        >
-          {/* パブリックページは即座に表示（Clerkの読み込みを待たない） */}
-          {children}
-        </body>
-      </html>
+      {baseHtml}
     </ClerkProvider>
   );
 }
