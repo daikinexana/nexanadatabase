@@ -105,11 +105,26 @@ async function getLocation(idOrSlug: string) {
         updatedAt: true,
         workspaces: {
           where: { isActive: true },
+          select: {
+            id: true,
+            name: true,
+            imageUrl: true,
+            country: true,
+            city: true,
+            hasDropin: true,
+            hasNexana: true,
+          },
         },
       },
     });
 
     console.log("Location found:", !!location);
+    if (location) {
+      console.log("Location ID:", location.id);
+      console.log("Location slug:", location.slug);
+      console.log("Workspaces count:", location.workspaces?.length || 0);
+      console.log("Workspaces:", location.workspaces);
+    }
     return location;
   } catch (error) {
     console.error("Error fetching location:", error);
