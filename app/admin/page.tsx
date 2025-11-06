@@ -4,7 +4,7 @@ import Link from "next/link";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
-import { Trophy, Newspaper, BookOpen, Building, Handshake } from "lucide-react";
+import { Trophy, Newspaper, BookOpen, Building, Handshake, Briefcase } from "lucide-react";
 
 export default function AdminPage() {
 
@@ -58,7 +58,7 @@ export default function AdminPage() {
               </Link>
 
               <Link
-                href="/admin/facilities"
+                href="/admin/location"
                 className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 group"
               >
                 <div className="flex items-center mb-3">
@@ -66,11 +66,11 @@ export default function AdminPage() {
                     <Building className="h-6 w-6" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
-                    施設紹介管理
+                    ロケーション管理
                   </h3>
                 </div>
                 <p className="text-gray-600 text-sm">
-                  スタートアップ支援施設の管理を行います
+                  世界各国・都市のロケーション情報を管理します
                 </p>
               </Link>
 
@@ -106,6 +106,23 @@ export default function AdminPage() {
                 </div>
                 <p className="text-gray-600 text-sm">
                   AI、ディープテックなどの最新技術情報を管理します
+                </p>
+              </Link>
+
+              <Link
+                href="/admin/workspace"
+                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 group"
+              >
+                <div className="flex items-center mb-3">
+                  <div className="p-3 rounded-lg bg-teal-500 text-white mr-4">
+                    <Briefcase className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-teal-600 transition-colors">
+                    ワークスペース管理
+                  </h3>
+                </div>
+                <p className="text-gray-600 text-sm">
+                  ワークスペース情報の作成、編集、削除を行います
                 </p>
               </Link>
 

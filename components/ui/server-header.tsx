@@ -3,7 +3,7 @@ import Link from "next/link";
 const navigation = [
   { name: "コンテスト", nameEn: "Contests", href: "/contests" },
   { name: "公募", nameEn: "Open Calls", href: "/open-calls" },
-  { name: "施設", nameEn: "Facilities", href: "/facilities" },
+  { name: "ロケーション", nameEn: "Location", href: "/location" },
   { name: "ニュース", nameEn: "News", href: "/news" },
   { name: "ナレッジ", nameEn: "Knowledge", href: "/knowledge" },
 ];

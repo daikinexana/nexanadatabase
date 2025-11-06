@@ -8,11 +8,11 @@ import { getDatabaseStats } from "@/lib/stats";
 
 export const metadata: Metadata = {
   title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
-  description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、インキュベーション施設をデータベース化。ネクサナ（nexana）が運営するスタートアップ・大企業・大学向けイノベーションデータベース。",
-  keywords: "スタートアップ, オープンイノベーション, イノベーション, コンテスト, ビジネスコンテスト, アクセラ, アクセラレーション, プログラム, 公募, 募集, 開催, 調達, M&A, インキュベーション, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, スタートアップコンテスト, ピッチコンテスト, business competition, インキュベーション施設, スタートアップ調達ニュース, 大学ディープテック, 海外展開支援, マッチングサービス, プロジェクトマネジメント, コミュニティマネージメント, スタートアップ支援, 大企業, 大学, 行政",
+  description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。ネクサナ（nexana）が運営するスタートアップ・大企業・大学向けイノベーションデータベース。",
+  keywords: "スタートアップ, オープンイノベーション, イノベーション, コンテスト, ビジネスコンテスト, アクセラ, アクセラレーション, プログラム, 公募, 募集, 開催, 調達, M&A, インキュベーション, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, スタートアップコンテスト, ピッチコンテスト, business competition, ロケーション, ワークスペース, コワーキングスペース, スタートアップ調達ニュース, 大学ディープテック, 海外展開支援, マッチングサービス, プロジェクトマネジメント, コミュニティマネージメント, スタートアップ支援, 大企業, 大学, 行政",
   openGraph: {
     title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
-    description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、インキュベーション施設をデータベース化。",
+    description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。",
     type: "website",
     locale: "ja_JP",
     url: "https://db.nexanahq.com",
@@ -48,11 +48,11 @@ const features = [
     accentColor: "bg-gray-600",
   },
   {
-    name: "施設紹介",
-    nameEn: "Facilities",
-    description: "スタートアップ支援施設やイノベーション拠点を紹介",
-    descriptionEn: "Startup support facilities and innovation hubs",
-    href: "/facilities",
+    name: "ロケーション",
+    nameEn: "Location",
+    description: "世界各国・都市のロケーション情報を掲載",
+    descriptionEn: "Location information for cities around the world",
+    href: "/location",
     icon: Building,
     color: "from-slate-500 to-slate-700",
     bgColor: "bg-gradient-to-br from-white via-gray-50 to-gray-100",
@@ -193,8 +193,8 @@ export default async function Home() {
               <div className="text-sm text-gray-300">コンテスト</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stats.facilities}+</div>
-              <div className="text-sm text-gray-300">施設</div>
+              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stats.locations}+</div>
+              <div className="text-sm text-gray-300">ロケーション</div>
             </div>
             <div className="text-center">
               <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stats.news}+</div>

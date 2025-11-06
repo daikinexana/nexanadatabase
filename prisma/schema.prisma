@@ -195,6 +195,156 @@ model Post {
   @@map("posts")
 }
 
+model Location {
+  id                     String      @id @default(cuid())
+  slug                   String      @unique
+  country                String
+  city                   String
+  description            String?
+  topImageUrl            String?
+  mapImageUrl            String?
+  companyCard1Image      String?
+  companyCard1Name       String?
+  companyCard1DescTop    String?
+  companyCard1DescBottom String?
+  companyCard2Image      String?
+  companyCard2Name       String?
+  companyCard2DescTop    String?
+  companyCard2DescBottom String?
+  companyCard3Image      String?
+  companyCard3Name       String?
+  companyCard3DescTop    String?
+  companyCard3DescBottom String?
+  experienceCard1Image   String?
+  experienceCard1Title   String?
+  experienceCard1Url     String?
+  experienceCard2Image   String?
+  experienceCard2Title   String?
+  experienceCard2Url     String?
+  experienceCard3Image   String?
+  experienceCard3Title   String?
+  experienceCard3Url     String?
+  sightseeingCard1Image  String?
+  sightseeingCard1Title  String?
+  sightseeingCard2Image  String?
+  sightseeingCard2Title  String?
+  sightseeingCard3Image  String?
+  sightseeingCard3Title  String?
+  isActive               Boolean     @default(true)
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+  workspaces             Workspace[]
+
+  @@index([isActive])
+  @@index([slug])
+  @@index([city])
+  @@index([country])
+  @@map("locations")
+}
+
+model Workspace {
+  id                      String    @id @default(cuid())
+  name                    String
+  imageUrl                String?
+  country                 String
+  city                    String
+  address                 String?
+  officialLink            String?
+  businessHours           String?
+  hasDropin               Boolean   @default(false)
+  hasNexana               Boolean   @default(false)
+  hasMeetingRoom          Boolean   @default(false)
+  hasPhoneBooth           Boolean   @default(false)
+  hasWifi                 Boolean   @default(false)
+  hasParking              Boolean   @default(false)
+  priceTable              String?
+  rental                  String?
+  notes                   String?
+  operator                String?
+  management              String?
+  tenantCard1Title        String?
+  tenantCard1Desc         String?
+  tenantCard1Image        String?
+  tenantCard2Title        String?
+  tenantCard2Desc         String?
+  tenantCard2Image        String?
+  tenantCard3Title        String?
+  tenantCard3Desc         String?
+  tenantCard3Image        String?
+  communityManagerImage   String?
+  communityManagerTitle   String?
+  communityManagerDesc    String?
+  communityManagerContact String?
+  facilityCard1Title      String?
+  facilityCard1Desc       String?
+  facilityCard1Image      String?
+  facilityCard2Title      String?
+  facilityCard2Desc       String?
+  facilityCard2Image      String?
+  facilityCard3Title      String?
+  facilityCard3Desc       String?
+  facilityCard3Image      String?
+  facilityCard4Title      String?
+  facilityCard4Desc       String?
+  facilityCard4Image      String?
+  facilityCard5Title      String?
+  facilityCard5Desc       String?
+  facilityCard5Image      String?
+  facilityCard6Title      String?
+  facilityCard6Desc       String?
+  facilityCard6Image      String?
+  facilityCard7Title      String?
+  facilityCard7Desc       String?
+  facilityCard7Image      String?
+  facilityCard8Title      String?
+  facilityCard8Desc       String?
+  facilityCard8Image      String?
+  facilityCard9Title      String?
+  facilityCard9Desc       String?
+  facilityCard9Image      String?
+  nearbyHotelTitle        String?
+  nearbyHotelDesc         String?
+  nearbyHotelUrl          String?
+  nearbyHotelImage1       String?
+  nearbyHotelImage2       String?
+  nearbyHotelImage3       String?
+  nearbyHotelImage4       String?
+  nearbyHotelImage5       String?
+  nearbyHotelImage6       String?
+  nearbyHotelImage7       String?
+  nearbyHotelImage8       String?
+  nearbyHotelImage9       String?
+  nearbyFood1Title        String?
+  nearbyFood1Desc         String?
+  nearbyFood1Image        String?
+  nearbyFood2Title        String?
+  nearbyFood2Desc         String?
+  nearbyFood2Image        String?
+  nearbyFood3Title        String?
+  nearbyFood3Desc         String?
+  nearbyFood3Image        String?
+  nearbySpot1Title        String?
+  nearbySpot1Desc         String?
+  nearbySpot1Image        String?
+  nearbySpot2Title        String?
+  nearbySpot2Desc         String?
+  nearbySpot2Image        String?
+  nearbySpot3Title        String?
+  nearbySpot3Desc         String?
+  nearbySpot3Image        String?
+  locationId              String?
+  location                Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  isActive                Boolean   @default(true)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  @@index([isActive])
+  @@index([city])
+  @@index([country])
+  @@index([locationId])
+  @@map("workspaces")
+}
+
 enum UserRole {
   MEMBER
   EDITOR

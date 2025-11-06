@@ -23,6 +23,7 @@ const isPublicRoute = createRouteMatcher([
   "/facilities(.*)",
   "/news(.*)",
   "/knowledge(.*)",
+  "/location(.*)",
   "/contact",
   "/privacy",
   "/terms",
@@ -111,6 +112,22 @@ const clerkAuthHandler = async (auth: any, req: NextRequest) => {
   // パブリックページは認証チェックなしで通過
   if (isPublicRoute(req)) {
     return NextResponse.next();
+  }
+  
+  // APIルートの処理
+  if (req.nextUrl.pathname.startsWith("/api/")) {
+    // GETリクエストは認証不要（admin API以外）
+    if (req.method === "GET" && !req.nextUrl.pathname.startsWith("/api/admin/") && !req.nextUrl.pathname.startsWith("/api/user/")) {
+      return NextResponse.next();
+    }
+    
+    // POST/PUT/DELETEは保護されたAPIのみ認証チェック
+    if (isProtectedRoute(req)) {
+      await auth.protect();
+    } else {
+      // 保護されていないAPIは通過（各APIルートで認証チェック）
+      return NextResponse.next();
+    }
   }
   
   // 保護されたルートのみ認証チェック

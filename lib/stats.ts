@@ -2,7 +2,7 @@ import { prisma } from './prisma';
 
 export interface DatabaseStats {
   contests: number;
-  facilities: number;
+  locations: number;
   news: number;
   knowledge: number;
 }
@@ -18,7 +18,7 @@ export async function getDatabaseStats(): Promise<DatabaseStats> {
       prisma.contest.count({
         where: { isActive: true }
       }),
-      prisma.facility.count({
+      prisma.location.count({
         where: { isActive: true }
       }),
       prisma.news.count({
@@ -27,9 +27,9 @@ export async function getDatabaseStats(): Promise<DatabaseStats> {
       prisma.knowledge.count({
         where: { isActive: true }
       })
-    ]).then(([contestsCount, facilitiesCount, newsCount, knowledgeCount]) => ({
+    ]).then(([contestsCount, locationsCount, newsCount, knowledgeCount]) => ({
       contests: contestsCount,
-      facilities: facilitiesCount,
+      locations: locationsCount,
       news: newsCount,
       knowledge: knowledgeCount
     }));
@@ -41,7 +41,7 @@ export async function getDatabaseStats(): Promise<DatabaseStats> {
     // エラー時はデフォルト値を返す（ページが表示され続けるように）
     return {
       contests: 500,
-      facilities: 200,
+      locations: 50,
       news: 1000,
       knowledge: 50
     };

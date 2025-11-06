@@ -10,7 +10,7 @@ const navigation = [
   { name: "ホーム", nameEn: "Home", href: "/" },
   { name: "コンテスト", nameEn: "Contests", href: "/contests" },
   { name: "公募", nameEn: "Open Calls", href: "/open-calls" },
-  { name: "施設紹介", nameEn: "Facilities", href: "/facilities" },
+  { name: "ロケーション", nameEn: "Location", href: "/location" },
   { name: "ニュース", nameEn: "News", href: "/news" },
   { name: "ナレッジ", nameEn: "Knowledge", href: "/knowledge" },
 ];
@@ -31,9 +31,9 @@ export default function Header() {
                 alt="Nexana Database"
                 width={400}
                 height={120}
-                className="h-24 w-auto max-w-[300px]"
+                className="h-24 w-auto max-w-[300px] object-contain"
                 decoding="async"
-                style={{ color: 'transparent' }}
+                style={{ color: 'transparent', aspectRatio: '400/120' }}
               />
             </Link>
           </div>
