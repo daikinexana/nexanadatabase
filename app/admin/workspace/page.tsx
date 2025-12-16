@@ -100,6 +100,22 @@ interface Workspace {
   nearbySpot3Title?: string;
   nearbySpot3Desc?: string;
   nearbySpot3Image?: string;
+  facilityFeatureOneLine?: string;
+  categoryWork: boolean;
+  categoryConnect: boolean;
+  categoryPrototype: boolean;
+  categoryPilot: boolean;
+  categoryTest: boolean;
+  categorySupport: boolean;
+  categoryShowcase: boolean;
+  categoryLearn: boolean;
+  categoryStay: boolean;
+  hasMultipleLocations: boolean;
+  requiresAdvanceNotice: boolean;
+  canDoWebMeeting: boolean;
+  hasEnglishSupport: boolean;
+  meetsNexanaStandard: boolean;
+  isNexanaRecommended: boolean;
   locationId?: string;
   isActive: boolean;
   createdAt: string;
@@ -132,6 +148,22 @@ export default function AdminWorkspacePage() {
     notes: '',
     operator: '',
     management: '',
+    facilityFeatureOneLine: '',
+    categoryWork: false,
+    categoryConnect: false,
+    categoryPrototype: false,
+    categoryPilot: false,
+    categoryTest: false,
+    categorySupport: false,
+    categoryShowcase: false,
+    categoryLearn: false,
+    categoryStay: false,
+    hasMultipleLocations: false,
+    requiresAdvanceNotice: false,
+    canDoWebMeeting: false,
+    hasEnglishSupport: false,
+    meetsNexanaStandard: false,
+    isNexanaRecommended: false,
     locationId: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -307,6 +339,22 @@ export default function AdminWorkspacePage() {
       nearbySpot3Title: workspace.nearbySpot3Title,
       nearbySpot3Desc: workspace.nearbySpot3Desc,
       nearbySpot3Image: workspace.nearbySpot3Image,
+      facilityFeatureOneLine: workspace.facilityFeatureOneLine,
+      categoryWork: workspace.categoryWork,
+      categoryConnect: workspace.categoryConnect,
+      categoryPrototype: workspace.categoryPrototype,
+      categoryPilot: workspace.categoryPilot,
+      categoryTest: workspace.categoryTest,
+      categorySupport: workspace.categorySupport,
+      categoryShowcase: workspace.categoryShowcase,
+      categoryLearn: workspace.categoryLearn,
+      categoryStay: workspace.categoryStay,
+      hasMultipleLocations: workspace.hasMultipleLocations,
+      requiresAdvanceNotice: workspace.requiresAdvanceNotice,
+      canDoWebMeeting: workspace.canDoWebMeeting,
+      hasEnglishSupport: workspace.hasEnglishSupport,
+      meetsNexanaStandard: workspace.meetsNexanaStandard,
+      isNexanaRecommended: workspace.isNexanaRecommended,
     });
   };
 
@@ -403,6 +451,22 @@ export default function AdminWorkspacePage() {
           notes: '',
           operator: '',
           management: '',
+          facilityFeatureOneLine: '',
+          categoryWork: false,
+          categoryConnect: false,
+          categoryPrototype: false,
+          categoryPilot: false,
+          categoryTest: false,
+          categorySupport: false,
+          categoryShowcase: false,
+          categoryLearn: false,
+          categoryStay: false,
+          hasMultipleLocations: false,
+          requiresAdvanceNotice: false,
+          canDoWebMeeting: false,
+          hasEnglishSupport: false,
+          meetsNexanaStandard: false,
+          isNexanaRecommended: false,
           locationId: '',
         });
         setShowCreateForm(false);
@@ -699,6 +763,191 @@ export default function AdminWorkspacePage() {
                     />
                   </div>
 
+                  {/* 新しいフィールドセクション */}
+                  <div className="md:col-span-2 border-t pt-6 mt-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">追加情報</h3>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      施設特徴一言
+                    </label>
+                    <input
+                      type="text"
+                      name="facilityFeatureOneLine"
+                      value={formData.facilityFeatureOneLine}
+                      onChange={handleInputChange}
+                      placeholder="例: 海が見える開放的な空間"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      カテゴリ
+                    </label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="categoryWork"
+                          checked={formData.categoryWork}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">執務 (Work)</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="categoryConnect"
+                          checked={formData.categoryConnect}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">交流 (Connect)</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="categoryPrototype"
+                          checked={formData.categoryPrototype}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">試作 (Prototype)</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="categoryPilot"
+                          checked={formData.categoryPilot}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">実証 (Pilot)</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="categoryTest"
+                          checked={formData.categoryTest}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">試験 (Test)</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="categorySupport"
+                          checked={formData.categorySupport}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">支援 (Support)</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="categoryShowcase"
+                          checked={formData.categoryShowcase}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">発表 (Showcase)</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="categoryLearn"
+                          checked={formData.categoryLearn}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">学ぶ (Learn)</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="categoryStay"
+                          checked={formData.categoryStay}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">滞在 (Stay)</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      その他の情報
+                    </label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="hasMultipleLocations"
+                          checked={formData.hasMultipleLocations}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">複数拠点有無</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="requiresAdvanceNotice"
+                          checked={formData.requiresAdvanceNotice}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">事前連絡必要</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="canDoWebMeeting"
+                          checked={formData.canDoWebMeeting}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">Web会議実施可否</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="hasEnglishSupport"
+                          checked={formData.hasEnglishSupport}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">英語対応あり</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="meetsNexanaStandard"
+                          checked={formData.meetsNexanaStandard}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">Nexana基準達成</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="isNexanaRecommended"
+                          checked={formData.isNexanaRecommended}
+                          onChange={handleInputChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-700 font-semibold text-emerald-600">nexanaおすすめ</span>
+                      </label>
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       関連ロケーション
@@ -979,6 +1228,185 @@ export default function AdminWorkspacePage() {
                                       </option>
                                     ))}
                                   </select>
+                                </div>
+
+                                {/* 追加情報セクション */}
+                                <div className="md:col-span-2 border-t pt-4 mt-4">
+                                  <h4 className="text-sm font-semibold mb-3">追加情報</h4>
+                                </div>
+
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">施設特徴一言</label>
+                                  <input
+                                    type="text"
+                                    name="facilityFeatureOneLine"
+                                    value={editingData.facilityFeatureOneLine || ''}
+                                    onChange={handleEditInputChange}
+                                    placeholder="例: 海が見える開放的な空間"
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                                  />
+                                </div>
+
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-2">カテゴリ</label>
+                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="categoryWork"
+                                        checked={editingData.categoryWork || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, categoryWork: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">執務 (Work)</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="categoryConnect"
+                                        checked={editingData.categoryConnect || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, categoryConnect: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">交流 (Connect)</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="categoryPrototype"
+                                        checked={editingData.categoryPrototype || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, categoryPrototype: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">試作 (Prototype)</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="categoryPilot"
+                                        checked={editingData.categoryPilot || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, categoryPilot: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">実証 (Pilot)</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="categoryTest"
+                                        checked={editingData.categoryTest || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, categoryTest: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">試験 (Test)</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="categorySupport"
+                                        checked={editingData.categorySupport || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, categorySupport: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">支援 (Support)</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="categoryShowcase"
+                                        checked={editingData.categoryShowcase || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, categoryShowcase: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">発表 (Showcase)</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="categoryLearn"
+                                        checked={editingData.categoryLearn || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, categoryLearn: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">学ぶ (Learn)</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="categoryStay"
+                                        checked={editingData.categoryStay || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, categoryStay: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">滞在 (Stay)</span>
+                                    </label>
+                                  </div>
+                                </div>
+
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-2">その他の情報</label>
+                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="hasMultipleLocations"
+                                        checked={editingData.hasMultipleLocations || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, hasMultipleLocations: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">複数拠点有無</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="requiresAdvanceNotice"
+                                        checked={editingData.requiresAdvanceNotice || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, requiresAdvanceNotice: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">事前連絡必要</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="canDoWebMeeting"
+                                        checked={editingData.canDoWebMeeting || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, canDoWebMeeting: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">Web会議実施可否</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="hasEnglishSupport"
+                                        checked={editingData.hasEnglishSupport || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, hasEnglishSupport: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">英語対応あり</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="meetsNexanaStandard"
+                                        checked={editingData.meetsNexanaStandard || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, meetsNexanaStandard: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700">Nexana基準達成</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        name="isNexanaRecommended"
+                                        checked={editingData.isNexanaRecommended || false}
+                                        onChange={(e) => setEditingData(prev => ({ ...prev, isNexanaRecommended: e.target.checked }))}
+                                        className="h-3 w-3 text-blue-600"
+                                      />
+                                      <span className="ml-2 text-xs text-gray-700 font-semibold text-emerald-600">nexanaおすすめ</span>
+                                    </label>
+                                  </div>
                                 </div>
                                 
                                 {/* 入居企業カード1 */}

@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Building, MapPin, Clock, ExternalLink, Copy, Briefcase } from "lucide-react";
+import { Building, MapPin, Clock, ExternalLink, Copy, Briefcase, Heart, MessageCircle, Send } from "lucide-react";
 import SimpleImage from "@/components/ui/simple-image";
 import Modal from "@/components/ui/modal";
 import Image from "next/image";
+import { getClientIdentifier } from "@/lib/user-identifier";
 
 type WorkspaceData = {
   id: string;
@@ -108,6 +109,12 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
   const [copySuccess, setCopySuccess] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
+  const [comments, setComments] = useState<Array<{ id: string; userName: string; content: string; createdAt: string }>>([]);
+  const [commentContent, setCommentContent] = useState("");
+  const [userName, setUserName] = useState("");
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
   useEffect(() => {
     if (workspace?.imageUrl && isOpen) {
@@ -126,6 +133,100 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
       img.src = workspace.imageUrl;
     }
   }, [workspace?.imageUrl, isOpen]);
+
+  // いいねとコメント情報を取得
+  useEffect(() => {
+    if (!workspace?.id || !isOpen) return;
+
+    const fetchData = async () => {
+      const clientId = getClientIdentifier();
+      
+      try {
+        // いいね情報を取得
+        const likesResponse = await fetch(`/api/workspace/${workspace.id}/like`, {
+          headers: {
+            'X-Client-Id': clientId,
+          },
+        });
+        if (likesResponse.ok) {
+          const likesData = await likesResponse.json();
+          setLikeCount(likesData.likeCount || 0);
+          setIsLiked(likesData.isLiked || false);
+        }
+
+        // コメント一覧を取得
+        const commentsResponse = await fetch(`/api/workspace/${workspace.id}/comments`, {
+          headers: {
+            'X-Client-Id': clientId,
+          },
+        });
+        if (commentsResponse.ok) {
+          const commentsData = await commentsResponse.json();
+          setComments(commentsData.comments || []);
+        }
+      } catch (error) {
+        console.error('Error fetching likes and comments:', error);
+      }
+    };
+
+    fetchData();
+  }, [workspace?.id, isOpen]);
+
+  const handleLike = async () => {
+    if (!workspace?.id) return;
+    const clientId = getClientIdentifier();
+    
+    try {
+      const response = await fetch(`/api/workspace/${workspace.id}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Client-Id': clientId,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setLikeCount(data.likeCount);
+        setIsLiked(data.isLiked);
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
+  };
+
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!workspace?.id || !commentContent.trim() || isSubmittingComment) return;
+
+    setIsSubmittingComment(true);
+    const clientId = getClientIdentifier();
+
+    try {
+      const response = await fetch(`/api/workspace/${workspace.id}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Client-Id': clientId,
+        },
+        body: JSON.stringify({
+          content: commentContent.trim(),
+          userName: userName.trim() || null,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setComments((prev) => [data.comment, ...prev]);
+        setCommentContent("");
+        setUserName("");
+      }
+    } catch (error) {
+      console.error('Error submitting comment:', error);
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
 
   const handleCopyUrl = () => {
     const url = window.location.href;
@@ -232,6 +333,19 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
 
               {/* アクションボタン - 画像の下に配置 */}
               <div className="space-y-2 flex-shrink-0">
+                {/* いいねボタン */}
+                <button
+                  onClick={handleLike}
+                  className={`w-full group inline-flex items-center justify-center px-4 py-2.5 font-semibold rounded-lg transition-all duration-200 text-sm ${
+                    isLiked
+                      ? 'bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100'
+                      : 'bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900'
+                  }`}
+                >
+                  <Heart className={`h-4 w-4 mr-2 ${isLiked ? 'fill-red-600 text-red-600' : ''}`} />
+                  {isLiked ? 'いいね済み' : 'いいね'} ({likeCount})
+                </button>
+
                 {/* ウェブサイトリンク */}
                 {workspace.officialLink && (
                   <a
@@ -284,6 +398,19 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
                 
                 {/* スマホ版: アクションボタンを画像の下に配置 */}
                 <div className="flex flex-col space-y-2 mb-6">
+                  {/* いいねボタン */}
+                  <button
+                    onClick={handleLike}
+                    className={`w-full inline-flex items-center justify-center px-4 py-3 font-semibold rounded-lg transition-all duration-200 text-base ${
+                      isLiked
+                        ? 'bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100'
+                        : 'bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900'
+                    }`}
+                  >
+                    <Heart className={`h-5 w-5 mr-2 ${isLiked ? 'fill-red-600 text-red-600' : ''}`} />
+                    {isLiked ? 'いいね済み' : 'いいね'} ({likeCount})
+                  </button>
+
                   {/* ウェブサイトリンク */}
                   {workspace.officialLink && (
                     <a
@@ -649,6 +776,73 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
                   </div>
                 </div>
               )}
+
+              {/* コメントセクション */}
+              <div className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 lg:mb-6 flex items-center">
+                  <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
+                    <MessageCircle className="w-4 h-4 text-white" />
+                  </div>
+                  コメント ({comments.length})
+                </h3>
+
+                {/* コメント投稿フォーム */}
+                <form onSubmit={handleSubmitComment} className="mb-6 space-y-3">
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="お名前（任意）"
+                      value={userName}
+                      onChange={(e) => setUserName(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                      maxLength={50}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <textarea
+                      placeholder="コメントを入力してください..."
+                      value={commentContent}
+                      onChange={(e) => setCommentContent(e.target.value)}
+                      className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none"
+                      rows={3}
+                      maxLength={1000}
+                      required
+                    />
+                    <button
+                      type="submit"
+                      disabled={!commentContent.trim() || isSubmittingComment}
+                      className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    >
+                      <Send className="w-4 h-4" />
+                    </button>
+                  </div>
+                </form>
+
+                {/* コメント一覧 */}
+                <div className="space-y-4">
+                  {comments.length === 0 ? (
+                    <p className="text-sm text-gray-500 text-center py-8">まだコメントがありません。最初のコメントを投稿してみましょう！</p>
+                  ) : (
+                    comments.map((comment) => (
+                      <div key={comment.id} className="border-l-4 border-gray-200 pl-4 py-2">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-semibold text-gray-900">{comment.userName}</span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(comment.createdAt).toLocaleDateString('ja-JP', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.content}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>

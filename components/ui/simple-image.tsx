@@ -12,6 +12,7 @@ interface SimpleImageProps {
   width?: number;
   height?: number;
   priority?: boolean;
+  style?: React.CSSProperties;
 }
 
 export default function SimpleImage({ 
@@ -21,7 +22,8 @@ export default function SimpleImage({
   fill = false,
   width,
   height,
-  priority = false
+  priority = false,
+  style
 }: SimpleImageProps) {
   const [hasError, setHasError] = useState(false);
 
@@ -47,6 +49,7 @@ export default function SimpleImage({
       width={width}
       height={height}
       className={className}
+      style={style}
       onError={() => setHasError(true)}
       loading={priority ? "eager" : "lazy"}
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

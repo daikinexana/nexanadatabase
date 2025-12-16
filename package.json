@@ -24,7 +24,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.884.0",
     "@aws-sdk/s3-request-presigner": "^3.884.0",
-    "@prisma/client": "^6.15.0",
+    "@prisma/client": "^6.17.1",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
@@ -33,15 +33,15 @@
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.16",
     "date-fns": "^4.1.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.7",
     "lucide-react": "^0.542.0",
     "next": "15.5.7",
     "postcss": "^8.4.35",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "tailwindcss": "^3.4.0",
-    "typescript": "^5",
-    "eslint": "^9",
-    "eslint-config-next": "15.5.7"
+    "typescript": "^5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

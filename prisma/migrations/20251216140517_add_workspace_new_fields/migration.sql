@@ -1,0 +1,17 @@
+-- AlterTable
+ALTER TABLE "workspaces" ADD COLUMN "facilityFeatureOneLine" TEXT,
+ADD COLUMN "categoryWork" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "categoryConnect" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "categoryPrototype" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "categoryPilot" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "categoryTest" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "categorySupport" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "categoryShowcase" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "categoryLearn" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "categoryStay" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "hasMultipleLocations" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "requiresAdvanceNotice" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "canDoWebMeeting" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "hasEnglishSupport" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "meetsNexanaStandard" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "isNexanaRecommended" BOOLEAN NOT NULL DEFAULT false;

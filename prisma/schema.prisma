@@ -332,6 +332,22 @@ model Workspace {
   nearbySpot3Title        String?
   nearbySpot3Desc         String?
   nearbySpot3Image        String?
+  facilityFeatureOneLine  String?
+  categoryWork            Boolean   @default(false)
+  categoryConnect         Boolean   @default(false)
+  categoryPrototype       Boolean   @default(false)
+  categoryPilot           Boolean   @default(false)
+  categoryTest            Boolean   @default(false)
+  categorySupport         Boolean   @default(false)
+  categoryShowcase        Boolean   @default(false)
+  categoryLearn           Boolean   @default(false)
+  categoryStay            Boolean   @default(false)
+  hasMultipleLocations    Boolean   @default(false)
+  requiresAdvanceNotice   Boolean   @default(false)
+  canDoWebMeeting         Boolean   @default(false)
+  hasEnglishSupport       Boolean   @default(false)
+  meetsNexanaStandard     Boolean   @default(false)
+  isNexanaRecommended     Boolean   @default(false)
   locationId              String?
   location                Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
   isActive                Boolean   @default(true)
@@ -343,6 +359,33 @@ model Workspace {
   @@index([country])
   @@index([locationId])
   @@map("workspaces")
+}
+
+model WorkspaceLike {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  userIdentifier String   // IPアドレスとUser-Agentの組み合わせ、またはlocalStorageのユニークID
+  createdAt     DateTime  @default(now())
+
+  @@unique([workspaceId, userIdentifier])
+  @@index([workspaceId])
+  @@index([userIdentifier])
+  @@map("workspace_likes")
+}
+
+model WorkspaceComment {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  userIdentifier String   // IPアドレスとUser-Agentの組み合わせ、またはlocalStorageのユニークID
+  userName      String?   // オプション: ユーザー名
+  content       String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([workspaceId])
+  @@index([userIdentifier])
+  @@index([createdAt])
+  @@map("workspace_comments")
 }
 
 enum UserRole {
