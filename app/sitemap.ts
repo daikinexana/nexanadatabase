@@ -19,7 +19,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       latestOpenCall,
       latestLocation,
       latestNews,
-      latestKnowledge,
       activeLocations,
     ] = await Promise.all([
       prisma.contest.findFirst({

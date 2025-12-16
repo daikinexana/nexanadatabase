@@ -4,7 +4,7 @@ import Link from "next/link";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
-import { Trophy, Newspaper, BookOpen, Building, Handshake, Briefcase } from "lucide-react";
+import { Trophy, Newspaper, Building, Handshake, Briefcase } from "lucide-react";
 
 export default function AdminPage() {
 
@@ -89,23 +89,6 @@ export default function AdminPage() {
                 </div>
                 <p className="text-gray-600 text-sm">
                   スタートアップの調達情報、M&A情報を管理します
-                </p>
-              </Link>
-
-              <Link
-                href="/admin/knowledge"
-                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 group"
-              >
-                <div className="flex items-center mb-3">
-                  <div className="p-3 rounded-lg bg-pink-500 text-white mr-4">
-                    <BookOpen className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-pink-600 transition-colors">
-                    ナレッジ管理
-                  </h3>
-                </div>
-                <p className="text-gray-600 text-sm">
-                  AI、ディープテックなどの最新技術情報を管理します
                 </p>
               </Link>
 

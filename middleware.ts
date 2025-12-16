@@ -1,38 +1,24 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
- * 保護されたルート（認証が必要なページ）
- * - /admin配下の全ページ
- * - /api/user配下のAPIエンドポイント
+ * 環境変数でカスタムパスを設定可能（デフォルト: /admin）
  */
-const isProtectedRoute = createRouteMatcher([
-  "/admin(.*)",
-  "/api/user(.*)",
-]);
+const ADMIN_PATH = process.env.NEXT_PUBLIC_ADMIN_PATH || "/admin";
 
 /**
- * パブリックルート（認証不要なページ）
- * これらのルートはClerkの認証チェックを完全にスキップ
+ * 本番環境かどうかを判定
+ * 本番環境ではadminページへのアクセスを完全にブロック（ローカルのみ編集可能）
  */
-const isPublicRoute = createRouteMatcher([
-  "/",
-  "/contests(.*)",
-  "/open-calls(.*)",
-  "/facilities(.*)",
-  "/news(.*)",
-  "/knowledge(.*)",
-  "/location(.*)",
-  "/contact",
-  "/privacy",
-  "/terms",
-  "/robots.txt",
-  "/sitemap.xml",
-  "/icon.svg",
-  "/apple-icon.svg",
-  "/google-site-verification.html",
-]);
+const isProduction = process.env.NODE_ENV === 'production' || 
+                     process.env.NEXT_PUBLIC_ENVIRONMENT === 'production';
+
+/**
+ * Adminページへのアクセスを許可するかどうか
+ * 本番環境ではfalse（アクセス不可）、開発環境ではtrue（アクセス可能）
+ */
+const isAdminAccessAllowed = !isProduction || 
+                            process.env.ALLOW_ADMIN_IN_PRODUCTION === 'true';
 
 /**
  * Googlebotを検出する関数（より包括的に）
@@ -74,89 +60,46 @@ function isGooglebot(userAgent: string): boolean {
 }
 
 /**
- * カスタムミドルウェア（Googlebot専用）
- * Clerkを完全にバイパスして、リダイレクトを防ぐ
+ * Adminページへのアクセスをチェック
+ * 本番環境では404を返して完全にブロック
  */
-function googlebotMiddleware(req: NextRequest): NextResponse | null {
-  const userAgent = req.headers.get('user-agent') || '';
+function checkAdminAccess(req: NextRequest): NextResponse | null {
+  // Adminページへのアクセスかどうか
+  const isAdminPage = req.nextUrl.pathname.startsWith(ADMIN_PATH) || 
+                      req.nextUrl.pathname.startsWith('/api/admin/');
   
-  if (!isGooglebot(userAgent)) {
-    return null; // Googlebotでない場合はnullを返してclerkMiddlewareに処理を委譲
+  if (isAdminPage && !isAdminAccessAllowed) {
+    // 本番環境ではadminページへのアクセスを完全にブロック（404を返す）
+    return new NextResponse(null, { status: 404 });
   }
   
-  // Googlebotの場合は、Clerkを完全にスキップ
-  if (isPublicRoute(req)) {
+  return null;
+}
+
+/**
+ * メインミドルウェア
+ * Clerk認証を完全に削除し、Googlebot対応とadminページのブロックのみを行う
+ */
+export default function middleware(req: NextRequest): NextResponse {
+  const userAgent = req.headers.get('user-agent') || '';
+  
+  // 本番環境でadminページへのアクセスをブロック（最優先）
+  const adminAccessCheck = checkAdminAccess(req);
+  if (adminAccessCheck) {
+    return adminAccessCheck;
+  }
+  
+  // Googlebotの場合はSEO用ヘッダーを追加
+  if (isGooglebot(userAgent)) {
     const response = NextResponse.next();
-    // SEO用のヘッダーを追加
     response.headers.set('X-Robots-Tag', 'index, follow');
-    // Googlebot検出フラグを追加（layout.tsxで使用）
     response.headers.set('X-Is-Googlebot', 'true');
     return response;
   }
   
-  // 保護されたページは403を返す（リダイレクトしない）
-  if (isProtectedRoute(req)) {
-    return new NextResponse(null, { status: 403 });
-  }
-  
-  // その他のページも通過
-  const response = NextResponse.next();
-  response.headers.set('X-Is-Googlebot', 'true');
-  return response;
-}
-
-/**
- * Clerk用の認証ハンドラー
- */
-const clerkAuthHandler = async (auth: any, req: NextRequest) => {
-  // パブリックページは認証チェックなしで通過
-  if (isPublicRoute(req)) {
-    return NextResponse.next();
-  }
-  
-  // APIルートの処理
-  if (req.nextUrl.pathname.startsWith("/api/")) {
-    // GETリクエストは認証不要（admin API以外）
-    if (req.method === "GET" && !req.nextUrl.pathname.startsWith("/api/admin/") && !req.nextUrl.pathname.startsWith("/api/user/")) {
-      return NextResponse.next();
-    }
-    
-    // POST/PUT/DELETEは保護されたAPIのみ認証チェック
-    if (isProtectedRoute(req)) {
-      await auth.protect();
-    } else {
-      // 保護されていないAPIは通過（各APIルートで認証チェック）
-      return NextResponse.next();
-    }
-  }
-  
-  // 保護されたルートのみ認証チェック
-  if (isProtectedRoute(req)) {
-    await auth.protect();
-  }
-  
+  // 通常のリクエストはそのまま通過
   return NextResponse.next();
-};
-
-/**
- * メインミドルウェア
- * Googlebotの場合は独自のミドルウェアを使用し、それ以外はClerkを使用
- */
-export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const userAgent = req.headers.get('user-agent') || '';
-  
-  // まずGooglebotをチェック（Clerkより先に処理）
-  if (isGooglebot(userAgent)) {
-    // Googlebotの場合は独自のミドルウェアロジックを使用
-    const googlebotResponse = googlebotMiddleware(req);
-    if (googlebotResponse) {
-      return googlebotResponse;
-    }
-  }
-  
-  // Googlebotでない場合は、通常のClerk認証処理
-  return clerkAuthHandler(auth, req);
-})
+}
 
 export const config = {
   matcher: [

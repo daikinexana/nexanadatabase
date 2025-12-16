@@ -139,11 +139,11 @@ export default async function Home() {
             {/* 説明文 - iPhone用 */}
             <p className="text-base sm:text-lg text-gray-300 mb-8 sm:mb-12 max-w-2xl mx-auto font-news leading-relaxed px-4 sm:px-0">
               <span className="block sm:hidden">
-                コンテスト、公募、施設、ニュースを<br />
+                コンテスト、公募、ニュースを<br />
                 一箇所で検索・発見できる
               </span>
               <span className="hidden sm:block">
-                コンテスト、公募、施設、ニュースを一箇所で検索・発見できる
+                コンテスト、公募、ニュースを一箇所で検索・発見できる
                 <br />
                 スタートアップ支援の総合情報データベース
               </span>

@@ -4,7 +4,6 @@ export interface DatabaseStats {
   contests: number;
   locations: number;
   news: number;
-  knowledge: number;
 }
 
 export async function getDatabaseStats(): Promise<DatabaseStats> {
@@ -23,15 +22,11 @@ export async function getDatabaseStats(): Promise<DatabaseStats> {
       }),
       prisma.news.count({
         where: { isActive: true }
-      }),
-      prisma.knowledge.count({
-        where: { isActive: true }
       })
-    ]).then(([contestsCount, locationsCount, newsCount, knowledgeCount]) => ({
+    ]).then(([contestsCount, locationsCount, newsCount]) => ({
       contests: contestsCount,
       locations: locationsCount,
-      news: newsCount,
-      knowledge: knowledgeCount
+      news: newsCount
     }));
 
     // タイムアウトまたはクエリ完了のどちらか先に終わった方を返す
@@ -42,8 +37,7 @@ export async function getDatabaseStats(): Promise<DatabaseStats> {
     return {
       contests: 500,
       locations: 50,
-      news: 1000,
-      knowledge: 50
+      news: 1000
     };
   }
 }

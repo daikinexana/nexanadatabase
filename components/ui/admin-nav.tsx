@@ -6,7 +6,6 @@ import {
   Trophy, 
   Handshake, 
   Newspaper, 
-  BookOpen,
   MapPin,
   Briefcase
 } from "lucide-react";
@@ -29,12 +28,6 @@ const adminPages = [
     href: "/admin/news",
     icon: Newspaper,
     description: "ニュース情報の管理"
-  },
-  {
-    name: "ナレッジ",
-    href: "/admin/knowledge",
-    icon: BookOpen,
-    description: "ナレッジ情報の管理"
   },
   {
     name: "ロケーション",

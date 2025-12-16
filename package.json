@@ -24,7 +24,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.884.0",
     "@aws-sdk/s3-request-presigner": "^3.884.0",
-    "@clerk/nextjs": "^6.31.9",
     "@prisma/client": "^6.15.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-select": "^2.2.6",
@@ -39,7 +38,6 @@
     "postcss": "^8.4.35",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "svix": "^1.76.1",
     "tailwindcss": "^3.4.0",
     "typescript": "^5"
   },
