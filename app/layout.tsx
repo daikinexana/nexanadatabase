@@ -24,7 +24,7 @@ const jetBrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
   description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。ネクサナ（nexana）が運営するスタートアップ・大企業・大学向けイノベーションデータベース。",
-  keywords: "スタートアップ, オープンイノベーション, イノベーション, コンテスト, ビジネスコンテスト, アクセラ, アクセラレーション, プログラム, 公募, 募集, 開催, 調達, M&A, インキュベーション, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, スタートアップコンテスト, ピッチコンテスト, business competition, ロケーション, ワークスペース, コワーキングスペース, スタートアップ調達ニュース, 大学ディープテック, 海外展開支援, マッチングサービス, プロジェクトマネジメント, コミュニティマネージメント, スタートアップ支援, 大企業, 大学, 行政, シェアハウスオーナー",
+  keywords: "スタートアップ, オープンイノベーション, イノベーション, コンテスト, ビジネスコンテスト, アクセラ, アクセラレーション, プログラム, 公募, 募集, 開催, 調達, M&A, インキュベーション, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, スタートアップコンテスト, ピッチコンテスト, business competition, ロケーション, ワークスペース, コワーキングスペース, スタートアップ調達ニュース, 大学ディープテック, 海外展開支援, マッチングサービス, プロジェクトマネジメント, コミュニティマネジメント, スタートアップ支援, 大企業, 大学, 行政, シェアハウスオーナー",
   authors: [{ name: "Nexana HQ" }],
   creator: "Nexana HQ",
   publisher: "Nexana HQ",
@@ -52,11 +52,8 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: process.env.GOOGLE_VERIFICATION_CODE || "your-google-verification-code",
-  },
-  // サブドメイン専用のcanonical URL設定
-  other: {
-    'canonical': 'https://db.nexanahq.com',
+    // デフォルト文字列を避け、未設定時はタグ自体を出さない
+    google: process.env.GOOGLE_VERIFICATION_CODE || undefined,
   },
   alternates: {
     canonical: "https://db.nexanahq.com",
@@ -86,56 +83,68 @@ export const metadata: Metadata = {
 };
 
 // 構造化データを関数外に定義し、安全にシリアライズ
-const structuredData = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "Nexana Database",
-  "alternateName": ["Nexana Database - オープンイノベーション・スタートアップ情報プラットフォーム", "ネクサナデータベース", "nexana database"],
-  "url": "https://db.nexanahq.com",
-  "description": "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。ネクサナ（nexana）が運営するスタートアップ・大企業・大学向けイノベーションデータベース",
-  "keywords": ["スタートアップ", "オープンイノベーション", "イノベーション", "コンテスト", "ビジネスコンテスト", "アクセラ", "アクセラレーション", "プログラム", "公募", "募集", "開催", "調達", "M&A", "インキュベーション", "プラットフォーム", "データベース", "ネクサナ", "nexana", "ねくさな", "ロケーション", "ワークスペース", "コワーキングスペース"],
-  "publisher": {
+const structuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Nexana Database",
+    "alternateName": ["Nexana Database - オープンイノベーション・スタートアップ情報プラットフォーム", "ネクサナデータベース", "nexana database"],
+    "url": "https://db.nexanahq.com",
+    "description": "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。ネクサナ（nexana）が運営するスタートアップ・大企業・大学向けイノベーションデータベース",
+    "keywords": ["スタートアップ", "オープンイノベーション", "イノベーション", "コンテスト", "ビジネスコンテスト", "アクセラ", "アクセラレーション", "プログラム", "公募", "募集", "開催", "調達", "M&A", "インキュベーション", "プラットフォーム", "データベース", "ネクサナ", "nexana", "ねくさな", "ロケーション", "ワークスペース", "コワーキングスペース"],
+    "publisher": {
+      "@type": "Organization",
+      "name": "Nexana HQ",
+      "alternateName": ["ネクサナ", "nexana", "ねくさな"],
+      "url": "https://db.nexanahq.com",
+      "description": "スタートアップ・オープンイノベーション・イノベーション情報プラットフォームを運営"
+    },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://db.nexanahq.com/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    },
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "コンテスト",
+          "url": "https://db.nexanahq.com/contests"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "公募",
+          "url": "https://db.nexanahq.com/open-calls"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "ロケーション",
+          "url": "https://db.nexanahq.com/location"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "ニュース",
+          "url": "https://db.nexanahq.com/news"
+        },
+      ]
+    }
+  },
+  {
+    "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Nexana HQ",
-    "alternateName": ["ネクサナ", "nexana", "ねくさな"],
     "url": "https://db.nexanahq.com",
-    "description": "スタートアップ・オープンイノベーション・イノベーション情報プラットフォームを運営"
-  },
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://db.nexanahq.com/search?q={search_term_string}",
-    "query-input": "required name=search_term_string"
-  },
-  "mainEntity": {
-    "@type": "ItemList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "コンテスト",
-        "url": "https://db.nexanahq.com/contests"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": "公募",
-        "url": "https://db.nexanahq.com/open-calls"
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
-        "name": "ロケーション",
-        "url": "https://db.nexanahq.com/location"
-      },
-      {
-        "@type": "ListItem",
-        "position": 4,
-        "name": "ニュース",
-        "url": "https://db.nexanahq.com/news"
-      },
+    "logo": "https://db.nexanahq.com/nexanadata.png",
+    "sameAs": [
+      "https://db.nexanahq.com"
     ]
   }
-};
+];
 
 // 安全にJSON-LDを文字列化する関数
 function getStructuredDataScript(): string {
