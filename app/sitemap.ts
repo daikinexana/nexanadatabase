@@ -1,19 +1,90 @@
 import { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
 
-// サイトマップは1時間に1回再生成（SEO最適化のため）
-// データベースから最新情報を取得するため、動的生成が必要
+/**
+ * サイトマップ生成
+ * 
+ * SEO最適化のため、1時間ごとに再生成されます。
+ * データベースから最新情報を取得して動的に生成します。
+ * 
+ * 含まれるページ:
+ * - トップページ
+ * - 一覧ページ（コンテスト、公募、ロケーション、ニュース）
+ * - 静的ページ（お問い合わせ、プライバシーポリシー、利用規約）
+ * - 個別ロケーションページ（slugベース）
+ * 
+ * 注意: コンテスト、公募、ニュースの詳細ページは現時点では存在しないため、
+ * 一覧ページのみが含まれています。将来的に詳細ページが追加された場合は、
+ * このファイルを更新して詳細ページのURLを追加してください。
+ */
 export const revalidate = 3600 // 1時間キャッシュ
 export const fetchCache = 'force-cache'
 
+const BASE_URL = 'https://db.nexanahq.com'
+
+/**
+ * フォールバック用の基本サイトマップ
+ * エラー発生時に使用されます
+ */
+function getFallbackSitemap(): MetadataRoute.Sitemap {
+  const now = new Date().toISOString()
+  return [
+    {
+      url: BASE_URL,
+      lastModified: now,
+      changeFrequency: 'daily' as const,
+      priority: 1.0,
+    },
+    {
+      url: `${BASE_URL}/contests`,
+      lastModified: now,
+      changeFrequency: 'daily' as const,
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/open-calls`,
+      lastModified: now,
+      changeFrequency: 'daily' as const,
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/location`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/news`,
+      lastModified: now,
+      changeFrequency: 'hourly' as const,
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/contact`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    },
+    {
+      url: `${BASE_URL}/privacy`,
+      lastModified: now,
+      changeFrequency: 'yearly' as const,
+      priority: 0.3,
+    },
+    {
+      url: `${BASE_URL}/terms`,
+      lastModified: now,
+      changeFrequency: 'yearly' as const,
+      priority: 0.3,
+    },
+  ]
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://db.nexanahq.com'
-  
-  // 現在の日時
   const now = new Date()
 
   try {
-    // データベースから各カテゴリの最新更新日時を取得
+    // データベースから各カテゴリの最新更新日時とロケーションデータを並列取得
     const [
       latestContest,
       latestOpenCall,
@@ -47,129 +118,86 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }),
     ])
 
-    // 各ページのlastModifiedを設定（データベースの最新更新日時があれば使用、なければ現在時刻）
+    // 各ページのlastModifiedを設定
+    // データベースの最新更新日時があれば使用、なければ現在時刻
     const homeLastModified = now.toISOString()
     const contestsLastModified = latestContest?.updatedAt.toISOString() || now.toISOString()
     const openCallsLastModified = latestOpenCall?.updatedAt.toISOString() || now.toISOString()
     const locationsLastModified = latestLocation?.updatedAt.toISOString() || now.toISOString()
     const newsLastModified = latestNews?.updatedAt.toISOString() || now.toISOString()
 
-    // サブドメイン専用のサイトマップ（db.nexanahq.com）
+    // 基本ページ（トップ、一覧、静的ページ）
     const sitemapEntries: MetadataRoute.Sitemap = [
+      // トップページ
       {
-        url: baseUrl,
+        url: BASE_URL,
         lastModified: homeLastModified,
         changeFrequency: 'daily' as const,
         priority: 1.0,
       },
+      // 一覧ページ
       {
-        url: `${baseUrl}/contests`,
+        url: `${BASE_URL}/contests`,
         lastModified: contestsLastModified,
         changeFrequency: 'daily' as const,
         priority: 0.9,
       },
       {
-        url: `${baseUrl}/open-calls`,
+        url: `${BASE_URL}/open-calls`,
         lastModified: openCallsLastModified,
         changeFrequency: 'daily' as const,
         priority: 0.9,
       },
       {
-        url: `${baseUrl}/location`,
+        url: `${BASE_URL}/location`,
         lastModified: locationsLastModified,
         changeFrequency: 'weekly' as const,
         priority: 0.9,
       },
       {
-        url: `${baseUrl}/news`,
+        url: `${BASE_URL}/news`,
         lastModified: newsLastModified,
         changeFrequency: 'hourly' as const,
         priority: 0.9,
       },
+      // 静的ページ
       {
-        url: `${baseUrl}/contact`,
+        url: `${BASE_URL}/contact`,
         lastModified: now.toISOString(),
         changeFrequency: 'monthly' as const,
         priority: 0.5,
       },
       {
-        url: `${baseUrl}/privacy`,
+        url: `${BASE_URL}/privacy`,
         lastModified: now.toISOString(),
         changeFrequency: 'yearly' as const,
         priority: 0.3,
       },
       {
-        url: `${baseUrl}/terms`,
+        url: `${BASE_URL}/terms`,
         lastModified: now.toISOString(),
         changeFrequency: 'yearly' as const,
         priority: 0.3,
       },
     ]
 
-    // 個別のlocationページを追加
+    // 個別のロケーションページを追加
+    // 注意: ロケーションはslugベースでアクセス可能
     activeLocations.forEach((location) => {
-      sitemapEntries.push({
-        url: `${baseUrl}/location/${location.slug}`,
-        lastModified: location.updatedAt.toISOString(),
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-      })
+      if (location.slug) {
+        sitemapEntries.push({
+          url: `${BASE_URL}/location/${location.slug}`,
+          lastModified: location.updatedAt.toISOString(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.8,
+        })
+      }
     })
 
     return sitemapEntries
   } catch (error) {
     console.error('Error generating sitemap:', error)
-    // エラー時は現在時刻を使用してフォールバック
-    const fallbackDate = now.toISOString()
-    return [
-      {
-        url: baseUrl,
-        lastModified: fallbackDate,
-        changeFrequency: 'daily' as const,
-        priority: 1.0,
-      },
-      {
-        url: `${baseUrl}/contests`,
-        lastModified: fallbackDate,
-        changeFrequency: 'daily' as const,
-        priority: 0.9,
-      },
-      {
-        url: `${baseUrl}/open-calls`,
-        lastModified: fallbackDate,
-        changeFrequency: 'daily' as const,
-        priority: 0.9,
-      },
-      {
-        url: `${baseUrl}/location`,
-        lastModified: fallbackDate,
-        changeFrequency: 'weekly' as const,
-        priority: 0.9,
-      },
-      {
-        url: `${baseUrl}/news`,
-        lastModified: fallbackDate,
-        changeFrequency: 'hourly' as const,
-        priority: 0.9,
-      },
-      {
-        url: `${baseUrl}/contact`,
-        lastModified: fallbackDate,
-        changeFrequency: 'monthly' as const,
-        priority: 0.5,
-      },
-      {
-        url: `${baseUrl}/privacy`,
-        lastModified: fallbackDate,
-        changeFrequency: 'yearly' as const,
-        priority: 0.3,
-      },
-      {
-        url: `${baseUrl}/terms`,
-        lastModified: fallbackDate,
-        changeFrequency: 'yearly' as const,
-        priority: 0.3,
-      },
-    ]
+    // エラー時はフォールバックサイトマップを返す
+    return getFallbackSitemap()
   }
 }
