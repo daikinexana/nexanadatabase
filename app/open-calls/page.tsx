@@ -192,57 +192,52 @@ export default async function OpenCallsPage({
     <div className="min-h-screen bg-white">
       <ClientHeader />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヒーローセクション - 背景画像を使用 */}
-        <div className="mb-12">
-          <div className="relative overflow-hidden rounded-3xl min-h-[500px] flex items-center">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 py-12 md:py-16">
+        {/* ヒーローセクション - /locationページと同じスタイル */}
+        <div className="mb-20 md:mb-24">
+          <div className="relative overflow-hidden rounded-[32px] aspect-[16/6] flex items-center group">
             {/* 背景画像 */}
             <div 
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat group-hover:scale-105 transition-transform duration-[1000ms] ease-out"
               style={{
                 backgroundImage: "url('/open-calls.image.png')"
               }}
             ></div>
             
-            {/* オーバーレイ - 左側に紫色のグラデーション */}
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 via-violet-800/60 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-900/20 to-transparent z-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
             
-            {/* コンテンツ */}
-            <div className="relative px-8 py-16 text-left max-w-4xl">
-              {/* バッジ */}
-              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full mb-6 shadow-lg">
-                <Handshake className="w-4 h-4 text-white mr-2" />
-                <span className="text-sm font-semibold text-white uppercase tracking-wider">OPEN CALLS</span>
-              </div>
-              
-              {/* メインタイトル */}
-              <div className="mb-6">
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight">
-                  Open Calls
-                </h1>
-                <div className="flex items-center space-x-3">
-                  <div className="h-px bg-gradient-to-r from-purple-300 to-transparent flex-1 max-w-32"></div>
-                  <span className="text-lg font-medium text-purple-100 px-4 py-1 bg-white/20 rounded-full backdrop-blur-sm border border-white/30">
-                    公募一覧
-                  </span>
+            {/* 装飾的な要素 */}
+            <div className="absolute top-8 left-8 z-20">
+              <div className="flex items-center gap-3">
+                <div className="w-1 h-12 bg-gradient-to-b from-purple-400 via-violet-400 to-indigo-400 rounded-full"></div>
+                <div className="px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                  <div className="flex items-center gap-2">
+                    <Handshake className="w-3 h-3 text-white" />
+                    <span className="text-[10px] uppercase tracking-[0.25em] text-white font-bold">Open Calls</span>
+                  </div>
                 </div>
               </div>
-              
-              {/* 説明文 */}
-              <div className="max-w-2xl">
-                <p className="text-xl md:text-2xl text-white leading-relaxed font-medium mb-4">
-                  企業や行政、大学が募集する協業、アクセラの公募情報を掲載
-                </p>
-                <p className="text-base text-purple-100 font-medium">
-                  Open calls for partnership and collaboration opportunities
-                </p>
+            </div>
+            
+            <div className="relative px-8 md:px-16 py-16 md:py-20 text-left max-w-5xl z-20">
+              <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-[0.95] tracking-tight" style={{
+                textShadow: '0 4px 40px rgba(0,0,0,0.4), 0 2px 20px rgba(0,0,0,0.3)'
+              }}>
+                Open Calls
+              </h1>
+              <div className="flex items-center gap-4 mb-6">
+                <p className="text-xl md:text-2xl text-white/90 font-light">公募一覧</p>
+                <div className="h-[1px] w-16 bg-gradient-to-r from-white/60 to-transparent"></div>
               </div>
               
-              {/* 装飾的な要素 */}
-              <div className="flex items-center space-x-2 mt-8">
-                <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
-                <div className="w-3 h-3 bg-violet-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                <div className="w-3 h-3 bg-indigo-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+              <div className="max-w-3xl space-y-3">
+                <p className="text-lg md:text-xl text-white/90 leading-relaxed font-light">
+                  企業や行政、大学が募集する協業、アクセラの公募情報を掲載
+                </p>
+                <p className="text-base md:text-lg text-white/70 font-light">
+                  Open calls for partnership and collaboration opportunities
+                </p>
               </div>
             </div>
           </div>

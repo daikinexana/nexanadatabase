@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
 interface HeaderNavLinkProps {
@@ -24,9 +24,15 @@ export default function HeaderNavLink({
 }: HeaderNavLinkProps) {
   const [isPending, setIsPending] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
-  const router = useRouter();
+  const pathname = usePathname();
 
   const handleClick = (e: React.MouseEvent) => {
+    // 同じページへのナビゲーションを防ぐ
+    if (pathname === href) {
+      e.preventDefault();
+      return;
+    }
+
     if (isPending) {
       e.preventDefault();
       return;
@@ -45,9 +51,6 @@ export default function HeaderNavLink({
     if (onClick) {
       onClick();
     }
-
-    // ナビゲーション処理
-    router.push(href);
     
     // ローディング状態をリセット（短時間後）
     setTimeout(() => {

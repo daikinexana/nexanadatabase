@@ -461,20 +461,45 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Top画像 */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 py-12 md:py-16">
+        {/* Top画像 - より洗練されたデザイン */}
         {location.topImageUrl && (
-          <div className="relative w-full h-[60vh] mb-12 rounded-2xl overflow-hidden">
+          <div className="relative w-full aspect-[16/6] mb-20 md:mb-24 rounded-[32px] overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-900/20 to-transparent z-10"></div>
             <SimpleImage
               src={location.topImageUrl}
               alt={location.city}
               fill
-              className="object-cover"
+              className="object-cover group-hover:scale-105 transition-transform duration-[1000ms] ease-out"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end">
-              <div className="p-8 text-white">
-                <h1 className="text-4xl md:text-5xl font-bold mb-2">{location.city}</h1>
-                <p className="text-xl text-gray-200">{location.country}</p>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
+            
+            {/* 装飾的な要素 */}
+            <div className="absolute top-8 left-8 z-20">
+              <div className="flex items-center gap-3">
+                <div className="w-1 h-12 bg-gradient-to-b from-emerald-400 via-teal-400 to-cyan-400 rounded-full"></div>
+                <div className="px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                  <span className="text-[10px] uppercase tracking-[0.25em] text-white font-bold">Location</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="absolute bottom-0 left-0 right-0 p-10 md:p-16 z-20">
+              <div className="max-w-4xl">
+                <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-white mb-4 leading-[0.95] tracking-tight" style={{
+                  textShadow: '0 4px 40px rgba(0,0,0,0.4), 0 2px 20px rgba(0,0,0,0.3)'
+                }}>
+                  {location.city}
+                </h1>
+                <div className="flex items-center gap-4">
+                  <p className="text-xl md:text-2xl text-white/90 font-light">{location.country}</p>
+                  <div className="h-[1px] w-16 bg-gradient-to-r from-white/60 to-transparent"></div>
+                </div>
+                {location.description && (
+                  <p className="text-lg md:text-xl text-white/80 mt-6 font-light leading-relaxed max-w-2xl">
+                    {location.description}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -555,39 +580,74 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
           </section>
         )}
 
-        {/* 地図（Google Map） */}
-        <section className="mb-16">
-          <div className="text-center mb-8">
-            <div className="text-sm uppercase tracking-wider text-gray-600 mb-2">MAP</div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">ワークスペース</h2>
-            <p className="text-base text-gray-700 max-w-3xl mx-auto">
-              {location.city}で利用可能なワークスペースやコワーキングスペースの位置情報をGoogle Mapで確認できます。
-            </p>
+        {/* 地図（Google Map） - より洗練されたデザイン */}
+        <section className="mb-24 md:mb-32 relative">
+          <div className="mb-12 md:mb-16">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-3">
+                  <div className="w-1 h-10 bg-gradient-to-b from-blue-500 via-indigo-500 to-purple-500 rounded-full"></div>
+                  <div className="px-4 py-2 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 rounded-full border border-blue-200/50">
+                    <span className="text-[10px] uppercase tracking-[0.25em] text-blue-700 font-bold">Interactive Map</span>
+                  </div>
+                </div>
+                <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-blue-700 to-gray-900 leading-[0.95] tracking-tight">
+                  ワークスペース
+                </h2>
+              </div>
+              <p className="text-base md:text-lg text-gray-600 max-w-lg lg:text-right font-light leading-relaxed">
+                <span className="font-semibold text-gray-900">{location.city}</span>で利用可能なワークスペースやコワーキングスペースの位置情報をGoogle Mapで確認できます。
+              </p>
+            </div>
           </div>
-          <WorkspaceMap 
-            workspaces={filteredAndSortedWorkspaces} 
-            onMarkerClick={openWorkspaceModal}
-          />
+          <div className="rounded-[32px] overflow-hidden border border-gray-200/50 shadow-2xl bg-white">
+            <WorkspaceMap 
+              workspaces={filteredAndSortedWorkspaces} 
+              onMarkerClick={openWorkspaceModal}
+            />
+          </div>
         </section>
 
         {/* ワークスペースカード */}
         {location.workspaces && location.workspaces.length > 0 && (
-          <section className="mb-16">
-            {/* フィルタリングUI */}
-            <div className="mb-8 space-y-6 rounded-2xl border border-gray-100 bg-white/80 backdrop-blur shadow-sm px-4 md:px-6 py-5">
+          <section className="mb-24 md:mb-32">
+            {/* セクションヘッダー */}
+            <div className="mb-12 md:mb-16">
+              <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+                <div className="space-y-4">
+                  <div className="inline-flex items-center gap-3">
+                    <div className="w-1 h-10 bg-gradient-to-b from-emerald-500 via-teal-500 to-cyan-500 rounded-full"></div>
+                    <div className="px-4 py-2 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 rounded-full border border-emerald-200/50">
+                      <span className="text-[10px] uppercase tracking-[0.25em] text-emerald-700 font-bold">Workspaces</span>
+                    </div>
+                  </div>
+                  <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-emerald-700 to-gray-900 leading-[0.95] tracking-tight">
+                    ワークスペース一覧
+                  </h2>
+                </div>
+                <div className="text-sm text-gray-500 font-light">
+                  <span className="font-semibold text-gray-900">{filteredAndSortedWorkspaces.length}</span>件のワークスペース
+                </div>
+              </div>
+            </div>
+
+            {/* フィルタリングUI - より洗練されたデザイン */}
+            <div className="mb-12 space-y-8 rounded-[32px] border border-gray-200/50 bg-white/90 backdrop-blur-xl shadow-xl px-6 md:px-10 py-8">
               {/* カテゴリフィルタ */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold">C</span>
-                  カテゴリで絞り込む（複数選択可）
+                <h3 className="text-base font-bold text-gray-900 mb-5 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                    <span className="text-white text-xs font-black">C</span>
+                  </div>
+                  <span>カテゴリで絞り込む（複数選択可）</span>
                 </h3>
-                <div className="flex flex-wrap gap-2.5">
+                <div className="flex flex-wrap gap-3">
                   <button
                     onClick={() => setSelectedCategories([])}
-                    className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-200 ${
+                    className={`px-5 py-2.5 rounded-full text-sm font-bold border-2 transition-all duration-300 ${
                       selectedCategories.length === 0
-                        ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-200/50 border-transparent scale-[1.02]"
-                        : "bg-white text-gray-700 border-gray-200 hover:border-emerald-200 hover:text-emerald-700"
+                        ? "bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-lg shadow-emerald-200/50 border-transparent scale-105"
+                        : "bg-white text-gray-700 border-gray-300 hover:border-emerald-300 hover:text-emerald-700 hover:scale-105"
                     }`}
                   >
                     すべて
@@ -598,10 +658,10 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                       <button
                         key={key}
                         onClick={() => toggleCategory(key as CategoryFilter)}
-                        className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-200 ${
+                        className={`px-5 py-2.5 rounded-full text-sm font-bold border-2 transition-all duration-300 ${
                           isSelected
-                            ? "bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white shadow-lg shadow-gray-400/30 border-transparent scale-[1.02]"
-                            : "bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:text-gray-900"
+                            ? "bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white shadow-lg shadow-gray-400/30 border-transparent scale-105"
+                            : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 hover:scale-105"
                         }`}
                       >
                         {label}
@@ -610,43 +670,46 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                   })}
                 </div>
                 {selectedCategories.length > 0 && (
-                  <p className="text-xs text-gray-500 mt-2">
-                    {selectedCategories.length}個のカテゴリを選択中
-                  </p>
+                  <div className="mt-4 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <p className="text-sm text-gray-600 font-medium">
+                      {selectedCategories.length}個のカテゴリを選択中
+                    </p>
+                  </div>
                 )}
               </div>
 
               {/* その他のフィルタ */}
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-6 pt-4 border-t border-gray-200">
                 <div>
-                  <label className="text-sm font-semibold text-gray-800 mb-2 block">複数拠点</label>
-                  <div className="flex gap-2">
+                  <label className="text-sm font-bold text-gray-900 mb-3 block">複数拠点</label>
+                  <div className="flex gap-2.5">
                     <button
                       onClick={() => setFilterMultipleLocations(null)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 ${
+                      className={`px-4 py-2 rounded-full text-xs font-bold border-2 transition-all duration-300 ${
                         filterMultipleLocations === null
-                          ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-sm"
-                          : "bg-white text-gray-700 border-gray-200 hover:border-emerald-200 hover:text-emerald-700"
+                          ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-emerald-300 hover:text-emerald-700 hover:scale-105"
                       }`}
                     >
                       すべて
                     </button>
                     <button
                       onClick={() => setFilterMultipleLocations(true)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 ${
+                      className={`px-4 py-2 rounded-full text-xs font-bold border-2 transition-all duration-300 ${
                         filterMultipleLocations === true
-                          ? "bg-gray-900 text-white border-transparent shadow-sm"
-                          : "bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:text-gray-900"
+                          ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 hover:scale-105"
                       }`}
                     >
                       あり
                     </button>
                     <button
                       onClick={() => setFilterMultipleLocations(false)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 ${
+                      className={`px-4 py-2 rounded-full text-xs font-bold border-2 transition-all duration-300 ${
                         filterMultipleLocations === false
-                          ? "bg-gray-900 text-white border-transparent shadow-sm"
-                          : "bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:text-gray-900"
+                          ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 hover:scale-105"
                       }`}
                     >
                       なし
@@ -655,34 +718,34 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold text-gray-800 mb-2 block">ドロップイン</label>
-                  <div className="flex gap-2">
+                  <label className="text-sm font-bold text-gray-900 mb-3 block">ドロップイン</label>
+                  <div className="flex gap-2.5">
                     <button
                       onClick={() => setFilterDropin(null)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 ${
+                      className={`px-4 py-2 rounded-full text-xs font-bold border-2 transition-all duration-300 ${
                         filterDropin === null
-                          ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-sm"
-                          : "bg-white text-gray-700 border-gray-200 hover:border-emerald-200 hover:text-emerald-700"
+                          ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-emerald-300 hover:text-emerald-700 hover:scale-105"
                       }`}
                     >
                       すべて
                     </button>
                     <button
                       onClick={() => setFilterDropin(true)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 ${
+                      className={`px-4 py-2 rounded-full text-xs font-bold border-2 transition-all duration-300 ${
                         filterDropin === true
-                          ? "bg-gray-900 text-white border-transparent shadow-sm"
-                          : "bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:text-gray-900"
+                          ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 hover:scale-105"
                       }`}
                     >
                       可
                     </button>
                     <button
                       onClick={() => setFilterDropin(false)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 ${
+                      className={`px-4 py-2 rounded-full text-xs font-bold border-2 transition-all duration-300 ${
                         filterDropin === false
-                          ? "bg-gray-900 text-white border-transparent shadow-sm"
-                          : "bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:text-gray-900"
+                          ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 hover:scale-105"
                       }`}
                     >
                       不可
@@ -692,7 +755,7 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
               {filteredAndSortedWorkspaces.map((workspace) => {
                 const activeCategories = getActiveCategories(workspace);
                 return (
@@ -853,16 +916,43 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
         )}
 
         {/* 企業リストカード（体験ブログセクションを置き換え） */}
-        <section className="mb-16 bg-gray-50 py-16 px-4">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-12">
-              <div className="text-sm uppercase tracking-wider text-gray-600 mb-2">ABOUT</div>
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">企業リスト</h2>
-              <p className="text-base text-gray-700 max-w-3xl mx-auto">
-                地域を代表する企業や注目のスタートアップなど、{location.city || ''}で活動する企業の情報を掲載しています。
-              </p>
+        <section className="relative py-24 overflow-hidden w-screen left-1/2 -translate-x-1/2">
+          {/* 統一された背景 - フルブリード */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white via-emerald-50/30 to-emerald-50/30"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(16,185,129,0.03)_0%,transparent_30%,rgba(6,182,212,0.03)_100%)]"></div>
+          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-100/20 rounded-full blur-3xl -translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-teal-100/20 rounded-full blur-3xl translate-y-1/2"></div>
+          
+          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 relative z-10">
+            {/* ヘッダーセクション - スタートアップらしい大胆なデザイン */}
+            <div className="mb-24">
+              <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-12 mb-12">
+                <div className="space-y-6">
+                  <div className="inline-flex items-center gap-4 group cursor-default">
+                    <div className="relative">
+                      <div className="w-2 h-12 bg-gradient-to-b from-emerald-500 via-teal-500 to-cyan-500 rounded-full"></div>
+                      <div className="absolute inset-0 w-2 h-12 bg-gradient-to-b from-emerald-500 via-teal-500 to-cyan-500 rounded-full blur-md opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                    <div className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 rounded-full border border-emerald-200/50 backdrop-blur-sm">
+                      <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                      <span className="text-[10px] uppercase tracking-[0.25em] text-emerald-700 font-bold">Featured Companies</span>
+                    </div>
+                  </div>
+                  <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-emerald-700 to-gray-900 leading-[0.95] tracking-tight">
+                    企業リスト
+                  </h2>
+                </div>
+                <div className="lg:max-w-lg">
+                  <p className="text-base md:text-lg text-gray-600 leading-relaxed lg:text-right font-light">
+                    地域を代表する企業や注目のスタートアップなど、<br className="hidden lg:block" />
+                    <span className="font-semibold text-gray-900">{location.city || ''}</span>で活動する企業の情報を掲載しています。
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            {/* カードグリッド - スタートアップらしい創造的なレイアウト */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {[
                 {
                   image: location.companyCard1Image,
@@ -885,27 +975,31 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
               ]
                 .filter((card) => card.image || card.name)
                 .map((card, index) => (
-                  <div
+                  <article
                     key={index}
-                    className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full"
+                    className="group relative bg-white/90 backdrop-blur-xl rounded-[32px] overflow-hidden cursor-pointer border border-gray-100/50"
+                    style={{
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06)',
+                      transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-12px) scale(1.02)';
+                      e.currentTarget.style.boxShadow = '0 32px 64px rgba(16,185,129,0.15), 0 16px 32px rgba(6,182,212,0.1)';
+                      e.currentTarget.style.borderColor = 'rgba(16,185,129,0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06)';
+                      e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)';
+                    }}
                   >
-                    {card.descTop && (
-                      <div className="mb-4">
-                        <span className="inline-block bg-gray-700 text-white text-xs font-medium px-3 py-1 rounded-md">
-                          {card.descTop}
-                        </span>
-                      </div>
-                    )}
-
-                    {card.name && (
-                      <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 leading-tight min-h-[4rem] md:min-h-[5rem] flex items-start">
-                        {card.name}
-                      </h3>
-                    )}
-
-                    <div className="space-y-4">
-                      {card.image && (
-                        <div className="relative w-full h-48 md:h-56 rounded-lg overflow-hidden bg-gray-200">
+                    {/* グラデーションアクセント（左上） */}
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-emerald-500/20 via-teal-500/20 to-cyan-500/20 rounded-br-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl"></div>
+                    
+                    {/* 画像セクション - より大胆なデザイン */}
+                    {card.image && (
+                      <div className="relative w-full aspect-[4/3] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                        <div className="absolute inset-0 group-hover:scale-125 transition-transform duration-[1000ms] ease-out">
                           <SimpleImage
                             src={card.image}
                             alt={card.name || ""}
@@ -913,30 +1007,89 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                             className="object-cover"
                           />
                         </div>
+                        {/* 動的なグラデーションオーバーレイ */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent group-hover:from-black/20 transition-all duration-500"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 via-transparent to-teal-500/0 group-hover:from-emerald-500/30 group-hover:to-teal-500/30 transition-all duration-700"></div>
+                        
+                        {/* カテゴリバッジ（画像上） */}
+                        {card.descTop && (
+                          <div className="absolute top-6 left-6 z-10">
+                            <span className="inline-flex items-center gap-2 px-4 py-2 bg-black/80 backdrop-blur-md text-white text-[10px] uppercase tracking-[0.2em] font-bold rounded-full border border-white/20">
+                              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                              {card.descTop}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* コンテンツセクション */}
+                    <div className="p-6 md:p-8 relative">
+                      {card.name && (
+                        <h3 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-emerald-700 to-gray-900 mb-4 leading-[1.1] tracking-tight group-hover:from-emerald-600 group-hover:via-teal-600 group-hover:to-cyan-600 transition-all duration-500">
+                          {card.name}
+                        </h3>
                       )}
 
                       {card.descBottom && (
-                        <div className="text-sm text-gray-700 leading-relaxed">
+                        <p className="text-sm text-gray-600 leading-relaxed font-light group-hover:text-gray-700 transition-colors">
                           {card.descBottom}
-                        </div>
+                        </p>
                       )}
                     </div>
-                  </div>
+
+                    {/* ホバー時のグラデーションライン */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 via-cyan-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left"></div>
+                    
+                    {/* グロー効果 */}
+                    <div className="absolute inset-0 rounded-[32px] bg-gradient-to-r from-emerald-500/0 via-teal-500/0 to-cyan-500/0 group-hover:from-emerald-500/5 group-hover:via-teal-500/5 group-hover:to-cyan-500/5 transition-all duration-500 pointer-events-none"></div>
+                  </article>
                 ))}
             </div>
           </div>
         </section>
 
         {/* 観光地カード */}
-        <section className="mb-16 bg-gray-50 py-16 px-4">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">観光地</h2>
-              <p className="text-base text-gray-700 max-w-3xl mx-auto">
-                {location.city}周辺の観光スポットや名所、地域の魅力を発見できる場所をご紹介します。
-              </p>
+        <section className="relative pt-0 pb-24 overflow-hidden w-screen left-1/2 -translate-x-1/2">
+          {/* 統一された背景 - フルブリード（企業リストと同じ） */}
+          <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/30 via-emerald-50/30 to-white"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(16,185,129,0.03)_0%,transparent_30%,rgba(6,182,212,0.03)_100%)]"></div>
+          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-100/20 rounded-full blur-3xl -translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-teal-100/20 rounded-full blur-3xl translate-y-1/2"></div>
+          
+          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 relative z-10">
+            {/* ヘッダーセクション - スタートアップらしい大胆なデザイン */}
+            <div className="mb-24">
+              <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-12 mb-12">
+                <div className="space-y-6">
+                  <div className="inline-flex items-center gap-4 group cursor-default">
+                    <div className="relative">
+                      <div className="w-2 h-12 bg-gradient-to-b from-teal-500 via-cyan-500 to-blue-500 rounded-full"></div>
+                      <div className="absolute inset-0 w-2 h-12 bg-gradient-to-b from-teal-500 via-cyan-500 to-blue-500 rounded-full blur-md opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                    <div className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-teal-500/10 via-cyan-500/10 to-blue-500/10 rounded-full border border-teal-200/50 backdrop-blur-sm">
+                      <svg className="w-3 h-3 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="text-[10px] uppercase tracking-[0.25em] text-teal-700 font-bold">Discover Places</span>
+                    </div>
+                  </div>
+                  <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-teal-700 to-gray-900 leading-[0.95] tracking-tight">
+                    観光地
+                  </h2>
+                </div>
+                <div className="lg:max-w-lg">
+                  <p className="text-base md:text-lg text-gray-600 leading-relaxed lg:text-right font-light">
+                    <span className="font-semibold text-gray-900">{location.city}</span>周辺の観光スポットや名所、<br className="hidden lg:block" />
+                    地域の魅力を発見できる場所をご紹介します。
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+
+            {/* カードグリッド - スタートアップらしい創造的なレイアウト */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
               {[
                 {
                   image: location.sightseeingCard1Image,
@@ -954,28 +1107,74 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                 if (!card.image && !card.title) return null;
                 
                 return (
-                  <div
+                  <article
                     key={index}
-                    className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+                    className="group relative bg-white/90 backdrop-blur-xl rounded-[32px] overflow-hidden cursor-pointer border border-gray-100/50"
+                    style={{
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06)',
+                      transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-12px) scale(1.02)';
+                      e.currentTarget.style.boxShadow = '0 32px 64px rgba(6,182,212,0.15), 0 16px 32px rgba(16,185,129,0.1)';
+                      e.currentTarget.style.borderColor = 'rgba(6,182,212,0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06)';
+                      e.currentTarget.style.borderColor = 'rgba(0,0,0,0.1)';
+                    }}
                   >
+                    {/* グラデーションアクセント（左上） */}
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-teal-500/20 via-cyan-500/20 to-blue-500/20 rounded-br-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl"></div>
+                    
+                    {/* 画像セクション - より大胆なデザイン */}
                     {card.image && (
-                      <div className="relative w-full h-64 md:h-80 overflow-hidden">
-                        <SimpleImage
-                          src={card.image}
-                          alt={card.title || ""}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
+                      <div className="relative w-full aspect-[3/4] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                        <div className="absolute inset-0 group-hover:scale-125 transition-transform duration-[1000ms] ease-out">
+                          <SimpleImage
+                            src={card.image}
+                            alt={card.title || ""}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        {/* 動的なグラデーションオーバーレイ */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent group-hover:from-black/60 transition-all duration-500"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/0 via-transparent to-cyan-500/0 group-hover:from-teal-500/30 group-hover:to-cyan-500/30 transition-all duration-700"></div>
+                        
+                        {/* タイトル（画像上） - より大胆なタイポグラフィ */}
+                        {card.title && (
+                          <div className="absolute bottom-0 left-0 right-0 p-10 md:p-12">
+                            <h3 className="text-4xl md:text-5xl font-black text-white leading-[1.05] tracking-tight mb-4" style={{
+                              textShadow: '0 4px 40px rgba(0,0,0,0.5), 0 2px 20px rgba(0,0,0,0.4)'
+                            }}>
+                              {card.title}
+                            </h3>
+                            <div className="flex items-center gap-3">
+                              <div className="h-[2px] w-20 bg-gradient-to-r from-white via-white/80 to-transparent transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
+                              <div className="w-2 h-2 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
-                    {card.title && (
-                      <div className="p-6">
-                        <h3 className="text-xl font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">
+                    
+                    {/* 画像がない場合のタイトル表示 */}
+                    {!card.image && card.title && (
+                      <div className="p-10 md:p-12">
+                        <h3 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-teal-700 to-gray-900 leading-[1.05] tracking-tight group-hover:from-teal-600 group-hover:via-cyan-600 group-hover:to-blue-600 transition-all duration-500">
                           {card.title}
                         </h3>
                       </div>
                     )}
-                  </div>
+
+                    {/* ホバー時のグラデーションライン */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 via-cyan-500 via-blue-500 to-indigo-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left"></div>
+                    
+                    {/* グロー効果 */}
+                    <div className="absolute inset-0 rounded-[32px] bg-gradient-to-r from-teal-500/0 via-cyan-500/0 to-blue-500/0 group-hover:from-teal-500/5 group-hover:via-cyan-500/5 group-hover:to-blue-500/5 transition-all duration-500 pointer-events-none"></div>
+                  </article>
                 );
               })}
             </div>

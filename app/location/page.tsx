@@ -2,8 +2,7 @@ import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import { MapPin } from "lucide-react";
 import { Metadata } from "next";
-import Link from "next/link";
-import SimpleImage from "@/components/ui/simple-image";
+import LocationCard from "@/components/ui/location-card";
 
 export const metadata: Metadata = {
   title: "ロケーション一覧 | Nexana Database",
@@ -182,42 +181,49 @@ export default async function LocationPage() {
     <div className="min-h-screen bg-white">
       <ClientHeader />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヒーローセクション */}
-        <div className="mb-12">
-          <div className="relative overflow-hidden rounded-3xl min-h-[500px] flex items-center">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 py-12 md:py-16">
+        {/* ヒーローセクション - HOKKAIDOページと同じスタイル */}
+        <div className="mb-20 md:mb-24">
+          <div className="relative overflow-hidden rounded-[32px] aspect-[16/6] flex items-center group">
             <div 
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat group-hover:scale-105 transition-transform duration-[1000ms] ease-out"
               style={{
                 backgroundImage: "url('/facilities.image.png')"
               }}
             ></div>
             
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/80 via-teal-800/60 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-900/20 to-transparent z-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
             
-            <div className="relative px-8 py-16 text-left max-w-4xl">
-              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full mb-6 shadow-lg">
-                <MapPin className="w-4 h-4 text-white mr-2" />
-                <span className="text-sm font-semibold text-white uppercase tracking-wider">LOCATIONS</span>
-              </div>
-              
-              <div className="mb-6">
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight">
-                  Locations
-                </h1>
-                <div className="flex items-center space-x-3">
-                  <div className="h-px bg-gradient-to-r from-emerald-300 to-transparent flex-1 max-w-32"></div>
-                  <span className="text-lg font-medium text-emerald-100 px-4 py-1 bg-white/20 rounded-full backdrop-blur-sm border border-white/30">
-                    ロケーション一覧
-                  </span>
+            {/* 装飾的な要素 */}
+            <div className="absolute top-8 left-8 z-20">
+              <div className="flex items-center gap-3">
+                <div className="w-1 h-12 bg-gradient-to-b from-emerald-400 via-teal-400 to-cyan-400 rounded-full"></div>
+                <div className="px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-3 h-3 text-white" />
+                    <span className="text-[10px] uppercase tracking-[0.25em] text-white font-bold">Locations</span>
+                  </div>
                 </div>
               </div>
+            </div>
+            
+            <div className="relative px-8 md:px-16 py-16 md:py-20 text-left max-w-5xl z-20">
+              <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-[0.95] tracking-tight" style={{
+                textShadow: '0 4px 40px rgba(0,0,0,0.4), 0 2px 20px rgba(0,0,0,0.3)'
+              }}>
+                Locations
+              </h1>
+              <div className="flex items-center gap-4 mb-6">
+                <p className="text-xl md:text-2xl text-white/90 font-light">ロケーション一覧</p>
+                <div className="h-[1px] w-16 bg-gradient-to-r from-white/60 to-transparent"></div>
+              </div>
               
-              <div className="max-w-2xl">
-                <p className="text-xl md:text-2xl text-white leading-relaxed font-medium mb-4">
+              <div className="max-w-3xl space-y-3">
+                <p className="text-lg md:text-xl text-white/90 leading-relaxed font-light">
                   世界各国・都市のロケーション情報を掲載
                 </p>
-                <p className="text-base text-emerald-100 font-medium">
+                <p className="text-base md:text-lg text-white/70 font-light">
                   Location information for cities around the world
                 </p>
               </div>
@@ -226,74 +232,28 @@ export default async function LocationPage() {
         </div>
 
         {/* ロケーション一覧 */}
-        <div className="space-y-12">
+        <div className="space-y-20 md:space-y-24">
           {Object.entries(locationsByCountry).map(([country, countryLocations]) => (
             <div key={country}>
-              <h2 className="text-2xl font-bold text-black mb-8">{country}</h2>
+              {/* 国別セクションヘッダー - HOKKAIDOページと同じスタイル */}
+              <div className="mb-12 md:mb-16">
+                <div className="flex items-center gap-4">
+                  <div className="w-1 h-12 bg-gradient-to-b from-emerald-500 via-teal-500 to-cyan-500 rounded-full"></div>
+                  <div className="px-5 py-2.5 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 rounded-full border border-emerald-200/50">
+                    <span className="text-[10px] uppercase tracking-[0.25em] text-emerald-700 font-bold">Country</span>
+                  </div>
+                </div>
+                <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-emerald-700 to-gray-900 leading-[0.95] tracking-tight mt-4">
+                  {country}
+                </h2>
+                <div className="pt-4">
+                  <span className="text-sm text-gray-500 font-light">{countryLocations.length} locations</span>
+                </div>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
                 {countryLocations.map((location) => (
-                  <Link
-                    key={location.id}
-                    href={`/location/${location.slug}`}
-                    className="group bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 block"
-                  >
-                    {/* 画像エリア */}
-                    <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
-                      {location.topImageUrl ? (
-                        <SimpleImage
-                          src={location.topImageUrl}
-                          alt={location.city}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                          <MapPin className="h-16 w-16 text-gray-400" />
-                        </div>
-                      )}
-                      
-                      {/* 暗いオーバーレイ */}
-                      <div className="absolute inset-0 bg-black/40"></div>
-                      
-                      {/* 上部説明文（日本語、中央上部） */}
-                      {location.description && (
-                        <div className="absolute top-6 left-0 right-0 text-center">
-                          <p className="text-white text-sm md:text-base font-bold leading-relaxed px-4">
-                            {location.description}
-                          </p>
-                        </div>
-                      )}
-                      
-                      {/* メインタイトル（Slug、中央上部寄り、大きく太字） */}
-                      <div className="absolute inset-0 flex items-start justify-center pt-12 md:pt-16">
-                        <h3 className="text-4xl md:text-5xl font-bold text-white uppercase tracking-wide text-center px-4">
-                          {location.slug}
-                        </h3>
-                      </div>
-                      
-                      {/* タグ（左下） */}
-                      {location.workspaces && location.workspaces.length > 0 && (
-                        <div className="absolute bottom-4 left-4">
-                          <span className="inline-block bg-black text-white text-[10px] font-medium px-2.5 py-1 uppercase tracking-wider rounded">
-                            {location.workspaces.length} Workspaces
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* テキストブロック */}
-                    <div className="bg-white px-4 py-5">
-                      {/* 詳細情報 */}
-                      <div className="text-sm text-gray-600 mb-2">
-                        {location.country}
-                      </div>
-                      
-                      {/* タイトル（都市名） */}
-                      <h4 className="text-xl font-bold text-black">
-                        {location.city}
-                      </h4>
-                    </div>
-                  </Link>
+                  <LocationCard key={location.id} location={location} />
                 ))}
               </div>
             </div>
@@ -301,8 +261,11 @@ export default async function LocationPage() {
         </div>
 
         {locations.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">ロケーション情報がありません</p>
+          <div className="text-center py-24">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 mb-6">
+              <MapPin className="w-10 h-10 text-gray-400" />
+            </div>
+            <p className="text-xl text-gray-500 font-light">ロケーション情報がありません</p>
           </div>
         )}
       </div>
