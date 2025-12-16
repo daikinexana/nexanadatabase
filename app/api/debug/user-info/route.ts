@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+/**
+ * ユーザー情報を取得（デバッグ用）
+ * Clerk認証を削除したため、ダミーユーザーを返します
+ */
 export async function GET() {
   try {
     const user = await getCurrentUser();

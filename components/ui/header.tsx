@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
@@ -12,7 +11,6 @@ const navigation = [
   { name: "公募", nameEn: "Open Calls", href: "/open-calls" },
   { name: "ロケーション", nameEn: "Location", href: "/location" },
   { name: "ニュース", nameEn: "News", href: "/news" },
-  { name: "ナレッジ", nameEn: "Knowledge", href: "/knowledge" },
 ];
 
 export default function Header() {
@@ -57,9 +55,6 @@ export default function Header() {
           </div>
 
           <div className="flex items-center space-x-4">
-            {/* 管理ページでのみユーザーボタンを表示 */}
-            {pathname.startsWith('/admin') && <UserButton afterSignOutUrl="/" />}
-            
             {/* Mobile menu button */}
             <button
               type="button"

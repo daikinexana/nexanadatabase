@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 
+/**
+ * 現在のユーザー情報を取得
+ * Clerk認証を削除したため、ダミーユーザーを返します
+ */
 export async function GET() {
   try {
     const user = await getCurrentUser();

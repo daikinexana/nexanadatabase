@@ -73,19 +73,6 @@ const features = [
     borderColor: "border-gray-200",
     accentColor: "bg-zinc-500",
   },
-  {
-    name: "ナレッジベース",
-    nameEn: "Knowledge",
-    description: "AI、ディープテックなどの最新技術情報とトレンドを提供",
-    descriptionEn: "Latest tech trends in AI, deep tech, and innovation",
-    href: "/knowledge",
-    icon: Lightbulb,
-    color: "from-neutral-500 to-neutral-700",
-    bgColor: "bg-gradient-to-br from-white via-gray-50 to-gray-100",
-    textColor: "text-gray-700",
-    borderColor: "border-gray-200",
-    accentColor: "bg-neutral-500",
-  },
 ];
 
 
@@ -152,11 +139,11 @@ export default async function Home() {
             {/* 説明文 - iPhone用 */}
             <p className="text-base sm:text-lg text-gray-300 mb-8 sm:mb-12 max-w-2xl mx-auto font-news leading-relaxed px-4 sm:px-0">
               <span className="block sm:hidden">
-                コンテスト、公募、施設、ニュース、ナレッジを<br />
+                コンテスト、公募、施設、ニュースを<br />
                 一箇所で検索・発見できる
               </span>
               <span className="hidden sm:block">
-                コンテスト、公募、施設、ニュース、ナレッジを一箇所で検索・発見できる
+                コンテスト、公募、施設、ニュースを一箇所で検索・発見できる
                 <br />
                 スタートアップ支援の総合情報データベース
               </span>
@@ -187,7 +174,7 @@ export default async function Home() {
           </div>
           
           {/* 統計情報 - iPhone用 */}
-          <div className="mt-12 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 max-w-2xl mx-auto">
+          <div className="mt-12 sm:mt-16 grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto">
             <div className="text-center">
               <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stats.contests}+</div>
               <div className="text-sm text-gray-300">コンテスト</div>
@@ -199,10 +186,6 @@ export default async function Home() {
             <div className="text-center">
               <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stats.news}+</div>
               <div className="text-sm text-gray-300">ニュース</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stats.knowledge}+</div>
-              <div className="text-sm text-gray-300">ナレッジ</div>
             </div>
           </div>
         </div>

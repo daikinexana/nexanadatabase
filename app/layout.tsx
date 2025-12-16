@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, Noto_Sans_JP, JetBrains_Mono } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 const inter = Inter({
@@ -134,12 +133,6 @@ const structuredData = {
         "name": "ニュース",
         "url": "https://db.nexanahq.com/news"
       },
-      {
-        "@type": "ListItem",
-        "position": 5,
-        "name": "ナレッジ",
-        "url": "https://db.nexanahq.com/knowledge"
-      }
     ]
   }
 };
@@ -164,8 +157,6 @@ export default async function RootLayout({
   const enableStructuredData = true;
   const structuredDataScript = enableStructuredData ? getStructuredDataScript() : null;
 
-  const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-  
   // サーバーサイドでUser-Agentをチェック（Googlebot検出）
   // headers()を使って、middleware.tsで設定したX-Is-Googlebotヘッダーを確認
   let isGooglebot = false;
@@ -214,50 +205,6 @@ export default async function RootLayout({
     </html>
   );
   
-  // Googlebotの場合は、ClerkProviderを使わずに直接レンダリング
-  // これによりクライアントサイドでのリダイレクトを完全に防ぐ
-  if (isGooglebot) {
-    return baseHtml;
-  }
-  
-  // Clerkの環境変数が設定されていない場合も直接レンダリング
-  if (!clerkPublishableKey) {
-    console.warn("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not set. Running without authentication.");
-    return baseHtml;
-  }
-
-  // Clerkのリダイレクト設定
-  const signInFallbackRedirectUrl = 
-    process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL || 
-    process.env.NEXT_PUBLIC_CLERK_FALLBACK_REDIRECT_URL || 
-    '/';
-  const signUpFallbackRedirectUrl = 
-    process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL || 
-    process.env.NEXT_PUBLIC_CLERK_FALLBACK_REDIRECT_URL || 
-    '/';
-
-  // 通常ユーザーの場合のみClerkProviderを使用
-  return (
-    <ClerkProvider
-      publishableKey={clerkPublishableKey}
-      signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
-      signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL}
-      signInFallbackRedirectUrl={signInFallbackRedirectUrl}
-      signUpFallbackRedirectUrl={signUpFallbackRedirectUrl}
-      appearance={{
-        baseTheme: undefined,
-        variables: {
-          colorPrimary: "#2563eb",
-          colorBackground: "#ffffff",
-          colorInputBackground: "#ffffff",
-          colorInputText: "#000000",
-        },
-      }}
-      localization={{
-        locale: "ja",
-      }}
-    >
-      {baseHtml}
-    </ClerkProvider>
-  );
+  // Clerk認証を完全に削除したため、常にbaseHtmlを返す
+  return baseHtml;
 }

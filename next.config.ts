@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Clerkの読み込み最適化
+  // Webpack設定
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -55,8 +55,9 @@ const nextConfig: NextConfig = {
           
           return [
             // パブリックページ用のヘッダー
+            // 環境変数でカスタムadminパスを除外（デフォルト: /admin）
             {
-              source: '/((?!admin|api/user|sign-in|sign-up).*)',
+              source: `/((?!${(process.env.NEXT_PUBLIC_ADMIN_PATH || '/admin').replace(/^\//, '')}|api/user|sign-in|sign-up).*)`,
               headers: [
                 {
                   key: 'Cache-Control',
@@ -84,15 +85,14 @@ const nextConfig: NextConfig = {
                 },
                 {
                   key: 'Content-Security-Policy',
-                  value: isDevelopment 
-                    ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https:; worker-src 'self' blob:;"
-                    : "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev; style-src 'self' 'unsafe-inline' https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev; img-src 'self' data: https:; font-src 'self' data: https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev; connect-src 'self' https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev; frame-src 'self' https://clerk.com https://*.clerk.com https://clerk.dev https://*.clerk.dev https://*.clerk.accounts.dev; worker-src 'self' blob:;",
+                  value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https:; worker-src 'self' blob:;",
                 },
               ],
             },
             // /admin配下はnoindex, nofollow（検索エンジンにインデックスされないように）
+            // 環境変数でカスタムパスを設定可能（デフォルト: /admin）
             {
-              source: '/admin/:path*',
+              source: `${process.env.NEXT_PUBLIC_ADMIN_PATH || '/admin'}/:path*`,
               headers: [
                 {
                   key: 'X-Robots-Tag',

@@ -42,11 +42,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         orderBy: { updatedAt: 'desc' },
         select: { updatedAt: true },
       }),
-      prisma.knowledge.findFirst({
-        where: { isActive: true },
-        orderBy: { updatedAt: 'desc' },
-        select: { updatedAt: true },
-      }),
       prisma.location.findMany({
         where: { isActive: true },
         select: { slug: true, updatedAt: true },
@@ -59,7 +54,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const openCallsLastModified = latestOpenCall?.updatedAt.toISOString() || now.toISOString()
     const locationsLastModified = latestLocation?.updatedAt.toISOString() || now.toISOString()
     const newsLastModified = latestNews?.updatedAt.toISOString() || now.toISOString()
-    const knowledgeLastModified = latestKnowledge?.updatedAt.toISOString() || now.toISOString()
 
     // サブドメイン専用のサイトマップ（db.nexanahq.com）
     const sitemapEntries: MetadataRoute.Sitemap = [
@@ -92,12 +86,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: newsLastModified,
         changeFrequency: 'hourly' as const,
         priority: 0.9,
-      },
-      {
-        url: `${baseUrl}/knowledge`,
-        lastModified: knowledgeLastModified,
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
       },
       {
         url: `${baseUrl}/contact`,
@@ -164,12 +152,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: fallbackDate,
         changeFrequency: 'hourly' as const,
         priority: 0.9,
-      },
-      {
-        url: `${baseUrl}/knowledge`,
-        lastModified: fallbackDate,
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
       },
       {
         url: `${baseUrl}/contact`,

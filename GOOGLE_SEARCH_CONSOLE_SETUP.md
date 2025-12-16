@@ -14,15 +14,27 @@
    - サイトマップをサブドメイン専用に固定
    - メタデータのcanonical URLを明示的に設定
 
-2. **Googlebot対応の強化**
-   - ミドルウェアでGooglebotを検出して認証チェックをスキップ
-   - クロールテスト用APIエンドポイントを追加
+2. **Googlebot対応の強化（重要）**
+   - **middleware.tsを完全に書き換え**: Googlebotの場合はClerkのミドルウェアを完全にスキップ
+   - Googlebot検出時にClerkProviderを使わずに直接レンダリング（layout.tsx）
+   - パブリックルートは常にアクセス可能
+   - adminページは403を返して保護（リダイレクトしない）
 
-3. **HTTPS設定の強化**
+3. **Adminページのセキュリティ強化とパフォーマンス最適化**
+   - 環境変数 `NEXT_PUBLIC_ADMIN_PATH` でadminページのパスをカスタマイズ可能
+   - デフォルトの `/admin` から変更することで、URLを隠すことが可能
+   - robots.txtとnext.config.tsも自動的に更新される
+   - **本番環境ではadminページへのアクセスを完全にブロック（404を返す）**
+   - **本番環境ではClerk認証とmiddlewareのオーバーヘッドを完全に削除**
+     - middlewareはGooglebot対応のみ（最小限の処理）
+     - ClerkProviderは本番環境では使用されない（パフォーマンス向上）
+   - ローカル開発環境でのみClerk認証を使用
+
+4. **HTTPS設定の強化**
    - Strict-Transport-Securityヘッダーを追加
    - Content-Security-Policyを設定
 
-4. **検証ファイルの追加**
+5. **検証ファイルの追加**
    - Google Search Console用の検証HTMLファイルを作成
 
 ## Google Search Console 登録手順
@@ -71,6 +83,18 @@ GOOGLE_VERIFICATION_CODE=your-google-verification-code-here
 
 # ベースURL（サブドメイン専用）
 NEXT_PUBLIC_BASE_URL=https://db.nexanahq.com
+
+# Adminページのパス（セキュリティのため、デフォルトの/adminから変更することを推奨）
+# 例: NEXT_PUBLIC_ADMIN_PATH=/secure-admin-panel-2024
+# 注意: この値を変更した場合、middleware.ts、robots.ts、next.config.tsも自動的に更新されます
+# NEXT_PUBLIC_ADMIN_PATH=/admin
+
+# Adminページのアクセス制御（重要）
+# 本番環境ではadminページへのアクセスが自動的にブロックされます（404を返す）
+# ローカル開発環境（NODE_ENV=development）では常にアクセス可能
+# 本番環境でもadminページにアクセスしたい場合は、以下の環境変数を設定:
+# ALLOW_ADMIN_IN_PRODUCTION=true
+# 注意: セキュリティ上の理由から、本番環境でのadminページアクセスは非推奨です
 ```
 
 ## デプロイ後の確認事項
@@ -90,9 +114,15 @@ NEXT_PUBLIC_BASE_URL=https://db.nexanahq.com
 ## トラブルシューティング
 
 ### リダイレクトエラーが続く場合
-1. ミドルウェアの設定を確認
-2. Clerk認証の設定を確認
-3. デプロイ環境での環境変数を確認
+1. **middleware.tsの確認**: Googlebot検出時にClerkを完全にスキップしているか確認
+2. **layout.tsxの確認**: Googlebotの場合はClerkProviderを使わずにレンダリングしているか確認
+3. **Clerk認証の設定を確認**: パブリックルートが正しく設定されているか確認
+4. **デプロイ環境での環境変数を確認**: 特に `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` が設定されているか確認
+
+### Googlebotが認識されない場合
+1. **User-Agentの確認**: middleware.tsの `isGooglebot` 関数で正しく検出されているか確認
+2. **Google Search Consoleのライブテスト**: URL検査ツールで「ライブテスト」を実行して確認
+3. **ログの確認**: サーバーログでGooglebotのリクエストが正しく処理されているか確認
 
 ### サイトマップが認識されない場合
 1. サイトマップのURLが正しいことを確認

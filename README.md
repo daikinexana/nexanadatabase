@@ -23,9 +23,19 @@
 - **タグ**: 詳細なタグによる検索
 
 ### 管理者機能
-- **認証**: Clerkによる管理者認証
 - **投稿・編集・削除**: 各コンテンツの管理機能
 - **画像アップロード**: AWS S3を使用した画像管理
+- **セキュリティ**: AdminページのURLを環境変数でカスタマイズ可能（デフォルト: `/admin`）
+- **アクセス制御**: **本番環境ではadminページへのアクセスが自動的にブロックされます（404を返す）**
+  - ローカル開発環境（`NODE_ENV=development`）では常にアクセス可能（認証不要）
+  - 本番環境でもアクセスしたい場合は `ALLOW_ADMIN_IN_PRODUCTION=true` を設定（非推奨）
+- **認証**: **Clerk認証を完全に削除** - ローカル開発環境でも認証不要でシンプルに運用
+
+### SEO・検索エンジン対応
+- **Google Search Console対応**: Googlebotの検出とClerk認証の自動スキップ
+- **robots.txt**: 検索エンジン向けのクロール設定
+- **sitemap.xml**: 動的サイトマップ生成
+- **構造化データ**: JSON-LD形式の構造化データ対応
 
 ## 技術スタック
 
@@ -53,13 +63,10 @@ npm install
 # Database
 DATABASE_URL="postgresql://username:password@localhost:5432/nexanadatabase"
 
-# Clerk Authentication
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-CLERK_SECRET_KEY=your_clerk_secret_key
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/admin
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/admin
+# Clerk Authentication (削除済み)
+# Clerk認証は完全に削除されました。ローカル開発環境でも認証不要です。
+# NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+# CLERK_SECRET_KEY=your_clerk_secret_key
 
 # AWS S3
 AWS_ACCESS_KEY_ID=your_aws_access_key
@@ -69,6 +76,13 @@ AWS_S3_BUCKET_NAME=nexana-database-images
 
 # App Configuration
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Google Search Console (オプション)
+GOOGLE_VERIFICATION_CODE=your_google_verification_code
+
+# Adminページのパス（セキュリティのため、デフォルトの/adminから変更することを推奨）
+# 例: NEXT_PUBLIC_ADMIN_PATH=/secure-admin-panel-2024
+# NEXT_PUBLIC_ADMIN_PATH=/admin
 ```
 
 ### 3. データベースのセットアップ
@@ -147,6 +161,50 @@ VERCEL_TOKEN
 VERCEL_ORG_ID
 VERCEL_PROJECT_ID
 ```
+
+## Google検索エンジン対応
+
+### 重要な設定
+
+このプロジェクトは、Google検索エンジンがサイトをクロールできるように特別な設定が施されています：
+
+1. **Googlebot検出**: middleware.tsでGooglebotを検出し、Clerk認証を完全にスキップ
+2. **パブリックページ**: 常にアクセス可能（認証不要）
+3. **Adminページ保護**: Googlebotには403を返し、通常ユーザーは認証が必要
+
+詳細は [GOOGLE_SEARCH_CONSOLE_SETUP.md](./GOOGLE_SEARCH_CONSOLE_SETUP.md) を参照してください。
+
+### Adminページのセキュリティ
+
+#### 1. URLのカスタマイズ
+
+デフォルトの `/admin` パスを変更することで、adminページのURLを隠すことができます：
+
+```env
+# 環境変数でカスタムパスを設定
+NEXT_PUBLIC_ADMIN_PATH=/secure-admin-panel-2024
+```
+
+この設定により、middleware.ts、robots.txt、next.config.tsが自動的に更新されます。
+
+#### 2. 本番環境でのアクセス制御（推奨）
+
+**本番環境では、adminページへのアクセスが自動的にブロックされます（404を返す）**。これにより、セキュリティが大幅に向上します。
+
+**Clerk認証とmiddlewareを完全に削除**：
+
+- **ローカル開発環境**: `NODE_ENV=development` では常にアクセス可能、**認証不要**
+- **本番環境**: 
+  - Adminページへのアクセスは自動的に404を返してブロック
+  - **Clerk認証は完全に削除**（パフォーマンス向上、バンドルサイズ削減）
+  - middlewareはGooglebot対応のみ（最小限の処理）
+- **本番環境でもアクセスしたい場合**: `ALLOW_ADMIN_IN_PRODUCTION=true` を設定（セキュリティ上の理由から非推奨）
+
+**推奨される運用方法**:
+- 本番環境ではadminページへのアクセスをブロック
+- ローカル開発環境でコンテンツを編集・管理（認証不要でシンプル）
+- 変更をコミットしてデプロイ
+- **Clerk認証のオーバーヘッドが完全にないため、パフォーマンスが大幅に向上**
 
 ## デプロイ
 
