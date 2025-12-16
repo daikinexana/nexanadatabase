@@ -7,9 +7,12 @@
 // ダミーユーザーオブジェクト（開発環境用）
 const dummyUser = {
   id: "local-dev-user",
+  clerkId: "local-dev-clerk",
   email: "dev@localhost",
   name: "Local Developer",
   role: "ADMIN" as const,
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };
 
 export async function getCurrentUser() {
