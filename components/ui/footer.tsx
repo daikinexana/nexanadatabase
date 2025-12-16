@@ -8,7 +8,6 @@ const navigation = {
     { name: "公募", nameEn: "Open Calls", href: "/open-calls" },
     { name: "ロケーション", nameEn: "Location", href: "/location" },
     { name: "ニュース", nameEn: "News", href: "/news" },
-    { name: "ナレッジ", nameEn: "Knowledge", href: "/knowledge" },
   ],
   company: [
     { name: "運営会社", nameEn: "Company", href: "https://hp.nexanahq.com/" },

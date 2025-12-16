@@ -9,7 +9,6 @@ const navigation = [
   { name: "公募", nameEn: "Open Calls", href: "/open-calls" },
   { name: "ロケーション", nameEn: "Location", href: "/location" },
   { name: "ニュース", nameEn: "News", href: "/news" },
-  { name: "ナレッジ", nameEn: "Knowledge", href: "/knowledge" },
 ];
 
 export default function ClientHeader() {
