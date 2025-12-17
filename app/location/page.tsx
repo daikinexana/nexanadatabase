@@ -1,8 +1,10 @@
 import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
-import { MapPin } from "lucide-react";
+import { MapPin, Heart, TrendingUp, Sparkles } from "lucide-react";
 import { Metadata } from "next";
-import LocationCard from "@/components/ui/location-card";
+import Link from "next/link";
+import SimpleImage from "@/components/ui/simple-image";
+import LocationCardCompact from "@/components/ui/location-card-compact";
 
 export const metadata: Metadata = {
   title: "ロケーション一覧 | Nexana Database",
@@ -32,6 +34,19 @@ interface Location {
     name: string;
     imageUrl?: string | null;
   }>;
+}
+
+interface TopWorkspace {
+  id: string;
+  name: string;
+  imageUrl?: string | null;
+  city: string;
+  country: string;
+  likeCount: number;
+  locationId?: string | null;
+  location?: {
+    slug: string;
+  } | null;
 }
 
 async function getLocations(): Promise<Location[]> {
@@ -74,6 +89,54 @@ async function getLocations(): Promise<Location[]> {
   }
 }
 
+async function getTopWorkspaces(): Promise<TopWorkspace[]> {
+  try {
+    const { prisma } = await import("@/lib/prisma");
+    
+    // いいね数が多い順にワークスペースを取得
+    const workspaces = await prisma.workspace.findMany({
+      where: {
+        isActive: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        imageUrl: true,
+        city: true,
+        country: true,
+        locationId: true,
+        location: {
+          select: {
+            slug: true,
+          },
+        },
+      },
+      take: 50, // まず50件取得してからいいね数でソート
+    });
+
+    // 各ワークスペースのいいね数を取得
+    const workspacesWithLikes = await Promise.all(
+      workspaces.map(async (workspace) => {
+        const likeCount = await prisma.workspaceLike.count({
+          where: { workspaceId: workspace.id },
+        });
+        return {
+          ...workspace,
+          likeCount,
+        };
+      })
+    );
+
+    // いいね数でソートしてtop 10を返す
+    return workspacesWithLikes
+      .sort((a, b) => b.likeCount - a.likeCount)
+      .slice(0, 10);
+  } catch (error) {
+    console.error("Error fetching top workspaces:", error);
+    return [];
+  }
+}
+
 export const dynamic = 'force-static';
 export const runtime = 'nodejs';
 export const revalidate = 3600;
@@ -82,65 +145,83 @@ export const preferredRegion = 'auto';
 
 export default async function LocationPage() {
   const locations = await getLocations();
+  const topWorkspaces = await getTopWorkspaces();
 
-  // 都道府県の順序定義
-  const prefectureOrder = [
+  // 8地方区分の定義
+  const regionOrder = [
     '北海道',
-    '青森県',
-    '岩手県',
-    '宮城県',
-    '秋田県',
-    '山形県',
-    '福島県',
-    '茨城県',
-    '栃木県',
-    '群馬県',
-    '埼玉県',
-    '千葉県',
-    '東京都',
-    '神奈川県',
-    '新潟県',
-    '富山県',
-    '石川県',
-    '福井県',
-    '山梨県',
-    '長野県',
-    '岐阜県',
-    '静岡県',
-    '愛知県',
-    '三重県',
-    '滋賀県',
-    '京都府',
-    '大阪府',
-    '兵庫県',
-    '奈良県',
-    '和歌山県',
-    '鳥取県',
-    '島根県',
-    '岡山県',
-    '広島県',
-    '山口県',
-    '徳島県',
-    '香川県',
-    '愛媛県',
-    '高知県',
-    '福岡県',
-    '佐賀県',
-    '長崎県',
-    '熊本県',
-    '大分県',
-    '宮崎県',
-    '鹿児島県',
-    '沖縄県'
+    '東北',
+    '関東',
+    '中部',
+    '近畿',
+    '中国',
+    '四国',
+    '九州・沖縄'
   ];
 
-  // 都道府県の順序を取得する関数
-  const getPrefectureOrder = (city: string) => {
-    const index = prefectureOrder.indexOf(city);
+  // 都道府県から地方区分へのマッピング
+  const prefectureToRegion: Record<string, string> = {
+    '北海道': '北海道',
+    '青森県': '東北',
+    '岩手県': '東北',
+    '宮城県': '東北',
+    '秋田県': '東北',
+    '山形県': '東北',
+    '福島県': '東北',
+    '茨城県': '関東',
+    '栃木県': '関東',
+    '群馬県': '関東',
+    '埼玉県': '関東',
+    '千葉県': '関東',
+    '東京都': '関東',
+    '神奈川県': '関東',
+    '新潟県': '中部',
+    '富山県': '中部',
+    '石川県': '中部',
+    '福井県': '中部',
+    '山梨県': '中部',
+    '長野県': '中部',
+    '岐阜県': '中部',
+    '静岡県': '中部',
+    '愛知県': '中部',
+    '三重県': '近畿',
+    '滋賀県': '近畿',
+    '京都府': '近畿',
+    '大阪府': '近畿',
+    '兵庫県': '近畿',
+    '奈良県': '近畿',
+    '和歌山県': '近畿',
+    '鳥取県': '中国',
+    '島根県': '中国',
+    '岡山県': '中国',
+    '広島県': '中国',
+    '山口県': '中国',
+    '徳島県': '四国',
+    '香川県': '四国',
+    '愛媛県': '四国',
+    '高知県': '四国',
+    '福岡県': '九州・沖縄',
+    '佐賀県': '九州・沖縄',
+    '長崎県': '九州・沖縄',
+    '熊本県': '九州・沖縄',
+    '大分県': '九州・沖縄',
+    '宮崎県': '九州・沖縄',
+    '鹿児島県': '九州・沖縄',
+    '沖縄県': '九州・沖縄'
+  };
+
+  // 都道府県から地方区分を取得する関数
+  const getRegion = (city: string): string => {
+    return prefectureToRegion[city] || 'その他';
+  };
+
+  // 地方区分の順序を取得する関数
+  const getRegionOrder = (region: string): number => {
+    const index = regionOrder.indexOf(region);
     return index === -1 ? 999 : index;
   };
 
-  // ソート処理：日本国内は都道府県順、海外は国名順
+  // ソート処理：日本国内は地方区分順、海外は国名順
   const sortedLocations = [...locations].sort((a, b) => {
     // 日本国内のロケーションを優先
     if (a.country === "日本" && b.country !== "日本") {
@@ -150,14 +231,17 @@ export default async function LocationPage() {
       return 1;
     }
 
-    // 日本国内同士の場合は都道府県順
+    // 日本国内同士の場合は地方区分順
     if (a.country === "日本" && b.country === "日本") {
-      const aOrder = getPrefectureOrder(a.city);
-      const bOrder = getPrefectureOrder(b.city);
-      if (aOrder !== bOrder) {
-        return aOrder - bOrder;
+      const aRegion = getRegion(a.city);
+      const bRegion = getRegion(b.city);
+      const aRegionOrder = getRegionOrder(aRegion);
+      const bRegionOrder = getRegionOrder(bRegion);
+      
+      if (aRegionOrder !== bRegionOrder) {
+        return aRegionOrder - bRegionOrder;
       }
-      // 同じ都道府県内では都市名順
+      // 同じ地方区分内では都市名順
       return a.city.localeCompare(b.city, 'ja');
     }
 
@@ -168,8 +252,24 @@ export default async function LocationPage() {
     return a.city.localeCompare(b.city, 'ja');
   });
 
-  // 国別にグループ化
-  const locationsByCountry = sortedLocations.reduce((acc, location) => {
+  // 地方区分別にグループ化（日本国内）
+  const locationsByRegion: Record<string, Location[]> = {};
+  const overseasLocations: Location[] = [];
+
+  sortedLocations.forEach((location) => {
+    if (location.country === "日本") {
+      const region = getRegion(location.city);
+      if (!locationsByRegion[region]) {
+        locationsByRegion[region] = [];
+      }
+      locationsByRegion[region].push(location);
+    } else {
+      overseasLocations.push(location);
+    }
+  });
+
+  // 海外を国別にグループ化
+  const locationsByCountry = overseasLocations.reduce((acc, location) => {
     if (!acc[location.country]) {
       acc[location.country] = [];
     }
@@ -177,83 +277,197 @@ export default async function LocationPage() {
     return acc;
   }, {} as Record<string, Location[]>);
 
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/30 to-white">
       <ClientHeader />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-8 sm:py-12 md:py-16">
-        {/* ヒーローセクション - iPhone 16最適化 */}
-        <div className="mb-12 sm:mb-16 md:mb-20 lg:mb-24">
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-[32px] aspect-[16/9] sm:aspect-[16/6] flex items-center group">
-            <div 
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat group-hover:scale-105 transition-transform duration-[1000ms] ease-out"
-              style={{
-                backgroundImage: "url('/facilities.image.png')"
-              }}
-            ></div>
-            
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-900/20 to-transparent z-10"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
-            
-            {/* 装飾的な要素 - iPhone 16最適化 */}
-            <div className="absolute top-4 left-4 sm:top-8 sm:left-8 z-20">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-0.5 sm:w-1 h-8 sm:h-12 bg-gradient-to-b from-emerald-400 via-teal-400 to-cyan-400 rounded-full"></div>
-                <div className="px-3 py-1.5 sm:px-5 sm:py-2.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
-                    <span className="text-[8px] sm:text-[10px] uppercase tracking-[0.25em] text-white font-bold">Locations</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="relative px-4 sm:px-8 md:px-16 py-10 sm:py-16 md:py-20 text-left max-w-5xl z-20">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white mb-4 sm:mb-6 leading-[0.95] tracking-tight" style={{
-                textShadow: '0 4px 40px rgba(0,0,0,0.4), 0 2px 20px rgba(0,0,0,0.3)'
-              }}>
-                Locations
-              </h1>
-              <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 font-light">ロケーション一覧</p>
-                <div className="h-[1px] w-12 sm:w-16 bg-gradient-to-r from-white/60 to-transparent"></div>
-              </div>
-              
-              <div className="max-w-3xl space-y-2 sm:space-y-3">
-                <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 leading-relaxed font-light">
-                  世界各国・都市のロケーション情報を掲載
-                </p>
-                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-white/70 font-light">
-                  Location information for cities around the world
-                </p>
-              </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-10">
+        {/* シンプルなページヘッダー */}
+        <div className="mb-6 sm:mb-8 md:mb-10">
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <div className="w-0.5 sm:w-1 h-6 sm:h-8 bg-gradient-to-b from-emerald-400 via-teal-400 to-cyan-400 rounded-full"></div>
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+              <span className="text-xs sm:text-sm uppercase tracking-wider text-emerald-600 font-bold">Locations</span>
             </div>
           </div>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
+            ロケーション一覧
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+            世界各国・都市のロケーション情報を掲載
+          </p>
         </div>
 
-        {/* ロケーション一覧 - iPhone 16最適化 */}
-        <div className="space-y-12 sm:space-y-16 md:space-y-20 lg:space-y-24">
-          {Object.entries(locationsByCountry).map(([country, countryLocations]) => (
-            <div key={country}>
-              {/* 国別セクションヘッダー - iPhone 16最適化 */}
-              <div className="mb-8 sm:mb-10 md:mb-12 lg:mb-16">
-                <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-                  <div className="w-0.5 sm:w-1 h-8 sm:h-10 md:h-12 bg-gradient-to-b from-emerald-500 via-teal-500 to-cyan-500 rounded-full"></div>
-                  <div className="px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 rounded-full border border-emerald-200/50">
-                    <span className="text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-[0.25em] text-emerald-700 font-bold">Country</span>
+        {/* Top 10 Workspaces セクション - コンパクトでワイド */}
+        {topWorkspaces.length > 0 && (
+          <section className="mb-8 sm:mb-10 md:mb-12 relative overflow-hidden rounded-2xl sm:rounded-3xl border border-rose-100/50 shadow-lg">
+            {/* 背景装飾 - より洗練された */}
+            <div className="absolute inset-0 bg-gradient-to-br from-rose-50/40 via-pink-50/30 to-purple-50/40 -z-10"></div>
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(244,63,94,0.05)_0%,transparent_30%,rgba(168,85,247,0.05)_100%)] -z-10"></div>
+            
+            <div className="relative z-10 p-4 sm:p-6 md:p-8">
+              {/* セクションヘッダー - コンパクト */}
+              <div className="mb-4 sm:mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-0.5 sm:w-1 h-5 sm:h-6 bg-gradient-to-b from-rose-500 via-pink-500 to-purple-500 rounded-full"></div>
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-rose-600" />
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
+                        人気のワークスペース
+                      </h2>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/80 backdrop-blur-sm rounded-full border border-rose-200/50">
+                      <TrendingUp className="w-3 h-3 text-rose-600" />
+                      <span className="text-xs font-semibold text-gray-700">いいね順</span>
+                    </div>
                   </div>
                 </div>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-emerald-700 to-gray-900 leading-[0.95] tracking-tight mt-3 sm:mt-4">
-                  {country}
-                </h2>
-                <div className="pt-3 sm:pt-4">
-                  <span className="text-xs sm:text-sm text-gray-500 font-light">{countryLocations.length} locations</span>
+              </div>
+
+              {/* ワークスペースグリッド - 2段表示 */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-2.5 sm:gap-3 md:gap-4">
+                {topWorkspaces.map((workspace, index) => {
+                  const locationSlug = workspace.location?.slug;
+                  const workspaceUrl = locationSlug 
+                    ? `/location/${locationSlug}`
+                    : `#`;
+                  
+                  return (
+                    <Link
+                      key={workspace.id}
+                      href={workspaceUrl}
+                      className="group relative bg-white/90 backdrop-blur-xl rounded-lg sm:rounded-xl overflow-hidden border border-gray-200/50 cursor-pointer block active:scale-[0.97] touch-manipulation transition-all duration-300 hover:shadow-lg hover:border-rose-300/50 hover:-translate-y-0.5"
+                    >
+                      {/* ランキングバッジ - コンパクト */}
+                      <div className="absolute top-2 left-2 z-20">
+                        <div className={`relative flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full font-black text-white text-[10px] sm:text-xs shadow-lg border border-white/30 ${
+                          index === 0 ? 'bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600' :
+                          index === 1 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500' :
+                          index === 2 ? 'bg-gradient-to-br from-amber-600 via-amber-700 to-amber-800' :
+                          'bg-gradient-to-br from-rose-500 via-pink-500 to-rose-600'
+                        }`}>
+                          {index === 0 && <span className="absolute -top-0.5 -right-0.5 text-[8px]">👑</span>}
+                          <span className="relative z-10">{index + 1}</span>
+                        </div>
+                      </div>
+
+                      {/* 画像エリア - コンパクト */}
+                      <div className="relative w-full aspect-[16/10] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                        {workspace.imageUrl ? (
+                          <div className="absolute inset-0 group-hover:scale-110 transition-transform duration-500 ease-out">
+                            <SimpleImage
+                              src={workspace.imageUrl}
+                              alt={workspace.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                            <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
+                          </div>
+                        )}
+                        
+                        {/* グラデーションオーバーレイ */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent group-hover:from-black/50 transition-all duration-300"></div>
+                        
+                        {/* いいね数バッジ - コンパクト */}
+                        <div className="absolute bottom-2 right-2 z-20">
+                          <div className="flex items-center gap-1 px-1.5 py-1 bg-black/75 backdrop-blur-sm rounded-full border border-white/20 shadow-sm">
+                            <Heart className="w-2.5 h-2.5 fill-rose-400 text-rose-400" />
+                            <span className="text-[9px] font-bold text-white">{workspace.likeCount}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* コンテンツエリア - コンパクト */}
+                      <div className="p-2 sm:p-2.5 bg-white">
+                        <h3 className="text-xs sm:text-sm font-bold text-gray-900 mb-1 line-clamp-1 group-hover:text-rose-600 transition-colors">
+                          {workspace.name}
+                        </h3>
+                        <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-gray-500">
+                          <MapPin className="w-2.5 h-2.5 text-rose-500/60" />
+                          <span className="truncate">{workspace.city}</span>
+                        </div>
+                      </div>
+
+                      {/* ホバー時のアクセントライン */}
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-rose-500 via-pink-500 to-purple-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ロケーション一覧 - 8地方区分 + 海外 */}
+        <div className="space-y-6 sm:space-y-8 md:space-y-10">
+          {/* セクションタイトル */}
+          <div className="mb-4 sm:mb-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-0.5 sm:w-1 h-5 sm:h-6 bg-gradient-to-b from-emerald-500 via-teal-500 to-cyan-500 rounded-full"></div>
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
+                Locationで選択する
+              </h2>
+            </div>
+          </div>
+
+          {/* 日本国内 - 8地方区分 */}
+          {regionOrder.map((region) => {
+            const regionLocations = locationsByRegion[region] || [];
+            if (regionLocations.length === 0) return null;
+
+            return (
+              <div key={region} className="scroll-mt-4">
+                {/* 地方区分セクションヘッダー - モダンでスタイリッシュ */}
+                <div className="mb-4 sm:mb-5 flex items-center gap-2 sm:gap-3">
+                  <div className="relative">
+                    <div className="w-0.5 sm:w-1 h-6 sm:h-7 bg-gradient-to-b from-emerald-500 via-teal-500 to-cyan-500 rounded-full"></div>
+                    <div className="absolute inset-0 w-0.5 sm:w-1 h-6 sm:h-7 bg-gradient-to-b from-emerald-500 via-teal-500 to-cyan-500 rounded-full blur-sm opacity-50"></div>
+                  </div>
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
+                    {region}
+                  </h2>
+                  <span className="text-xs text-gray-500 font-medium bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/50 px-2.5 py-1 rounded-full">
+                    {regionLocations.length}件
+                  </span>
+                </div>
+                
+                {/* コンパクトグリッド */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5 sm:gap-3 md:gap-4">
+                  {regionLocations.map((location) => (
+                    <LocationCardCompact key={location.id} location={location} />
+                  ))}
                 </div>
               </div>
+            );
+          })}
+
+          {/* 海外 - 国別 */}
+          {Object.entries(locationsByCountry).map(([country, countryLocations]) => (
+            <div key={country} className="scroll-mt-4">
+              {/* 国別セクションヘッダー - よりコンパクト */}
+              <div className="mb-4 sm:mb-5 flex items-center gap-2 sm:gap-3">
+                <div className="relative">
+                  <div className="w-0.5 sm:w-1 h-6 sm:h-7 bg-gradient-to-b from-blue-500 via-indigo-500 to-purple-500 rounded-full"></div>
+                  <div className="absolute inset-0 w-0.5 sm:w-1 h-6 sm:h-7 bg-gradient-to-b from-blue-500 via-indigo-500 to-purple-500 rounded-full blur-sm opacity-50"></div>
+                </div>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
+                  {country}
+                </h2>
+                <span className="text-xs text-gray-500 font-medium bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 px-2.5 py-1 rounded-full">
+                  {countryLocations.length}件
+                </span>
+              </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
+              {/* コンパクトグリッド */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5 sm:gap-3 md:gap-4">
                 {countryLocations.map((location) => (
-                  <LocationCard key={location.id} location={location} />
+                  <LocationCardCompact key={location.id} location={location} />
                 ))}
               </div>
             </div>
@@ -262,10 +476,10 @@ export default async function LocationPage() {
 
         {locations.length === 0 && (
           <div className="text-center py-12 sm:py-16 md:py-20 lg:py-24">
-            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-full bg-gray-100 mb-4 sm:mb-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 mb-4 sm:mb-6 shadow-inner">
               <MapPin className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-gray-400" />
             </div>
-            <p className="text-base sm:text-lg md:text-xl text-gray-500 font-light">ロケーション情報がありません</p>
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 font-light">ロケーション情報がありません</p>
           </div>
         )}
       </div>

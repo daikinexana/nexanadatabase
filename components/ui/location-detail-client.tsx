@@ -461,45 +461,251 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-8 sm:py-12 md:py-16">
-        {/* Top画像 - iPhone 16最適化 */}
-        {location.topImageUrl && (
-          <div className="relative w-full aspect-[16/9] sm:aspect-[16/6] mb-12 sm:mb-16 md:mb-20 lg:mb-24 rounded-2xl sm:rounded-3xl md:rounded-[32px] overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-900/20 to-transparent z-10"></div>
+      {/* トップ画像 - ワイド全幅、ヘッダーとのスペースなし */}
+      {location.topImageUrl && (
+        <div className="relative w-full aspect-[16/6] sm:aspect-[16/5] md:aspect-[16/4] overflow-hidden group">
+          {/* 背景画像 */}
+          <div className="absolute inset-0">
             <SimpleImage
               src={location.topImageUrl}
               alt={location.city}
               fill
               className="object-cover sm:group-hover:scale-105 transition-transform duration-[1000ms] ease-out"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
-            
-            {/* 装飾的な要素 - iPhone 16最適化 */}
-            <div className="absolute top-4 left-4 sm:top-8 sm:left-8 z-20">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-0.5 sm:w-1 h-8 sm:h-12 bg-gradient-to-b from-emerald-400 via-teal-400 to-cyan-400 rounded-full"></div>
-                <div className="px-3 py-1.5 sm:px-5 sm:py-2.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-                  <span className="text-[8px] sm:text-[10px] uppercase tracking-[0.25em] text-white font-bold">Location</span>
+          </div>
+          
+          {/* グラデーションオーバーレイ - おしゃれに */}
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-900/20 via-gray-900/5 to-transparent z-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10"></div>
+          
+          {/* コンテンツ - 中央配置でおしゃれに */}
+          <div className="relative z-20 h-full flex flex-col justify-end">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 pb-8 sm:pb-10 md:pb-12 lg:pb-16 w-full">
+              {/* バッジと国名 */}
+              <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-5">
+                <div className="relative">
+                  <div className="w-0.5 sm:w-1 h-6 sm:h-8 bg-gradient-to-b from-emerald-400 via-teal-400 to-cyan-400 rounded-full"></div>
+                  <div className="absolute inset-0 w-0.5 sm:w-1 h-6 sm:h-8 bg-gradient-to-b from-emerald-400 via-teal-400 to-cyan-400 rounded-full blur-sm opacity-50"></div>
+                </div>
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 via-teal-500/30 to-cyan-500/30 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative px-4 sm:px-5 py-2 sm:py-2.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg">
+                    <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.25em] text-white font-bold">Location</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-emerald-300 rounded-full animate-pulse"></div>
+                  <p className="text-sm sm:text-base text-white/90 font-medium">{location.country}</p>
                 </div>
               </div>
-            </div>
-            
-            <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 md:p-10 lg:p-16 z-20">
-              <div className="max-w-4xl">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white mb-3 sm:mb-4 leading-[0.95] tracking-tight" style={{
-                  textShadow: '0 4px 40px rgba(0,0,0,0.4), 0 2px 20px rgba(0,0,0,0.3)'
+              
+              {/* 都市名 */}
+              <div className="mb-3 sm:mb-4">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] tracking-tight mb-3 sm:mb-4" style={{
+                  textShadow: '0 2px 20px rgba(0,0,0,0.5), 0 1px 10px rgba(0,0,0,0.4)'
                 }}>
                   {location.city}
                 </h1>
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 font-light">{location.country}</p>
-                  <div className="h-[1px] w-12 sm:w-16 bg-gradient-to-r from-white/60 to-transparent"></div>
-                </div>
                 {location.description && (
-                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/80 mt-4 sm:mt-5 md:mt-6 font-light leading-relaxed max-w-2xl">
+                  <p className="text-sm sm:text-base md:text-lg text-white/90 font-light leading-relaxed max-w-2xl">
                     {location.description}
                   </p>
                 )}
+              </div>
+              
+              {/* 装飾的なライン */}
+              <div className="flex items-center gap-3 sm:gap-4 pt-2">
+                <div className="h-[1px] w-16 sm:w-24 bg-gradient-to-r from-emerald-300 via-teal-300 to-transparent"></div>
+                <div className="w-1.5 h-1.5 bg-emerald-300 rounded-full"></div>
+                <div className="h-[1px] flex-1 bg-gradient-to-r from-white/40 via-white/30 to-transparent"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-8 sm:py-12 md:py-16">
+        {/* ヘッダー - 画像なしの場合 */}
+        {!location.topImageUrl && (
+          <div className="relative mb-8 sm:mb-10 md:mb-12 overflow-hidden">
+            {/* 画像なしの場合 */}
+            <div className="relative">
+              {/* 背景装飾 */}
+              <div className="absolute inset-0 -z-10">
+                <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-emerald-100/30 via-teal-100/20 to-cyan-100/30 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-emerald-50/40 via-teal-50/30 to-cyan-50/40 rounded-full blur-3xl"></div>
+              </div>
+              
+              <div className="relative flex flex-col gap-5 sm:gap-6 md:gap-7">
+                {/* バッジと国名 - 洗練されたデザイン */}
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="relative">
+                    <div className="w-0.5 sm:w-1 h-8 sm:h-10 bg-gradient-to-b from-emerald-400 via-teal-400 to-cyan-400 rounded-full"></div>
+                    <div className="absolute inset-0 w-0.5 sm:w-1 h-8 sm:h-10 bg-gradient-to-b from-emerald-400 via-teal-400 to-cyan-400 rounded-full blur-sm opacity-50"></div>
+                  </div>
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-cyan-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative px-4 sm:px-5 py-2 sm:py-2.5 bg-white/80 backdrop-blur-md rounded-full border border-emerald-200/50 shadow-sm">
+                      <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.25em] text-emerald-700 font-bold">Location</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></div>
+                    <p className="text-sm sm:text-base text-gray-700 font-medium">{location.country}</p>
+                  </div>
+                </div>
+                
+                {/* 都市名 - 魅力的なタイポグラフィ */}
+                <div className="relative">
+                  <div className="absolute -left-4 sm:-left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-emerald-400 via-teal-400 to-cyan-400 rounded-full opacity-20"></div>
+                  <div className="pl-6 sm:pl-8">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-emerald-600 to-gray-900 leading-[1.1] tracking-tight mb-4 sm:mb-5 relative">
+                      <span className="relative z-10">{location.city}</span>
+                      <div className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 group-hover:w-full transition-all duration-700"></div>
+                    </h1>
+                    {location.description && (
+                      <div className="relative pl-4 sm:pl-6 border-l-2 border-emerald-200/50">
+                        <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed max-w-2xl">
+                          {location.description}
+                        </p>
+                        <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-emerald-400 via-teal-400 to-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* 装飾的なライン */}
+                <div className="flex items-center gap-3 sm:gap-4 pt-2">
+                  <div className="h-[1px] w-16 sm:w-24 bg-gradient-to-r from-emerald-400 via-teal-400 to-transparent"></div>
+                  <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>
+                  <div className="h-[1px] flex-1 bg-gradient-to-r from-emerald-200 via-teal-200 to-transparent"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* フィルタリングUI - ワークスペースタイトルと地図の間に配置（一時的にコメントアウト） */}
+        {false && location.workspaces && location.workspaces.length > 0 && (
+          <div className="mb-8 sm:mb-10 md:mb-12 space-y-6 sm:space-y-7 md:space-y-8 rounded-2xl sm:rounded-3xl md:rounded-[32px] border border-gray-200/50 bg-white/90 backdrop-blur-xl shadow-xl px-4 sm:px-5 md:px-6 lg:px-10 py-5 sm:py-6 md:py-8">
+            {/* カテゴリフィルタ */}
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2 sm:gap-3">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                  <span className="text-white text-[10px] sm:text-xs font-black">C</span>
+                </div>
+                <span className="text-xs sm:text-sm md:text-base">カテゴリで絞り込む（複数選択可）</span>
+              </h3>
+              <div className="flex flex-wrap gap-2 sm:gap-2.5 md:gap-3">
+                <button
+                  onClick={() => setSelectedCategories([])}
+                  className={`px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                    selectedCategories.length === 0
+                      ? "bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-lg shadow-emerald-200/50 border-transparent scale-105"
+                      : "bg-white text-gray-700 border-gray-300 hover:border-emerald-300 hover:text-emerald-700 sm:hover:scale-105"
+                  }`}
+                >
+                  すべて
+                </button>
+                {Object.entries(categoryMap).map(([key, { label }]) => {
+                  const isSelected = selectedCategories.includes(key as CategoryFilter);
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => toggleCategory(key as CategoryFilter)}
+                      className={`px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                        isSelected
+                          ? "bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white shadow-lg shadow-gray-400/30 border-transparent scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              {selectedCategories.length > 0 && (
+                <div className="mt-3 sm:mt-4 flex items-center gap-1.5 sm:gap-2">
+                  <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                  <p className="text-xs sm:text-sm text-gray-600 font-medium">
+                    {selectedCategories.length}個のカテゴリを選択中
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* その他のフィルタ - iPhone 16最適化 */}
+            <div className="flex flex-wrap gap-4 sm:gap-5 md:gap-6 pt-3 sm:pt-4 border-t border-gray-200">
+              <div>
+                <label className="text-xs sm:text-sm font-bold text-gray-900 mb-2 sm:mb-3 block">複数拠点</label>
+                <div className="flex gap-2 sm:gap-2.5">
+                  <button
+                    onClick={() => setFilterMultipleLocations(null)}
+                    className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                      filterMultipleLocations === null
+                        ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md scale-105"
+                        : "bg-white text-gray-700 border-gray-300 hover:border-emerald-300 hover:text-emerald-700 sm:hover:scale-105"
+                    }`}
+                  >
+                    すべて
+                  </button>
+                  <button
+                    onClick={() => setFilterMultipleLocations(true)}
+                    className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                      filterMultipleLocations === true
+                        ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
+                        : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
+                    }`}
+                  >
+                    あり
+                  </button>
+                  <button
+                    onClick={() => setFilterMultipleLocations(false)}
+                    className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                      filterMultipleLocations === false
+                        ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
+                        : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
+                    }`}
+                  >
+                    なし
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs sm:text-sm font-bold text-gray-900 mb-2 sm:mb-3 block">ドロップイン</label>
+                <div className="flex gap-2 sm:gap-2.5">
+                  <button
+                    onClick={() => setFilterDropin(null)}
+                    className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                      filterDropin === null
+                        ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md scale-105"
+                        : "bg-white text-gray-700 border-gray-300 hover:border-emerald-300 hover:text-emerald-700 sm:hover:scale-105"
+                    }`}
+                  >
+                    すべて
+                  </button>
+                  <button
+                    onClick={() => setFilterDropin(true)}
+                    className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                      filterDropin === true
+                        ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
+                        : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
+                    }`}
+                  >
+                    可
+                  </button>
+                  <button
+                    onClick={() => setFilterDropin(false)}
+                    className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                      filterDropin === false
+                        ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
+                        : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
+                    }`}
+                  >
+                    不可
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -582,7 +788,7 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
 
         {/* 地図（Google Map） - iPhone 16最適化 */}
         <section className="mb-16 sm:mb-20 md:mb-24 lg:mb-32 relative">
-          <div className="mb-8 sm:mb-10 md:mb-12 lg:mb-16">
+          <div className="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 sm:gap-8">
               <div className="space-y-3 sm:space-y-4">
                 <div className="inline-flex items-center gap-2 sm:gap-3">
@@ -600,6 +806,133 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
               </p>
             </div>
           </div>
+
+          {/* フィルタリングUI - ワークスペースタイトルと地図の間に配置（コンパクト版） */}
+          {location.workspaces && location.workspaces.length > 0 && (
+            <div className="mb-6 sm:mb-8 md:mb-10 space-y-4 sm:space-y-5 rounded-xl sm:rounded-2xl border border-gray-200/50 bg-white/90 backdrop-blur-xl shadow-xl px-4 sm:px-5 md:px-6 py-3 sm:py-4 md:py-5">
+              {/* カテゴリフィルタ */}
+              <div>
+                <h3 className="text-xs sm:text-sm font-bold text-gray-900 mb-2.5 sm:mb-3 flex items-center gap-2">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                    <span className="text-white text-[9px] sm:text-[10px] font-black">C</span>
+                  </div>
+                  <span className="text-xs sm:text-sm">カテゴリで絞り込む（複数選択可）</span>
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setSelectedCategories([])}
+                    className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                      selectedCategories.length === 0
+                        ? "bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-lg shadow-emerald-200/50 border-transparent scale-105"
+                        : "bg-white text-gray-700 border-gray-300 hover:border-emerald-300 hover:text-emerald-700 sm:hover:scale-105"
+                    }`}
+                  >
+                    すべて
+                  </button>
+                  {Object.entries(categoryMap).map(([key, { label }]) => {
+                    const isSelected = selectedCategories.includes(key as CategoryFilter);
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => toggleCategory(key as CategoryFilter)}
+                        className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                          isSelected
+                            ? "bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white shadow-lg shadow-gray-400/30 border-transparent scale-105"
+                            : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+                {selectedCategories.length > 0 && (
+                  <div className="mt-2 flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <p className="text-xs text-gray-600 font-medium">
+                      {selectedCategories.length}個のカテゴリを選択中
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* その他のフィルタ - コンパクト版 */}
+              <div className="flex flex-wrap gap-3 sm:gap-4 pt-3 border-t border-gray-200">
+                <div>
+                  <label className="text-xs font-bold text-gray-900 mb-1.5 sm:mb-2 block">複数拠点</label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setFilterMultipleLocations(null)}
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                        filterMultipleLocations === null
+                          ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-emerald-300 hover:text-emerald-700 sm:hover:scale-105"
+                      }`}
+                    >
+                      すべて
+                    </button>
+                    <button
+                      onClick={() => setFilterMultipleLocations(true)}
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                        filterMultipleLocations === true
+                          ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
+                      }`}
+                    >
+                      あり
+                    </button>
+                    <button
+                      onClick={() => setFilterMultipleLocations(false)}
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                        filterMultipleLocations === false
+                          ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
+                      }`}
+                    >
+                      なし
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-900 mb-1.5 sm:mb-2 block">ドロップイン</label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setFilterDropin(null)}
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                        filterDropin === null
+                          ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-emerald-300 hover:text-emerald-700 sm:hover:scale-105"
+                      }`}
+                    >
+                      すべて
+                    </button>
+                    <button
+                      onClick={() => setFilterDropin(true)}
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                        filterDropin === true
+                          ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
+                      }`}
+                    >
+                      可
+                    </button>
+                    <button
+                      onClick={() => setFilterDropin(false)}
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
+                        filterDropin === false
+                          ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
+                      }`}
+                    >
+                      不可
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="rounded-2xl sm:rounded-3xl md:rounded-[32px] overflow-hidden border border-gray-200/50 shadow-2xl bg-white">
             <WorkspaceMap 
               workspaces={filteredAndSortedWorkspaces} 
@@ -627,130 +960,6 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                 </div>
                 <div className="text-xs sm:text-sm text-gray-500 font-light">
                   <span className="font-semibold text-gray-900">{filteredAndSortedWorkspaces.length}</span>件のワークスペース
-                </div>
-              </div>
-            </div>
-
-            {/* フィルタリングUI - iPhone 16最適化 */}
-            <div className="mb-8 sm:mb-10 md:mb-12 space-y-6 sm:space-y-7 md:space-y-8 rounded-2xl sm:rounded-3xl md:rounded-[32px] border border-gray-200/50 bg-white/90 backdrop-blur-xl shadow-xl px-4 sm:px-5 md:px-6 lg:px-10 py-5 sm:py-6 md:py-8">
-              {/* カテゴリフィルタ */}
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2 sm:gap-3">
-                  <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
-                    <span className="text-white text-[10px] sm:text-xs font-black">C</span>
-                  </div>
-                  <span className="text-xs sm:text-sm md:text-base">カテゴリで絞り込む（複数選択可）</span>
-                </h3>
-                <div className="flex flex-wrap gap-2 sm:gap-2.5 md:gap-3">
-                  <button
-                    onClick={() => setSelectedCategories([])}
-                    className={`px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
-                      selectedCategories.length === 0
-                        ? "bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-lg shadow-emerald-200/50 border-transparent scale-105"
-                        : "bg-white text-gray-700 border-gray-300 hover:border-emerald-300 hover:text-emerald-700 sm:hover:scale-105"
-                    }`}
-                  >
-                    すべて
-                  </button>
-                  {Object.entries(categoryMap).map(([key, { label }]) => {
-                    const isSelected = selectedCategories.includes(key as CategoryFilter);
-                    return (
-                      <button
-                        key={key}
-                        onClick={() => toggleCategory(key as CategoryFilter)}
-                        className={`px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
-                          isSelected
-                            ? "bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white shadow-lg shadow-gray-400/30 border-transparent scale-105"
-                            : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-                {selectedCategories.length > 0 && (
-                  <div className="mt-3 sm:mt-4 flex items-center gap-1.5 sm:gap-2">
-                    <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <p className="text-xs sm:text-sm text-gray-600 font-medium">
-                      {selectedCategories.length}個のカテゴリを選択中
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* その他のフィルタ - iPhone 16最適化 */}
-              <div className="flex flex-wrap gap-4 sm:gap-5 md:gap-6 pt-3 sm:pt-4 border-t border-gray-200">
-                <div>
-                  <label className="text-xs sm:text-sm font-bold text-gray-900 mb-2 sm:mb-3 block">複数拠点</label>
-                  <div className="flex gap-2 sm:gap-2.5">
-                    <button
-                      onClick={() => setFilterMultipleLocations(null)}
-                      className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
-                        filterMultipleLocations === null
-                          ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md scale-105"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-emerald-300 hover:text-emerald-700 sm:hover:scale-105"
-                      }`}
-                    >
-                      すべて
-                    </button>
-                    <button
-                      onClick={() => setFilterMultipleLocations(true)}
-                      className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
-                        filterMultipleLocations === true
-                          ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
-                      }`}
-                    >
-                      あり
-                    </button>
-                    <button
-                      onClick={() => setFilterMultipleLocations(false)}
-                      className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
-                        filterMultipleLocations === false
-                          ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
-                      }`}
-                    >
-                      なし
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs sm:text-sm font-bold text-gray-900 mb-2 sm:mb-3 block">ドロップイン</label>
-                  <div className="flex gap-2 sm:gap-2.5">
-                    <button
-                      onClick={() => setFilterDropin(null)}
-                      className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
-                        filterDropin === null
-                          ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md scale-105"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-emerald-300 hover:text-emerald-700 sm:hover:scale-105"
-                      }`}
-                    >
-                      すべて
-                    </button>
-                    <button
-                      onClick={() => setFilterDropin(true)}
-                      className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
-                        filterDropin === true
-                          ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
-                      }`}
-                    >
-                      可
-                    </button>
-                    <button
-                      onClick={() => setFilterDropin(false)}
-                      className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
-                        filterDropin === false
-                          ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-gray-400 hover:text-gray-900 sm:hover:scale-105"
-                      }`}
-                    >
-                      不可
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
