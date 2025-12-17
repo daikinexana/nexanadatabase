@@ -30,6 +30,9 @@ interface Location {
   description?: string | null;
   topImageUrl?: string | null;
   isActive: boolean;
+  _count?: {
+    workspaces: number;
+  };
   workspaces: Array<{
     id: string;
     name: string;
@@ -64,12 +67,11 @@ async function getLocations(): Promise<Location[]> {
         description: true,
         topImageUrl: true,
         isActive: true,
-        workspaces: {
-          where: { isActive: true },
+        _count: {
           select: {
-            id: true,
-            name: true,
-            imageUrl: true,
+            workspaces: {
+              where: { isActive: true },
+            },
           },
         },
       },
@@ -80,7 +82,16 @@ async function getLocations(): Promise<Location[]> {
       ],
     });
 
-    return locations;
+    // _countをworkspaces配列に変換（後方互換性のため）
+    // LocationCardCompactコンポーネントはworkspaces.lengthのみ使用
+    return locations.map(location => ({
+      ...location,
+      workspaces: Array(location._count.workspaces).fill(null).map((_, i) => ({
+        id: `${location.id}-ws-${i}`,
+        name: '',
+        imageUrl: null,
+      })),
+    }));
   } catch (error) {
     console.error("Error fetching locations:", error);
     return [];
@@ -89,10 +100,40 @@ async function getLocations(): Promise<Location[]> {
 
 async function getTopWorkspaces(): Promise<TopWorkspace[]> {
   try {
-    // すべてのアクティブなワークスペースを取得
+    // いいね数が多い順にワークスペースIDを取得（集約クエリで効率化）
+    const topWorkspaceIds = await prisma.workspaceLike.groupBy({
+      by: ['workspaceId'],
+      _count: {
+        workspaceId: true,
+      },
+      orderBy: {
+        _count: {
+          workspaceId: 'desc',
+        },
+      },
+      take: 10,
+    });
+
+    // 取得したIDのリストを作成
+    const workspaceIds = topWorkspaceIds.map(item => item.workspaceId);
+    
+    // いいね数が0件の場合は空配列を返す
+    if (workspaceIds.length === 0) {
+      return [];
+    }
+    
+    // いいね数のマップを作成（後でソートに使用）
+    const likeCountMap = new Map(
+      topWorkspaceIds.map(item => [item.workspaceId, item._count.workspaceId])
+    );
+
+    // ワークスペース情報を一括取得
     const workspaces = await prisma.workspace.findMany({
       where: {
         isActive: true,
+        id: {
+          in: workspaceIds,
+        },
       },
       select: {
         id: true,
@@ -109,23 +150,25 @@ async function getTopWorkspaces(): Promise<TopWorkspace[]> {
       },
     });
 
-    // 各ワークスペースのいいね数を取得（並列処理で効率化）
-    const workspacesWithLikes = await Promise.all(
-      workspaces.map(async (workspace) => {
-        const likeCount = await prisma.workspaceLike.count({
-          where: { workspaceId: workspace.id },
-        });
-        return {
-          ...workspace,
-          likeCount,
-        };
+    // いいね数でソート（IDの順序を保持）
+    const workspacesWithLikes = workspaces
+      .map(workspace => ({
+        ...workspace,
+        likeCount: likeCountMap.get(workspace.id) || 0,
+      }))
+      .sort((a, b) => {
+        // まずいいね数でソート
+        if (b.likeCount !== a.likeCount) {
+          return b.likeCount - a.likeCount;
+        }
+        // いいね数が同じ場合は元の順序を保持
+        const aIndex = workspaceIds.indexOf(a.id);
+        const bIndex = workspaceIds.indexOf(b.id);
+        return aIndex - bIndex;
       })
-    );
-
-    // いいね数でソートしてtop 10を返す
-    return workspacesWithLikes
-      .sort((a, b) => b.likeCount - a.likeCount)
       .slice(0, 10);
+
+    return workspacesWithLikes;
   } catch (error) {
     console.error("Error fetching top workspaces:", error);
     return [];
@@ -134,13 +177,15 @@ async function getTopWorkspaces(): Promise<TopWorkspace[]> {
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
+export const revalidate = 3600; // 1時間キャッシュ
 export const preferredRegion = 'auto';
 
 export default async function LocationPage() {
-  const locations = await getLocations();
-  const topWorkspaces = await getTopWorkspaces();
+  // 並列処理でデータ取得を最適化
+  const [locations, topWorkspaces] = await Promise.all([
+    getLocations(),
+    getTopWorkspaces(),
+  ]);
 
   // 8地方区分の定義
   const regionOrder = [

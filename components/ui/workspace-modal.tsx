@@ -97,6 +97,16 @@ type WorkspaceData = {
   nearbySpot3Title?: string | null;
   nearbySpot3Desc?: string | null;
   nearbySpot3Image?: string | null;
+  facilityFeatureOneLine?: string | null;
+  categoryWork: boolean;
+  categoryConnect: boolean;
+  categoryPrototype: boolean;
+  categoryPilot: boolean;
+  categoryTest: boolean;
+  categorySupport: boolean;
+  categoryShowcase: boolean;
+  categoryLearn: boolean;
+  categoryStay: boolean;
 };
 
 interface WorkspaceModalProps {
@@ -433,7 +443,162 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
                     {copySuccess ? 'コピーしました！' : 'URLをコピー'}
                   </button>
                 </div>
+                
+                {/* スマホ版: カテゴリバッジと一言セクション */}
+                {(workspace.facilityFeatureOneLine || workspace.categoryWork || workspace.categoryConnect || workspace.categoryPrototype || workspace.categoryPilot || workspace.categoryTest || workspace.categorySupport || workspace.categoryShowcase || workspace.categoryLearn || workspace.categoryStay) && (
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-6">
+                    {/* 施設特徴一言 */}
+                    {workspace.facilityFeatureOneLine && (
+                      <div className="mb-4">
+                        <p className="text-sm text-gray-600 leading-relaxed font-light italic" style={{
+                          letterSpacing: '0.01em',
+                          lineHeight: '1.6'
+                        }}>
+                          &ldquo;{workspace.facilityFeatureOneLine}&rdquo;
+                        </p>
+                      </div>
+                    )}
+
+                    {/* カテゴリバッジ */}
+                    {(workspace.categoryWork || workspace.categoryConnect || workspace.categoryPrototype || workspace.categoryPilot || workspace.categoryTest || workspace.categorySupport || workspace.categoryShowcase || workspace.categoryLearn || workspace.categoryStay) && (
+                      <div className="flex flex-wrap gap-2">
+                        {workspace.categoryWork && (
+                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            執務
+                          </span>
+                        )}
+                        {workspace.categoryConnect && (
+                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            交流
+                          </span>
+                        )}
+                        {workspace.categoryPrototype && (
+                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            試作
+                          </span>
+                        )}
+                        {workspace.categoryPilot && (
+                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            実証
+                          </span>
+                        )}
+                        {workspace.categoryTest && (
+                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            試験
+                          </span>
+                        )}
+                        {workspace.categorySupport && (
+                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            支援
+                          </span>
+                        )}
+                        {workspace.categoryShowcase && (
+                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            発表
+                          </span>
+                        )}
+                        {workspace.categoryLearn && (
+                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            学ぶ
+                          </span>
+                        )}
+                        {workspace.categoryStay && (
+                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            滞在
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
+              
+              {/* PC版: カテゴリバッジと一言セクション */}
+              {(workspace.facilityFeatureOneLine || workspace.categoryWork || workspace.categoryConnect || workspace.categoryPrototype || workspace.categoryPilot || workspace.categoryTest || workspace.categorySupport || workspace.categoryShowcase || workspace.categoryLearn || workspace.categoryStay) && (
+                <div className="hidden lg:block bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
+                  {/* 施設特徴一言 */}
+                  {workspace.facilityFeatureOneLine && (
+                    <div className="mb-4 lg:mb-6">
+                      <p className="text-sm lg:text-base text-gray-600 leading-relaxed font-light italic" style={{
+                        letterSpacing: '0.01em',
+                        lineHeight: '1.6'
+                      }}>
+                        &ldquo;{workspace.facilityFeatureOneLine}&rdquo;
+                      </p>
+                    </div>
+                  )}
+
+                  {/* カテゴリバッジ */}
+                  {(workspace.categoryWork || workspace.categoryConnect || workspace.categoryPrototype || workspace.categoryPilot || workspace.categoryTest || workspace.categorySupport || workspace.categoryShowcase || workspace.categoryLearn || workspace.categoryStay) && (
+                    <div className="flex flex-wrap gap-2">
+                      {workspace.categoryWork && (
+                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                          執務
+                        </span>
+                      )}
+                      {workspace.categoryConnect && (
+                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                          交流
+                        </span>
+                      )}
+                      {workspace.categoryPrototype && (
+                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                          試作
+                        </span>
+                      )}
+                      {workspace.categoryPilot && (
+                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                          実証
+                        </span>
+                      )}
+                      {workspace.categoryTest && (
+                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                          試験
+                        </span>
+                      )}
+                      {workspace.categorySupport && (
+                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                          支援
+                        </span>
+                      )}
+                      {workspace.categoryShowcase && (
+                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                          発表
+                        </span>
+                      )}
+                      {workspace.categoryLearn && (
+                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                          学ぶ
+                        </span>
+                      )}
+                      {workspace.categoryStay && (
+                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
+                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                          滞在
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* 基本情報カード - モダンで洗練されたモノクロ調 */}
               <div className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
                 <h3 className="text-lg font-bold text-gray-900 mb-4 lg:mb-6 flex items-center">

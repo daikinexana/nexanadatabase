@@ -60,25 +60,37 @@ async function getNews(page: number = 1, limit: number = 50): Promise<NewsRespon
     const { prisma } = await import("@/lib/prisma");
     
     const skip = (page - 1) * limit;
+    const where = { isActive: true };
     
-    // 総件数を取得
-    const totalCount = await prisma.news.count({
-      where: {
-        isActive: true,
-      },
-    });
-
-    // ページネーション付きでニュースを取得
-    const news = await prisma.news.findMany({
-      where: {
-        isActive: true,
-      },
-      orderBy: {
-        publishedAt: "desc",
-      },
-      skip,
-      take: limit,
-    });
+    // 総件数とデータを並列取得で最適化
+    const [totalCount, news] = await Promise.all([
+      prisma.news.count({ where }),
+      prisma.news.findMany({
+        where,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          imageUrl: true,
+          company: true,
+          sector: true,
+          amount: true,
+          investors: true,
+          publishedAt: true,
+          sourceUrl: true,
+          type: true,
+          area: true,
+          isActive: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        orderBy: {
+          publishedAt: "desc",
+        },
+        skip,
+        take: limit,
+      }),
+    ]);
 
     // 投資家を配列に変換
     const newsWithArrayInvestors = news.map(newsItem => ({
@@ -119,8 +131,7 @@ async function getNews(page: number = 1, limit: number = 50): Promise<NewsRespon
 // 動的レンダリングに変更して最新データを常に取得（削除されたデータを即座に反映）
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-export const revalidate = 0; // キャッシュを無効化
-export const fetchCache = 'force-no-store'; // キャッシュを保存しない
+export const revalidate = 300; // 5分キャッシュ（ニュースは更新頻度が高いため短めに設定）
 export const preferredRegion = 'auto';
 
 export default async function NewsPage({
@@ -143,13 +154,8 @@ export default async function NewsPage({
     hasPrev: false,
   };
 
-  // フィルタリング処理（API側で既にフィルタリングされているため、ここではソートのみ）
-  const filteredNews = Array.isArray(news) ? news.sort((a, b) => {
-    // 公開日時の降順（新しい順）
-    const aDate = a.publishedAt ? new Date(a.publishedAt).getTime() : new Date(a.createdAt).getTime();
-    const bDate = b.publishedAt ? new Date(b.publishedAt).getTime() : new Date(b.createdAt).getTime();
-    return bDate - aDate;
-  }) : [];
+  // データベース側で既にpublishedAt: "desc"でソート済みのため、追加のソートは不要
+  const filteredNews = Array.isArray(news) ? news : [];
 
   return (
     <div className="min-h-screen bg-gray-50">
