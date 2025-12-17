@@ -155,10 +155,10 @@ export default async function NewsPage({
     <div className="min-h-screen bg-gray-50">
       <ClientHeader />
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 py-12 md:py-16">
-        {/* ヒーローセクション - /locationページと同じスタイル */}
-        <div className="mb-20 md:mb-24">
-          <div className="relative overflow-hidden rounded-[32px] aspect-[16/6] flex items-center group">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-8 sm:py-12 md:py-16">
+        {/* ヒーローセクション - iPhone 16最適化 */}
+        <div className="mb-12 sm:mb-16 md:mb-20 lg:mb-24">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-[32px] aspect-[16/9] sm:aspect-[16/6] flex items-center group">
             {/* 背景画像 */}
             <div 
               className="absolute inset-0 bg-cover bg-center bg-no-repeat group-hover:scale-105 transition-transform duration-[1000ms] ease-out"
@@ -170,35 +170,35 @@ export default async function NewsPage({
             <div className="absolute inset-0 bg-gradient-to-br from-gray-900/20 to-transparent z-10"></div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
             
-            {/* 装飾的な要素 */}
-            <div className="absolute top-8 left-8 z-20">
-              <div className="flex items-center gap-3">
-                <div className="w-1 h-12 bg-gradient-to-b from-emerald-400 via-teal-400 to-cyan-400 rounded-full"></div>
-                <div className="px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-                  <div className="flex items-center gap-2">
-                    <Newspaper className="w-3 h-3 text-white" />
-                    <span className="text-[10px] uppercase tracking-[0.25em] text-white font-bold">News</span>
+            {/* 装飾的な要素 - iPhone 16最適化 */}
+            <div className="absolute top-4 left-4 sm:top-8 sm:left-8 z-20">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-0.5 sm:w-1 h-8 sm:h-12 bg-gradient-to-b from-emerald-400 via-teal-400 to-cyan-400 rounded-full"></div>
+                <div className="px-3 py-1.5 sm:px-5 sm:py-2.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Newspaper className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
+                    <span className="text-[8px] sm:text-[10px] uppercase tracking-[0.25em] text-white font-bold">News</span>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div className="relative px-8 md:px-16 py-16 md:py-20 text-left max-w-5xl z-20">
-              <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-[0.95] tracking-tight" style={{
+            <div className="relative px-4 sm:px-8 md:px-16 py-10 sm:py-16 md:py-20 text-left max-w-5xl z-20">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white mb-4 sm:mb-6 leading-[0.95] tracking-tight" style={{
                 textShadow: '0 4px 40px rgba(0,0,0,0.4), 0 2px 20px rgba(0,0,0,0.3)'
               }}>
                 News
               </h1>
-              <div className="flex items-center gap-4 mb-6">
-                <p className="text-xl md:text-2xl text-white/90 font-light">ニュース一覧</p>
-                <div className="h-[1px] w-16 bg-gradient-to-r from-white/60 to-transparent"></div>
+              <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 font-light">ニュース一覧</p>
+                <div className="h-[1px] w-12 sm:w-16 bg-gradient-to-r from-white/60 to-transparent"></div>
               </div>
               
-              <div className="max-w-3xl space-y-3">
-                <p className="text-lg md:text-xl text-white/90 leading-relaxed font-light">
+              <div className="max-w-3xl space-y-2 sm:space-y-3">
+                <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 leading-relaxed font-light">
                   スタートアップの調達、M&A、IPO情報をリアルタイムで配信
                 </p>
-                <p className="text-base md:text-lg text-white/70 font-light">
+                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-white/70 font-light">
                   Real-time startup funding, M&A, and IPO news delivery
                 </p>
               </div>
@@ -206,42 +206,42 @@ export default async function NewsPage({
           </div>
         </div>
 
-        {/* 検索・フィルター - iPhone 16専用プレミアムデザイン */}
-        <div className="mb-8 sm:mb-10">
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row gap-4">
+        {/* 検索・フィルター - iPhone 16最適化 */}
+        <div className="mb-6 sm:mb-8 md:mb-10">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-white/20 p-3 sm:p-4 md:p-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
                   <input
                     type="text"
                     placeholder="企業名、セクター、金額、投資家、全国、東京都、大阪府、兵庫県、大分県、中国などで検索..."
-                    className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 border border-gray-200/50 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500 bg-white/50 backdrop-blur-sm text-sm sm:text-base"
+                    className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-3.5 md:py-4 border border-gray-200/50 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500 bg-white/50 backdrop-blur-sm text-sm sm:text-base min-h-[44px]"
                     disabled
                   />
                 </div>
               </div>
               <button
-                className="inline-flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 border border-gray-200/50 rounded-xl text-sm sm:text-base font-news-subheading text-gray-700 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300 shadow-sm"
+                className="inline-flex items-center justify-center px-4 sm:px-5 md:px-6 py-3 sm:py-3.5 md:py-4 border border-gray-200/50 rounded-lg sm:rounded-xl text-sm sm:text-base font-news-subheading text-gray-700 bg-white/50 backdrop-blur-sm hover:bg-white/70 active:bg-white/80 transition-all duration-300 shadow-sm min-h-[44px] min-w-[100px] sm:min-w-[120px]"
                 disabled
               >
                 <FilterIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 フィルター
               </button>
             </div>
-            <p className="text-xs sm:text-sm text-gray-500 mt-3 text-center">
+            <p className="text-xs sm:text-sm text-gray-500 mt-2 sm:mt-3 text-center">
               ※ 検索・フィルター機能は現在開発中です
             </p>
           </div>
         </div>
 
-        {/* 結果表示 - iPhone 16専用プレミアムデザイン */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white/90 backdrop-blur-sm rounded-xl p-4 sm:p-5 shadow-lg border border-white/20 gap-2 sm:gap-0">
-            <p className="text-sm sm:text-base text-gray-600 font-news">
-              <span className="font-news-subheading text-gray-900 text-lg sm:text-xl">{pagination.totalCount.toLocaleString()}</span>件のニュースが見つかりました
+        {/* 結果表示 - iPhone 16最適化 */}
+        <div className="mb-5 sm:mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5 shadow-lg border border-white/20 gap-2 sm:gap-0">
+            <p className="text-xs sm:text-sm md:text-base text-gray-600 font-news leading-relaxed">
+              <span className="font-news-subheading text-gray-900 text-base sm:text-lg md:text-xl">{pagination.totalCount.toLocaleString()}</span>件のニュースが見つかりました
             </p>
-            <div className="text-xs sm:text-sm text-gray-500 bg-gray-50/50 px-3 py-1 rounded-full">
+            <div className="text-xs sm:text-sm text-gray-500 bg-gray-50/50 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full">
               最新のニュースを表示
             </div>
           </div>
@@ -250,7 +250,7 @@ export default async function NewsPage({
         {/* ニュース一覧 - iPhone 16最適化 */}
         {filteredNews.length > 0 ? (
           <>
-            <div className="space-y-6 sm:space-y-8">
+            <div className="space-y-4 sm:space-y-6 md:space-y-8">
               {filteredNews.map((item) => (
                  <NewsItem
                    key={item.id}
@@ -271,7 +271,7 @@ export default async function NewsPage({
             </div>
 
             {/* ページネーション */}
-            <div className="mt-8 sm:mt-12">
+            <div className="mt-6 sm:mt-8 md:mt-12">
               <NewsPagination
                 currentPage={pagination.page}
                 totalPages={pagination.totalPages}
@@ -281,15 +281,15 @@ export default async function NewsPage({
             </div>
           </>
         ) : (
-          <div className="text-center py-12">
-            <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-200 max-w-md mx-auto">
+          <div className="text-center py-8 sm:py-12">
+            <div className="bg-white rounded-xl p-6 sm:p-8 shadow-sm border border-gray-200 max-w-md mx-auto">
               <div className="text-gray-400 mb-4">
-                <Newspaper className="h-12 w-12 mx-auto" />
+                <Newspaper className="h-10 w-10 sm:h-12 sm:w-12 mx-auto" />
               </div>
-              <h3 className="text-lg font-news-heading text-gray-900 mb-2">
+              <h3 className="text-base sm:text-lg font-news-heading text-gray-900 mb-2">
                 該当するニュースが見つかりませんでした
               </h3>
-              <p className="text-gray-600 font-news">
+              <p className="text-sm sm:text-base text-gray-600 font-news">
                 検索条件を変更して再度お試しください
               </p>
             </div>

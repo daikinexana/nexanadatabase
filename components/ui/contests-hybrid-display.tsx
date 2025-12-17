@@ -75,21 +75,21 @@ export default function ContestsHybridDisplay({
 
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 sm:space-y-10 md:space-y-12">
       {/* 日本国内のエリア */}
       {Object.entries(japanGrouped).map(([area, areaContests]) => (
         <div key={area}>
-          <div className="mb-8">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-bold">C</span>
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-black rounded-full flex items-center justify-center">
+                <span className="text-white text-[10px] sm:text-xs md:text-sm font-bold">C</span>
               </div>
-              <h2 className="text-3xl font-bold text-gray-900">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
                 {area}
               </h2>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
             {areaContests.map((contest) => (
               <Card
                 key={contest.id}
@@ -118,17 +118,17 @@ export default function ContestsHybridDisplay({
       {/* 海外のエリア */}
       {Object.entries(overseasGrouped).map(([area, areaContests]) => (
         <div key={area}>
-          <div className="mb-8">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-bold">C</span>
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-black rounded-full flex items-center justify-center">
+                <span className="text-white text-[10px] sm:text-xs md:text-sm font-bold">C</span>
               </div>
-              <h2 className="text-3xl font-bold text-gray-900">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
                 {area}
               </h2>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
             {areaContests.map((contest) => (
               <Card
                 key={contest.id}

@@ -79,3 +79,23 @@ img[alt]:after {
 img[src*="data:image/svg+xml"] {
   display: none !important;
 }
+
+/* iPhone 16向けタッチ最適化 */
+@media (max-width: 640px) {
+  /* タッチターゲットの最小サイズを確保 */
+  button, a, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* タッチ操作の最適化 */
+  * {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    touch-action: manipulation;
+  }
+  
+  /* スクロールの滑らかさを向上 */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+}

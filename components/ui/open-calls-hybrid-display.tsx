@@ -66,17 +66,17 @@ export default function OpenCallsHybridDisplay({
       {/* 日本国内の公募 */}
       {japanGroups.map(({ area, openCalls }) => (
         <div key={area}>
-          <div className="mb-8">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-bold">O</span>
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-black rounded-full flex items-center justify-center">
+                <span className="text-white text-[10px] sm:text-xs md:text-sm font-bold">O</span>
               </div>
-              <h2 className="text-3xl font-bold text-gray-900">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
                 {area}
               </h2>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
             {openCalls.map((openCall) => (
               <Card
                 key={openCall.id}
@@ -103,12 +103,12 @@ export default function OpenCallsHybridDisplay({
 
       {/* 海外の公募表示ボタン */}
       {overseasGroups.length > 0 && !showOverseas && (
-        <div className="text-center py-8">
+        <div className="text-center py-6 sm:py-8">
           <button
             onClick={() => setShowOverseas(true)}
-            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-blue-600 text-white font-news-subheading rounded-lg hover:from-green-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            className="inline-flex items-center px-4 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-r from-green-500 to-blue-600 text-white font-news-subheading rounded-lg hover:from-green-600 hover:to-blue-700 active:from-green-700 active:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95 text-sm sm:text-base min-h-[44px] touch-manipulation"
           >
-            <Handshake className="w-5 h-5 mr-2" />
+            <Handshake className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
             海外の公募を見る ({overseasOpenCalls.length}件)
           </button>
         </div>
@@ -117,17 +117,17 @@ export default function OpenCallsHybridDisplay({
       {/* 海外の公募 */}
       {showOverseas && overseasGroups.map(({ area, openCalls }) => (
         <div key={area}>
-          <div className="mb-8">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-bold">O</span>
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-black rounded-full flex items-center justify-center">
+                <span className="text-white text-[10px] sm:text-xs md:text-sm font-bold">O</span>
               </div>
-              <h2 className="text-3xl font-bold text-gray-900">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
                 {area}
               </h2>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
             {openCalls.map((openCall) => (
               <Card
                 key={openCall.id}
@@ -162,17 +162,17 @@ export default function OpenCallsHybridDisplay({
 
         return (
           <div>
-            <div className="mb-8">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">O</span>
+            <div className="mb-6 sm:mb-8">
+              <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-black rounded-full flex items-center justify-center">
+                  <span className="text-white text-[10px] sm:text-xs md:text-sm font-bold">O</span>
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
                   その他
                 </h2>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
               {unassignedOpenCalls.map((openCall) => (
                 <Card
                   key={openCall.id}

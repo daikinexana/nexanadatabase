@@ -192,10 +192,10 @@ export default async function OpenCallsPage({
     <div className="min-h-screen bg-white">
       <ClientHeader />
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 xl:px-16 py-12 md:py-16">
-        {/* ヒーローセクション - /locationページと同じスタイル */}
-        <div className="mb-20 md:mb-24">
-          <div className="relative overflow-hidden rounded-[32px] aspect-[16/6] flex items-center group">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-8 sm:py-12 md:py-16">
+        {/* ヒーローセクション - iPhone 16最適化 */}
+        <div className="mb-12 sm:mb-16 md:mb-20 lg:mb-24">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-[32px] aspect-[16/9] sm:aspect-[16/6] flex items-center group">
             {/* 背景画像 */}
             <div 
               className="absolute inset-0 bg-cover bg-center bg-no-repeat group-hover:scale-105 transition-transform duration-[1000ms] ease-out"
@@ -207,35 +207,35 @@ export default async function OpenCallsPage({
             <div className="absolute inset-0 bg-gradient-to-br from-gray-900/20 to-transparent z-10"></div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
             
-            {/* 装飾的な要素 */}
-            <div className="absolute top-8 left-8 z-20">
-              <div className="flex items-center gap-3">
-                <div className="w-1 h-12 bg-gradient-to-b from-purple-400 via-violet-400 to-indigo-400 rounded-full"></div>
-                <div className="px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-                  <div className="flex items-center gap-2">
-                    <Handshake className="w-3 h-3 text-white" />
-                    <span className="text-[10px] uppercase tracking-[0.25em] text-white font-bold">Open Calls</span>
+            {/* 装飾的な要素 - iPhone 16最適化 */}
+            <div className="absolute top-4 left-4 sm:top-8 sm:left-8 z-20">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-0.5 sm:w-1 h-8 sm:h-12 bg-gradient-to-b from-purple-400 via-violet-400 to-indigo-400 rounded-full"></div>
+                <div className="px-3 py-1.5 sm:px-5 sm:py-2.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Handshake className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
+                    <span className="text-[8px] sm:text-[10px] uppercase tracking-[0.25em] text-white font-bold">Open Calls</span>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div className="relative px-8 md:px-16 py-16 md:py-20 text-left max-w-5xl z-20">
-              <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-[0.95] tracking-tight" style={{
+            <div className="relative px-4 sm:px-8 md:px-16 py-10 sm:py-16 md:py-20 text-left max-w-5xl z-20">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white mb-4 sm:mb-6 leading-[0.95] tracking-tight" style={{
                 textShadow: '0 4px 40px rgba(0,0,0,0.4), 0 2px 20px rgba(0,0,0,0.3)'
               }}>
                 Open Calls
               </h1>
-              <div className="flex items-center gap-4 mb-6">
-                <p className="text-xl md:text-2xl text-white/90 font-light">公募一覧</p>
-                <div className="h-[1px] w-16 bg-gradient-to-r from-white/60 to-transparent"></div>
+              <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 font-light">公募一覧</p>
+                <div className="h-[1px] w-12 sm:w-16 bg-gradient-to-r from-white/60 to-transparent"></div>
               </div>
               
-              <div className="max-w-3xl space-y-3">
-                <p className="text-lg md:text-xl text-white/90 leading-relaxed font-light">
+              <div className="max-w-3xl space-y-2 sm:space-y-3">
+                <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 leading-relaxed font-light">
                   企業や行政、大学が募集する協業、アクセラの公募情報を掲載
                 </p>
-                <p className="text-base md:text-lg text-white/70 font-light">
+                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-white/70 font-light">
                   Open calls for partnership and collaboration opportunities
                 </p>
               </div>
