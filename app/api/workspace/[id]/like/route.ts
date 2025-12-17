@@ -1,21 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// ユーザー識別子を取得する関数（IPアドレスとUser-Agentの組み合わせ）
-function getUserIdentifier(request: NextRequest): string {
+// ユーザー識別子を取得する関数（より厳密な識別）
+function getUserIdentifier(request: NextRequest, workspaceId: string): string {
+  // 1. Cookieから取得（最優先）
+  const cookieId = request.cookies.get('nexana_user_id')?.value;
+  if (cookieId && cookieId.startsWith('user_')) {
+    return cookieId;
+  }
+  
+  // 2. リクエストヘッダーから取得（localStorage経由）
+  const clientId = request.headers.get("x-client-id");
+  if (clientId && clientId.startsWith('user_')) {
+    return clientId;
+  }
+  
+  // 3. IPアドレスとUser-Agentの組み合わせ（フォールバック）
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || 
              request.headers.get("x-real-ip") || 
              "unknown";
   const userAgent = request.headers.get("user-agent") || "unknown";
-  // localStorageのユニークIDがリクエストヘッダーに含まれている場合はそれを使用
-  const clientId = request.headers.get("x-client-id");
   
-  if (clientId) {
-    return clientId;
-  }
+  // IPアドレスベースの識別子を生成（同じIP+User-Agent+ワークスペースIDの組み合わせで制限）
+  // これにより、同じIPからでも異なるワークスペースには別々にいいねできるが、
+  // 同じワークスペースには1回のみ
+  const ipBasedId = `ip_${ip}_${userAgent.substring(0, 50)}_${workspaceId}`.substring(0, 150);
   
-  // フォールバック: IP + User-Agentのハッシュ
-  return `${ip}-${userAgent}`.substring(0, 100); // 長さ制限
+  return ipBasedId;
 }
 
 export async function GET(
@@ -24,7 +35,7 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params;
-    const userIdentifier = getUserIdentifier(request);
+    const userIdentifier = getUserIdentifier(request, resolvedParams.id);
 
     // いいね数を取得
     const likeCount = await prisma.workspaceLike.count({
@@ -60,8 +71,12 @@ export async function POST(
 ) {
   try {
     const resolvedParams = await params;
-    const userIdentifier = getUserIdentifier(request);
+    const userIdentifier = getUserIdentifier(request, resolvedParams.id);
 
+    // CookieにユーザーIDが設定されていない場合は、レスポンスでCookieを設定
+    const cookieId = request.cookies.get('nexana_user_id')?.value;
+    const clientId = request.headers.get("x-client-id");
+    
     // 既存のいいねをチェック
     const existingLike = await prisma.workspaceLike.findUnique({
       where: {
@@ -71,6 +86,23 @@ export async function POST(
         },
       },
     });
+
+    // レスポンスを作成（Cookie設定用）
+    const createResponse = (data: { success: boolean; isLiked: boolean; likeCount: number }) => {
+      const response = NextResponse.json(data);
+      
+      // CookieとlocalStorageのIDを同期（クライアントIDがある場合）
+      if (clientId && clientId.startsWith('user_') && cookieId !== clientId) {
+        response.cookies.set('nexana_user_id', clientId, {
+          maxAge: 365 * 24 * 60 * 60, // 1年間
+          path: '/',
+          sameSite: 'lax',
+          httpOnly: false, // クライアント側からも読み取り可能
+        });
+      }
+      
+      return response;
+    };
 
     if (existingLike) {
       // 既にいいねしている場合は削除（トグル）
@@ -84,25 +116,55 @@ export async function POST(
         where: { workspaceId: resolvedParams.id },
       });
 
-      return NextResponse.json({
+      return createResponse({
         success: true,
         isLiked: false,
         likeCount,
       });
     } else {
-      // いいねを追加
-      await prisma.workspaceLike.create({
-        data: {
-          workspaceId: resolvedParams.id,
-          userIdentifier: userIdentifier,
-        },
-      });
+      // いいねを追加（ユニーク制約で1人1回を保証）
+      try {
+        await prisma.workspaceLike.create({
+          data: {
+            workspaceId: resolvedParams.id,
+            userIdentifier: userIdentifier,
+          },
+        });
+      } catch (createError: unknown) {
+        // ユニーク制約エラー（既にいいねが存在する場合）を無視
+        // これは同時リクエストなどで発生する可能性がある
+        if (createError && typeof createError === 'object' && 'code' in createError && createError.code === 'P2002') {
+          // 既にいいねが存在する場合は、既存のいいねを取得
+          const existingLike = await prisma.workspaceLike.findUnique({
+            where: {
+              workspaceId_userIdentifier: {
+                workspaceId: resolvedParams.id,
+                userIdentifier: userIdentifier,
+              },
+            },
+          });
+          
+          if (existingLike) {
+            // 既にいいねが存在する場合は、そのまま返す
+            const likeCount = await prisma.workspaceLike.count({
+              where: { workspaceId: resolvedParams.id },
+            });
+            
+            return createResponse({
+              success: true,
+              isLiked: true,
+              likeCount,
+            });
+          }
+        }
+        throw createError;
+      }
 
       const likeCount = await prisma.workspaceLike.count({
         where: { workspaceId: resolvedParams.id },
       });
 
-      return NextResponse.json({
+      return createResponse({
         success: true,
         isLiked: true,
         likeCount,

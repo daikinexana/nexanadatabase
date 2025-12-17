@@ -5,6 +5,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import SimpleImage from "@/components/ui/simple-image";
 import LocationCardCompact from "@/components/ui/location-card-compact";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "ロケーション一覧 | Nexana Database",
@@ -51,9 +52,6 @@ interface TopWorkspace {
 
 async function getLocations(): Promise<Location[]> {
   try {
-    // サーバーサイドでは直接Prismaを使用する方が確実
-    const { prisma } = await import("@/lib/prisma");
-    
     const locations = await prisma.location.findMany({
       where: {
         isActive: true,
@@ -91,9 +89,7 @@ async function getLocations(): Promise<Location[]> {
 
 async function getTopWorkspaces(): Promise<TopWorkspace[]> {
   try {
-    const { prisma } = await import("@/lib/prisma");
-    
-    // いいね数が多い順にワークスペースを取得
+    // すべてのアクティブなワークスペースを取得
     const workspaces = await prisma.workspace.findMany({
       where: {
         isActive: true,
@@ -111,10 +107,9 @@ async function getTopWorkspaces(): Promise<TopWorkspace[]> {
           },
         },
       },
-      take: 50, // まず50件取得してからいいね数でソート
     });
 
-    // 各ワークスペースのいいね数を取得
+    // 各ワークスペースのいいね数を取得（並列処理で効率化）
     const workspacesWithLikes = await Promise.all(
       workspaces.map(async (workspace) => {
         const likeCount = await prisma.workspaceLike.count({
@@ -137,10 +132,10 @@ async function getTopWorkspaces(): Promise<TopWorkspace[]> {
   }
 }
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-export const revalidate = 3600;
-export const fetchCache = 'force-cache';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 export const preferredRegion = 'auto';
 
 export default async function LocationPage() {
