@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Noto_Sans_JP, JetBrains_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({
@@ -209,6 +210,19 @@ export default async function RootLayout({
         className={`${inter.variable} ${notoSansJP.variable} ${jetBrainsMono.variable} antialiased`}
         suppressHydrationWarning={true}
       >
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-2H4DNG9KGB"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-2H4DNG9KGB');
+          `}
+        </Script>
         {children}
       </body>
     </html>
