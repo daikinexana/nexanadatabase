@@ -47,12 +47,20 @@ async function getOpenCalls(search?: string): Promise<OpenCall[]> {
       url.searchParams.set('search', search);
     }
     
-    const response = await fetch(url.toString(), {
-      next: { revalidate: 300 }, // 5分間キャッシュ
-      headers: {
-        'Cache-Control': 'max-age=300',
-      },
-    });
+    // 開発環境ではキャッシュを無効化、本番環境では5分間キャッシュ
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const fetchOptions: RequestInit = isDevelopment
+      ? {
+          cache: 'no-store', // 開発環境：キャッシュ無効
+        }
+      : {
+          next: { revalidate: 300 }, // 本番環境：5分間キャッシュ
+          headers: {
+            'Cache-Control': 'max-age=300',
+          },
+        };
+    
+    const response = await fetch(url.toString(), fetchOptions);
     
     if (response.ok) {
       return await response.json();
@@ -66,10 +74,11 @@ async function getOpenCalls(search?: string): Promise<OpenCall[]> {
   }
 }
 
-// 静的生成を強制してGoogleクローラーの問題を解決
-export const dynamic = 'force-static';
+// 本番環境では静的生成、開発環境では動的レンダリング
+// 開発環境でのキャッシュ無効化は getOpenCalls 関数内で処理
+export const dynamic = 'auto';
 export const runtime = 'nodejs';
-export const revalidate = 3600; // 1時間キャッシュ
+export const revalidate = 3600; // 本番環境：1時間キャッシュ
 export const fetchCache = 'force-cache';
 export const preferredRegion = 'auto';
 

@@ -106,8 +106,13 @@ export async function GET(request: NextRequest) {
 
     const response = NextResponse.json(openCalls);
     
-    // キャッシュヘッダーを設定（5分間キャッシュ）
-    response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+    // 開発環境ではキャッシュを無効化、本番環境では1時間キャッシュ
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    if (isDevelopment) {
+      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    } else {
+      response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+    }
     
     return response;
   } catch (error) {
