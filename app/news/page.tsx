@@ -2,7 +2,7 @@ import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import NewsItem from "@/components/ui/news-item";
 import NewsPagination from "@/components/ui/news-pagination";
-import { Search, Filter as FilterIcon, Newspaper } from "lucide-react";
+import { Newspaper } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -177,35 +177,6 @@ export default async function NewsPage({
           <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
             スタートアップの調達、M&A、IPO情報をリアルタイムで配信
           </p>
-        </div>
-
-        {/* 検索・フィルター - iPhone 16最適化 */}
-        <div className="mb-6 sm:mb-8 md:mb-10">
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-white/20 p-3 sm:p-4 md:p-6">
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
-                  <input
-                    type="text"
-                    placeholder="企業名、セクター、金額、投資家、全国、東京都、大阪府、兵庫県、大分県、中国などで検索..."
-                    className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-3.5 md:py-4 border border-gray-200/50 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent font-news text-gray-900 placeholder-gray-500 bg-white/50 backdrop-blur-sm text-sm sm:text-base min-h-[44px]"
-                    disabled
-                  />
-                </div>
-              </div>
-              <button
-                className="inline-flex items-center justify-center px-4 sm:px-5 md:px-6 py-3 sm:py-3.5 md:py-4 border border-gray-200/50 rounded-lg sm:rounded-xl text-sm sm:text-base font-news-subheading text-gray-700 bg-white/50 backdrop-blur-sm hover:bg-white/70 active:bg-white/80 transition-all duration-300 shadow-sm min-h-[44px] min-w-[100px] sm:min-w-[120px]"
-                disabled
-              >
-                <FilterIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                フィルター
-              </button>
-            </div>
-            <p className="text-xs sm:text-sm text-gray-500 mt-2 sm:mt-3 text-center">
-              ※ 検索・フィルター機能は現在開発中です
-            </p>
-          </div>
         </div>
 
         {/* 結果表示 - iPhone 16最適化 */}
