@@ -278,9 +278,9 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
   const [selectedWorkspace, setSelectedWorkspace] = useState<WorkspaceData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loadingWorkspace, setLoadingWorkspace] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<CategoryFilter[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<CategoryFilter[]>(["work", "connect"]);
   const [filterMultipleLocations, setFilterMultipleLocations] = useState<boolean | null>(null);
-  const [filterDropin, setFilterDropin] = useState<boolean | null>(null);
+  const [filterDropin, setFilterDropin] = useState<boolean | null>(true);
   const [workspaceLikes, setWorkspaceLikes] = useState<Record<string, { likeCount: number; isLiked: boolean }>>({});
   const [workspaceCommentCounts, setWorkspaceCommentCounts] = useState<Record<string, number>>({});
 
