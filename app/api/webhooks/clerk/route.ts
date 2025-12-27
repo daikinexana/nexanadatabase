@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
  * Clerk Webhook API
  * Clerk認証を削除したため、このエンドポイントは無効化されています
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function POST(_req: NextRequest) {
   // Clerk認証を削除したため、このエンドポイントは使用されません
   return NextResponse.json(
