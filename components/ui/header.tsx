@@ -9,7 +9,7 @@ const navigation = [
   { name: "ホーム", nameEn: "Home", href: "/" },
   { name: "コンテスト", nameEn: "Contests", href: "/contests" },
   { name: "公募", nameEn: "Open Calls", href: "/open-calls" },
-  { name: "ロケーション", nameEn: "Location", href: "/location" },
+  { name: "ワークスペース", nameEn: "Workspace", href: "/workspace" },
   { name: "ニュース", nameEn: "News", href: "/news" },
 ];
 

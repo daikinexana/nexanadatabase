@@ -3,7 +3,7 @@ import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import EnhancedButton from "@/components/ui/enhanced-button";
 import EnhancedCardButton from "@/components/ui/enhanced-card-button";
-import { Trophy, Building, ArrowRight, Star, Globe, Zap, Target, TrendingUp, Lightbulb } from "lucide-react";
+import { Trophy, Building, ArrowRight, Star, Globe, Zap, Target, TrendingUp } from "lucide-react";
 import { getDatabaseStats } from "@/lib/stats";
 
 export const metadata: Metadata = {
@@ -48,11 +48,11 @@ const features = [
     accentColor: "bg-gray-600",
   },
   {
-    name: "ロケーション",
-    nameEn: "Location",
-    description: "世界各国・都市のロケーション情報を掲載",
-    descriptionEn: "Location information for cities around the world",
-    href: "/location",
+    name: "ワークスペース",
+    nameEn: "Workspace",
+    description: "世界各国・都市のワークスペース情報を掲載",
+    descriptionEn: "Workspace information for cities around the world",
+    href: "/workspace",
     icon: Building,
     color: "from-slate-500 to-slate-700",
     bgColor: "bg-gradient-to-br from-white via-gray-50 to-gray-100",

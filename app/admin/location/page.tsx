@@ -1363,7 +1363,7 @@ export default function AdminLocationPage() {
                               <Edit className="h-4 w-4" />
                             </button>
                             <Link
-                              href={`/location/${location.slug}`}
+                              href={`/workspace/${location.slug}`}
                               target="_blank"
                               className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
                               title="プレビュー"

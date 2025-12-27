@@ -23,7 +23,7 @@ interface LocationCardProps {
 export default function LocationCard({ location }: LocationCardProps) {
   return (
     <Link
-      href={`/location/${location.slug}`}
+      href={`/workspace/${location.slug}`}
       className="group relative bg-white/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl md:rounded-[32px] overflow-hidden border border-gray-200/50 cursor-pointer block active:scale-[0.98] touch-manipulation"
       style={{
         boxShadow: '0 4px 20px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06)',

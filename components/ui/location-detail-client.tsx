@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import SimpleImage from "@/components/ui/simple-image";
 import WorkspaceModal from "@/components/ui/workspace-modal";
 import WorkspaceMap from "@/components/ui/workspace-map";
+import Pagination from "@/components/ui/pagination";
 import { getClientIdentifier } from "@/lib/user-identifier";
 import { Heart, MessageCircle } from "lucide-react";
 
@@ -42,7 +43,7 @@ interface Location {
   sightseeingCard2Title?: string | null;
   sightseeingCard3Image?: string | null;
   sightseeingCard3Title?: string | null;
-  workspaces: Array<{
+  workspaces?: Array<{
     id: string;
     name: string;
     imageUrl?: string | null;
@@ -283,6 +284,136 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
   const [filterDropin, setFilterDropin] = useState<boolean | null>(null);
   const [workspaceLikes, setWorkspaceLikes] = useState<Record<string, { likeCount: number; isLiked: boolean }>>({});
   const [workspaceCommentCounts, setWorkspaceCommentCounts] = useState<Record<string, number>>({});
+  
+  // ページネーション関連の状態
+  const [workspaces, setWorkspaces] = useState<typeof location.workspaces>(location.workspaces || []);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoadingWorkspaces, setIsLoadingWorkspaces] = useState(false);
+  const [shouldScrollToTop, setShouldScrollToTop] = useState(false);
+  
+  // Google Map用にすべてのワークスペースを保持
+  const [allWorkspacesForMap, setAllWorkspacesForMap] = useState<typeof location.workspaces>([]);
+
+  // ワークスペースを取得（フィルター適用）
+  useEffect(() => {
+    const fetchWorkspaces = async () => {
+      setIsLoadingWorkspaces(true);
+      try {
+        // フィルターパラメータを構築
+        const params = new URLSearchParams({
+          page: String(currentPage),
+          limit: "60",
+        });
+
+        if (selectedCategories.length > 0) {
+          params.append("categories", selectedCategories.join(","));
+        }
+        if (filterMultipleLocations !== null) {
+          params.append("filterMultipleLocations", String(filterMultipleLocations));
+        }
+        if (filterDropin !== null) {
+          params.append("filterDropin", String(filterDropin));
+        }
+
+        const response = await fetch(`/api/location/${location.id}/workspaces?${params.toString()}`);
+        if (response.ok) {
+          const data = await response.json();
+          setWorkspaces(data.workspaces);
+          setTotalPages(data.pagination.totalPages);
+          setTotalCount(data.pagination.totalCount);
+        } else {
+          console.error("Failed to fetch workspaces");
+        }
+      } catch (error) {
+        console.error("Error fetching workspaces:", error);
+      } finally {
+        setIsLoadingWorkspaces(false);
+      }
+    };
+
+    // フィルターが変更された場合、ページを1にリセット
+    if (currentPage === 1 || !location.workspaces || location.workspaces.length === 0) {
+      fetchWorkspaces();
+    }
+  }, [location.id, currentPage, selectedCategories, filterMultipleLocations, filterDropin, location.workspaces]);
+
+  // ページ変更時にワークスペースを取得
+  useEffect(() => {
+    if (currentPage > 1) {
+      const fetchWorkspaces = async () => {
+        setIsLoadingWorkspaces(true);
+        try {
+          // フィルターパラメータを構築
+          const params = new URLSearchParams({
+            page: String(currentPage),
+            limit: "60",
+          });
+
+          if (selectedCategories.length > 0) {
+            params.append("categories", selectedCategories.join(","));
+          }
+          if (filterMultipleLocations !== null) {
+            params.append("filterMultipleLocations", String(filterMultipleLocations));
+          }
+          if (filterDropin !== null) {
+            params.append("filterDropin", String(filterDropin));
+          }
+
+          const response = await fetch(`/api/location/${location.id}/workspaces?${params.toString()}`);
+          if (response.ok) {
+            const data = await response.json();
+            setWorkspaces(data.workspaces);
+            setTotalPages(data.pagination.totalPages);
+            setTotalCount(data.pagination.totalCount);
+          } else {
+            console.error("Failed to fetch workspaces");
+          }
+        } catch (error) {
+          console.error("Error fetching workspaces:", error);
+        } finally {
+          setIsLoadingWorkspaces(false);
+        }
+      };
+      fetchWorkspaces();
+    }
+  }, [currentPage, location.id, selectedCategories, filterMultipleLocations, filterDropin]);
+
+  // Google Map用にすべてのワークスペースを取得（フィルター適用）
+  useEffect(() => {
+    const fetchAllWorkspacesForMap = async () => {
+      try {
+        // フィルターパラメータを構築
+        const params = new URLSearchParams({
+          all: "true",
+        });
+
+        if (selectedCategories.length > 0) {
+          params.append("categories", selectedCategories.join(","));
+        }
+        if (filterMultipleLocations !== null) {
+          params.append("filterMultipleLocations", String(filterMultipleLocations));
+        }
+        if (filterDropin !== null) {
+          params.append("filterDropin", String(filterDropin));
+        }
+
+        // すべてのワークスペースを取得（all=trueパラメータを使用）
+        const response = await fetch(`/api/location/${location.id}/workspaces?${params.toString()}`);
+        if (response.ok) {
+          const data = await response.json();
+          setAllWorkspacesForMap(data.workspaces);
+        } else {
+          console.error("Failed to fetch all workspaces for map");
+        }
+      } catch (error) {
+        console.error("Error fetching all workspaces for map:", error);
+      }
+    };
+
+    fetchAllWorkspacesForMap();
+  }, [location.id, selectedCategories, filterMultipleLocations, filterDropin]);
 
   // いいねとコメント情報を取得
   useEffect(() => {
@@ -292,7 +423,7 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
       const commentCounts: Record<string, number> = {};
 
       await Promise.all(
-        (location.workspaces || []).map(async (ws) => {
+        (workspaces || []).map(async (ws) => {
           try {
             // いいね情報を取得
             const likesResponse = await fetch(`/api/workspace/${ws.id}/like`, {
@@ -325,10 +456,27 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
       setWorkspaceCommentCounts(commentCounts);
     };
 
-    if (location.workspaces && location.workspaces.length > 0) {
+    if (workspaces && workspaces.length > 0) {
       fetchLikesAndComments();
     }
-  }, [location.workspaces]);
+  }, [workspaces]);
+
+  // ページ変更後のスクロール処理
+  useEffect(() => {
+    if (shouldScrollToTop && !isLoadingWorkspaces && workspaces && workspaces.length > 0) {
+      const element = document.getElementById('workspace-list');
+      if (element) {
+        const headerOffset = 80; // ヘッダーの高さを考慮
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+      setShouldScrollToTop(false);
+    }
+  }, [shouldScrollToTop, isLoadingWorkspaces, workspaces]);
 
   const handleLike = async (e: React.MouseEvent, workspaceId: string) => {
     e.stopPropagation(); // カードのクリックイベントを防ぐ
@@ -402,50 +550,20 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
     });
   };
 
-  // フィルタリングとソート
+  // Google Map用（サーバーサイドでフィルタリング・ソート済み）
+  const filteredAndSortedWorkspacesForMap = useMemo(() => {
+    // サーバーサイドで既にいいね順にソートされているため、そのまま返す
+    return allWorkspacesForMap || [];
+  }, [allWorkspacesForMap]);
+
+  // カード表示用（サーバーサイドでフィルタリング・ソート済み）
   const filteredAndSortedWorkspaces = useMemo(() => {
-    let filtered = [...(location.workspaces || [])];
-
-    // カテゴリフィルタ（複数選択対応・AND条件）
-    if (selectedCategories.length > 0) {
-      filtered = filtered.filter((ws) => {
-        // 選択されたすべてのカテゴリを含むワークスペースのみ表示
-        return selectedCategories.every(category => {
-          const categoryKey = categoryMap[category].key;
-          return ws[categoryKey];
-        });
-      });
-    }
-
-    // 複数拠点フィルタ
-    if (filterMultipleLocations !== null) {
-      filtered = filtered.filter((ws) => ws.hasMultipleLocations === filterMultipleLocations);
-    }
-
-    // ドロップインフィルタ
-    if (filterDropin !== null) {
-      filtered = filtered.filter((ws) => ws.hasDropin === filterDropin);
-    }
-
-    // ソート: nexana Best 3を最上位に、その次にいいね数の多い順
-    filtered.sort((a, b) => {
-      // 1. nexana Best 3を最上位に
-      if (a.isNexanaRecommended && !b.isNexanaRecommended) return -1;
-      if (!a.isNexanaRecommended && b.isNexanaRecommended) return 1;
-      
-      // 2. 両方ともnexana Best 3、または両方ともそうでない場合、いいね数でソート
-      const aLikeCount = workspaceLikes[a.id]?.likeCount || 0;
-      const bLikeCount = workspaceLikes[b.id]?.likeCount || 0;
-      
-      // いいね数の多い順（降順）
-      return bLikeCount - aLikeCount;
-    });
-
-    return filtered;
-  }, [location.workspaces, selectedCategories, filterMultipleLocations, filterDropin, workspaceLikes, categoryMap]);
+    // サーバーサイドで既にいいね順にソートされているため、そのまま返す
+    return workspaces || [];
+  }, [workspaces]);
 
   // アクティブなカテゴリを取得
-  const getActiveCategories = (workspace: typeof location.workspaces[0]) => {
+  const getActiveCategories = (workspace: NonNullable<typeof workspaces>[0]) => {
     const categories: Array<{ key: CategoryFilter; label: string }> = [];
     if (workspace.categoryWork) categories.push({ key: "work", label: categoryMap.work.label });
     if (workspace.categoryConnect) categories.push({ key: "connect", label: categoryMap.connect.label });
@@ -586,7 +704,7 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
         )}
 
         {/* フィルタリングUI - ワークスペースタイトルと地図の間に配置（一時的にコメントアウト） */}
-        {false && location.workspaces && location.workspaces.length > 0 && (
+        {false && workspaces && (workspaces?.length ?? 0) > 0 && !isLoadingWorkspaces && (
           <div className="mb-8 sm:mb-10 md:mb-12 space-y-6 sm:space-y-7 md:space-y-8 rounded-2xl sm:rounded-3xl md:rounded-[32px] border border-gray-200/50 bg-white/90 backdrop-blur-xl shadow-xl px-4 sm:px-5 md:px-6 lg:px-10 py-5 sm:py-6 md:py-8">
             {/* カテゴリフィルタ */}
             <div>
@@ -640,7 +758,10 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                 <label className="text-xs sm:text-sm font-bold text-gray-900 mb-2 sm:mb-3 block">複数拠点</label>
                 <div className="flex gap-2 sm:gap-2.5">
                   <button
-                    onClick={() => setFilterMultipleLocations(null)}
+                    onClick={() => {
+                      setFilterMultipleLocations(null);
+                      setCurrentPage(1);
+                    }}
                     className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
                       filterMultipleLocations === null
                         ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md scale-105"
@@ -650,7 +771,10 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                     すべて
                   </button>
                   <button
-                    onClick={() => setFilterMultipleLocations(true)}
+                    onClick={() => {
+                      setFilterMultipleLocations(true);
+                      setCurrentPage(1);
+                    }}
                     className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
                       filterMultipleLocations === true
                         ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
@@ -660,7 +784,10 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                     あり
                   </button>
                   <button
-                    onClick={() => setFilterMultipleLocations(false)}
+                    onClick={() => {
+                      setFilterMultipleLocations(false);
+                      setCurrentPage(1);
+                    }}
                     className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
                       filterMultipleLocations === false
                         ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
@@ -676,7 +803,10 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                 <label className="text-xs sm:text-sm font-bold text-gray-900 mb-2 sm:mb-3 block">ドロップイン</label>
                 <div className="flex gap-2 sm:gap-2.5">
                   <button
-                    onClick={() => setFilterDropin(null)}
+                    onClick={() => {
+                      setFilterDropin(null);
+                      setCurrentPage(1);
+                    }}
                     className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
                       filterDropin === null
                         ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md scale-105"
@@ -686,7 +816,10 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                     すべて
                   </button>
                   <button
-                    onClick={() => setFilterDropin(true)}
+                    onClick={() => {
+                      setFilterDropin(true);
+                      setCurrentPage(1);
+                    }}
                     className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
                       filterDropin === true
                         ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
@@ -696,7 +829,10 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                     可
                   </button>
                   <button
-                    onClick={() => setFilterDropin(false)}
+                    onClick={() => {
+                      setFilterDropin(false);
+                      setCurrentPage(1);
+                    }}
                     className={`px-3 sm:px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
                       filterDropin === false
                         ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
@@ -808,7 +944,7 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
           </div>
 
           {/* フィルタリングUI - ワークスペースタイトルと地図の間に配置（コンパクト版） */}
-          {location.workspaces && location.workspaces.length > 0 && (
+          {workspaces && workspaces.length > 0 && (
             <div className="mb-6 sm:mb-8 md:mb-10 space-y-4 sm:space-y-5 rounded-xl sm:rounded-2xl border border-gray-200/50 bg-white/90 backdrop-blur-xl shadow-xl px-4 sm:px-5 md:px-6 py-3 sm:py-4 md:py-5">
               {/* カテゴリフィルタ */}
               <div>
@@ -862,7 +998,10 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                   <label className="text-xs font-bold text-gray-900 mb-1.5 sm:mb-2 block">複数拠点</label>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => setFilterMultipleLocations(null)}
+                      onClick={() => {
+                      setFilterMultipleLocations(null);
+                      setCurrentPage(1);
+                    }}
                       className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
                         filterMultipleLocations === null
                           ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md scale-105"
@@ -872,7 +1011,10 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                       すべて
                     </button>
                     <button
-                      onClick={() => setFilterMultipleLocations(true)}
+                      onClick={() => {
+                      setFilterMultipleLocations(true);
+                      setCurrentPage(1);
+                    }}
                       className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
                         filterMultipleLocations === true
                           ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
@@ -882,7 +1024,10 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                       あり
                     </button>
                     <button
-                      onClick={() => setFilterMultipleLocations(false)}
+                      onClick={() => {
+                      setFilterMultipleLocations(false);
+                      setCurrentPage(1);
+                    }}
                       className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
                         filterMultipleLocations === false
                           ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
@@ -898,7 +1043,10 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                   <label className="text-xs font-bold text-gray-900 mb-1.5 sm:mb-2 block">ドロップイン</label>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => setFilterDropin(null)}
+                      onClick={() => {
+                      setFilterDropin(null);
+                      setCurrentPage(1);
+                    }}
                       className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
                         filterDropin === null
                           ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow-md scale-105"
@@ -908,7 +1056,10 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                       すべて
                     </button>
                     <button
-                      onClick={() => setFilterDropin(true)}
+                      onClick={() => {
+                      setFilterDropin(true);
+                      setCurrentPage(1);
+                    }}
                       className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
                         filterDropin === true
                           ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
@@ -918,7 +1069,10 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                       可
                     </button>
                     <button
-                      onClick={() => setFilterDropin(false)}
+                      onClick={() => {
+                      setFilterDropin(false);
+                      setCurrentPage(1);
+                    }}
                       className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold border-2 transition-all duration-300 min-h-[44px] touch-manipulation active:scale-95 ${
                         filterDropin === false
                           ? "bg-gray-900 text-white border-transparent shadow-md scale-105"
@@ -935,36 +1089,45 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
 
           <div className="rounded-2xl sm:rounded-3xl md:rounded-[32px] overflow-hidden border border-gray-200/50 shadow-2xl bg-white">
             <WorkspaceMap 
-              workspaces={filteredAndSortedWorkspaces} 
+              workspaces={filteredAndSortedWorkspacesForMap} 
               onMarkerClick={openWorkspaceModal}
             />
           </div>
         </section>
 
         {/* ワークスペースカード */}
-        {location.workspaces && location.workspaces.length > 0 && (
-          <section className="mb-16 sm:mb-20 md:mb-24 lg:mb-32">
-            {/* セクションヘッダー - iPhone 16最適化 */}
-            <div className="mb-8 sm:mb-10 md:mb-12 lg:mb-16">
-              <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 sm:gap-8">
-                <div className="space-y-3 sm:space-y-4">
-                  <div className="inline-flex items-center gap-2 sm:gap-3">
-                    <div className="w-0.5 sm:w-1 h-8 sm:h-10 bg-gradient-to-b from-emerald-500 via-teal-500 to-cyan-500 rounded-full"></div>
-                    <div className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 rounded-full border border-emerald-200/50">
-                      <span className="text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-[0.25em] text-emerald-700 font-bold">Workspaces</span>
-                    </div>
+        <section id="workspace-list" className="mb-16 sm:mb-20 md:mb-24 lg:mb-32">
+          {/* セクションヘッダー - iPhone 16最適化 */}
+          <div className="mb-8 sm:mb-10 md:mb-12 lg:mb-16">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 sm:gap-8">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="inline-flex items-center gap-2 sm:gap-3">
+                  <div className="w-0.5 sm:w-1 h-8 sm:h-10 bg-gradient-to-b from-emerald-500 via-teal-500 to-cyan-500 rounded-full"></div>
+                  <div className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 rounded-full border border-emerald-200/50">
+                    <span className="text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-[0.25em] text-emerald-700 font-bold">Workspaces</span>
                   </div>
-                  <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-emerald-700 to-gray-900 leading-[0.95] tracking-tight">
-                    ワークスペース一覧
-                  </h2>
                 </div>
-                <div className="text-xs sm:text-sm text-gray-500 font-light">
-                  <span className="font-semibold text-gray-900">{filteredAndSortedWorkspaces.length}</span>件のワークスペース
-                </div>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-emerald-700 to-gray-900 leading-[0.95] tracking-tight">
+                  ワークスペース一覧
+                </h2>
+              </div>
+              <div className="text-xs sm:text-sm text-gray-500 font-light">
+                <span className="font-semibold text-gray-900">{totalCount || filteredAndSortedWorkspaces.length}</span>件のワークスペース
               </div>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
+          {/* ローディング状態 */}
+          {isLoadingWorkspaces && (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+            </div>
+          )}
+
+          {/* ワークスペースグリッド */}
+          {!isLoadingWorkspaces && filteredAndSortedWorkspaces.length > 0 && (
+            <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-10 mb-8">
               {filteredAndSortedWorkspaces.map((workspace) => {
                 const activeCategories = getActiveCategories(workspace);
                 return (
@@ -1120,6 +1283,34 @@ export default function LocationDetailClient({ location }: LocationDetailClientP
                   </div>
                 );
               })}
+            </div>
+
+            {/* ページネーション */}
+            {!isLoadingWorkspaces && totalPages > 1 && (
+              <div className="mt-8 sm:mt-10 md:mt-12">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={(page) => {
+                    setCurrentPage(page);
+                    setShouldScrollToTop(true);
+                  }}
+                  totalCount={totalCount}
+                  limit={60}
+                />
+              </div>
+            )}
+            </>
+          )}
+        </section>
+
+        {/* ワークスペースが存在しない場合 */}
+        {!isLoadingWorkspaces && (!workspaces || workspaces.length === 0) && (
+          <section className="mb-16 sm:mb-20 md:mb-24 lg:mb-32">
+            <div className="text-center py-12 sm:py-16 md:py-20">
+              <p className="text-base sm:text-lg md:text-xl text-gray-600 font-light">
+                ワークスペース情報がありません
+              </p>
             </div>
           </section>
         )}

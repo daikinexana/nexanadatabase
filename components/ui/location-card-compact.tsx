@@ -23,7 +23,7 @@ interface LocationCardCompactProps {
 export default function LocationCardCompact({ location }: LocationCardCompactProps) {
   return (
     <Link
-      href={`/location/${location.slug}`}
+      href={`/workspace/${location.slug}`}
       className="group relative bg-white rounded-lg sm:rounded-xl overflow-hidden border border-gray-200/50 cursor-pointer block active:scale-[0.97] touch-manipulation transition-all duration-300 hover:border-emerald-300/70 hover:shadow-xl hover:-translate-y-1"
     >
       {/* グラデーションアクセント（ホバー時） */}

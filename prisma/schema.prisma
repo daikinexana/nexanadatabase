@@ -388,6 +388,57 @@ model WorkspaceComment {
   @@map("workspace_comments")
 }
 
+model ContestOrganizerInquiry {
+  id          String    @id @default(cuid())
+  companyName String?
+  name        String
+  email       String
+  contestUrl  String?
+  action      String    // "add", "remove", "other"
+  comment     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([email])
+  @@index([action])
+  @@index([createdAt])
+  @@map("contest_organizer_inquiries")
+}
+
+model OpenCallOrganizerInquiry {
+  id          String    @id @default(cuid())
+  companyName String?
+  name        String
+  email       String
+  openCallUrl String?
+  action      String    // "add", "remove", "other"
+  comment     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([email])
+  @@index([action])
+  @@index([createdAt])
+  @@map("open_call_organizer_inquiries")
+}
+
+model WorkspaceOrganizerInquiry {
+  id            String    @id @default(cuid())
+  companyName   String?
+  name          String
+  email         String
+  workspaceUrl  String?
+  action        String    // "add", "remove", "update", "other"
+  comment       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([email])
+  @@index([action])
+  @@index([createdAt])
+  @@map("workspace_organizer_inquiries")
+}
+
 enum UserRole {
   MEMBER
   EDITOR

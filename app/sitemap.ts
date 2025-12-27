@@ -48,7 +48,7 @@ function getFallbackSitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${BASE_URL}/location`,
+      url: `${BASE_URL}/workspace`,
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.9,
@@ -149,7 +149,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.9,
       },
       {
-        url: `${BASE_URL}/location`,
+        url: `${BASE_URL}/workspace`,
         lastModified: locationsLastModified,
         changeFrequency: 'weekly' as const,
         priority: 0.9,
@@ -186,7 +186,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     activeLocations.forEach((location) => {
       if (location.slug) {
         sitemapEntries.push({
-          url: `${BASE_URL}/location/${location.slug}`,
+          url: `${BASE_URL}/workspace/${location.slug}`,
           lastModified: location.updatedAt.toISOString(),
           changeFrequency: 'weekly' as const,
           priority: 0.8,

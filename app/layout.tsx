@@ -124,7 +124,7 @@ const structuredData = [
           "@type": "ListItem",
           "position": 3,
           "name": "ロケーション",
-          "url": "https://db.nexanahq.com/location"
+          "url": "https://db.nexanahq.com/workspace"
         },
         {
           "@type": "ListItem",
