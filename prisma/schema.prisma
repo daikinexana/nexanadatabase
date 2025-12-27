@@ -439,6 +439,79 @@ model WorkspaceOrganizerInquiry {
   @@map("workspace_organizer_inquiries")
 }
 
+model StartupBoard {
+  id                        String    @id @default(cuid())
+  // 基本情報
+  companyLogoUrl            String?
+  companyProductImageUrl    String?
+  companyName               String
+  companyDescriptionOneLine String?
+  companyAndProduct         String?
+  companyOverview           String?
+  series                    String?
+  corporateNumber           String?
+  establishedDate           DateTime?
+  employeeCount             String?   // 従業員数
+  companyUrl                String?   // 企業URL
+  country                   String
+  city                      String
+  address                   String?
+  listingStatus             String? // 上場 or 未上場
+  
+  // 担当者情報（表示不要だが保存）
+  contact1Department        String?
+  contact1Name               String?
+  contact1Email              String?
+  contact2Department         String?
+  contact2Name               String?
+  contact2Email              String?
+  contact3Department         String?
+  contact3Name               String?
+  contact3Email              String?
+  
+  // 調達/M&A情報
+  fundingStatus             String? // 調達募集中 or M&A募集中 or なし
+  fundingOverview            String?
+  
+  // 採用情報
+  hiringStatus               String? // 募集中 or なし
+  hiringOverview             String?
+  
+  // 提案情報
+  proposalStatus             String? // 募集中 or なし
+  proposalOverview           String?
+  
+  // 共創情報
+  collaborationStatus        String? // 募集中 or なし
+  collaborationOverview      String?
+  
+  isActive                   Boolean   @default(true)
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+
+  @@index([isActive])
+  @@index([country])
+  @@index([city])
+  @@index([fundingStatus])
+  @@index([hiringStatus])
+  @@index([proposalStatus])
+  @@index([collaborationStatus])
+  @@index([createdAt])
+  @@map("startup_boards")
+}
+
+model StartupBoardLike {
+  id            String    @id @default(cuid())
+  startupBoardId   String
+  userIdentifier String   // IPアドレスとUser-Agentの組み合わせ、またはlocalStorageのユニークID
+  createdAt     DateTime  @default(now())
+
+  @@unique([startupBoardId, userIdentifier])
+  @@index([startupBoardId])
+  @@index([userIdentifier])
+  @@map("startup_board_likes")
+}
+
 enum UserRole {
   MEMBER
   EDITOR

@@ -23,3 +23,5 @@ CREATE INDEX "contest_organizer_inquiries_action_idx" ON "contest_organizer_inqu
 CREATE INDEX "contest_organizer_inquiries_createdAt_idx" ON "contest_organizer_inquiries"("createdAt");
 
 
+
+

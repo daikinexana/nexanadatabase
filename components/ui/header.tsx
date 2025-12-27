@@ -11,6 +11,7 @@ const navigation = [
   { name: "公募", nameEn: "Open Calls", href: "/open-calls" },
   { name: "ワークスペース", nameEn: "Workspace", href: "/workspace" },
   { name: "ニュース", nameEn: "News", href: "/news" },
+  { name: "スタ募", nameEn: "STABO", href: "/startup-boards" },
 ];
 
 export default function Header() {

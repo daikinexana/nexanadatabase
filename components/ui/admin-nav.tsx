@@ -7,7 +7,8 @@ import {
   Handshake, 
   Newspaper, 
   MapPin,
-  Briefcase
+  Briefcase,
+  Rocket
 } from "lucide-react";
 
 const adminPages = [
@@ -40,6 +41,12 @@ const adminPages = [
     href: "/admin/workspace",
     icon: Briefcase,
     description: "ワークスペース情報の管理"
+  },
+  {
+    name: "スタートアップボード",
+    href: "/admin/startup-boards",
+    icon: Rocket,
+    description: "スタートアップボード情報の管理"
   }
 ];
 
