@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { memo } from "react";
 import SimpleImage from "@/components/ui/simple-image";
 import { MapPin } from "lucide-react";
 
@@ -20,7 +21,7 @@ interface LocationCardCompactProps {
   };
 }
 
-export default function LocationCardCompact({ location }: LocationCardCompactProps) {
+function LocationCardCompact({ location }: LocationCardCompactProps) {
   return (
     <Link
       href={`/workspace/${location.slug}`}
@@ -38,6 +39,7 @@ export default function LocationCardCompact({ location }: LocationCardCompactPro
               alt={location.city}
               fill
               className="object-cover"
+              loading="lazy"
             />
           </div>
         ) : (
@@ -75,3 +77,5 @@ export default function LocationCardCompact({ location }: LocationCardCompactPro
     </Link>
   );
 }
+
+export default memo(LocationCardCompact);

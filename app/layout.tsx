@@ -25,7 +25,7 @@ const jetBrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
   description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。ネクサナ（nexana）が運営するスタートアップ・大企業・大学向けイノベーションデータベース。",
-  keywords: "スタートアップ, オープンイノベーション, イノベーション, コンテスト, ビジネスコンテスト, アクセラ, アクセラレーション, プログラム, 公募, 募集, 開催, 調達, M&A, インキュベーション, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, スタートアップコンテスト, ピッチコンテスト, business competition, ロケーション, ワークスペース, コワーキングスペース, スタートアップ調達ニュース, 大学ディープテック, 海外展開支援, マッチングサービス, プロジェクトマネジメント, コミュニティマネジメント, スタートアップ支援, 大企業, 大学, 行政, シェアハウスオーナー",
+  keywords: "スタートアップ, スタートアップ情報, スタートアップデータベース, スタートアップコンテスト, スタートアップ支援, スタートアップ採用, スタートアップ就職, スタートアップ調達, スタートアップ調達ニュース, スタートアップM&A, 起業, 起業家, 起業したい, 起業支援, 新規事業, 新規事業担当, CEO, オープンイノベーション, オープンイノベーション情報, オープンイノベーションプラットフォーム, イノベーション, イノベーション情報, イノベーションデータベース, コンテスト, コンテスト情報, ビジネスコンテスト, ピッチコンテスト, ピッチ, ハッカソン, アクセラ, アクセラレーション, アクセラレータ, アクセラレータープログラム, プログラム, 公募, 公募情報, 募集, 募集情報, 開催, 開催情報, 調達, 調達情報, 調達ニュース, 資金調達, ファンディング, 投資, 投資情報, M&A, M&A情報, M&Aニュース, 買収, 合併, IPO, 上場, インキュベーション, インキュベーター, インキュベータープログラム, 共創, 共創プロジェクト, 協業, パートナーシップ, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, ロケーション, ワークスペース, コワーキングスペース, シェアオフィス, シェアオフィス運営, ビジネスコンテスト主催, ビジネスコンテスト主催者, VC, ベンチャーキャピタル, CVC, コーポレートベンチャーキャピタル, 広域行政, 市区町村, 行政担当者, 大学, 大学担当者, ディープテック, ディープテックスタートアップ, 技術データベース, プロダクトデータベース, 企業データベース, 行政データベース, 大学データベース, 融資, 融資情報, マッチングサービス, プロジェクトマネジメント, コミュニティマネジメント, 大企業, 行政, シェアハウスオーナー, startup, startup database, startup information, startup contest, pitch contest, business competition, accelerator, acceleration program, open innovation, innovation platform, funding, venture capital, CVC, corporate venture capital, M&A, IPO, workspace, coworking space, deep tech, deep tech startup, entrepreneurship, entrepreneur, business competition organizer, startup support, innovation database",
   authors: [{ name: "Nexana HQ" }],
   creator: "Nexana HQ",
   publisher: "Nexana HQ",
@@ -58,10 +58,16 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "https://db.nexanahq.com",
+    languages: {
+      'ja': 'https://db.nexanahq.com',
+      'en': 'https://db.nexanahq.com',
+      'x-default': 'https://db.nexanahq.com',
+    },
   },
   openGraph: {
     type: "website",
     locale: "ja_JP",
+    alternateLocale: ["en_US"],
     url: "https://db.nexanahq.com",
     siteName: "Nexana Database",
     title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
@@ -89,16 +95,50 @@ const structuredData = [
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Nexana Database",
-    "alternateName": ["Nexana Database - オープンイノベーション・スタートアップ情報プラットフォーム", "ネクサナデータベース", "nexana database"],
+    "alternateName": [
+      "Nexana Database - オープンイノベーション・スタートアップ情報プラットフォーム",
+      "ネクサナデータベース",
+      "nexana database",
+      "スタートアップ情報プラットフォーム",
+      "オープンイノベーションプラットフォーム",
+      "イノベーションデータベース"
+    ],
     "url": "https://db.nexanahq.com",
     "description": "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。ネクサナ（nexana）が運営するスタートアップ・大企業・大学向けイノベーションデータベース",
-    "keywords": ["スタートアップ", "オープンイノベーション", "イノベーション", "コンテスト", "ビジネスコンテスト", "アクセラ", "アクセラレーション", "プログラム", "公募", "募集", "開催", "調達", "M&A", "インキュベーション", "プラットフォーム", "データベース", "ネクサナ", "nexana", "ねくさな", "ロケーション", "ワークスペース", "コワーキングスペース"],
+    "keywords": [
+      "スタートアップ", "スタートアップ情報", "スタートアップデータベース", "スタートアップコンテスト", "スタートアップ支援", "スタートアップ採用", "スタートアップ就職", "スタートアップ調達",
+      "オープンイノベーション", "オープンイノベーション情報", "オープンイノベーションプラットフォーム",
+      "イノベーション", "イノベーション情報", "イノベーションデータベース",
+      "コンテスト", "コンテスト情報", "ビジネスコンテスト", "ピッチコンテスト", "ピッチ", "ハッカソン",
+      "アクセラ", "アクセラレーション", "アクセラレータ", "アクセラレータープログラム",
+      "プログラム", "公募", "公募情報", "募集", "募集情報", "開催", "開催情報",
+      "調達", "調達情報", "調達ニュース", "資金調達", "ファンディング", "投資", "投資情報",
+      "M&A", "M&A情報", "M&Aニュース", "買収", "合併", "IPO", "上場",
+      "インキュベーション", "インキュベーター", "インキュベータープログラム",
+      "共創", "共創プロジェクト", "協業", "パートナーシップ",
+      "プラットフォーム", "データベース",
+      "ネクサナ", "nexana", "ねくさな",
+      "ロケーション", "ワークスペース", "コワーキングスペース", "シェアオフィス",
+      "VC", "ベンチャーキャピタル", "CVC", "コーポレートベンチャーキャピタル",
+      "ディープテック", "ディープテックスタートアップ",
+      "起業", "起業家", "起業したい", "起業支援",
+      "新規事業", "新規事業担当", "CEO",
+      "startup", "startup database", "startup information", "startup contest",
+      "pitch contest", "business competition", "accelerator", "acceleration program",
+      "open innovation", "innovation platform", "funding", "venture capital", "CVC",
+      "corporate venture capital", "M&A", "IPO", "workspace", "coworking space",
+      "deep tech", "deep tech startup", "entrepreneurship", "entrepreneur"
+    ],
     "publisher": {
       "@type": "Organization",
       "name": "Nexana HQ",
       "alternateName": ["ネクサナ", "nexana", "ねくさな"],
       "url": "https://db.nexanahq.com",
-      "description": "スタートアップ・オープンイノベーション・イノベーション情報プラットフォームを運営"
+      "description": "スタートアップ・オープンイノベーション・イノベーション情報プラットフォームを運営",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://db.nexanahq.com/nexanadata.png"
+      }
     },
     "potentialAction": {
       "@type": "SearchAction",
@@ -133,16 +173,77 @@ const structuredData = [
           "url": "https://db.nexanahq.com/news"
         },
       ]
-    }
+    },
+    "inLanguage": ["ja", "en"]
   },
   {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Nexana HQ",
     "url": "https://db.nexanahq.com",
-    "logo": "https://db.nexanahq.com/nexanadata.png",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://db.nexanahq.com/nexanadata.png",
+      "width": 1200,
+      "height": 630
+    },
     "sameAs": [
       "https://db.nexanahq.com"
+    ],
+    "description": "スタートアップ・オープンイノベーション・イノベーション情報プラットフォームを運営する組織"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "スタートアップコンテスト情報はどこで見られますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "スタートアップコンテスト、ビジネスコンテスト、ピッチコンテストの情報は、コンテスト一覧ページ（https://db.nexanahq.com/contests）で確認できます。エリアや主催者タイプでフィルタリングも可能です。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "オープンイノベーションの公募情報はどこで見られますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "企業や行政が募集する課題解決パートナー、協業相手の公募情報は、公募一覧ページ（https://db.nexanahq.com/open-calls）で確認できます。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "スタートアップの調達情報はどこで見られますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "スタートアップの調達情報、M&A情報、IPO情報は、ニュース一覧ページ（https://db.nexanahq.com/news）でリアルタイムに確認できます。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "ワークスペース情報はどこで見られますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "世界各国・都市のワークスペース情報は、ワークスペース一覧ページ（https://db.nexanahq.com/workspace）で確認できます。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "起業したい人向けの情報はありますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、スタートアップコンテスト、アクセラレーションプログラム、資金調達情報など、起業を検討している方に役立つ情報を幅広く提供しています。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "VCやCVCの情報はありますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "現在、VCやCVCのデータベースを準備中です。調達情報やニュースページで、VCやCVCが関与する案件の情報を確認できます。"
+        }
+      }
     ]
   }
 ];

@@ -3,19 +3,41 @@ import Footer from "@/components/ui/footer";
 import OpenCallsWithFilter from "@/components/ui/open-calls-with-filter";
 import { Handshake } from "lucide-react";
 import { Metadata } from "next";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "公募一覧 | Nexana Database | オープンイノベーション公募・募集情報",
-  description: "企業や行政が募集する課題解決パートナー、協業相手の公募・募集情報を掲載。スタートアップ・大企業向けのオープンイノベーション情報をデータベース化。ネクサナ（nexana）が運営するイノベーションプラットフォーム。",
-  keywords: "公募, 募集, パートナーシップ, 協業, 課題解決, 企業, 自治体, スタートアップ, オープンイノベーション, イノベーション, プラットフォーム, データベース, ネクサナ, nexana",
+  description: "企業や行政が募集する課題解決パートナー、協業相手の公募・募集情報を掲載。スタートアップ・大企業・大学向けのオープンイノベーション情報をデータベース化。共創プロジェクト、アクセラレーションプログラムの公募情報も掲載。ネクサナ（nexana）が運営するイノベーションプラットフォーム。",
+  keywords: "公募, 公募情報, 募集, 募集情報, パートナーシップ, 協業, 協業パートナー, 課題解決, 課題解決パートナー, 企業, 大企業, 自治体, 行政, 行政担当者, 市区町村, 広域行政, スタートアップ, オープンイノベーション, オープンイノベーション情報, オープンイノベーションプラットフォーム, 共創, 共創プロジェクト, イノベーション, イノベーション情報, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, 大学, 大学担当者, ディープテック, ディープテックスタートアップ, open call, open innovation, partnership, collaboration, corporate innovation, startup partnership, innovation platform",
   alternates: {
     canonical: "https://db.nexanahq.com/open-calls",
+    languages: {
+      'ja': 'https://db.nexanahq.com/open-calls',
+      'en': 'https://db.nexanahq.com/open-calls',
+    },
   },
   openGraph: {
-    title: "公募一覧 | Nexana Database",
-    description: "企業や行政が募集する課題解決パートナー、協業相手の公募情報を掲載",
+    title: "公募一覧 | Nexana Database | オープンイノベーション公募・募集情報",
+    description: "企業や行政が募集する課題解決パートナー、協業相手の公募情報を掲載。スタートアップ・大企業・大学向けのオープンイノベーション情報。",
     type: "website",
     url: "https://db.nexanahq.com/open-calls",
+    locale: "ja_JP",
+    alternateLocale: ["en_US"],
+    siteName: "Nexana Database",
+    images: [
+      {
+        url: "https://db.nexanahq.com/open-calls.image.png",
+        width: 1200,
+        height: 630,
+        alt: "オープンイノベーション公募・募集情報",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "公募一覧 | Nexana Database",
+    description: "企業や行政が募集する課題解決パートナー、協業相手の公募情報を掲載",
+    images: ["https://db.nexanahq.com/open-calls.image.png"],
   },
 };
 
@@ -197,8 +219,61 @@ export default async function OpenCallsPage({
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
+  // 構造化データ（BreadcrumbList）
+  const breadcrumbStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "ホーム",
+        "item": "https://db.nexanahq.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "公募",
+        "item": "https://db.nexanahq.com/open-calls"
+      }
+    ]
+  };
+
+  // 構造化データ（CollectionPage）
+  const collectionPageStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "公募一覧",
+    "description": "企業や行政が募集する課題解決パートナー、協業相手の公募・募集情報を掲載",
+    "url": "https://db.nexanahq.com/open-calls",
+    "mainEntity": {
+      "@type": "ItemList",
+      "numberOfItems": openCalls.length,
+      "itemListElement": openCalls.slice(0, 10).map((openCall, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "name": openCall.title,
+        "url": openCall.website || `https://db.nexanahq.com/open-calls`
+      }))
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
+      <Script
+        id="breadcrumb-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbStructuredData),
+        }}
+      />
+      <Script
+        id="collection-page-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionPageStructuredData),
+        }}
+      />
       <ClientHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-10">

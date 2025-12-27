@@ -3,19 +3,41 @@ import Footer from "@/components/ui/footer";
 import ContestsWithFilter from "@/components/ui/contests-with-filter";
 import { Trophy } from "lucide-react";
 import { Metadata } from "next";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "コンテスト一覧 | Nexana Database | スタートアップ・ビジネスコンテスト情報",
-  description: "スタートアップ・ビジネスコンテスト、ピッチコンテスト、ハッカソン、アクセラレーションプログラムの情報を掲載。公募・募集・開催情報をデータベース化。ネクサナ（nexana）が運営するイノベーションプラットフォーム。",
-  keywords: "スタートアップ, コンテスト, ビジネスコンテスト, ピッチ, ハッカソン, アクセラ, アクセラレーション, プログラム, 公募, 募集, 開催, 起業, イノベーション, プラットフォーム, データベース, ネクサナ, nexana",
+  description: "スタートアップ・ビジネスコンテスト、ピッチコンテスト、ハッカソン、アクセラレーションプログラムの情報を掲載。公募・募集・開催情報をデータベース化。起業したい人、スタートアップCEO、新規事業担当者向けのコンテスト情報を網羅。ネクサナ（nexana）が運営するイノベーションプラットフォーム。",
+  keywords: "スタートアップ, スタートアップコンテスト, スタートアップ情報, コンテスト, コンテスト情報, ビジネスコンテスト, ビジネスコンテスト情報, ピッチコンテスト, ピッチ, ピッチイベント, ハッカソン, ハッカソン情報, アクセラ, アクセラレーション, アクセラレータ, アクセラレータープログラム, プログラム, 公募, 公募情報, 募集, 募集情報, 開催, 開催情報, 起業, 起業したい, 起業家, 起業支援, CEO, 新規事業, 新規事業担当, イノベーション, イノベーション情報, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, startup contest, pitch contest, business competition, hackathon, accelerator, acceleration program, entrepreneurship, entrepreneur, innovation, startup information",
   alternates: {
     canonical: "https://db.nexanahq.com/contests",
+    languages: {
+      'ja': 'https://db.nexanahq.com/contests',
+      'en': 'https://db.nexanahq.com/contests',
+    },
   },
   openGraph: {
-    title: "コンテスト一覧 | Nexana Database",
-    description: "スタートアップコンテスト、ピッチコンテスト、ハッカソンなどの情報を掲載",
+    title: "コンテスト一覧 | Nexana Database | スタートアップ・ビジネスコンテスト情報",
+    description: "スタートアップコンテスト、ピッチコンテスト、ハッカソン、アクセラレーションプログラムなどの情報を掲載。起業したい人、スタートアップCEO、新規事業担当者向け。",
     type: "website",
     url: "https://db.nexanahq.com/contests",
+    locale: "ja_JP",
+    alternateLocale: ["en_US"],
+    siteName: "Nexana Database",
+    images: [
+      {
+        url: "https://db.nexanahq.com/contests.image.png",
+        width: 1200,
+        height: 630,
+        alt: "スタートアップ・ビジネスコンテスト情報",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "コンテスト一覧 | Nexana Database",
+    description: "スタートアップコンテスト、ピッチコンテスト、ハッカソンなどの情報を掲載",
+    images: ["https://db.nexanahq.com/contests.image.png"],
   },
 };
 
@@ -187,8 +209,61 @@ export default async function ContestsPage({
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
+  // 構造化データ（BreadcrumbList）
+  const breadcrumbStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "ホーム",
+        "item": "https://db.nexanahq.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "コンテスト",
+        "item": "https://db.nexanahq.com/contests"
+      }
+    ]
+  };
+
+  // 構造化データ（CollectionPage）
+  const collectionPageStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "コンテスト一覧",
+    "description": "スタートアップ・ビジネスコンテスト、ピッチコンテスト、ハッカソン、アクセラレーションプログラムの情報を掲載",
+    "url": "https://db.nexanahq.com/contests",
+    "mainEntity": {
+      "@type": "ItemList",
+      "numberOfItems": contests.length,
+      "itemListElement": contests.slice(0, 10).map((contest, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "name": contest.title,
+        "url": contest.website || `https://db.nexanahq.com/contests`
+      }))
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
+      <Script
+        id="breadcrumb-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbStructuredData),
+        }}
+      />
+      <Script
+        id="collection-page-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionPageStructuredData),
+        }}
+      />
       <ClientHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-10">

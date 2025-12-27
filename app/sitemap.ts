@@ -8,14 +8,32 @@ import { prisma } from '@/lib/prisma'
  * データベースから最新情報を取得して動的に生成します。
  * 
  * 含まれるページ:
- * - トップページ
- * - 一覧ページ（コンテスト、公募、ロケーション、ニュース）
- * - 静的ページ（お問い合わせ、プライバシーポリシー、利用規約）
- * - 個別ロケーションページ（slugベース）
+ * - トップページ（priority: 1.0, changeFrequency: daily）
+ * - 一覧ページ（コンテスト、公募、ロケーション、ニュース）（priority: 0.9）
+ *   - コンテスト一覧（changeFrequency: daily）
+ *   - 公募一覧（changeFrequency: daily）
+ *   - ワークスペース一覧（changeFrequency: weekly）
+ *   - ニュース一覧（changeFrequency: hourly）
+ * - 静的ページ（お問い合わせ、プライバシーポリシー、利用規約）（priority: 0.3-0.5）
+ * - 個別ロケーションページ（slugベース）（priority: 0.8, changeFrequency: weekly）
+ * 
+ * SEO最適化のポイント:
+ * - 各ページのlastModifiedはデータベースの最新更新日時を使用
+ * - 更新頻度の高いページ（ニュース）はhourly、低いページ（静的ページ）はyearlyに設定
+ * - 優先度は重要度に応じて設定（トップページ: 1.0、一覧ページ: 0.9、詳細ページ: 0.8）
  * 
  * 注意: コンテスト、公募、ニュースの詳細ページは現時点では存在しないため、
  * 一覧ページのみが含まれています。将来的に詳細ページが追加された場合は、
  * このファイルを更新して詳細ページのURLを追加してください。
+ * 
+ * 将来的な拡張:
+ * - コンテスト詳細ページ（/contests/[id]）
+ * - 公募詳細ページ（/open-calls/[id]）
+ * - ニュース詳細ページ（/news/[id]）
+ * - VC/CVCデータベースページ（/vc, /cvc）
+ * - 企業データベースページ（/companies）
+ * - 行政データベースページ（/government）
+ * - 大学データベースページ（/universities）
  */
 export const revalidate = 3600 // 1時間キャッシュ
 export const fetchCache = 'force-cache'

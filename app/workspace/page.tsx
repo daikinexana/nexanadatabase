@@ -2,23 +2,45 @@ import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import { MapPin } from "lucide-react";
 import { Metadata } from "next";
-import LocationCardCompact from "@/components/ui/location-card-compact";
 import WorkspaceOrganizerButton from "@/components/ui/workspace-organizer-button";
 import TopWorkspacesSection from "@/components/ui/top-workspaces-section";
+import WorkspaceListClient from "@/components/ui/workspace-list-client";
 import { prisma } from "@/lib/prisma";
+import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "ワークスペース一覧 | Nexana Database",
-  description: "世界各国・都市のワークスペース情報を掲載。ワークスペース情報や地域情報を提供します。",
-  keywords: "ワークスペース, 都市, ロケーション, 地域情報, ネクサナ, nexana",
+  title: "ワークスペース一覧 | Nexana Database | シェアオフィス・コワーキングスペース情報",
+  description: "世界各国・都市のワークスペース情報を掲載。シェアオフィス、コワーキングスペース、インキュベーション施設の情報を提供。スタートアップ、起業家、リモートワーカー向けのワークスペース情報をデータベース化。ネクサナ（nexana）が運営するプラットフォーム。",
+  keywords: "ワークスペース, ワークスペース情報, シェアオフィス, シェアオフィス情報, シェアオフィス運営, コワーキングスペース, コワーキング, インキュベーション施設, インキュベーター, 都市, ロケーション, 地域情報, 地域, 日本, アメリカ, ヨーロッパ, スタートアップ, 起業家, リモートワーク, リモートワーカー, ネクサナ, nexana, ねくさな, workspace, coworking space, shared office, incubation facility, startup workspace, remote work, location, city, Japan, US, Europe",
   alternates: {
     canonical: "https://db.nexanahq.com/workspace",
+    languages: {
+      'ja': 'https://db.nexanahq.com/workspace',
+      'en': 'https://db.nexanahq.com/workspace',
+    },
   },
   openGraph: {
-    title: "ワークスペース一覧 | Nexana Database",
-    description: "世界各国・都市のワークスペース情報を掲載",
+    title: "ワークスペース一覧 | Nexana Database | シェアオフィス・コワーキングスペース情報",
+    description: "世界各国・都市のワークスペース情報を掲載。シェアオフィス、コワーキングスペース、インキュベーション施設の情報を提供。",
     type: "website",
     url: "https://db.nexanahq.com/workspace",
+    locale: "ja_JP",
+    alternateLocale: ["en_US"],
+    siteName: "Nexana Database",
+    images: [
+      {
+        url: "https://db.nexanahq.com/facilities.image.png",
+        width: 1200,
+        height: 630,
+        alt: "ワークスペース・シェアオフィス情報",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ワークスペース一覧 | Nexana Database",
+    description: "世界各国・都市のワークスペース情報を掲載",
+    images: ["https://db.nexanahq.com/facilities.image.png"],
   },
 };
 
@@ -82,8 +104,8 @@ async function getLocations(): Promise<Location[]> {
       ],
     });
 
-    // _countをworkspaces配列に変換（後方互換性のため）
-    // LocationCardCompactコンポーネントはworkspaces.lengthのみ使用
+    // _countをworkspaces配列に変換（LocationCardCompactコンポーネントの互換性のため）
+    // 実際のワークスペースデータは不要なので、カウントのみを使用
     return locations.map(location => ({
       ...location,
       workspaces: Array(location._count.workspaces).fill(null).map((_, i) => ({
@@ -340,8 +362,61 @@ export default async function WorkspacePage() {
   }, {} as Record<string, Location[]>);
 
 
+  // 構造化データ（BreadcrumbList）
+  const breadcrumbStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "ホーム",
+        "item": "https://db.nexanahq.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "ワークスペース",
+        "item": "https://db.nexanahq.com/workspace"
+      }
+    ]
+  };
+
+  // 構造化データ（CollectionPage）
+  const collectionPageStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "ワークスペース一覧",
+    "description": "世界各国・都市のワークスペース情報を掲載。シェアオフィス、コワーキングスペース、インキュベーション施設の情報を提供",
+    "url": "https://db.nexanahq.com/workspace",
+    "mainEntity": {
+      "@type": "ItemList",
+      "numberOfItems": locations.length,
+      "itemListElement": locations.slice(0, 10).map((location, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "name": `${location.city}, ${location.country}`,
+        "url": `https://db.nexanahq.com/workspace/${location.slug}`
+      }))
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/30 to-white">
+      <Script
+        id="breadcrumb-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbStructuredData),
+        }}
+      />
+      <Script
+        id="collection-page-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionPageStructuredData),
+        }}
+      />
       <ClientHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-10">
@@ -368,75 +443,12 @@ export default async function WorkspacePage() {
         {/* Top 10 Workspaces セクション - コンパクトでワイド */}
         <TopWorkspacesSection topWorkspaces={topWorkspaces} />
 
-        {/* ロケーション一覧 - 8地方区分 + 海外 */}
-        <div className="space-y-6 sm:space-y-8 md:space-y-10">
-          {/* セクションタイトル */}
-          <div className="mb-4 sm:mb-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-0.5 sm:w-1 h-5 sm:h-6 bg-gradient-to-b from-emerald-500 via-teal-500 to-cyan-500 rounded-full"></div>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
-                Locationで選択する
-              </h2>
-            </div>
-          </div>
-
-          {/* 日本国内 - 8地方区分 */}
-          {regionOrder.map((region) => {
-            const regionLocations = locationsByRegion[region] || [];
-            if (regionLocations.length === 0) return null;
-
-            return (
-              <div key={region} className="scroll-mt-4">
-                {/* 地方区分セクションヘッダー - モダンでスタイリッシュ */}
-                <div className="mb-4 sm:mb-5 flex items-center gap-2 sm:gap-3">
-                  <div className="relative">
-                    <div className="w-0.5 sm:w-1 h-6 sm:h-7 bg-gradient-to-b from-emerald-500 via-teal-500 to-cyan-500 rounded-full"></div>
-                    <div className="absolute inset-0 w-0.5 sm:w-1 h-6 sm:h-7 bg-gradient-to-b from-emerald-500 via-teal-500 to-cyan-500 rounded-full blur-sm opacity-50"></div>
-                  </div>
-                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
-                    {region}
-                  </h2>
-                  <span className="text-xs text-gray-500 font-medium bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/50 px-2.5 py-1 rounded-full">
-                    {regionLocations.length}件
-                  </span>
-                </div>
-                
-                {/* コンパクトグリッド */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5 sm:gap-3 md:gap-4">
-                  {regionLocations.map((location) => (
-                    <LocationCardCompact key={location.id} location={location} />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-
-          {/* 海外 - 国別 */}
-          {Object.entries(locationsByCountry).map(([country, countryLocations]) => (
-            <div key={country} className="scroll-mt-4">
-              {/* 国別セクションヘッダー - よりコンパクト */}
-              <div className="mb-4 sm:mb-5 flex items-center gap-2 sm:gap-3">
-                <div className="relative">
-                  <div className="w-0.5 sm:w-1 h-6 sm:h-7 bg-gradient-to-b from-blue-500 via-indigo-500 to-purple-500 rounded-full"></div>
-                  <div className="absolute inset-0 w-0.5 sm:w-1 h-6 sm:h-7 bg-gradient-to-b from-blue-500 via-indigo-500 to-purple-500 rounded-full blur-sm opacity-50"></div>
-                </div>
-                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
-                  {country}
-                </h2>
-                <span className="text-xs text-gray-500 font-medium bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 px-2.5 py-1 rounded-full">
-                  {countryLocations.length}件
-                </span>
-              </div>
-              
-              {/* コンパクトグリッド */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5 sm:gap-3 md:gap-4">
-                {countryLocations.map((location) => (
-                  <LocationCardCompact key={location.id} location={location} />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* ロケーション一覧 */}
+        <WorkspaceListClient
+          regionOrder={regionOrder}
+          locationsByRegion={locationsByRegion}
+          locationsByCountry={locationsByCountry}
+        />
 
         {locations.length === 0 && (
           <div className="text-center py-12 sm:py-16 md:py-20 lg:py-24">

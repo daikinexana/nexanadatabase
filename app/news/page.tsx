@@ -4,19 +4,41 @@ import NewsItem from "@/components/ui/news-item";
 import NewsPagination from "@/components/ui/news-pagination";
 import { Newspaper } from "lucide-react";
 import { Metadata } from "next";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "ニュース一覧 | Nexana Database | スタートアップ調達・M&A情報",
-  description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信。イノベーション・オープンイノベーションに関する最新ニュースをデータベース化。ネクサナ（nexana）が運営するプラットフォーム。",
-  keywords: "スタートアップ, 調達, M&A, IPO, 投資, ニュース, イノベーション, オープンイノベーション, プラットフォーム, データベース, ネクサナ, nexana",
+  description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信。VC、CVCの投資情報、資金調達ニュース、買収・合併情報も掲載。イノベーション・オープンイノベーションに関する最新ニュースをデータベース化。ネクサナ（nexana）が運営するプラットフォーム。",
+  keywords: "スタートアップ, スタートアップ情報, スタートアップ調達, スタートアップ調達ニュース, スタートアップM&A, 調達, 調達情報, 調達ニュース, 資金調達, ファンディング, 投資, 投資情報, M&A, M&A情報, M&Aニュース, 買収, 合併, IPO, IPO情報, 上場, 上場情報, VC, ベンチャーキャピタル, CVC, コーポレートベンチャーキャピタル, ニュース, イノベーション, イノベーション情報, オープンイノベーション, オープンイノベーション情報, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, startup funding, startup M&A, startup IPO, venture capital, CVC, corporate venture capital, funding news, M&A news, IPO news, investment, innovation news",
   alternates: {
     canonical: "https://db.nexanahq.com/news",
+    languages: {
+      'ja': 'https://db.nexanahq.com/news',
+      'en': 'https://db.nexanahq.com/news',
+    },
   },
   openGraph: {
-    title: "ニュース一覧 | Nexana Database",
-    description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信",
+    title: "ニュース一覧 | Nexana Database | スタートアップ調達・M&A情報",
+    description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信。VC、CVCの投資情報、資金調達ニュースも掲載。",
     type: "website",
     url: "https://db.nexanahq.com/news",
+    locale: "ja_JP",
+    alternateLocale: ["en_US"],
+    siteName: "Nexana Database",
+    images: [
+      {
+        url: "https://db.nexanahq.com/news.image.png",
+        width: 1200,
+        height: 630,
+        alt: "スタートアップ調達・M&A情報",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ニュース一覧 | Nexana Database",
+    description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信",
+    images: ["https://db.nexanahq.com/news.image.png"],
   },
 };
 
@@ -157,8 +179,83 @@ export default async function NewsPage({
   // データベース側で既にpublishedAt: "desc"でソート済みのため、追加のソートは不要
   const filteredNews = Array.isArray(news) ? news : [];
 
+  // 構造化データ（BreadcrumbList）
+  const breadcrumbStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "ホーム",
+        "item": "https://db.nexanahq.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "ニュース",
+        "item": "https://db.nexanahq.com/news"
+      }
+    ]
+  };
+
+  // 構造化データ（CollectionPage + ItemList）
+  const collectionPageStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "ニュース一覧",
+    "description": "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信",
+    "url": "https://db.nexanahq.com/news",
+    "mainEntity": {
+      "@type": "ItemList",
+      "numberOfItems": pagination.totalCount,
+      "itemListElement": filteredNews.slice(0, 10).map((item, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "item": {
+          "@type": "NewsArticle",
+          "headline": item.title,
+          "description": item.description || "",
+          "datePublished": item.publishedAt ? new Date(item.publishedAt).toISOString() : new Date(item.createdAt).toISOString(),
+          "dateModified": new Date(item.updatedAt).toISOString(),
+          "author": {
+            "@type": "Organization",
+            "name": item.company
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Nexana Database",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://db.nexanahq.com/nexanadata.png"
+            }
+          },
+          "url": item.sourceUrl || `https://db.nexanahq.com/news`,
+          "image": item.imageUrl ? {
+            "@type": "ImageObject",
+            "url": item.imageUrl
+          } : undefined
+        }
+      }))
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <Script
+        id="breadcrumb-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbStructuredData),
+        }}
+      />
+      <Script
+        id="collection-page-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionPageStructuredData),
+        }}
+      />
       <ClientHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-10">

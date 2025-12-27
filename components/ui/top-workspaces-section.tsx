@@ -211,6 +211,7 @@ export default function TopWorkspacesSection({ topWorkspaces }: TopWorkspacesSec
                           alt={workspace.name}
                           fill
                           className="object-cover"
+                          loading="lazy"
                         />
                       </div>
                     ) : (
