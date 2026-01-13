@@ -12,6 +12,17 @@ export const metadata: Metadata = {
   title: "ワークスペース一覧 | Nexana Database | シェアオフィス・コワーキングスペース情報",
   description: "世界各国・都市のワークスペース情報を掲載。シェアオフィス、コワーキングスペース、インキュベーション施設の情報を提供。スタートアップ、起業家、リモートワーカー向けのワークスペース情報をデータベース化。ネクサナ（nexana）が運営するプラットフォーム。",
   keywords: "ワークスペース, ワークスペース情報, シェアオフィス, シェアオフィス情報, シェアオフィス運営, コワーキングスペース, コワーキング, インキュベーション施設, インキュベーター, 都市, ロケーション, 地域情報, 地域, 日本, アメリカ, ヨーロッパ, スタートアップ, 起業家, リモートワーク, リモートワーカー, ネクサナ, nexana, ねくさな, workspace, coworking space, shared office, incubation facility, startup workspace, remote work, location, city, Japan, US, Europe",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   alternates: {
     canonical: "https://db.nexanahq.com/workspace",
     languages: {

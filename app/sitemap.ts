@@ -108,7 +108,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       latestOpenCall,
       latestLocation,
       latestNews,
+      latestStartupBoard,
       activeLocations,
+      activeStartupBoards,
     ] = await Promise.all([
       prisma.contest.findFirst({
         where: { isActive: true },
@@ -130,9 +132,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         orderBy: { updatedAt: 'desc' },
         select: { updatedAt: true },
       }),
+      prisma.startupBoard.findFirst({
+        where: { isActive: true },
+        orderBy: { updatedAt: 'desc' },
+        select: { updatedAt: true },
+      }),
       prisma.location.findMany({
         where: { isActive: true },
         select: { slug: true, updatedAt: true },
+      }),
+      prisma.startupBoard.findMany({
+        where: { isActive: true },
+        select: { id: true, updatedAt: true },
       }),
     ])
 
@@ -143,6 +154,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const openCallsLastModified = latestOpenCall?.updatedAt.toISOString() || now.toISOString()
     const locationsLastModified = latestLocation?.updatedAt.toISOString() || now.toISOString()
     const newsLastModified = latestNews?.updatedAt.toISOString() || now.toISOString()
+    const startupBoardsLastModified = latestStartupBoard?.updatedAt.toISOString() || now.toISOString()
 
     // 基本ページ（トップ、一覧、静的ページ）
     const sitemapEntries: MetadataRoute.Sitemap = [
@@ -178,6 +190,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'hourly' as const,
         priority: 0.9,
       },
+      {
+        url: `${BASE_URL}/startup-boards`,
+        lastModified: startupBoardsLastModified,
+        changeFrequency: 'daily' as const,
+        priority: 0.9,
+      },
       // 静的ページ
       {
         url: `${BASE_URL}/contact`,
@@ -210,6 +228,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           priority: 0.8,
         })
       }
+    })
+
+    // 個別のスタートアップボードページを追加
+    activeStartupBoards.forEach((board) => {
+      sitemapEntries.push({
+        url: `${BASE_URL}/startup-boards/${board.id}`,
+        lastModified: board.updatedAt.toISOString(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      })
     })
 
     return sitemapEntries

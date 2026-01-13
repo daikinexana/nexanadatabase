@@ -9,6 +9,17 @@ export const metadata: Metadata = {
   title: "コンテスト一覧 | Nexana Database | スタートアップ・ビジネスコンテスト情報",
   description: "スタートアップ・ビジネスコンテスト、ピッチコンテスト、ハッカソン、アクセラレーションプログラムの情報を掲載。公募・募集・開催情報をデータベース化。起業したい人、スタートアップCEO、新規事業担当者向けのコンテスト情報を網羅。ネクサナ（nexana）が運営するイノベーションプラットフォーム。",
   keywords: "スタートアップ, スタートアップコンテスト, スタートアップ情報, コンテスト, コンテスト情報, ビジネスコンテスト, ビジネスコンテスト情報, ピッチコンテスト, ピッチ, ピッチイベント, ハッカソン, ハッカソン情報, アクセラ, アクセラレーション, アクセラレータ, アクセラレータープログラム, プログラム, 公募, 公募情報, 募集, 募集情報, 開催, 開催情報, 起業, 起業したい, 起業家, 起業支援, CEO, 新規事業, 新規事業担当, イノベーション, イノベーション情報, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, startup contest, pitch contest, business competition, hackathon, accelerator, acceleration program, entrepreneurship, entrepreneur, innovation, startup information",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   alternates: {
     canonical: "https://db.nexanahq.com/contests",
     languages: {

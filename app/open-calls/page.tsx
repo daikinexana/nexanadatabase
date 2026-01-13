@@ -9,6 +9,17 @@ export const metadata: Metadata = {
   title: "公募一覧 | Nexana Database | オープンイノベーション公募・募集情報",
   description: "企業や行政が募集する課題解決パートナー、協業相手の公募・募集情報を掲載。スタートアップ・大企業・大学向けのオープンイノベーション情報をデータベース化。共創プロジェクト、アクセラレーションプログラムの公募情報も掲載。ネクサナ（nexana）が運営するイノベーションプラットフォーム。",
   keywords: "公募, 公募情報, 募集, 募集情報, パートナーシップ, 協業, 協業パートナー, 課題解決, 課題解決パートナー, 企業, 大企業, 自治体, 行政, 行政担当者, 市区町村, 広域行政, スタートアップ, オープンイノベーション, オープンイノベーション情報, オープンイノベーションプラットフォーム, 共創, 共創プロジェクト, イノベーション, イノベーション情報, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, 大学, 大学担当者, ディープテック, ディープテックスタートアップ, open call, open innovation, partnership, collaboration, corporate innovation, startup partnership, innovation platform",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   alternates: {
     canonical: "https://db.nexanahq.com/open-calls",
     languages: {

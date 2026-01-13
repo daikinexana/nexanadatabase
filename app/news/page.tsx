@@ -10,6 +10,17 @@ export const metadata: Metadata = {
   title: "ニュース一覧 | Nexana Database | スタートアップ調達・M&A情報",
   description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信。VC、CVCの投資情報、資金調達ニュース、買収・合併情報も掲載。イノベーション・オープンイノベーションに関する最新ニュースをデータベース化。ネクサナ（nexana）が運営するプラットフォーム。",
   keywords: "スタートアップ, スタートアップ情報, スタートアップ調達, スタートアップ調達ニュース, スタートアップM&A, 調達, 調達情報, 調達ニュース, 資金調達, ファンディング, 投資, 投資情報, M&A, M&A情報, M&Aニュース, 買収, 合併, IPO, IPO情報, 上場, 上場情報, VC, ベンチャーキャピタル, CVC, コーポレートベンチャーキャピタル, ニュース, イノベーション, イノベーション情報, オープンイノベーション, オープンイノベーション情報, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, startup funding, startup M&A, startup IPO, venture capital, CVC, corporate venture capital, funding news, M&A news, IPO news, investment, innovation news",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   alternates: {
     canonical: "https://db.nexanahq.com/news",
     languages: {

@@ -67,6 +67,10 @@ export async function generateMetadata(
   if (!board) {
     return {
       title: "スタートアップが見つかりません | スタ募 STABO",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
@@ -74,6 +78,17 @@ export async function generateMetadata(
     title: `${board.companyName} | スタ募 STABO | Nexana Database`,
     description: board.companyDescriptionOneLine || `${board.companyName}の詳細情報。調達・採用・提案・共創の募集状況を掲載。`,
     keywords: `${board.companyName}, スタートアップ, ${board.city}, ${board.country}, スタ募, STABO, 調達, 採用, 提案, 共創`,
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
     alternates: {
       canonical: `https://db.nexanahq.com/startup-boards/${id}`,
     },

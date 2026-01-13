@@ -10,6 +10,17 @@ export const metadata: Metadata = {
   title: "スタ募 STABO | スタートアップ無料募集掲示板 | Nexana Database",
   description: "スタートアップの無料募集掲示板（調達・採用・提案・公募）。スタートアップ企業の情報を掲載。調達募集中、採用募集中、提案募集中、共創募集中のスタートアップを検索できます。",
   keywords: "スタートアップ, スタートアップ募集, スタートアップ採用, スタートアップ調達, スタートアップ提案, スタートアップ共創, スタ募, STABO, Startup Board, 起業, 起業家, スタートアップ情報, スタートアップデータベース, ネクサナ, nexana, startup, startup board, startup recruitment, startup hiring, startup funding, startup collaboration",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   alternates: {
     canonical: "https://db.nexanahq.com/startup-boards",
     languages: {
