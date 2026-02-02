@@ -66,7 +66,6 @@ interface News {
   sourceUrl: string | null;
   type: string;
   area: string | null;
-  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -93,13 +92,17 @@ async function getNews(page: number = 1, limit: number = 50): Promise<NewsRespon
     const { prisma } = await import("@/lib/prisma");
     
     const skip = (page - 1) * limit;
-    const where = { isActive: true };
+    // インデックスを活用したwhere条件
+    const where = { 
+      isActive: true,
+    };
     
     // 総件数とデータを並列取得で最適化
     const [totalCount, news] = await Promise.all([
       prisma.news.count({ where }),
       prisma.news.findMany({
         where,
+        // 必要なフィールドのみ選択（パフォーマンス向上）
         select: {
           id: true,
           title: true,
@@ -113,10 +116,11 @@ async function getNews(page: number = 1, limit: number = 50): Promise<NewsRespon
           sourceUrl: true,
           type: true,
           area: true,
-          isActive: true,
           createdAt: true,
-          updatedAt: true,
+          updatedAt: true, // 構造化データで必要
+          // isActiveは不要なので削除
         },
+        // publishedAtのインデックスを活用
         orderBy: {
           publishedAt: "desc",
         },
@@ -125,10 +129,10 @@ async function getNews(page: number = 1, limit: number = 50): Promise<NewsRespon
       }),
     ]);
 
-    // 投資家を配列に変換
+    // 投資家を配列に変換（一度だけ実行）
     const newsWithArrayInvestors = news.map(newsItem => ({
       ...newsItem,
-      investors: newsItem.investors ? newsItem.investors.split(',') : []
+      investors: newsItem.investors ? newsItem.investors.split(',').filter(Boolean) : []
     }));
 
     // ページネーション情報を含めて返す
@@ -161,10 +165,9 @@ async function getNews(page: number = 1, limit: number = 50): Promise<NewsRespon
   }
 }
 
-// 動的レンダリングに変更して最新データを常に取得（削除されたデータを即座に反映）
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
+// ISRを使用してパフォーマンスを最適化（5分ごとに再生成）
 export const revalidate = 300; // 5分キャッシュ（ニュースは更新頻度が高いため短めに設定）
+export const runtime = 'nodejs';
 export const preferredRegion = 'auto';
 
 export default async function NewsPage({
@@ -228,7 +231,7 @@ export default async function NewsPage({
           "headline": item.title,
           "description": item.description || "",
           "datePublished": item.publishedAt ? new Date(item.publishedAt).toISOString() : new Date(item.createdAt).toISOString(),
-          "dateModified": new Date(item.updatedAt).toISOString(),
+          "dateModified": item.updatedAt ? new Date(item.updatedAt).toISOString() : new Date(item.createdAt).toISOString(),
           "author": {
             "@type": "Organization",
             "name": item.company
@@ -303,7 +306,7 @@ export default async function NewsPage({
         {filteredNews.length > 0 ? (
           <>
             <div className="space-y-4 sm:space-y-6 md:space-y-8">
-              {filteredNews.map((item) => (
+              {filteredNews.map((item, index) => (
                  <NewsItem
                    key={item.id}
                    title={item.title}
@@ -318,6 +321,7 @@ export default async function NewsPage({
                    type={item.type}
                    area={item.area}
                    createdAt={item.createdAt}
+                   priority={index < 3} // 最初の3枚の画像を優先読み込み
                  />
               ))}
             </div>

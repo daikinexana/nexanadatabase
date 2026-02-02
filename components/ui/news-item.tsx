@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo } from "react";
 import Image from "next/image";
 import { Newspaper } from "lucide-react";
 import Modal from "./modal";
@@ -18,9 +18,10 @@ interface NewsItemProps {
   type: string;
   area: string | null;
   createdAt: Date;
+  priority?: boolean; // 画像の優先読み込みフラグ
 }
 
-export default function NewsItem({
+function NewsItem({
   title,
   description,
   imageUrl,
@@ -33,6 +34,7 @@ export default function NewsItem({
   type,
   area,
   createdAt,
+  priority = false,
 }: NewsItemProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -61,6 +63,10 @@ export default function NewsItem({
                        height={192}
                        className="w-full h-40 sm:h-44 md:h-48 object-cover rounded-lg sm:rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300"
                        sizes="(max-width: 640px) 100vw, 320px"
+                       priority={priority}
+                       loading={priority ? "eager" : "lazy"}
+                       placeholder="blur"
+                       blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                      />
                    </div>
           ) : (
@@ -348,3 +354,6 @@ export default function NewsItem({
     </>
   );
 }
+
+// メモ化して不要な再レンダリングを防ぐ
+export default memo(NewsItem);
