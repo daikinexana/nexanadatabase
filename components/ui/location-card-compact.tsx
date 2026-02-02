@@ -13,11 +13,7 @@ interface LocationCardCompactProps {
     city: string;
     description?: string | null;
     topImageUrl?: string | null;
-    workspaces: Array<{
-      id: string;
-      name: string;
-      imageUrl?: string | null;
-    }>;
+    workspaceCount: number;
   };
 }
 
@@ -52,11 +48,11 @@ function LocationCardCompact({ location }: LocationCardCompactProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/5 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
         
         {/* ワークスペース数バッジ - より洗練された */}
-        {location.workspaces && location.workspaces.length > 0 && (
+        {location.workspaceCount > 0 && (
           <div className="absolute bottom-2 left-2 z-20">
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-black/75 backdrop-blur-md text-white text-[10px] font-bold rounded-md border border-white/20 shadow-sm">
               <span className="w-1 h-1 bg-emerald-400 rounded-full animate-pulse"></span>
-              {location.workspaces.length}
+              {location.workspaceCount}
             </span>
           </div>
         )}

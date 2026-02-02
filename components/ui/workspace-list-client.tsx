@@ -10,11 +10,7 @@ interface Location {
   description?: string | null;
   topImageUrl?: string | null;
   isActive: boolean;
-  workspaces: Array<{
-    id: string;
-    name: string;
-    imageUrl?: string | null;
-  }>;
+  workspaceCount: number;
 }
 
 interface WorkspaceListClientProps {

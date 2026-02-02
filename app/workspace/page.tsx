@@ -7,6 +7,7 @@ import TopWorkspacesSection from "@/components/ui/top-workspaces-section";
 import WorkspaceListClient from "@/components/ui/workspace-list-client";
 import { prisma } from "@/lib/prisma";
 import Script from "next/script";
+import { REGION_ORDER, PREFECTURE_TO_REGION } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "ワークスペース一覧 | Nexana Database | シェアオフィス・コワーキングスペース情報",
@@ -63,14 +64,7 @@ interface Location {
   description?: string | null;
   topImageUrl?: string | null;
   isActive: boolean;
-  _count?: {
-    workspaces: number;
-  };
-  workspaces: Array<{
-    id: string;
-    name: string;
-    imageUrl?: string | null;
-  }>;
+  workspaceCount: number;
 }
 
 interface TopWorkspace {
@@ -115,15 +109,16 @@ async function getLocations(): Promise<Location[]> {
       ],
     });
 
-    // _countをworkspaces配列に変換（LocationCardCompactコンポーネントの互換性のため）
-    // 実際のワークスペースデータは不要なので、カウントのみを使用
+    // _countをworkspaceCountに変換（不要なダミーデータ作成を削除）
     return locations.map(location => ({
-      ...location,
-      workspaces: Array(location._count.workspaces).fill(null).map((_, i) => ({
-        id: `${location.id}-ws-${i}`,
-        name: '',
-        imageUrl: null,
-      })),
+      id: location.id,
+      slug: location.slug,
+      country: location.country,
+      city: location.city,
+      description: location.description,
+      topImageUrl: location.topImageUrl,
+      isActive: location.isActive,
+      workspaceCount: location._count.workspaces,
     }));
   } catch (error) {
     console.error("Error fetching locations:", error);
@@ -133,8 +128,8 @@ async function getLocations(): Promise<Location[]> {
 
 async function getTopWorkspaces(): Promise<TopWorkspace[]> {
   try {
-    // まず、アクティブなワークスペースのIDリストを取得
-    const activeWorkspaces = await prisma.workspace.findMany({
+    // まず、アクティブなワークスペースのIDリストを取得（並列処理のため軽量なクエリ）
+    const activeWorkspaceIds = await prisma.workspace.findMany({
       where: {
         isActive: true,
       },
@@ -143,19 +138,19 @@ async function getTopWorkspaces(): Promise<TopWorkspace[]> {
       },
     });
 
-    const activeWorkspaceIds = activeWorkspaces.map(ws => ws.id);
+    const workspaceIdList = activeWorkspaceIds.map(ws => ws.id);
 
     // アクティブなワークスペースが存在しない場合は空配列を返す
-    if (activeWorkspaceIds.length === 0) {
+    if (workspaceIdList.length === 0) {
       return [];
     }
 
-    // アクティブなワークスペースのいいね数のみを集計
-    const topWorkspaceIds = await prisma.workspaceLike.groupBy({
+    // アクティブなワークスペースのいいね数を集計し、上位10件を取得
+    const topWorkspaceLikes = await prisma.workspaceLike.groupBy({
       by: ['workspaceId'],
       where: {
         workspaceId: {
-          in: activeWorkspaceIds,
+          in: workspaceIdList,
         },
       },
       _count: {
@@ -169,17 +164,17 @@ async function getTopWorkspaces(): Promise<TopWorkspace[]> {
       take: 10,
     });
 
-    // 取得したIDのリストを作成
-    const workspaceIds = topWorkspaceIds.map(item => item.workspaceId);
-    
     // いいね数が0件の場合は空配列を返す
-    if (workspaceIds.length === 0) {
+    if (topWorkspaceLikes.length === 0) {
       return [];
     }
+
+    // 取得したIDのリストを作成
+    const workspaceIds = topWorkspaceLikes.map(item => item.workspaceId);
     
     // いいね数のマップを作成（後でソートに使用）
     const likeCountMap = new Map(
-      topWorkspaceIds.map(item => [item.workspaceId, item._count.workspaceId])
+      topWorkspaceLikes.map(item => [item.workspaceId, item._count.workspaceId])
     );
 
     // ワークスペース情報を一括取得
@@ -242,77 +237,14 @@ export default async function WorkspacePage() {
     getTopWorkspaces(),
   ]);
 
-  // 8地方区分の定義
-  const regionOrder = [
-    '北海道',
-    '東北',
-    '関東',
-    '中部',
-    '近畿',
-    '中国',
-    '四国',
-    '九州・沖縄'
-  ];
-
-  // 都道府県から地方区分へのマッピング
-  const prefectureToRegion: Record<string, string> = {
-    '北海道': '北海道',
-    '青森県': '東北',
-    '岩手県': '東北',
-    '宮城県': '東北',
-    '秋田県': '東北',
-    '山形県': '東北',
-    '福島県': '東北',
-    '茨城県': '関東',
-    '栃木県': '関東',
-    '群馬県': '関東',
-    '埼玉県': '関東',
-    '千葉県': '関東',
-    '東京都': '関東',
-    '神奈川県': '関東',
-    '新潟県': '中部',
-    '富山県': '中部',
-    '石川県': '中部',
-    '福井県': '中部',
-    '山梨県': '中部',
-    '長野県': '中部',
-    '岐阜県': '中部',
-    '静岡県': '中部',
-    '愛知県': '中部',
-    '三重県': '近畿',
-    '滋賀県': '近畿',
-    '京都府': '近畿',
-    '大阪府': '近畿',
-    '兵庫県': '近畿',
-    '奈良県': '近畿',
-    '和歌山県': '近畿',
-    '鳥取県': '中国',
-    '島根県': '中国',
-    '岡山県': '中国',
-    '広島県': '中国',
-    '山口県': '中国',
-    '徳島県': '四国',
-    '香川県': '四国',
-    '愛媛県': '四国',
-    '高知県': '四国',
-    '福岡県': '九州・沖縄',
-    '佐賀県': '九州・沖縄',
-    '長崎県': '九州・沖縄',
-    '熊本県': '九州・沖縄',
-    '大分県': '九州・沖縄',
-    '宮崎県': '九州・沖縄',
-    '鹿児島県': '九州・沖縄',
-    '沖縄県': '九州・沖縄'
-  };
-
   // 都道府県から地方区分を取得する関数
   const getRegion = (city: string): string => {
-    return prefectureToRegion[city] || 'その他';
+    return PREFECTURE_TO_REGION[city] || 'その他';
   };
 
   // 地方区分の順序を取得する関数
   const getRegionOrder = (region: string): number => {
-    const index = regionOrder.indexOf(region);
+    const index = [...REGION_ORDER].indexOf(region as typeof REGION_ORDER[number]);
     return index === -1 ? 999 : index;
   };
 
@@ -456,7 +388,7 @@ export default async function WorkspacePage() {
 
         {/* ロケーション一覧 */}
         <WorkspaceListClient
-          regionOrder={regionOrder}
+          regionOrder={[...REGION_ORDER]}
           locationsByRegion={locationsByRegion}
           locationsByCountry={locationsByCountry}
         />
