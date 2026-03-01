@@ -61,6 +61,9 @@ npm install
 
 ```env
 # Database
+# Neonを使用する場合、コスト削減のためPooler URLを使用することを強く推奨
+# Pooler URLの形式: postgresql://user:pass@ep-xxx-xxx-pooler.region.aws.neon.tech/dbname?sslmode=require
+# 詳細は NEON_COST_OPTIMIZATION.md を参照してください
 DATABASE_URL="postgresql://username:password@localhost:5432/nexanadatabase"
 
 # Clerk Authentication (削除済み)
@@ -86,6 +89,16 @@ GOOGLE_VERIFICATION_CODE=your_google_verification_code
 ```
 
 ### 3. データベースのセットアップ
+
+#### Neonデータベースを使用する場合（コスト削減の推奨事項）
+
+Neonデータベースを使用する場合、**コスト削減のためPooler URLを使用することを強く推奨**します。
+
+1. [Neon Console](https://console.neon.tech/)でPooler URLを取得
+2. `DATABASE_URL`にPooler URLを設定（URLに`-pooler`が含まれていることを確認）
+3. これにより、Scale to zeroが正常に機能し、大幅なコスト削減が期待できます
+
+詳細は [NEON_COST_OPTIMIZATION.md](./NEON_COST_OPTIMIZATION.md) を参照してください。
 
 ```bash
 # Prismaクライアントの生成
