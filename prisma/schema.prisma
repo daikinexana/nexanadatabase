@@ -102,6 +102,36 @@ model OpenCall {
   @@map("open_calls")
 }
 
+// /opportunities 専用の統合モデル（コンテスト/公募を kind で区別）
+model Opportunity {
+  id               String    @id @default(cuid())
+  kind             String    // "contest" | "open-call"
+  title            String
+  organizer        String
+  organizerType    String?
+  area             String
+  deadline         DateTime
+  startDate        DateTime
+  website          String
+  description      String?
+  imageUrl         String?
+  benefit          String?   // 賞金・特典 / 提供リソースを統一
+  targetArea       String?
+  targetAudience   String?
+  operatingCompany String?
+  isActive         Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([isActive])
+  @@index([kind])
+  @@index([area])
+  @@index([organizerType])
+  @@index([deadline])
+  @@index([createdAt])
+  @@map("opportunities")
+}
+
 model News {
   id          String    @id @default(cuid())
   title       String
@@ -245,6 +275,8 @@ model Location {
 model Workspace {
   id                      String    @id @default(cuid())
   name                    String
+  description             String?
+  infoCards               Json?
   imageUrl                String?
   country                 String
   city                    String

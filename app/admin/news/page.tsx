@@ -2,11 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 // import { useRouter } from "next/navigation";
-import Header from "@/components/ui/header";
-import Footer from "@/components/ui/footer";
+import Link from "next/link";
 import AdminGuard from "@/components/admin/admin-guard";
-import AdminNav from "@/components/ui/admin-nav";
-import { Plus, Edit, Trash2, Save, RefreshCw } from "lucide-react";
+import { Plus, Edit, Trash2, Save, RefreshCw, ArrowLeft } from "lucide-react";
 import SimpleImage from "@/components/ui/simple-image";
 import ImageUpload from "@/components/ui/image-upload";
 
@@ -372,10 +370,15 @@ export default function AdminNewsPage() {
   return (
     <AdminGuard>
       <div className="min-h-screen bg-gray-50">
-        <Header />
-        <AdminNav />
-        
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Link
+            href="/admin"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            管理ダッシュボードに戻る
+          </Link>
+
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
@@ -1059,8 +1062,6 @@ export default function AdminNewsPage() {
             )}
           </div>
         </div>
-
-        <Footer />
       </div>
     </AdminGuard>
   );

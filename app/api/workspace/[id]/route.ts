@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { normalizeInfoCards } from "@/lib/workspace-info-cards";
 
 export async function GET(
   request: NextRequest,
@@ -39,9 +40,15 @@ export async function PUT(
     const resolvedParams = await params;
     const body = await request.json();
 
+    // infoCards が含まれる場合は正規化してから保存
+    const data = { ...body };
+    if ("infoCards" in data) {
+      data.infoCards = normalizeInfoCards(data.infoCards);
+    }
+
     const workspace = await prisma.workspace.update({
       where: { id: resolvedParams.id },
-      data: body,
+      data,
     });
 
     return NextResponse.json(workspace);

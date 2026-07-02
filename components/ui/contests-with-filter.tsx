@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ContestsHybridDisplay from "./contests-hybrid-display";
-import ContestOrganizerButton from "./contest-organizer-button";
+// import ContestOrganizerButton from "./contest-organizer-button";
 import { Search } from "lucide-react";
 
 interface Contest {
@@ -125,8 +125,8 @@ export default function ContestsWithFilter({
 
   return (
     <>
-      {/* コンテスト主催者向けボタン */}
-      <ContestOrganizerButton />
+      {/* コンテスト主催者向けボタン（非表示） */}
+      {/* <ContestOrganizerButton /> */}
 
       {/* 検索バー - iPhone 16最適化 */}
       <div className="mb-6 sm:mb-8">

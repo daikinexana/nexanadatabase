@@ -1,9 +1,45 @@
 "use client";
 
-import { useState, memo } from "react";
+import { useState, memo, useEffect } from "react";
 import Image from "next/image";
-import { Newspaper } from "lucide-react";
-import Modal from "./modal";
+import {
+  Newspaper,
+  X,
+  MapPin,
+  Building2,
+  Users,
+  ExternalLink,
+} from "lucide-react";
+
+// ニュース種別のラベル（DB値の大文字・旧小文字表記の両方に対応）
+function newsTypeLabel(type: string): string {
+  switch (type) {
+    case "FUNDING":
+    case "funding":
+      return "💰 資金調達";
+    case "M_AND_A":
+    case "m&a":
+      return "🤝 M&A";
+    case "IPO":
+    case "ipo":
+      return "📈 IPO";
+    case "PARTNERSHIP":
+    case "partnership":
+      return "🤝 パートナーシップ";
+    case "OTHER":
+    case "other":
+      return "📰 その他";
+    default:
+      return type;
+  }
+}
+
+function formatFullDate(value?: Date | string | null): string {
+  if (!value) return "";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return "";
+  return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+}
 
 interface NewsItemProps {
   title: string;
@@ -46,6 +82,21 @@ function NewsItem({
     e.stopPropagation();
   };
 
+  // モーダル表示中はEscで閉じ、背景スクロールを固定（/opportunities と同じ挙動）
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsModalOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isModalOpen]);
+
   return (
     <>
       <article
@@ -86,10 +137,7 @@ function NewsItem({
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3 md:mb-4">
               <span className="inline-flex items-center px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 border border-emerald-200 shadow-sm">
-                {type === 'funding' ? '💰 資金調達' : 
-                 type === 'm&a' ? '🤝 M&A' : 
-                 type === 'ipo' ? '📈 IPO' : 
-                 type}
+                {newsTypeLabel(type)}
               </span>
               {sector && (
                 <span className="inline-flex items-center px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200 shadow-sm">
@@ -153,204 +201,134 @@ function NewsItem({
         </div>
       </article>
 
-      {/* モーダル */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={title}
-      >
-        <div className="h-full flex flex-col">
-          {/* コンテンツセクション - PC版: 左半分固定、右半分スクロール / スマホ版: 縦積み */}
-          <div className="flex-1 flex flex-col lg:flex-row bg-white overflow-hidden">
-            {/* 左半分: 固定 (PC版のみ) */}
-            <div className="hidden lg:block w-80 flex-shrink-0 p-6 border-r border-gray-200">
-              {/* 左側コンテンツ */}
-              <div className="flex flex-col h-full">
-                {/* 画像セクション - 上部に配置 */}
-                {imageUrl ? (
-                  <div className="relative h-60 w-full overflow-hidden rounded-lg border border-gray-200 flex-shrink-0 mb-4">
-                    <Image
-                      src={imageUrl}
-                      alt={title}
-                      fill
-                      priority={true}
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                  </div>
-                ) : (
-                  <div className="relative h-60 w-full bg-gray-100 flex items-center justify-center rounded-lg border border-gray-200 flex-shrink-0 mb-4">
-                    <div className="text-center">
-                      <Newspaper className="h-16 w-16 text-gray-400 mx-auto mb-3" />
-                      <p className="text-gray-500 text-sm">画像なし</p>
-                    </div>
-                  </div>
-                )}
+      {/* 詳細モーダル（/opportunities と同じデザイン） */}
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4"
+          role="dialog"
+          aria-modal="true"
+        >
+          {/* 背景 */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setIsModalOpen(false)}
+          />
 
-                {/* アクションボタン - 画像の下に配置 */}
-                <div className="space-y-2 flex-shrink-0">
-                  {/* ソースリンク */}
-                  {sourceUrl && (
-                    <a
-                      href={sourceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full group inline-flex items-center justify-center px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 hover:text-gray-900 font-semibold rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-sm border border-gray-200"
-                    >
-                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                      詳細を見る
-                    </a>
-                  )}
+          {/* 本体 */}
+          <div className="relative w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] sm:max-h-[88vh] overflow-y-auto">
+            {/* 閉じるボタン */}
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              aria-label="閉じる"
+              className="absolute top-3 right-3 z-20 inline-flex items-center justify-center w-9 h-9 rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* 画像 */}
+            <div className="relative w-full aspect-[16/9] bg-gradient-to-br from-gray-100 to-gray-200">
+              {imageUrl ? (
+                <Image
+                  src={imageUrl}
+                  alt={title}
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, 512px"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Newspaper className="h-10 w-10 text-gray-300" />
                 </div>
+              )}
+              <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold backdrop-blur-sm bg-emerald-500/90 text-white">
+                  {newsTypeLabel(type)}
+                </span>
               </div>
             </div>
 
-            {/* 右半分: スクロール可能 (PC版) / 全体: スクロール可能 (スマホ版) */}
-            <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
-              <div className="space-y-3 sm:space-y-4 lg:space-y-6">
-                {/* スマホ版: 画像を上部に表示 - iPhone 16最適化 */}
-                <div className="lg:hidden">
-                  {imageUrl ? (
-                    <div className="relative h-40 sm:h-48 w-full overflow-hidden rounded-lg border border-gray-200 mb-3 sm:mb-4">
-                      <Image
-                        src={imageUrl}
-                        alt={title}
-                        fill
-                        priority={true}
-                        className="object-cover"
-                        sizes="100vw"
-                      />
-                    </div>
-                  ) : (
-                    <div className="relative h-40 sm:h-48 w-full bg-gray-100 flex items-center justify-center rounded-lg border border-gray-200 mb-3 sm:mb-4">
-                      <div className="text-center">
-                        <Newspaper className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-2" />
-                        <p className="text-gray-500 text-xs sm:text-sm">画像なし</p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* スマホ版: アクションボタンを画像の下に配置 - iPhone 16最適化 */}
-                  <div className="flex flex-col space-y-2 mb-4 sm:mb-6">
-                    {/* ソースリンク */}
-                    {sourceUrl && (
-                      <a
-                        href={sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full inline-flex items-center justify-center px-4 py-3 sm:py-3.5 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-800 hover:text-gray-900 font-semibold rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-sm sm:text-base border border-gray-200 min-h-[44px] touch-manipulation"
-                      >
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                        詳細を見る
-                      </a>
-                    )}
-                  </div>
+            {/* コンテンツ */}
+            <div className="p-4 sm:p-6">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                {area && (
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-500">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-500/70" />
+                    {area}
+                  </span>
+                )}
+                {sector && (
+                  <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                    {sector}
+                  </span>
+                )}
+              </div>
+
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 leading-snug mb-2">
+                {title}
+              </h2>
+
+              <p className="inline-flex items-center gap-1.5 text-sm text-gray-600 mb-4">
+                <Building2 className="w-4 h-4 text-gray-400" />
+                {company}
+              </p>
+
+              {/* メタ情報 */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="rounded-lg bg-gray-50 border border-gray-100 p-3">
+                  <p className="text-[10px] font-semibold text-gray-400 mb-0.5">公開日</p>
+                  <p className="text-sm font-medium text-gray-800">
+                    {formatFullDate(publishedAt ?? createdAt)}
+                  </p>
                 </div>
-                {/* 基本情報カード - iPhone 16最適化 */}
-                <div className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 lg:mb-6 flex items-center">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-black rounded-full flex items-center justify-center mr-2 sm:mr-3">
-                      <span className="text-white text-xs sm:text-sm font-bold">N</span>
-                    </div>
-                    基本情報
-                  </h3>
-                  
-                  <div className="space-y-3 sm:space-y-4 lg:space-y-6">
-                    <div className="border-l-4 border-gray-300 pl-2.5 sm:pl-3 lg:pl-4">
-                      <label className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">企業名</label>
-                      <p className="text-gray-900 font-semibold text-sm sm:text-base lg:text-lg mt-1.5 sm:mt-2 break-words">{company}</p>
-                    </div>
-
-                    <div className="border-l-4 border-gray-300 pl-2.5 sm:pl-3 lg:pl-4">
-                      <label className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">ニュースタイプ</label>
-                      <div className="mt-1.5 sm:mt-2">
-                        <span className="inline-flex items-center px-2.5 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-full text-xs sm:text-sm font-bold bg-gray-100 text-gray-800 border border-gray-200">
-                          {type === 'funding' ? '💰 資金調達' : 
-                           type === 'm&a' ? '🤝 M&A' : 
-                           type === 'ipo' ? '📈 IPO' : 
-                           type}
-                        </span>
-                      </div>
-                    </div>
-
-                    {sector && (
-                      <div className="border-l-4 border-gray-300 pl-2.5 sm:pl-3 lg:pl-4">
-                        <label className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">セクター</label>
-                        <div className="mt-1.5 sm:mt-2">
-                          <span className="inline-flex items-center px-2.5 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-full text-xs sm:text-sm font-bold bg-gray-100 text-gray-800 border border-gray-200 break-words">
-                            {sector}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {area && (
-                      <div className="border-l-4 border-gray-300 pl-2.5 sm:pl-3 lg:pl-4">
-                        <label className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">エリア</label>
-                        <div className="mt-1.5 sm:mt-2">
-                          <span className="inline-flex items-center px-2.5 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-full text-xs sm:text-sm font-bold bg-gray-100 text-gray-800 border border-gray-200">
-                            {area}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {amount && (
-                      <div className="border-l-4 border-gray-300 pl-2.5 sm:pl-3 lg:pl-4">
-                        <label className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">金額</label>
-                        <div className="mt-1.5 sm:mt-2">
-                          <span className="inline-flex items-center px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium bg-gray-100 text-gray-800 border border-gray-200 break-words">
-                            {amount}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {investors && (
-                      <div className="border-l-4 border-gray-300 pl-2.5 sm:pl-3 lg:pl-4">
-                        <label className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">投資家</label>
-                        <p className="text-gray-900 mt-1.5 sm:mt-2 leading-relaxed text-xs sm:text-sm lg:text-base font-medium break-words">
-                          {Array.isArray(investors) ? investors.join(', ') : investors}
-                        </p>
-                      </div>
-                    )}
-
-                    <div className="border-l-4 border-gray-300 pl-2.5 sm:pl-3 lg:pl-4">
-                      <label className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">公開日</label>
-                      <p className="text-gray-900 mt-1.5 sm:mt-2 text-xs sm:text-sm lg:text-base font-medium">
-                        {publishedAt 
-                          ? new Date(publishedAt).toLocaleDateString('ja-JP')
-                          : new Date(createdAt).toLocaleDateString('ja-JP')
-                        }
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 説明文カード - iPhone 16最適化 */}
-                {description && (
-                  <div className="bg-white border border-gray-200 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm">
-                    <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 lg:mb-6 flex items-center">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 bg-black rounded-full flex items-center justify-center mr-2 sm:mr-3">
-                        <span className="text-white text-xs sm:text-sm font-bold">D</span>
-                      </div>
-                      概要
-                    </h3>
-                    <div className="border-l-4 border-gray-300 pl-2.5 sm:pl-3 lg:pl-4">
-                      <p className="text-gray-800 leading-relaxed text-xs sm:text-sm lg:text-base font-medium break-words">{description}</p>
-                    </div>
+                {amount && (
+                  <div className="rounded-lg bg-gray-50 border border-gray-100 p-3">
+                    <p className="text-[10px] font-semibold text-gray-400 mb-0.5">調達金額</p>
+                    <p className="text-sm font-medium text-gray-800 break-words">
+                      {amount}
+                    </p>
                   </div>
                 )}
-
               </div>
+
+              {investors && investors.length > 0 && (
+                <div className="mb-4">
+                  <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-400 mb-1">
+                    <Users className="w-3.5 h-3.5" />
+                    投資家
+                  </p>
+                  <p className="text-sm text-gray-700 leading-relaxed break-words">
+                    {Array.isArray(investors) ? investors.join(", ") : investors}
+                  </p>
+                </div>
+              )}
+
+              {description && (
+                <div className="mb-5">
+                  <p className="text-[11px] font-semibold text-gray-400 mb-1">概要</p>
+                  <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                    {description}
+                  </p>
+                </div>
+              )}
+
+              {/* CTA */}
+              {sourceUrl && (
+                <a
+                  href={sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold rounded-lg shadow-sm hover:from-emerald-600 hover:to-teal-600 transition-all min-h-[48px]"
+                >
+                  元記事を見る
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              )}
             </div>
           </div>
         </div>
-      </Modal>
+      )}
     </>
   );
 }

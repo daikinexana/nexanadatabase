@@ -36,9 +36,20 @@ interface StartupBoard {
   createdAt: string;
 }
 
+// 開発環境では実際にアクセスしているホスト（localhost:3001 など）から取得する。
+// 本番では NEXT_PUBLIC_BASE_URL を使う（静的生成のまま）。
+async function getBaseUrl(): Promise<string> {
+  if (process.env.NODE_ENV === 'development') {
+    const { headers } = await import('next/headers');
+    const host = (await headers()).get('host');
+    if (host) return `http://${host}`;
+  }
+  return process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com';
+}
+
 async function getStartupBoard(id: string): Promise<StartupBoard | null> {
   try {
-    const url = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'}/api/startup-boards/${id}`;
+    const url = `${await getBaseUrl()}/api/startup-boards/${id}`;
     
     const response = await fetch(url, {
       next: { revalidate: 300 },

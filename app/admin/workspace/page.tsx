@@ -2,17 +2,19 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Header from "@/components/ui/header";
-import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
-import AdminNav from "@/components/ui/admin-nav";
-import { Briefcase, Plus, Edit, Trash2, Save, X } from "lucide-react";
+import { Briefcase, Plus, Edit, Trash2, Save, X, ArrowLeft } from "lucide-react";
 import SimpleImage from "@/components/ui/simple-image";
 import ImageUpload from "@/components/ui/image-upload";
+import WorkspaceInfoCardsEditor from "@/components/ui/workspace-info-cards-editor";
+import { type InfoCard, normalizeInfoCards } from "@/lib/workspace-info-cards";
+import { deriveCountryCity } from "@/lib/derive-location";
 
 interface Workspace {
   id: string;
   name: string;
+  description?: string;
+  infoCards?: InfoCard[];
   imageUrl?: string;
   country: string;
   city: string;
@@ -124,28 +126,26 @@ interface Workspace {
 
 export default function AdminWorkspacePage() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [locations, setLocations] = useState<Array<{ id: string; slug: string; city: string; country: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingData, setEditingData] = useState<Partial<Workspace>>({});
+  // 編集時のエリア上書き（住所から自動判定できない海外などの予備）
+  const [editArea, setEditArea] = useState('');
   const [formData, setFormData] = useState({
     name: '',
+    description: '',
     imageUrl: '',
-    country: '',
-    city: '',
     address: '',
+    area: '',
     officialLink: '',
     businessHours: '',
     hasDropin: false,
-    hasNexana: false,
     hasMeetingRoom: false,
     hasPhoneBooth: false,
     hasWifi: false,
     hasParking: false,
     priceTable: '',
-    rental: '',
-    notes: '',
     operator: '',
     management: '',
     facilityFeatureOneLine: '',
@@ -163,14 +163,12 @@ export default function AdminWorkspacePage() {
     canDoWebMeeting: false,
     hasEnglishSupport: false,
     meetsNexanaStandard: false,
-    isNexanaRecommended: false,
-    locationId: '',
+    infoCards: [] as InfoCard[],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchWorkspaces();
-    fetchLocations();
   }, []);
 
   const fetchWorkspaces = async () => {
@@ -201,17 +199,6 @@ export default function AdminWorkspacePage() {
     }
   };
 
-  const fetchLocations = async () => {
-    try {
-      const response = await fetch('/api/location');
-      if (response.ok) {
-        const data = await response.json();
-        setLocations(data);
-      }
-    } catch (error) {
-      console.error('ロケーション情報の取得に失敗しました:', error);
-    }
-  };
 
   const deleteWorkspace = async (id: string) => {
     if (!confirm('このワークスペース情報を削除しますか？')) return;
@@ -249,8 +236,11 @@ export default function AdminWorkspacePage() {
 
   const startEditing = (workspace: Workspace) => {
     setEditingId(workspace.id);
+    setEditArea('');
     setEditingData({
       name: workspace.name,
+      description: workspace.description,
+      infoCards: normalizeInfoCards(workspace.infoCards),
       imageUrl: workspace.imageUrl,
       country: workspace.country,
       city: workspace.city,
@@ -361,6 +351,7 @@ export default function AdminWorkspacePage() {
   const cancelEditing = () => {
     setEditingId(null);
     setEditingData({});
+    setEditArea('');
   };
 
   const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -374,6 +365,13 @@ export default function AdminWorkspacePage() {
   const saveEdit = async (id: string) => {
     try {
       const dataToSend = { ...editingData };
+
+      // 住所（＋任意の上書き）からフィルタ用の国・都道府県を自動判定。
+      // 判定できず上書きも無い場合は既存の値を保持（海外データ等を壊さない）。
+      const derived = deriveCountryCity(editingData.address || '', editArea);
+      const isFallback = derived.country === 'その他' && !editArea.trim();
+      dataToSend.country = isFallback ? editingData.country : derived.country;
+      dataToSend.city = isFallback ? editingData.city : derived.city;
 
       const timestamp = Date.now();
       const random = Math.random().toString(36).substring(7);
@@ -426,7 +424,9 @@ export default function AdminWorkspacePage() {
         },
         body: JSON.stringify({
           ...formData,
-          locationId: formData.locationId || null,
+          // 住所（＋任意の上書き）からフィルタ用の国・都道府県を自動判定
+          ...deriveCountryCity(formData.address, formData.area),
+          locationId: null,
         }),
       });
 
@@ -434,21 +434,18 @@ export default function AdminWorkspacePage() {
         await fetchWorkspaces();
         setFormData({
           name: '',
+          description: '',
           imageUrl: '',
-          country: '',
-          city: '',
           address: '',
+          area: '',
           officialLink: '',
           businessHours: '',
           hasDropin: false,
-          hasNexana: false,
           hasMeetingRoom: false,
           hasPhoneBooth: false,
           hasWifi: false,
           hasParking: false,
           priceTable: '',
-          rental: '',
-          notes: '',
           operator: '',
           management: '',
           facilityFeatureOneLine: '',
@@ -466,8 +463,7 @@ export default function AdminWorkspacePage() {
           canDoWebMeeting: false,
           hasEnglishSupport: false,
           meetsNexanaStandard: false,
-          isNexanaRecommended: false,
-          locationId: '',
+          infoCards: [],
         });
         setShowCreateForm(false);
         alert('ワークスペースが正常に追加されました');
@@ -487,13 +483,11 @@ export default function AdminWorkspacePage() {
     return (
       <AdminGuard>
         <div className="min-h-screen bg-gray-50">
-          <Header />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex justify-center items-center h-64">
               <div className="text-lg text-gray-600">読み込み中...</div>
             </div>
           </div>
-          <Footer />
         </div>
       </AdminGuard>
     );
@@ -502,22 +496,19 @@ export default function AdminWorkspacePage() {
   return (
     <AdminGuard>
       <div className="min-h-screen bg-gray-50">
-        <Header />
-        <AdminNav />
-        
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Link
+            href="/admin"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            管理ダッシュボードに戻る
+          </Link>
+
           <div className="mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">ワークスペース管理</h1>
-                <p className="text-gray-600">ワークスペース情報の管理と編集を行います</p>
-              </div>
-              <Link
-                href="/admin"
-                className="text-blue-600 hover:text-blue-800 font-medium"
-              >
-                ← 管理画面に戻る
-              </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">ワークスペース管理</h1>
+              <p className="text-gray-600">ワークスペース情報の管理と編集を行います</p>
             </div>
           </div>
 
@@ -551,30 +542,17 @@ export default function AdminWorkspacePage() {
                     />
                   </div>
 
-                  <div>
+                  <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      国 <span className="text-red-500">*</span>
+                      施設の説明 <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
-                      name="country"
-                      value={formData.country}
+                    <textarea
+                      name="description"
+                      value={formData.description}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      都道府県 <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      required
+                      rows={4}
+                      placeholder="施設の概要・特徴を説明してください"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     />
                   </div>
@@ -593,13 +571,32 @@ export default function AdminWorkspacePage() {
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      施設住所
+                      施設住所 <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       name="address"
                       value={formData.address}
                       onChange={handleInputChange}
+                      required
+                      placeholder="例: 東京都渋谷区〇〇1-2-3"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      住所の都道府県からエリア（国・都道府県）を自動判定します。
+                    </p>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      エリア（任意・上書き用）
+                    </label>
+                    <input
+                      type="text"
+                      name="area"
+                      value={formData.area}
+                      onChange={handleInputChange}
+                      placeholder="住所から自動判定できない場合のみ（例: シンガポール）"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     />
                   </div>
@@ -644,16 +641,6 @@ export default function AdminWorkspacePage() {
                           className="h-4 w-4 text-blue-600"
                         />
                         <span className="ml-2 text-sm text-gray-700">ドロップイン</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          name="hasNexana"
-                          checked={formData.hasNexana}
-                          onChange={handleInputChange}
-                          className="h-4 w-4 text-blue-600"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">nexana</span>
                       </label>
                       <label className="flex items-center">
                         <input
@@ -711,32 +698,6 @@ export default function AdminWorkspacePage() {
                     />
                   </div>
 
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      貸し出し
-                    </label>
-                    <textarea
-                      name="rental"
-                      value={formData.rental}
-                      onChange={handleInputChange}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      補足事項
-                    </label>
-                    <textarea
-                      name="notes"
-                      value={formData.notes}
-                      onChange={handleInputChange}
-                      rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       主体
@@ -770,13 +731,14 @@ export default function AdminWorkspacePage() {
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      施設特徴一言
+                      施設特徴ひとこと <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       name="facilityFeatureOneLine"
                       value={formData.facilityFeatureOneLine}
                       onChange={handleInputChange}
+                      required
                       placeholder="例: 海が見える開放的な空間"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     />
@@ -880,91 +842,19 @@ export default function AdminWorkspacePage() {
                     </div>
                   </div>
 
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      その他の情報
-                    </label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          name="hasMultipleLocations"
-                          checked={formData.hasMultipleLocations}
-                          onChange={handleInputChange}
-                          className="h-4 w-4 text-blue-600"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">複数拠点有無</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          name="requiresAdvanceNotice"
-                          checked={formData.requiresAdvanceNotice}
-                          onChange={handleInputChange}
-                          className="h-4 w-4 text-blue-600"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">事前連絡必要</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          name="canDoWebMeeting"
-                          checked={formData.canDoWebMeeting}
-                          onChange={handleInputChange}
-                          className="h-4 w-4 text-blue-600"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">Web会議実施可否</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          name="hasEnglishSupport"
-                          checked={formData.hasEnglishSupport}
-                          onChange={handleInputChange}
-                          className="h-4 w-4 text-blue-600"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">英語対応あり</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          name="meetsNexanaStandard"
-                          checked={formData.meetsNexanaStandard}
-                          onChange={handleInputChange}
-                          className="h-4 w-4 text-blue-600"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">Nexana基準達成</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          name="isNexanaRecommended"
-                          checked={formData.isNexanaRecommended}
-                          onChange={handleInputChange}
-                          className="h-4 w-4 text-blue-600"
-                        />
-                        <span className="ml-2 text-sm text-gray-700 font-semibold text-emerald-600">nexanaおすすめ</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      関連ロケーション
-                    </label>
-                    <select
-                      name="locationId"
-                      value={formData.locationId}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                    >
-                      <option value="">選択してください</option>
-                      {locations.map((location) => (
-                        <option key={location.id} value={location.id}>
-                          {location.city} ({location.country})
-                        </option>
-                      ))}
-                    </select>
+                  <div className="md:col-span-2 border-t pt-6 mt-2">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                      施設情報・周辺情報カード
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      カテゴリ（施設情報 / 周辺ホテル / 周辺Food / 周辺スポット）を選んで、写真・タイトル・概要を登録できます。いくつでも追加できます。
+                    </p>
+                    <WorkspaceInfoCardsEditor
+                      value={formData.infoCards}
+                      onChange={(infoCards) =>
+                        setFormData({ ...formData, infoCards })
+                      }
+                    />
                   </div>
                 </div>
 
@@ -1033,30 +923,17 @@ export default function AdminWorkspacePage() {
                                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                                   />
                                 </div>
-                                <div>
+                                <div className="md:col-span-2">
                                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                                    国 <span className="text-red-500">*</span>
+                                    施設の説明 <span className="text-red-500">*</span>
                                   </label>
-                                  <input
-                                    type="text"
-                                    name="country"
-                                    value={editingData.country || ''}
+                                  <textarea
+                                    name="description"
+                                    value={editingData.description || ''}
                                     onChange={handleEditInputChange}
                                     required
-                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-xs font-medium text-gray-700 mb-1">
-                                    都道府県 <span className="text-red-500">*</span>
-                                  </label>
-                                  <input
-                                    type="text"
-                                    name="city"
-                                    value={editingData.city || ''}
-                                    onChange={handleEditInputChange}
-                                    required
-                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                                    rows={3}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                                   />
                                 </div>
                                 <div className="md:col-span-2">
@@ -1069,12 +946,30 @@ export default function AdminWorkspacePage() {
                                   />
                                 </div>
                                 <div className="md:col-span-2">
-                                  <label className="block text-xs font-medium text-gray-700 mb-1">施設住所</label>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                                    施設住所 <span className="text-red-500">*</span>
+                                  </label>
                                   <input
                                     type="text"
                                     name="address"
                                     value={editingData.address || ''}
                                     onChange={handleEditInputChange}
+                                    required
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                                  />
+                                  <p className="mt-1 text-xs text-gray-500">
+                                    住所の都道府県からエリア（国・都道府県）を自動判定します。
+                                  </p>
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                                    エリア（任意・上書き用）
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={editArea}
+                                    onChange={(e) => setEditArea(e.target.value)}
+                                    placeholder="住所から自動判定できない場合のみ（例: シンガポール）"
                                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                                   />
                                 </div>
@@ -1110,16 +1005,6 @@ export default function AdminWorkspacePage() {
                                         className="h-3 w-3 text-blue-600"
                                       />
                                       <span className="ml-2 text-xs text-gray-700">ドロップイン</span>
-                                    </label>
-                                    <label className="flex items-center">
-                                      <input
-                                        type="checkbox"
-                                        name="hasNexana"
-                                        checked={editingData.hasNexana || false}
-                                        onChange={(e) => setEditingData(prev => ({ ...prev, hasNexana: e.target.checked }))}
-                                        className="h-3 w-3 text-blue-600"
-                                      />
-                                      <span className="ml-2 text-xs text-gray-700">nexana</span>
                                     </label>
                                     <label className="flex items-center">
                                       <input
@@ -1173,26 +1058,6 @@ export default function AdminWorkspacePage() {
                                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                                   />
                                 </div>
-                                <div className="md:col-span-2">
-                                  <label className="block text-xs font-medium text-gray-700 mb-1">貸し出し</label>
-                                  <textarea
-                                    name="rental"
-                                    value={editingData.rental || ''}
-                                    onChange={handleEditInputChange}
-                                    rows={2}
-                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                  />
-                                </div>
-                                <div className="md:col-span-2">
-                                  <label className="block text-xs font-medium text-gray-700 mb-1">補足事項</label>
-                                  <textarea
-                                    name="notes"
-                                    value={editingData.notes || ''}
-                                    onChange={handleEditInputChange}
-                                    rows={2}
-                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                  />
-                                </div>
                                 <div>
                                   <label className="block text-xs font-medium text-gray-700 mb-1">主体</label>
                                   <input
@@ -1213,35 +1078,21 @@ export default function AdminWorkspacePage() {
                                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                                   />
                                 </div>
-                                <div className="md:col-span-2">
-                                  <label className="block text-xs font-medium text-gray-700 mb-1">関連ロケーション</label>
-                                  <select
-                                    name="locationId"
-                                    value={editingData.locationId || ''}
-                                    onChange={handleEditInputChange}
-                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                  >
-                                    <option value="">選択してください</option>
-                                    {locations.map((location) => (
-                                      <option key={location.id} value={location.id}>
-                                        {location.city} ({location.country})
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
-
                                 {/* 追加情報セクション */}
                                 <div className="md:col-span-2 border-t pt-4 mt-4">
                                   <h4 className="text-sm font-semibold mb-3">追加情報</h4>
                                 </div>
 
                                 <div className="md:col-span-2">
-                                  <label className="block text-xs font-medium text-gray-700 mb-1">施設特徴一言</label>
+                                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                                    施設特徴ひとこと <span className="text-red-500">*</span>
+                                  </label>
                                   <input
                                     type="text"
                                     name="facilityFeatureOneLine"
                                     value={editingData.facilityFeatureOneLine || ''}
                                     onChange={handleEditInputChange}
+                                    required
                                     placeholder="例: 海が見える開放的な空間"
                                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                                   />
@@ -1343,399 +1194,24 @@ export default function AdminWorkspacePage() {
                                   </div>
                                 </div>
 
-                                <div className="md:col-span-2">
-                                  <label className="block text-xs font-medium text-gray-700 mb-2">その他の情報</label>
-                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                    <label className="flex items-center">
-                                      <input
-                                        type="checkbox"
-                                        name="hasMultipleLocations"
-                                        checked={editingData.hasMultipleLocations || false}
-                                        onChange={(e) => setEditingData(prev => ({ ...prev, hasMultipleLocations: e.target.checked }))}
-                                        className="h-3 w-3 text-blue-600"
-                                      />
-                                      <span className="ml-2 text-xs text-gray-700">複数拠点有無</span>
-                                    </label>
-                                    <label className="flex items-center">
-                                      <input
-                                        type="checkbox"
-                                        name="requiresAdvanceNotice"
-                                        checked={editingData.requiresAdvanceNotice || false}
-                                        onChange={(e) => setEditingData(prev => ({ ...prev, requiresAdvanceNotice: e.target.checked }))}
-                                        className="h-3 w-3 text-blue-600"
-                                      />
-                                      <span className="ml-2 text-xs text-gray-700">事前連絡必要</span>
-                                    </label>
-                                    <label className="flex items-center">
-                                      <input
-                                        type="checkbox"
-                                        name="canDoWebMeeting"
-                                        checked={editingData.canDoWebMeeting || false}
-                                        onChange={(e) => setEditingData(prev => ({ ...prev, canDoWebMeeting: e.target.checked }))}
-                                        className="h-3 w-3 text-blue-600"
-                                      />
-                                      <span className="ml-2 text-xs text-gray-700">Web会議実施可否</span>
-                                    </label>
-                                    <label className="flex items-center">
-                                      <input
-                                        type="checkbox"
-                                        name="hasEnglishSupport"
-                                        checked={editingData.hasEnglishSupport || false}
-                                        onChange={(e) => setEditingData(prev => ({ ...prev, hasEnglishSupport: e.target.checked }))}
-                                        className="h-3 w-3 text-blue-600"
-                                      />
-                                      <span className="ml-2 text-xs text-gray-700">英語対応あり</span>
-                                    </label>
-                                    <label className="flex items-center">
-                                      <input
-                                        type="checkbox"
-                                        name="meetsNexanaStandard"
-                                        checked={editingData.meetsNexanaStandard || false}
-                                        onChange={(e) => setEditingData(prev => ({ ...prev, meetsNexanaStandard: e.target.checked }))}
-                                        className="h-3 w-3 text-blue-600"
-                                      />
-                                      <span className="ml-2 text-xs text-gray-700">Nexana基準達成</span>
-                                    </label>
-                                    <label className="flex items-center">
-                                      <input
-                                        type="checkbox"
-                                        name="isNexanaRecommended"
-                                        checked={editingData.isNexanaRecommended || false}
-                                        onChange={(e) => setEditingData(prev => ({ ...prev, isNexanaRecommended: e.target.checked }))}
-                                        className="h-3 w-3 text-blue-600"
-                                      />
-                                      <span className="ml-2 text-xs text-gray-700 font-semibold text-emerald-600">nexanaおすすめ</span>
-                                    </label>
-                                  </div>
-                                </div>
-                                
-                                {/* 入居企業カード1 */}
-                                <div className="md:col-span-2">
-                                  <h4 className="text-sm font-semibold mb-2">入居企業カード1</h4>
-                                  <div className="space-y-2">
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-700 mb-1">タイトル</label>
-                                      <input
-                                        type="text"
-                                        name="tenantCard1Title"
-                                        value={editingData.tenantCard1Title || ''}
-                                        onChange={handleEditInputChange}
-                                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-700 mb-1">説明</label>
-                                      <textarea
-                                        name="tenantCard1Desc"
-                                        value={editingData.tenantCard1Desc || ''}
-                                        onChange={handleEditInputChange}
-                                        rows={2}
-                                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-700 mb-1">画像</label>
-                                      <ImageUpload
-                                        value={editingData.tenantCard1Image || ''}
-                                        onChange={(imageUrl) => setEditingData(prev => ({ ...prev, tenantCard1Image: imageUrl }))}
-                                        type="workspaces"
-                                        className="w-full"
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                {/* 入居企業カード2 */}
-                                <div className="md:col-span-2">
-                                  <h4 className="text-sm font-semibold mb-2">入居企業カード2</h4>
-                                  <div className="space-y-2">
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-700 mb-1">タイトル</label>
-                                      <input
-                                        type="text"
-                                        name="tenantCard2Title"
-                                        value={editingData.tenantCard2Title || ''}
-                                        onChange={handleEditInputChange}
-                                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-700 mb-1">説明</label>
-                                      <textarea
-                                        name="tenantCard2Desc"
-                                        value={editingData.tenantCard2Desc || ''}
-                                        onChange={handleEditInputChange}
-                                        rows={2}
-                                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-700 mb-1">画像</label>
-                                      <ImageUpload
-                                        value={editingData.tenantCard2Image || ''}
-                                        onChange={(imageUrl) => setEditingData(prev => ({ ...prev, tenantCard2Image: imageUrl }))}
-                                        type="workspaces"
-                                        className="w-full"
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                {/* 入居企業カード3 */}
-                                <div className="md:col-span-2">
-                                  <h4 className="text-sm font-semibold mb-2">入居企業カード3</h4>
-                                  <div className="space-y-2">
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-700 mb-1">タイトル</label>
-                                      <input
-                                        type="text"
-                                        name="tenantCard3Title"
-                                        value={editingData.tenantCard3Title || ''}
-                                        onChange={handleEditInputChange}
-                                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-700 mb-1">説明</label>
-                                      <textarea
-                                        name="tenantCard3Desc"
-                                        value={editingData.tenantCard3Desc || ''}
-                                        onChange={handleEditInputChange}
-                                        rows={2}
-                                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-700 mb-1">画像</label>
-                                      <ImageUpload
-                                        value={editingData.tenantCard3Image || ''}
-                                        onChange={(imageUrl) => setEditingData(prev => ({ ...prev, tenantCard3Image: imageUrl }))}
-                                        type="workspaces"
-                                        className="w-full"
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                {/* コミュニティーマネージャー */}
-                                <div className="md:col-span-2">
-                                  <h4 className="text-sm font-semibold mb-2">コミュニティーマネージャー</h4>
-                                  <div className="space-y-2">
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-700 mb-1">画像</label>
-                                      <ImageUpload
-                                        value={editingData.communityManagerImage || ''}
-                                        onChange={(imageUrl) => setEditingData(prev => ({ ...prev, communityManagerImage: imageUrl }))}
-                                        type="workspaces"
-                                        className="w-full"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-700 mb-1">タイトル</label>
-                                      <input
-                                        type="text"
-                                        name="communityManagerTitle"
-                                        value={editingData.communityManagerTitle || ''}
-                                        onChange={handleEditInputChange}
-                                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-700 mb-1">説明</label>
-                                      <textarea
-                                        name="communityManagerDesc"
-                                        value={editingData.communityManagerDesc || ''}
-                                        onChange={handleEditInputChange}
-                                        rows={2}
-                                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="block text-xs font-medium text-gray-700 mb-1">連絡先</label>
-                                      <input
-                                        type="text"
-                                        name="communityManagerContact"
-                                        value={editingData.communityManagerContact || ''}
-                                        onChange={handleEditInputChange}
-                                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
                               </div>
                               
-                              {/* 施設紹介カードと周辺情報は折りたたみ可能にするか、別のセクションに */}
-                              <details className="mt-4">
-                                <summary className="text-sm font-semibold text-gray-700 cursor-pointer hover:text-gray-900">
-                                  施設紹介カード・周辺情報（クリックで展開）
-                                </summary>
-                                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  {/* 施設紹介カード1-9 */}
-                                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                                    <div key={num} className="md:col-span-2">
-                                      <h4 className="text-xs font-semibold mb-2">施設紹介カード{num}</h4>
-                                      <div className="space-y-2">
-                                        <div>
-                                          <label className="block text-xs font-medium text-gray-700 mb-1">タイトル</label>
-                                          <input
-                                            type="text"
-                                            name={`facilityCard${num}Title`}
-                                            value={editingData[`facilityCard${num}Title` as keyof typeof editingData] as string || ''}
-                                            onChange={handleEditInputChange}
-                                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="block text-xs font-medium text-gray-700 mb-1">説明</label>
-                                          <textarea
-                                            name={`facilityCard${num}Desc`}
-                                            value={editingData[`facilityCard${num}Desc` as keyof typeof editingData] as string || ''}
-                                            onChange={handleEditInputChange}
-                                            rows={2}
-                                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="block text-xs font-medium text-gray-700 mb-1">画像</label>
-                                          <ImageUpload
-                                            value={editingData[`facilityCard${num}Image` as keyof typeof editingData] as string || ''}
-                                            onChange={(imageUrl) => setEditingData(prev => ({ ...prev, [`facilityCard${num}Image`]: imageUrl }))}
-                                            type="workspaces"
-                                            className="w-full"
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  ))}
-                                  
-                                  {/* 周辺ホテル情報 */}
-                                  <div className="md:col-span-2">
-                                    <h4 className="text-xs font-semibold mb-2">周辺ホテル情報</h4>
-                                    <div className="space-y-2">
-                                      <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">タイトル</label>
-                                        <input
-                                          type="text"
-                                          name="nearbyHotelTitle"
-                                          value={editingData.nearbyHotelTitle || ''}
-                                          onChange={handleEditInputChange}
-                                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                        />
-                                      </div>
-                                      <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">説明</label>
-                                        <textarea
-                                          name="nearbyHotelDesc"
-                                          value={editingData.nearbyHotelDesc || ''}
-                                          onChange={handleEditInputChange}
-                                          rows={2}
-                                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                        />
-                                      </div>
-                                      <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">URL</label>
-                                        <input
-                                          type="url"
-                                          name="nearbyHotelUrl"
-                                          value={editingData.nearbyHotelUrl || ''}
-                                          onChange={handleEditInputChange}
-                                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                        />
-                                      </div>
-                                      <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">画像（最大9枚）</label>
-                                        <div className="grid grid-cols-3 gap-2">
-                                          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                                            <ImageUpload
-                                              key={num}
-                                              value={editingData[`nearbyHotelImage${num}` as keyof typeof editingData] as string || ''}
-                                              onChange={(imageUrl) => setEditingData(prev => ({ ...prev, [`nearbyHotelImage${num}`]: imageUrl }))}
-                                              type="workspaces"
-                                              className="w-full"
-                                            />
-                                          ))}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  
-                                  {/* 周辺Food情報 */}
-                                  {[1, 2, 3].map((num) => (
-                                    <div key={num} className="md:col-span-2">
-                                      <h4 className="text-xs font-semibold mb-2">周辺Food情報{num}</h4>
-                                      <div className="space-y-2">
-                                        <div>
-                                          <label className="block text-xs font-medium text-gray-700 mb-1">タイトル</label>
-                                          <input
-                                            type="text"
-                                            name={`nearbyFood${num}Title`}
-                                            value={editingData[`nearbyFood${num}Title` as keyof typeof editingData] as string || ''}
-                                            onChange={handleEditInputChange}
-                                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="block text-xs font-medium text-gray-700 mb-1">説明</label>
-                                          <textarea
-                                            name={`nearbyFood${num}Desc`}
-                                            value={editingData[`nearbyFood${num}Desc` as keyof typeof editingData] as string || ''}
-                                            onChange={handleEditInputChange}
-                                            rows={2}
-                                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="block text-xs font-medium text-gray-700 mb-1">画像</label>
-                                          <ImageUpload
-                                            value={editingData[`nearbyFood${num}Image` as keyof typeof editingData] as string || ''}
-                                            onChange={(imageUrl) => setEditingData(prev => ({ ...prev, [`nearbyFood${num}Image`]: imageUrl }))}
-                                            type="workspaces"
-                                            className="w-full"
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  ))}
-                                  
-                                  {/* 周辺スポット情報 */}
-                                  {[1, 2, 3].map((num) => (
-                                    <div key={num} className="md:col-span-2">
-                                      <h4 className="text-xs font-semibold mb-2">周辺スポット情報{num}</h4>
-                                      <div className="space-y-2">
-                                        <div>
-                                          <label className="block text-xs font-medium text-gray-700 mb-1">タイトル</label>
-                                          <input
-                                            type="text"
-                                            name={`nearbySpot${num}Title`}
-                                            value={editingData[`nearbySpot${num}Title` as keyof typeof editingData] as string || ''}
-                                            onChange={handleEditInputChange}
-                                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="block text-xs font-medium text-gray-700 mb-1">説明</label>
-                                          <textarea
-                                            name={`nearbySpot${num}Desc`}
-                                            value={editingData[`nearbySpot${num}Desc` as keyof typeof editingData] as string || ''}
-                                            onChange={handleEditInputChange}
-                                            rows={2}
-                                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="block text-xs font-medium text-gray-700 mb-1">画像</label>
-                                          <ImageUpload
-                                            value={editingData[`nearbySpot${num}Image` as keyof typeof editingData] as string || ''}
-                                            onChange={(imageUrl) => setEditingData(prev => ({ ...prev, [`nearbySpot${num}Image`]: imageUrl }))}
-                                            type="workspaces"
-                                            className="w-full"
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </details>
+                              {/* 施設情報・周辺情報カード（新・可変リスト） */}
+                              <div className="mt-6 border-t pt-4">
+                                <h3 className="text-base font-semibold text-gray-900 mb-1">
+                                  施設情報・周辺情報カード
+                                </h3>
+                                <p className="text-xs text-gray-500 mb-3">
+                                  カテゴリ（施設情報 / 周辺ホテル / 周辺Food / 周辺スポット）を選んで、写真・タイトル・概要を登録。いくつでも追加できます。
+                                </p>
+                                <WorkspaceInfoCardsEditor
+                                  value={normalizeInfoCards(editingData.infoCards)}
+                                  onChange={(infoCards) =>
+                                    setEditingData((prev) => ({ ...prev, infoCards }))
+                                  }
+                                />
+                              </div>
+
                             </div>
                           ) : (
                             // 表示モード
@@ -1806,8 +1282,6 @@ export default function AdminWorkspacePage() {
             )}
           </div>
         </div>
-
-        <Footer />
       </div>
     </AdminGuard>
   );

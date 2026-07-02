@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Header from "@/components/ui/header";
-import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
 import AdminNav from "@/components/ui/admin-nav";
 import { MapPin, Plus, Edit, Trash2, Save, X } from "lucide-react";
@@ -424,13 +422,11 @@ export default function AdminLocationPage() {
     return (
       <AdminGuard>
         <div className="min-h-screen bg-gray-50">
-          <Header />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex justify-center items-center h-64">
               <div className="text-lg text-gray-600">読み込み中...</div>
             </div>
           </div>
-          <Footer />
         </div>
       </AdminGuard>
     );
@@ -439,7 +435,6 @@ export default function AdminLocationPage() {
   return (
     <AdminGuard>
       <div className="min-h-screen bg-gray-50">
-        <Header />
         <AdminNav />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -1387,8 +1382,6 @@ export default function AdminLocationPage() {
             )}
           </div>
         </div>
-
-        <Footer />
       </div>
     </AdminGuard>
   );

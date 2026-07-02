@@ -71,14 +71,25 @@ interface Contest {
   createdAt: string;
 }
 
+// 開発環境では実際にアクセスしているホスト（localhost:3001 など）から取得する。
+// 本番では NEXT_PUBLIC_BASE_URL を使う（静的生成のまま）。
+async function getBaseUrl(): Promise<string> {
+  if (process.env.NODE_ENV === 'development') {
+    const { headers } = await import('next/headers');
+    const host = (await headers()).get('host');
+    if (host) return `http://${host}`;
+  }
+  return process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com';
+}
+
 // サーバーサイドでデータを取得
 async function getContests(search?: string): Promise<Contest[]> {
   try {
-    const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'}/api/contests`);
+    const url = new URL(`${await getBaseUrl()}/api/contests`);
     if (search) {
       url.searchParams.set('search', search);
     }
-    
+
     const response = await fetch(url.toString(), {
       next: { revalidate: 300 }, // 5分間キャッシュ
       headers: {
@@ -98,8 +109,8 @@ async function getContests(search?: string): Promise<Contest[]> {
   }
 }
 
-// 静的生成を強制してGoogleクローラーの問題を解決
-export const dynamic = 'force-static';
+// 本番では動的APIを使わないため静的生成される（devのみ headers() でローカル解決）
+export const dynamic = 'auto';
 export const runtime = 'nodejs';
 export const revalidate = 3600; // 1時間キャッシュ
 export const fetchCache = 'force-cache';

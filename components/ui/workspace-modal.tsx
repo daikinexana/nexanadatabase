@@ -6,10 +6,17 @@ import SimpleImage from "@/components/ui/simple-image";
 import Modal from "@/components/ui/modal";
 import Image from "next/image";
 import { getClientIdentifier } from "@/lib/user-identifier";
+import {
+  normalizeInfoCards,
+  INFO_CARD_CATEGORIES,
+  type InfoCardCategory,
+} from "@/lib/workspace-info-cards";
 
-type WorkspaceData = {
+export type WorkspaceData = {
   id: string;
   name: string;
+  description?: string | null;
+  infoCards?: unknown;
   imageUrl?: string | null;
   country: string;
   city: string;
@@ -248,47 +255,13 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
 
   if (!workspace) return null;
 
-  const facilityCards = [
-    { title: workspace.facilityCard1Title, desc: workspace.facilityCard1Desc, image: workspace.facilityCard1Image },
-    { title: workspace.facilityCard2Title, desc: workspace.facilityCard2Desc, image: workspace.facilityCard2Image },
-    { title: workspace.facilityCard3Title, desc: workspace.facilityCard3Desc, image: workspace.facilityCard3Image },
-    { title: workspace.facilityCard4Title, desc: workspace.facilityCard4Desc, image: workspace.facilityCard4Image },
-    { title: workspace.facilityCard5Title, desc: workspace.facilityCard5Desc, image: workspace.facilityCard5Image },
-    { title: workspace.facilityCard6Title, desc: workspace.facilityCard6Desc, image: workspace.facilityCard6Image },
-    { title: workspace.facilityCard7Title, desc: workspace.facilityCard7Desc, image: workspace.facilityCard7Image },
-    { title: workspace.facilityCard8Title, desc: workspace.facilityCard8Desc, image: workspace.facilityCard8Image },
-    { title: workspace.facilityCard9Title, desc: workspace.facilityCard9Desc, image: workspace.facilityCard9Image },
-  ].filter(card => card.title || card.desc || card.image);
-
-  const tenantCards = [
-    { title: workspace.tenantCard1Title, desc: workspace.tenantCard1Desc, image: workspace.tenantCard1Image },
-    { title: workspace.tenantCard2Title, desc: workspace.tenantCard2Desc, image: workspace.tenantCard2Image },
-    { title: workspace.tenantCard3Title, desc: workspace.tenantCard3Desc, image: workspace.tenantCard3Image },
-  ].filter(card => card.title || card.desc || card.image);
-
-  const nearbyHotelImages = [
-    workspace.nearbyHotelImage1,
-    workspace.nearbyHotelImage2,
-    workspace.nearbyHotelImage3,
-    workspace.nearbyHotelImage4,
-    workspace.nearbyHotelImage5,
-    workspace.nearbyHotelImage6,
-    workspace.nearbyHotelImage7,
-    workspace.nearbyHotelImage8,
-    workspace.nearbyHotelImage9,
-  ].filter(Boolean);
-
-  const nearbyFoodCards = [
-    { title: workspace.nearbyFood1Title, desc: workspace.nearbyFood1Desc, image: workspace.nearbyFood1Image },
-    { title: workspace.nearbyFood2Title, desc: workspace.nearbyFood2Desc, image: workspace.nearbyFood2Image },
-    { title: workspace.nearbyFood3Title, desc: workspace.nearbyFood3Desc, image: workspace.nearbyFood3Image },
-  ].filter(card => card.title || card.desc || card.image);
-
-  const nearbySpotCards = [
-    { title: workspace.nearbySpot1Title, desc: workspace.nearbySpot1Desc, image: workspace.nearbySpot1Image },
-    { title: workspace.nearbySpot2Title, desc: workspace.nearbySpot2Desc, image: workspace.nearbySpot2Image },
-    { title: workspace.nearbySpot3Title, desc: workspace.nearbySpot3Desc, image: workspace.nearbySpot3Image },
-  ].filter(card => card.title || card.desc || card.image);
+  // 新形式: 可変リストの施設情報・周辺情報カード（カテゴリごとにグループ化）
+  const infoCards = normalizeInfoCards(workspace.infoCards);
+  const infoCardGroups = INFO_CARD_CATEGORIES.map((cat) => ({
+    label: cat.label,
+    value: cat.value as InfoCardCategory,
+    cards: infoCards.filter((c) => c.category === cat.value),
+  })).filter((g) => g.cards.length > 0);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={workspace.name}>
@@ -740,207 +713,51 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
                 </div>
               )}
 
-              {/* 入居企業カード - モダンで洗練されたモノクロ調 */}
-              {tenantCards.length > 0 && (
-                <div className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
+              {/* 施設情報・周辺情報カード（新・可変リスト、カテゴリごと） */}
+              {infoCardGroups.map((group) => (
+                <div
+                  key={group.value}
+                  className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm"
+                >
                   <h3 className="text-lg font-bold text-gray-900 mb-4 lg:mb-6 flex items-center">
                     <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
-                      <span className="text-white text-sm font-bold">T</span>
+                      <span className="text-white text-sm font-bold">
+                        {group.label.charAt(0)}
+                      </span>
                     </div>
-                    入居企業
+                    {group.label}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {tenantCards.map((card, index) => (
-                      <div key={index} className="bg-white border border-gray-200 rounded-lg p-4">
-                        {card.image && (
-                          <div className="relative w-full h-32 mb-2 rounded overflow-hidden">
-                            <SimpleImage
-                              src={card.image}
-                              alt={card.title || ""}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        )}
-                        {card.title && <h4 className="font-semibold mb-1 text-gray-900">{card.title}</h4>}
-                        {card.desc && <p className="text-sm text-gray-600">{card.desc}</p>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* コミュニティーマネージャー - モダンで洗練されたモノクロ調 */}
-              {workspace.communityManagerTitle && (
-                <div className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 lg:mb-6 flex items-center">
-                    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
-                      <span className="text-white text-sm font-bold">C</span>
-                    </div>
-                    コミュニティーマネージャー
-                  </h3>
-                  <div className="bg-white border border-gray-200 rounded-lg p-4 flex gap-4">
-                    {workspace.communityManagerImage && (
-                      <div className="relative w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
-                        <SimpleImage
-                          src={workspace.communityManagerImage}
-                          alt={workspace.communityManagerTitle}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    )}
-                    <div className="flex-1">
-                      <h4 className="font-semibold mb-1 text-gray-900">{workspace.communityManagerTitle}</h4>
-                      {workspace.communityManagerDesc && (
-                        <p className="text-sm text-gray-600 mb-2">{workspace.communityManagerDesc}</p>
-                      )}
-                      {workspace.communityManagerContact && (
-                        <p className="text-sm text-gray-500">{workspace.communityManagerContact}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* 施設紹介カード - モダンで洗練されたモノクロ調 */}
-              {facilityCards.length > 0 && (
-                <div className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 lg:mb-6 flex items-center">
-                    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
-                      <span className="text-white text-sm font-bold">F</span>
-                    </div>
-                    施設紹介
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {facilityCards.map((card, index) => (
-                      <div key={index} className="bg-white border border-gray-200 rounded-lg p-4">
-                        {card.image && (
-                          <div className="relative w-full h-32 mb-2 rounded overflow-hidden">
-                            <SimpleImage
-                              src={card.image}
-                              alt={card.title || ""}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        )}
-                        {card.title && <h4 className="font-semibold mb-1 text-gray-900">{card.title}</h4>}
-                        {card.desc && <p className="text-sm text-gray-600">{card.desc}</p>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 周辺ホテル情報 - モダンで洗練されたモノクロ調 */}
-              {(workspace.nearbyHotelTitle || workspace.nearbyHotelDesc || workspace.nearbyHotelUrl || nearbyHotelImages.length > 0) && (
-                <div className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 lg:mb-6 flex items-center">
-                    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
-                      <span className="text-white text-sm font-bold">H</span>
-                    </div>
-                    周辺ホテル情報
-                  </h3>
-                  {workspace.nearbyHotelTitle && (
-                    <div className="border-l-4 border-gray-300 pl-3 lg:pl-4 mb-4">
-                      <p className="text-gray-900 leading-relaxed text-base lg:text-lg font-bold">{workspace.nearbyHotelTitle}</p>
-                    </div>
-                  )}
-                  {workspace.nearbyHotelDesc && (
-                    <div className="border-l-4 border-gray-300 pl-3 lg:pl-4 mb-4">
-                      <p className="text-gray-900 leading-relaxed text-sm lg:text-base font-medium">{workspace.nearbyHotelDesc}</p>
-                    </div>
-                  )}
-                  {workspace.nearbyHotelUrl && (
-                    <div className="mb-4">
-                      <a
-                        href={workspace.nearbyHotelUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center text-blue-600 hover:text-blue-700 hover:underline font-medium"
+                    {group.cards.map((card, index) => (
+                      <div
+                        key={index}
+                        className="bg-white border border-gray-200 rounded-lg p-4"
                       >
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        詳しく見る
-                      </a>
-                    </div>
-                  )}
-                  {nearbyHotelImages.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2">
-                      {nearbyHotelImages.map((image, index) => (
-                        <div key={index} className="relative w-full h-32 rounded overflow-hidden border border-gray-200">
-                          <SimpleImage
-                            src={image!}
-                            alt={`ホテル画像 ${index + 1}`}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* 周辺Food情報 - モダンで洗練されたモノクロ調 */}
-              {nearbyFoodCards.length > 0 && (
-                <div className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 lg:mb-6 flex items-center">
-                    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
-                      <span className="text-white text-sm font-bold">F</span>
-                    </div>
-                    周辺Food情報
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {nearbyFoodCards.map((card, index) => (
-                      <div key={index} className="bg-white border border-gray-200 rounded-lg p-4">
-                        {card.image && (
+                        {card.imageUrl && (
                           <div className="relative w-full h-32 mb-2 rounded overflow-hidden">
                             <SimpleImage
-                              src={card.image}
+                              src={card.imageUrl}
                               alt={card.title || ""}
                               fill
                               className="object-cover"
                             />
                           </div>
                         )}
-                        {card.title && <h4 className="font-semibold mb-1 text-gray-900">{card.title}</h4>}
-                        {card.desc && <p className="text-sm text-gray-600">{card.desc}</p>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 周辺スポット情報 - モダンで洗練されたモノクロ調 */}
-              {nearbySpotCards.length > 0 && (
-                <div className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 lg:mb-6 flex items-center">
-                    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
-                      <span className="text-white text-sm font-bold">S</span>
-                    </div>
-                    周辺スポット情報
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {nearbySpotCards.map((card, index) => (
-                      <div key={index} className="bg-white border border-gray-200 rounded-lg p-4">
-                        {card.image && (
-                          <div className="relative w-full h-32 mb-2 rounded overflow-hidden">
-                            <SimpleImage
-                              src={card.image}
-                              alt={card.title || ""}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
+                        {card.title && (
+                          <h4 className="font-semibold mb-1 text-gray-900">
+                            {card.title}
+                          </h4>
                         )}
-                        {card.title && <h4 className="font-semibold mb-1 text-gray-900">{card.title}</h4>}
-                        {card.desc && <p className="text-sm text-gray-600">{card.desc}</p>}
+                        {card.description && (
+                          <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                            {card.description}
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>
                 </div>
-              )}
+              ))}
 
               {/* コメントセクション */}
               <div className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">

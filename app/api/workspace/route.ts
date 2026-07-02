@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { normalizeInfoCards } from "@/lib/workspace-info-cards";
 
 export async function GET(request: NextRequest) {
   try {
@@ -64,6 +66,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       name,
+      description,
+      infoCards,
       imageUrl,
       country,
       city,
@@ -180,6 +184,8 @@ export async function POST(request: NextRequest) {
     const workspace = await prisma.workspace.create({
       data: {
         name,
+        description,
+        infoCards: normalizeInfoCards(infoCards) as unknown as Prisma.InputJsonValue,
         imageUrl,
         country,
         city,

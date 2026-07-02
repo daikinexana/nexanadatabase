@@ -1,0 +1,589 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import AdminGuard from "@/components/admin/admin-guard";
+import {
+  Sparkles,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  Trash2,
+  Save,
+} from "lucide-react";
+
+const NEWS_TYPE_LABELS: Record<string, string> = {
+  FUNDING: "投資",
+  M_AND_A: "M&A",
+  IPO: "IPO",
+  PARTNERSHIP: "パートナーシップ",
+  OTHER: "その他",
+};
+
+type SaveState = "idle" | "saving" | "saved" | "error";
+
+interface Draft {
+  // 元URLごとの一意キー（Reactのkey / 状態管理用）
+  key: string;
+  sourceUrl: string;
+  title: string;
+  company: string;
+  type: string;
+  description: string;
+  sector: string;
+  amount: string;
+  investors: string; // カンマ区切りの文字列で編集
+  area: string;
+  publishedAt: string; // YYYY-MM-DD
+  imageUrl: string;
+  isActive: boolean;
+  // 保存状態
+  saveState: SaveState;
+  saveError?: string;
+  // 解析エラー（抽出に失敗したURL）
+  extractError?: string;
+}
+
+interface ImportResult {
+  url: string;
+  ok: boolean;
+  data?: {
+    title: string;
+    company: string;
+    type: string;
+    description: string;
+    sector: string;
+    amount: string;
+    investors: string[];
+    area: string | null;
+    publishedAt: string | null;
+    imageUrl: string;
+    sourceUrl: string;
+  };
+  error?: string;
+}
+
+let keyCounter = 0;
+const nextKey = () => `d${keyCounter++}`;
+
+export default function AiImportNewsPage() {
+  const [urlsText, setUrlsText] = useState("");
+  const [analyzing, setAnalyzing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [drafts, setDrafts] = useState<Draft[]>([]);
+  const [savingAll, setSavingAll] = useState(false);
+
+  const urlLines = urlsText
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const update = (key: string, patch: Partial<Draft>) => {
+    setDrafts((prev) =>
+      prev.map((d) => (d.key === key ? { ...d, ...patch } : d))
+    );
+  };
+
+  const remove = (key: string) => {
+    setDrafts((prev) => prev.filter((d) => d.key !== key));
+  };
+
+  const handleAnalyze = async () => {
+    if (urlLines.length === 0) return;
+    setAnalyzing(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/ai-import-news", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ urls: urlLines }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || "解析に失敗しました");
+      }
+
+      const results: ImportResult[] = data.results || [];
+      const newDrafts: Draft[] = results.map((r) => {
+        if (r.ok && r.data) {
+          return {
+            key: nextKey(),
+            sourceUrl: r.data.sourceUrl || r.url,
+            title: r.data.title || "",
+            company: r.data.company || "",
+            type: r.data.type || "FUNDING",
+            description: r.data.description || "",
+            sector: r.data.sector || "",
+            amount: r.data.amount || "",
+            investors: (r.data.investors || []).join(", "),
+            area: r.data.area || "",
+            publishedAt: r.data.publishedAt || "",
+            imageUrl: r.data.imageUrl || "",
+            isActive: true,
+            saveState: "idle",
+          };
+        }
+        return {
+          key: nextKey(),
+          sourceUrl: r.url,
+          title: "",
+          company: "",
+          type: "FUNDING",
+          description: "",
+          sector: "",
+          amount: "",
+          investors: "",
+          area: "",
+          publishedAt: "",
+          imageUrl: "",
+          isActive: true,
+          saveState: "idle",
+          extractError: r.error || "解析に失敗しました",
+        };
+      });
+      // 既存の解析結果は置き換え
+      setDrafts(newDrafts);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "解析に失敗しました");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  // 1件保存（成功時はtrueを返す）
+  const saveDraft = async (draft: Draft): Promise<boolean> => {
+    if (!draft.title.trim() || !draft.company.trim() || !draft.type) {
+      update(draft.key, {
+        saveState: "error",
+        saveError: "タイトル・企業名・タイプは必須です",
+      });
+      return false;
+    }
+    update(draft.key, { saveState: "saving", saveError: undefined });
+    try {
+      const payload = {
+        title: draft.title.trim(),
+        company: draft.company.trim(),
+        type: draft.type,
+        description: draft.description || undefined,
+        sector: draft.sector || undefined,
+        amount: draft.amount || undefined,
+        investors: draft.investors
+          ? draft.investors.split(",").map((s) => s.trim()).filter(Boolean)
+          : [],
+        area: draft.area || undefined,
+        publishedAt: draft.publishedAt || undefined,
+        imageUrl: draft.imageUrl || undefined,
+        sourceUrl: draft.sourceUrl || undefined,
+      };
+      const res = await fetch("/api/news", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || "保存に失敗しました");
+      }
+      update(draft.key, { saveState: "saved", saveError: undefined });
+      return true;
+    } catch (e) {
+      update(draft.key, {
+        saveState: "error",
+        saveError: e instanceof Error ? e.message : "保存に失敗しました",
+      });
+      return false;
+    }
+  };
+
+  // まだ保存されていない（抽出成功した）ドラフトをまとめて保存
+  const handleSaveAll = async () => {
+    setSavingAll(true);
+    // 最新のstateを参照するため関数内で読み直す
+    const targets = drafts.filter(
+      (d) => !d.extractError && d.saveState !== "saved"
+    );
+    for (const d of targets) {
+      // 直前の編集を反映するため、現在のstateから取得し直す
+      await saveDraft(d);
+    }
+    setSavingAll(false);
+  };
+
+  const savableCount = drafts.filter(
+    (d) => !d.extractError && d.saveState !== "saved"
+  ).length;
+  const savedCount = drafts.filter((d) => d.saveState === "saved").length;
+
+  return (
+    <AdminGuard>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Link
+            href="/admin"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            ダッシュボードに戻る
+          </Link>
+
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-rose-500 to-red-500 text-white">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                AIでニュース一括取込
+              </h1>
+            </div>
+            <p className="text-gray-600 text-sm">
+              ニュース記事のURLを1行に1つずつ貼り付けて（最大15件）、AIが内容を解析してニュースデータを自動生成します。内容を確認・修正してから保存してください。
+            </p>
+          </div>
+
+          {/* URL入力 */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-6">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              取り込むページのURL（1行に1つ・最大15件）
+            </label>
+            <textarea
+              value={urlsText}
+              onChange={(e) => setUrlsText(e.target.value)}
+              rows={6}
+              placeholder={"https://example.com/news/1\nhttps://example.com/news/2\nhttps://example.com/news/3"}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent text-sm text-gray-900 font-mono"
+            />
+            <div className="flex items-center justify-between mt-3">
+              <span className="text-xs text-gray-500">
+                {urlLines.length} 件のURL
+              </span>
+              <button
+                onClick={handleAnalyze}
+                disabled={analyzing || urlLines.length === 0}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-rose-500 to-red-500 text-white text-sm font-semibold rounded-lg shadow-sm hover:from-rose-600 hover:to-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all min-h-[44px]"
+              >
+                {analyzing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    解析中...（{urlLines.length}件）
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    AIで一括解析
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* エラー */}
+          {error && (
+            <div className="mb-6 flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">
+              <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* 一括保存バー */}
+          {drafts.length > 0 && (
+            <div className="sticky top-4 z-10 mb-4 flex flex-wrap items-center justify-between gap-3 bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3">
+              <div className="text-sm text-gray-700">
+                解析結果 {drafts.length} 件
+                {savedCount > 0 && (
+                  <span className="text-emerald-700 font-semibold">
+                    {" "}
+                    / 保存済み {savedCount} 件
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-3">
+                {savedCount > 0 && (
+                  <Link
+                    href="/news"
+                    target="_blank"
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-rose-600 hover:text-rose-700 underline hover:no-underline"
+                  >
+                    ニュースページで確認
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                )}
+                <button
+                  onClick={handleSaveAll}
+                  disabled={savingAll || savableCount === 0}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg shadow-sm hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {savingAll ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      保存中...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      未保存 {savableCount} 件をまとめて保存
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ドラフト一覧 */}
+          <div className="space-y-4">
+            {drafts.map((d, i) => (
+              <DraftCard
+                key={d.key}
+                index={i}
+                draft={d}
+                onChange={(patch) => update(d.key, patch)}
+                onSave={() => saveDraft(d)}
+                onRemove={() => remove(d.key)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </AdminGuard>
+  );
+}
+
+function DraftCard({
+  index,
+  draft,
+  onChange,
+  onSave,
+  onRemove,
+}: {
+  index: number;
+  draft: Draft;
+  onChange: (patch: Partial<Draft>) => void;
+  onSave: () => void;
+  onRemove: () => void;
+}) {
+  const saved = draft.saveState === "saved";
+
+  // 抽出失敗したURLはエラー表示のみ
+  if (draft.extractError) {
+    return (
+      <div className="bg-white rounded-xl border border-red-200 p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 text-red-700 text-sm font-semibold mb-1">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              解析に失敗しました
+            </div>
+            <p className="text-xs text-gray-500 break-all">{draft.sourceUrl}</p>
+            <p className="text-sm text-red-600 mt-1">{draft.extractError}</p>
+          </div>
+          <button
+            onClick={onRemove}
+            className="text-gray-400 hover:text-red-600 p-2 shrink-0"
+            title="削除"
+            type="button"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`bg-white rounded-xl border p-4 sm:p-5 ${
+        saved ? "border-emerald-300 ring-1 ring-emerald-100" : "border-gray-200"
+      }`}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-bold">
+            {index + 1}
+          </span>
+          <span className="px-2 py-0.5 bg-rose-50 text-rose-700 text-xs font-semibold rounded-full">
+            {NEWS_TYPE_LABELS[draft.type] || draft.type}
+          </span>
+          {saved && (
+            <span className="inline-flex items-center gap-1 text-emerald-700 text-xs font-semibold">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              保存済み
+            </span>
+          )}
+        </div>
+        <button
+          onClick={onRemove}
+          className="text-gray-400 hover:text-red-600 p-1.5"
+          title="このニュースを一覧から除外"
+          type="button"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <Field label="タイトル *" full>
+          <input
+            value={draft.title}
+            onChange={(e) => onChange({ title: e.target.value })}
+            className={inputCls}
+          />
+        </Field>
+
+        <Field label="企業名 *">
+          <input
+            value={draft.company}
+            onChange={(e) => onChange({ company: e.target.value })}
+            className={inputCls}
+          />
+        </Field>
+
+        <Field label="タイプ *">
+          <select
+            value={draft.type}
+            onChange={(e) => onChange({ type: e.target.value })}
+            className={selectCls}
+          >
+            {Object.entries(NEWS_TYPE_LABELS).map(([v, l]) => (
+              <option key={v} value={v}>
+                {l}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label="概要" full>
+          <textarea
+            value={draft.description}
+            onChange={(e) => onChange({ description: e.target.value })}
+            rows={2}
+            className={inputCls}
+          />
+        </Field>
+
+        <Field label="領域（セクター）">
+          <input
+            value={draft.sector}
+            onChange={(e) => onChange({ sector: e.target.value })}
+            className={inputCls}
+          />
+        </Field>
+
+        <Field label="金額">
+          <input
+            value={draft.amount}
+            onChange={(e) => onChange({ amount: e.target.value })}
+            className={inputCls}
+          />
+        </Field>
+
+        <Field label="投資家（カンマ区切り）" full>
+          <input
+            value={draft.investors}
+            onChange={(e) => onChange({ investors: e.target.value })}
+            className={inputCls}
+          />
+        </Field>
+
+        <Field label="エリア">
+          <input
+            value={draft.area}
+            onChange={(e) => onChange({ area: e.target.value })}
+            className={inputCls}
+          />
+        </Field>
+
+        <Field label="公開日">
+          <input
+            type="date"
+            value={draft.publishedAt}
+            onChange={(e) => onChange({ publishedAt: e.target.value })}
+            className={inputCls}
+          />
+        </Field>
+
+        <Field label="画像URL" full>
+          <input
+            value={draft.imageUrl}
+            onChange={(e) => onChange({ imageUrl: e.target.value })}
+            className={inputCls}
+          />
+        </Field>
+
+        <Field label="ソースURL" full>
+          <input
+            value={draft.sourceUrl}
+            onChange={(e) => onChange({ sourceUrl: e.target.value })}
+            className={inputCls}
+          />
+        </Field>
+      </div>
+
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+        <label className="flex items-center gap-2 text-sm text-gray-700">
+          <input
+            type="checkbox"
+            checked={draft.isActive}
+            onChange={(e) => onChange({ isActive: e.target.checked })}
+            className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
+          />
+          公開する
+        </label>
+
+        <div className="flex items-center gap-3">
+          {draft.saveState === "error" && draft.saveError && (
+            <span className="text-xs text-red-600">{draft.saveError}</span>
+          )}
+          <button
+            onClick={onSave}
+            disabled={draft.saveState === "saving" || saved}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            {draft.saveState === "saving" ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                保存中...
+              </>
+            ) : saved ? (
+              <>
+                <CheckCircle2 className="w-4 h-4" />
+                保存済み
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                保存
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const inputCls =
+  "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent text-sm text-gray-900";
+const selectCls = inputCls + " bg-white";
+
+function Field({
+  label,
+  children,
+  full,
+}: {
+  label: string;
+  children: React.ReactNode;
+  full?: boolean;
+}) {
+  return (
+    <div className={full ? "md:col-span-2" : ""}>
+      <label className="block text-xs font-semibold text-gray-600 mb-1">
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}

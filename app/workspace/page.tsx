@@ -2,12 +2,10 @@ import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import { MapPin } from "lucide-react";
 import { Metadata } from "next";
-import WorkspaceOrganizerButton from "@/components/ui/workspace-organizer-button";
-import TopWorkspacesSection from "@/components/ui/top-workspaces-section";
-import WorkspaceListClient from "@/components/ui/workspace-list-client";
+// import WorkspaceOrganizerButton from "@/components/ui/workspace-organizer-button";
+import WorkspaceAllList, { type WorkspaceListItem } from "@/components/ui/workspace-all-list";
 import { prisma } from "@/lib/prisma";
 import Script from "next/script";
-import { REGION_ORDER, PREFECTURE_TO_REGION } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "ワークスペース一覧 | Nexana Database | シェアオフィス・コワーキングスペース情報",
@@ -56,171 +54,55 @@ export const metadata: Metadata = {
   },
 };
 
-interface Location {
-  id: string;
-  slug: string;
-  country: string;
-  city: string;
-  description?: string | null;
-  topImageUrl?: string | null;
-  isActive: boolean;
-  workspaceCount: number;
-}
-
-interface TopWorkspace {
-  id: string;
-  name: string;
-  imageUrl?: string | null;
-  city: string;
-  country: string;
-  likeCount: number;
-  locationId?: string | null;
-  location?: {
-    slug: string;
-  } | null;
-}
-
-async function getLocations(): Promise<Location[]> {
+async function getWorkspaces(): Promise<WorkspaceListItem[]> {
   try {
-    const locations = await prisma.location.findMany({
-      where: {
-        isActive: true,
-      },
-      select: {
-        id: true,
-        slug: true,
-        country: true,
-        city: true,
-        description: true,
-        topImageUrl: true,
-        isActive: true,
-        _count: {
-          select: {
-            workspaces: {
-              where: { isActive: true },
-            },
-          },
-        },
-      },
-      orderBy: [
-        { country: "asc" },
-        { city: "asc" },
-        { createdAt: "desc" },
-      ],
-    });
-
-    // _countをworkspaceCountに変換（不要なダミーデータ作成を削除）
-    return locations.map(location => ({
-      id: location.id,
-      slug: location.slug,
-      country: location.country,
-      city: location.city,
-      description: location.description,
-      topImageUrl: location.topImageUrl,
-      isActive: location.isActive,
-      workspaceCount: location._count.workspaces,
-    }));
-  } catch (error) {
-    console.error("Error fetching locations:", error);
-    return [];
-  }
-}
-
-async function getTopWorkspaces(): Promise<TopWorkspace[]> {
-  try {
-    // まず、アクティブなワークスペースのIDリストを取得（並列処理のため軽量なクエリ）
-    const activeWorkspaceIds = await prisma.workspace.findMany({
-      where: {
-        isActive: true,
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    const workspaceIdList = activeWorkspaceIds.map(ws => ws.id);
-
-    // アクティブなワークスペースが存在しない場合は空配列を返す
-    if (workspaceIdList.length === 0) {
-      return [];
-    }
-
-    // アクティブなワークスペースのいいね数を集計し、上位10件を取得
-    const topWorkspaceLikes = await prisma.workspaceLike.groupBy({
-      by: ['workspaceId'],
-      where: {
-        workspaceId: {
-          in: workspaceIdList,
-        },
-      },
-      _count: {
-        workspaceId: true,
-      },
-      orderBy: {
-        _count: {
-          workspaceId: 'desc',
-        },
-      },
-      take: 10,
-    });
-
-    // いいね数が0件の場合は空配列を返す
-    if (topWorkspaceLikes.length === 0) {
-      return [];
-    }
-
-    // 取得したIDのリストを作成
-    const workspaceIds = topWorkspaceLikes.map(item => item.workspaceId);
-    
-    // いいね数のマップを作成（後でソートに使用）
-    const likeCountMap = new Map(
-      topWorkspaceLikes.map(item => [item.workspaceId, item._count.workspaceId])
-    );
-
-    // ワークスペース情報を一括取得
+    // アクティブなワークスペースを一括取得
     const workspaces = await prisma.workspace.findMany({
       where: {
         isActive: true,
-        id: {
-          in: workspaceIds,
-        },
       },
       select: {
         id: true,
         name: true,
         imageUrl: true,
-        city: true,
         country: true,
-        locationId: true,
-        location: {
-          select: {
-            slug: true,
-          },
-        },
+        city: true,
+        createdAt: true,
       },
     });
 
-    // いいね数でソート（IDの順序を保持）
-    const workspacesWithLikes = workspaces
-      .map(workspace => ({
-        ...workspace,
-        likeCount: likeCountMap.get(workspace.id) || 0,
-      }))
-      .sort((a, b) => {
-        // まずいいね数でソート
-        if (b.likeCount !== a.likeCount) {
-          return b.likeCount - a.likeCount;
-        }
-        // いいね数が同じ場合は元の順序を保持
-        const aIndex = workspaceIds.indexOf(a.id);
-        const bIndex = workspaceIds.indexOf(b.id);
-        return aIndex - bIndex;
-      })
-      .slice(0, 10);
+    if (workspaces.length === 0) {
+      return [];
+    }
 
-    return workspacesWithLikes;
+    // 各ワークスペースのいいね数を集計
+    const likeGroups = await prisma.workspaceLike.groupBy({
+      by: ["workspaceId"],
+      where: {
+        workspaceId: {
+          in: workspaces.map((w) => w.id),
+        },
+      },
+      _count: {
+        workspaceId: true,
+      },
+    });
+
+    const likeCountMap = new Map(
+      likeGroups.map((g) => [g.workspaceId, g._count.workspaceId])
+    );
+
+    return workspaces.map((w) => ({
+      id: w.id,
+      name: w.name,
+      imageUrl: w.imageUrl,
+      country: w.country,
+      city: w.city,
+      likeCount: likeCountMap.get(w.id) || 0,
+      createdAt: w.createdAt.toISOString(),
+    }));
   } catch (error) {
-    console.error("Error fetching top workspaces:", error);
+    console.error("Error fetching workspaces:", error);
     return [];
   }
 }
@@ -231,79 +113,7 @@ export const revalidate = 3600; // 1時間キャッシュ
 export const preferredRegion = 'auto';
 
 export default async function WorkspacePage() {
-  // 並列処理でデータ取得を最適化
-  const [locations, topWorkspaces] = await Promise.all([
-    getLocations(),
-    getTopWorkspaces(),
-  ]);
-
-  // 都道府県から地方区分を取得する関数
-  const getRegion = (city: string): string => {
-    return PREFECTURE_TO_REGION[city] || 'その他';
-  };
-
-  // 地方区分の順序を取得する関数
-  const getRegionOrder = (region: string): number => {
-    const index = [...REGION_ORDER].indexOf(region as typeof REGION_ORDER[number]);
-    return index === -1 ? 999 : index;
-  };
-
-  // ソート処理：日本国内は地方区分順、海外は国名順
-  const sortedLocations = [...locations].sort((a, b) => {
-    // 日本国内のロケーションを優先
-    if (a.country === "日本" && b.country !== "日本") {
-      return -1;
-    }
-    if (a.country !== "日本" && b.country === "日本") {
-      return 1;
-    }
-
-    // 日本国内同士の場合は地方区分順
-    if (a.country === "日本" && b.country === "日本") {
-      const aRegion = getRegion(a.city);
-      const bRegion = getRegion(b.city);
-      const aRegionOrder = getRegionOrder(aRegion);
-      const bRegionOrder = getRegionOrder(bRegion);
-      
-      if (aRegionOrder !== bRegionOrder) {
-        return aRegionOrder - bRegionOrder;
-      }
-      // 同じ地方区分内では都市名順
-      return a.city.localeCompare(b.city, 'ja');
-    }
-
-    // 海外同士の場合は国名順、同じ国では都市名順
-    if (a.country !== b.country) {
-      return a.country.localeCompare(b.country, 'ja');
-    }
-    return a.city.localeCompare(b.city, 'ja');
-  });
-
-  // 地方区分別にグループ化（日本国内）
-  const locationsByRegion: Record<string, Location[]> = {};
-  const overseasLocations: Location[] = [];
-
-  sortedLocations.forEach((location) => {
-    if (location.country === "日本") {
-      const region = getRegion(location.city);
-      if (!locationsByRegion[region]) {
-        locationsByRegion[region] = [];
-      }
-      locationsByRegion[region].push(location);
-    } else {
-      overseasLocations.push(location);
-    }
-  });
-
-  // 海外を国別にグループ化
-  const locationsByCountry = overseasLocations.reduce((acc, location) => {
-    if (!acc[location.country]) {
-      acc[location.country] = [];
-    }
-    acc[location.country].push(location);
-    return acc;
-  }, {} as Record<string, Location[]>);
-
+  const workspaces = await getWorkspaces();
 
   // 構造化データ（BreadcrumbList）
   const breadcrumbStructuredData = {
@@ -334,12 +144,12 @@ export default async function WorkspacePage() {
     "url": "https://db.nexanahq.com/workspace",
     "mainEntity": {
       "@type": "ItemList",
-      "numberOfItems": locations.length,
-      "itemListElement": locations.slice(0, 10).map((location, index) => ({
+      "numberOfItems": workspaces.length,
+      "itemListElement": workspaces.slice(0, 10).map((workspace, index) => ({
         "@type": "ListItem",
         "position": index + 1,
-        "name": `${location.city}, ${location.country}`,
-        "url": `https://db.nexanahq.com/workspace/${location.slug}`
+        "name": `${workspace.name}（${workspace.city}, ${workspace.country}）`,
+        "url": `https://db.nexanahq.com/workspace`
       }))
     }
   };
@@ -380,20 +190,13 @@ export default async function WorkspacePage() {
           </p>
         </div>
 
-        {/* ワークスペース運営者向けボタン */}
-        <WorkspaceOrganizerButton />
+        {/* ワークスペース運営者向けボタン（非表示） */}
+        {/* <WorkspaceOrganizerButton /> */}
 
-        {/* Top 10 Workspaces セクション - コンパクトでワイド */}
-        <TopWorkspacesSection topWorkspaces={topWorkspaces} />
-
-        {/* ロケーション一覧 */}
-        <WorkspaceListClient
-          regionOrder={[...REGION_ORDER]}
-          locationsByRegion={locationsByRegion}
-          locationsByCountry={locationsByCountry}
-        />
-
-        {locations.length === 0 && (
+        {/* 全ワークスペース一覧（国・都道府県タブ + 新着/人気順） */}
+        {workspaces.length > 0 ? (
+          <WorkspaceAllList workspaces={workspaces} />
+        ) : (
           <div className="text-center py-12 sm:py-16 md:py-20 lg:py-24">
             <div className="inline-flex items-center justify-center w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 mb-4 sm:mb-6 shadow-inner">
               <MapPin className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-gray-400" />

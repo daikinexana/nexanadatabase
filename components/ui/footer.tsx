@@ -4,8 +4,7 @@ import Image from "next/image";
 const navigation = {
   main: [
     { name: "ホーム", nameEn: "Home", href: "/" },
-    { name: "コンテスト", nameEn: "Contests", href: "/contests" },
-    { name: "公募", nameEn: "Open Calls", href: "/open-calls" },
+    { name: "コンテスト・公募", nameEn: "Opportunities", href: "/opportunities" },
     { name: "ワークスペース", nameEn: "Workspace", href: "/workspace" },
     { name: "ニュース", nameEn: "News", href: "/news" },
   ],

@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import OpenCallsHybridDisplay from "./open-calls-hybrid-display";
-import OpenCallOrganizerButton from "./open-call-organizer-button";
+// import OpenCallOrganizerButton from "./open-call-organizer-button";
 import { Search } from "lucide-react";
 
 interface OpenCall {
@@ -141,8 +141,8 @@ export default function OpenCallsWithFilter({
 
   return (
     <>
-      {/* 公募主催者向けボタン */}
-      <OpenCallOrganizerButton />
+      {/* 公募主催者向けボタン（非表示） */}
+      {/* <OpenCallOrganizerButton /> */}
 
       {/* 検索バー - iPhone 16最適化 */}
       <div className="mb-6 sm:mb-8">

@@ -72,10 +72,21 @@ interface OpenCall {
   updatedAt: string;
 }
 
+// 開発環境では実際にアクセスしているホスト（localhost:3001 など）から取得する。
+// 本番では NEXT_PUBLIC_BASE_URL を使う（静的生成のまま）。
+async function getBaseUrl(): Promise<string> {
+  if (process.env.NODE_ENV === 'development') {
+    const { headers } = await import('next/headers');
+    const host = (await headers()).get('host');
+    if (host) return `http://${host}`;
+  }
+  return process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com';
+}
+
 // サーバーサイドでデータを取得
 async function getOpenCalls(search?: string): Promise<OpenCall[]> {
   try {
-    const url = new URL(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://db.nexanahq.com'}/api/open-calls`);
+    const url = new URL(`${await getBaseUrl()}/api/open-calls`);
     if (search) {
       url.searchParams.set('search', search);
     }
