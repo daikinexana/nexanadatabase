@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import AdminGuard from "@/components/admin/admin-guard";
-import { Briefcase, Plus, Edit, Trash2, Save, X, ArrowLeft } from "lucide-react";
+import { Briefcase, Plus, Edit, Trash2, Save, X, ArrowLeft, Sparkles, ImageIcon } from "lucide-react";
 import SimpleImage from "@/components/ui/simple-image";
 import ImageUpload from "@/components/ui/image-upload";
 import WorkspaceInfoCardsEditor from "@/components/ui/workspace-info-cards-editor";
@@ -512,7 +512,7 @@ export default function AdminWorkspacePage() {
             </div>
           </div>
 
-          <div className="mb-6">
+          <div className="mb-6 flex flex-wrap gap-3">
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -520,6 +520,13 @@ export default function AdminWorkspacePage() {
               <Plus className="h-5 w-5" />
               新しいワークスペースを追加
             </button>
+            <Link
+              href="/admin/ai-import-workspace"
+              className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white px-4 py-2 rounded-lg hover:from-indigo-600 hover:to-blue-600 transition-colors flex items-center gap-2"
+            >
+              <Sparkles className="h-5 w-5" />
+              AIでURL取込（複数可）
+            </Link>
           </div>
 
           {showCreateForm && (
@@ -558,9 +565,21 @@ export default function AdminWorkspacePage() {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      施設写真
-                    </label>
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        施設写真
+                      </label>
+                      <a
+                        href={`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(formData.name || '')}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        title="施設名でGoogle画像検索"
+                        className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 hover:text-indigo-600 transition-colors"
+                      >
+                        <ImageIcon className="w-3 h-3" />
+                        画像検索
+                      </a>
+                    </div>
                     <ImageUpload
                       value={formData.imageUrl}
                       onChange={(imageUrl) => setFormData({ ...formData, imageUrl })}
@@ -937,7 +956,19 @@ export default function AdminWorkspacePage() {
                                   />
                                 </div>
                                 <div className="md:col-span-2">
-                                  <label className="block text-xs font-medium text-gray-700 mb-1">施設写真</label>
+                                  <div className="flex items-center justify-between gap-2 mb-1">
+                                    <label className="block text-xs font-medium text-gray-700">施設写真</label>
+                                    <a
+                                      href={`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(editingData.name || '')}`}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      title="施設名でGoogle画像検索"
+                                      className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 hover:text-indigo-600 transition-colors"
+                                    >
+                                      <ImageIcon className="w-3 h-3" />
+                                      画像検索
+                                    </a>
+                                  </div>
                                   <ImageUpload
                                     value={editingData.imageUrl || ''}
                                     onChange={(imageUrl) => setEditingData(prev => ({ ...prev, imageUrl }))}

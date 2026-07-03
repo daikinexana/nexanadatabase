@@ -55,6 +55,10 @@ export default function SimpleImage({
       onError={() => setHasError(true)}
       loading={loading || (priority ? "eager" : "lazy")}
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      // Vercelの画像最適化(/_next/image)はカタログ全1000枚超の変換で
+      // クォータ上限に達し402を返す→「画像なし」表示になる。元画像(S3のwebp/jpg等)は
+      // 既に軽量なので最適化を経由せず直接配信し、確実に表示されるようにする。
+      unoptimized
     />
   );
 }
