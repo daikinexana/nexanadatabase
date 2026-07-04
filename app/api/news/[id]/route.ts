@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 // 常に動的に実行されるように設定（キャッシュを完全に無効化）
@@ -82,6 +83,10 @@ export async function PUT(
       },
     });
 
+    // ニュース一覧ページのキャッシュを即時無効化
+    revalidatePath("/news");
+    revalidatePath("/");
+
     return NextResponse.json(news, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -109,6 +114,10 @@ export async function DELETE(
         id: resolvedParams.id,
       },
     });
+
+    // ニュース一覧ページのキャッシュを即時無効化
+    revalidatePath("/news");
+    revalidatePath("/");
 
     return NextResponse.json(
       { message: "News deleted successfully" },
