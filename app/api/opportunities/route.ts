@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 
@@ -129,6 +130,10 @@ export async function POST(request: NextRequest) {
         operatingCompany: operatingCompany || null,
       },
     });
+
+    // 一覧ページの静的キャッシュを即時無効化（保存後すぐ本番に反映されるように）
+    revalidatePath("/opportunities");
+    revalidatePath("/");
 
     return NextResponse.json(opportunity, { status: 201 });
   } catch (error) {

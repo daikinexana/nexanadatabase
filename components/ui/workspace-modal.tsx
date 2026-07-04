@@ -1,14 +1,41 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Building, MapPin, Clock, ExternalLink, Copy, Briefcase, Heart, MessageCircle, Send } from "lucide-react";
+import {
+  Building,
+  Building2,
+  MapPin,
+  Clock,
+  ExternalLink,
+  Copy,
+  Check,
+  Briefcase,
+  Heart,
+  MessageCircle,
+  Send,
+  Wifi,
+  Car,
+  Phone,
+  Users,
+  DoorOpen,
+  Sparkles,
+  Utensils,
+  BedDouble,
+  HeartHandshake,
+  GraduationCap,
+  Presentation,
+  FlaskConical,
+  Wrench,
+  ClipboardCheck,
+  Info,
+  Layers,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import SimpleImage from "@/components/ui/simple-image";
-import Modal from "@/components/ui/modal";
-import Image from "next/image";
 import { getClientIdentifier } from "@/lib/user-identifier";
 import {
   normalizeInfoCards,
-  INFO_CARD_CATEGORIES,
   type InfoCardCategory,
 } from "@/lib/workspace-info-cards";
 
@@ -122,10 +149,98 @@ interface WorkspaceModalProps {
   workspace: WorkspaceData | null;
 }
 
+/* ── 利用用途カテゴリ定義（アイコン付き） ───────────────────── */
+const CATEGORY_DEFS: {
+  key: keyof WorkspaceData;
+  label: string;
+  icon: LucideIcon;
+}[] = [
+  { key: "categoryWork", label: "執務", icon: Briefcase },
+  { key: "categoryConnect", label: "交流", icon: Users },
+  { key: "categoryPrototype", label: "試作", icon: Wrench },
+  { key: "categoryPilot", label: "実証", icon: FlaskConical },
+  { key: "categoryTest", label: "試験", icon: ClipboardCheck },
+  { key: "categorySupport", label: "支援", icon: HeartHandshake },
+  { key: "categoryShowcase", label: "発表", icon: Presentation },
+  { key: "categoryLearn", label: "学ぶ", icon: GraduationCap },
+  { key: "categoryStay", label: "滞在", icon: BedDouble },
+];
+
+/* ── 設備・サービス定義（アイコン付き） ───────────────────── */
+const AMENITY_DEFS: {
+  key: keyof WorkspaceData;
+  label: string;
+  icon: LucideIcon;
+}[] = [
+  { key: "hasDropin", label: "ドロップイン", icon: DoorOpen },
+  { key: "hasNexana", label: "nexana設置", icon: Sparkles },
+  { key: "hasMeetingRoom", label: "会議室", icon: Users },
+  { key: "hasPhoneBooth", label: "電話ブース", icon: Phone },
+  { key: "hasWifi", label: "WiFi", icon: Wifi },
+  { key: "hasParking", label: "駐車場", icon: Car },
+];
+
+/* ── infoCards カテゴリごとの見出しアイコン／アクセント ─────── */
+const INFO_CARD_META: Record<
+  InfoCardCategory,
+  { label: string; icon: LucideIcon; chipBg: string; iconClass: string }
+> = {
+  facility: { label: "施設情報", icon: Building2, chipBg: "bg-emerald-50", iconClass: "text-emerald-600" },
+  hotel: { label: "周辺ホテル", icon: BedDouble, chipBg: "bg-violet-50", iconClass: "text-violet-600" },
+  food: { label: "周辺グルメ", icon: Utensils, chipBg: "bg-amber-50", iconClass: "text-amber-600" },
+  spot: { label: "周辺スポット", icon: MapPin, chipBg: "bg-sky-50", iconClass: "text-sky-600" },
+};
+const INFO_CARD_ORDER: InfoCardCategory[] = ["facility", "hotel", "food", "spot"];
+
+/* ── セクション見出し ───────────────────────────────────── */
+function SectionTitle({
+  icon: Icon,
+  title,
+  count,
+  chipBg = "bg-emerald-50",
+  iconClass = "text-emerald-600",
+}: {
+  icon: LucideIcon;
+  title: string;
+  count?: number;
+  chipBg?: string;
+  iconClass?: string;
+}) {
+  return (
+    <div className="flex items-center gap-2.5 mb-4">
+      <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${chipBg}`}>
+        <Icon className={`w-[17px] h-[17px] ${iconClass}`} strokeWidth={2} />
+      </div>
+      <h3 className="text-[15px] lg:text-base font-bold text-gray-900 tracking-tight">{title}</h3>
+      {typeof count === "number" && (
+        <span className="text-[11px] font-bold text-gray-500 bg-gray-100 rounded-full px-2 py-0.5">
+          {count}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/* ── メタ情報ボックス（gray-50） ─────────────────────────── */
+function MetaBox({
+  label,
+  children,
+  className = "",
+}: {
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`rounded-xl bg-gray-50 ring-1 ring-gray-100 p-3.5 ${className}`}>
+      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">{label}</p>
+      <div className="text-sm font-semibold text-gray-800 leading-relaxed">{children}</div>
+    </div>
+  );
+}
+
 export default function WorkspaceModal({ isOpen, onClose, workspace }: WorkspaceModalProps) {
   const [copySuccess, setCopySuccess] = useState(false);
-  const [isImageLoading, setIsImageLoading] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [comments, setComments] = useState<Array<{ id: string; userName: string; content: string; createdAt: string }>>([]);
@@ -133,23 +248,20 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
   const [userName, setUserName] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
+  // Escキーで閉じる & 背景スクロールを固定
   useEffect(() => {
-    if (workspace?.imageUrl && isOpen) {
-      setIsImageLoading(true);
-      setImageLoaded(false);
-      
-      const img = new window.Image();
-      img.onload = () => {
-        setIsImageLoading(false);
-        setImageLoaded(true);
-      };
-      img.onerror = () => {
-        setIsImageLoading(false);
-        setImageLoaded(false);
-      };
-      img.src = workspace.imageUrl;
-    }
-  }, [workspace?.imageUrl, isOpen]);
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isOpen, onClose]);
 
   // いいねとコメント情報を取得
   useEffect(() => {
@@ -157,13 +269,10 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
 
     const fetchData = async () => {
       const clientId = getClientIdentifier();
-      
+
       try {
-        // いいね情報を取得
         const likesResponse = await fetch(`/api/workspace/${workspace.id}/like`, {
-          headers: {
-            'X-Client-Id': clientId,
-          },
+          headers: { "X-Client-Id": clientId },
         });
         if (likesResponse.ok) {
           const likesData = await likesResponse.json();
@@ -171,18 +280,15 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
           setIsLiked(likesData.isLiked || false);
         }
 
-        // コメント一覧を取得
         const commentsResponse = await fetch(`/api/workspace/${workspace.id}/comments`, {
-          headers: {
-            'X-Client-Id': clientId,
-          },
+          headers: { "X-Client-Id": clientId },
         });
         if (commentsResponse.ok) {
           const commentsData = await commentsResponse.json();
           setComments(commentsData.comments || []);
         }
       } catch (error) {
-        console.error('Error fetching likes and comments:', error);
+        console.error("Error fetching likes and comments:", error);
       }
     };
 
@@ -192,13 +298,13 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
   const handleLike = async () => {
     if (!workspace?.id) return;
     const clientId = getClientIdentifier();
-    
+
     try {
       const response = await fetch(`/api/workspace/${workspace.id}/like`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'X-Client-Id': clientId,
+          "Content-Type": "application/json",
+          "X-Client-Id": clientId,
         },
       });
 
@@ -208,7 +314,7 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
         setIsLiked(data.isLiked);
       }
     } catch (error) {
-      console.error('Error toggling like:', error);
+      console.error("Error toggling like:", error);
     }
   };
 
@@ -221,10 +327,10 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
 
     try {
       const response = await fetch(`/api/workspace/${workspace.id}/comments`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'X-Client-Id': clientId,
+          "Content-Type": "application/json",
+          "X-Client-Id": clientId,
         },
         body: JSON.stringify({
           content: commentContent.trim(),
@@ -239,7 +345,7 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
         setUserName("");
       }
     } catch (error) {
-      console.error('Error submitting comment:', error);
+      console.error("Error submitting comment:", error);
     } finally {
       setIsSubmittingComment(false);
     }
@@ -253,583 +359,348 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
     });
   };
 
-  if (!workspace) return null;
+  if (!isOpen || !workspace) return null;
 
-  // 新形式: 可変リストの施設情報・周辺情報カード（カテゴリごとにグループ化）
+  // 可変リストの施設情報・周辺情報カード（カテゴリごとにグループ化）
   const infoCards = normalizeInfoCards(workspace.infoCards);
-  const infoCardGroups = INFO_CARD_CATEGORIES.map((cat) => ({
-    label: cat.label,
-    value: cat.value as InfoCardCategory,
-    cards: infoCards.filter((c) => c.category === cat.value),
+  const infoCardGroups = INFO_CARD_ORDER.map((value) => ({
+    value,
+    ...INFO_CARD_META[value],
+    cards: infoCards.filter((c) => c.category === value),
   })).filter((g) => g.cards.length > 0);
 
+  const activeCategories = CATEGORY_DEFS.filter((c) => workspace[c.key]);
+  const activeAmenities = AMENITY_DEFS.filter((a) => workspace[a.key]);
+  const hasFacilityInfo =
+    activeAmenities.length > 0 ||
+    !!workspace.priceTable ||
+    !!workspace.rental ||
+    !!workspace.notes;
+
+  const locationLabel = `${workspace.city}${
+    workspace.country && workspace.country !== "日本" ? `・${workspace.country}` : ""
+  }`;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={workspace.name}>
-      <div className="h-full flex flex-col">
-        {/* コンテンツセクション - PC版: 左半分固定、右半分スクロール / スマホ版: 縦積み */}
-        <div className="flex-1 flex flex-col lg:flex-row bg-white overflow-hidden">
-          {/* 左半分: 固定 (PC版のみ) */}
-          <div className="hidden lg:block w-80 flex-shrink-0 p-6 border-r border-gray-200">
-            {/* 左側コンテンツ */}
-            <div className="flex flex-col h-full">
-              {/* 画像セクション - 上部に配置 */}
-              {workspace.imageUrl ? (
-                <div className="relative h-60 w-full overflow-hidden rounded-lg border border-gray-200 flex-shrink-0 mb-4">
-                  {/* ローディング状態 */}
-                  {isImageLoading && (
-                    <div className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10">
-                      <div className="text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400 mx-auto mb-2"></div>
-                        <p className="text-sm text-gray-500">画像を読み込み中...</p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* 画像 */}
-                  <Image
-                    src={workspace.imageUrl}
-                    alt={workspace.name}
-                    fill
-                    priority={true}
-                    className={`object-cover transition-opacity duration-300 ${
-                      imageLoaded ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    onLoad={() => {
-                      setIsImageLoading(false);
-                      setImageLoaded(true);
-                    }}
-                    onError={() => {
-                      setIsImageLoading(false);
-                      setImageLoaded(false);
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="relative h-60 w-full bg-gray-100 flex items-center justify-center rounded-lg border border-gray-200 flex-shrink-0 mb-4">
-                  <div className="text-center">
-                    <Building className="h-16 w-16 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-500 text-sm">画像なし</p>
-                  </div>
-                </div>
-              )}
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={workspace.name}
+    >
+      {/* 背景 */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
-              {/* アクションボタン - 画像の下に配置 */}
-              <div className="space-y-2 flex-shrink-0">
-                {/* いいねボタン */}
-                <button
-                  onClick={handleLike}
-                  className={`w-full group inline-flex items-center justify-center px-4 py-2.5 font-semibold rounded-lg transition-all duration-200 text-sm ${
-                    isLiked
-                      ? 'bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100'
-                      : 'bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900'
-                  }`}
+      {/* 本体 */}
+      <div className="relative w-full sm:max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[94vh] sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 fade-in-0 duration-300">
+        {/* モバイル用グラバー */}
+        <div className="sm:hidden sticky top-0 z-30 flex justify-center pt-2.5 pb-1 bg-gradient-to-b from-black/10 to-transparent pointer-events-none">
+          <div className="w-10 h-1 rounded-full bg-white/70" />
+        </div>
+
+        {/* 閉じるボタン */}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="閉じる"
+          className="absolute top-3 right-3 z-30 inline-flex items-center justify-center w-9 h-9 rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* ヒーロー画像 */}
+        <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-gradient-to-br from-gray-100 to-gray-200">
+          {workspace.imageUrl ? (
+            <SimpleImage
+              src={workspace.imageUrl}
+              alt={workspace.name}
+              fill
+              className="object-cover"
+              priority
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Building className="h-12 w-12 text-gray-300" />
+            </div>
+          )}
+
+          {/* 下部グラデーション */}
+          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/75 via-black/20 to-transparent pointer-events-none" />
+
+          {/* 画像下オーバーレイ: 所在地 + いいね数 */}
+          <div className="absolute inset-x-0 bottom-0 p-4 flex items-end justify-between gap-3">
+            <span className="inline-flex items-center gap-1.5 text-white min-w-0">
+              <MapPin className="h-4 w-4 text-emerald-300 flex-shrink-0" />
+              <span className="text-sm font-semibold truncate drop-shadow">{locationLabel}</span>
+            </span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/45 backdrop-blur-sm text-white text-xs font-bold flex-shrink-0">
+              <Heart className={`w-3.5 h-3.5 ${likeCount > 0 ? "fill-rose-400 text-rose-400" : ""}`} />
+              {likeCount}
+            </span>
+          </div>
+        </div>
+
+        {/* コンテンツ */}
+        <div className="p-5 sm:p-6">
+          {/* 利用用途チップ */}
+          {activeCategories.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {activeCategories.map(({ label, icon: Icon }) => (
+                <span
+                  key={label}
+                  className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2.5 py-1 rounded-full ring-1 ring-emerald-100"
                 >
-                  <Heart className={`h-4 w-4 mr-2 ${isLiked ? 'fill-red-600 text-red-600' : ''}`} />
-                  {isLiked ? 'いいね済み' : 'いいね'} ({likeCount})
-                </button>
+                  <Icon className="w-3 h-3 text-emerald-500" strokeWidth={2.2} />
+                  {label}
+                </span>
+              ))}
+            </div>
+          )}
 
-                {/* ウェブサイトリンク */}
-                {workspace.officialLink && (
-                  <a
-                    href={workspace.officialLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full group inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-sm"
-                  >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    ウェブサイトを見る
-                  </a>
-                )}
+          {/* タイトル */}
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 leading-snug break-words">
+            {workspace.name}
+          </h2>
 
-                {/* URLをコピーして共有ボタン */}
-                <button
-                  onClick={handleCopyUrl}
-                  className="w-full group inline-flex items-center justify-center px-4 py-2.5 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 font-semibold rounded-lg transition-all duration-200 text-sm"
-                >
-                  <Copy className="h-4 w-4 mr-2" />
-                  {copySuccess ? 'コピーしました！' : 'URLをコピー'}
-                </button>
-              </div>
+          {/* 一言 */}
+          {workspace.facilityFeatureOneLine && (
+            <blockquote className="mt-3 pl-3.5 border-l-[3px] border-emerald-400">
+              <p className="text-sm sm:text-[15px] text-gray-600 leading-relaxed">
+                {workspace.facilityFeatureOneLine}
+              </p>
+            </blockquote>
+          )}
+
+          {/* アクション */}
+          <div className="mt-5 flex flex-col sm:flex-row gap-2">
+            {workspace.officialLink && (
+              <a
+                href={workspace.officialLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-semibold rounded-xl shadow-sm hover:from-emerald-700 hover:to-teal-700 transition-all min-h-[48px] active:scale-[0.98]"
+              >
+                ウェブサイトを見る
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            )}
+            <div className="flex gap-2">
+              <button
+                onClick={handleLike}
+                className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-3 text-sm font-semibold rounded-xl transition-all min-h-[48px] active:scale-[0.98] ${
+                  isLiked
+                    ? "bg-rose-50 text-rose-600 ring-1 ring-rose-200 hover:bg-rose-100"
+                    : "bg-white text-gray-700 ring-1 ring-gray-200 hover:ring-gray-300"
+                }`}
+              >
+                <Heart className={`w-4 h-4 ${isLiked ? "fill-rose-600 text-rose-600" : ""}`} />
+                {isLiked ? "いいね済み" : "いいね"}
+              </button>
+              <button
+                onClick={handleCopyUrl}
+                aria-label="URLをコピーして共有"
+                className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-3 text-sm font-semibold rounded-xl transition-all min-h-[48px] active:scale-[0.98] ${
+                  copySuccess
+                    ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                    : "bg-white text-gray-700 ring-1 ring-gray-200 hover:ring-gray-300"
+                }`}
+              >
+                {copySuccess ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copySuccess ? "コピー済み" : "共有"}
+              </button>
             </div>
           </div>
 
-          {/* 右半分: スクロール可能 (PC版) / 全体: スクロール可能 (スマホ版) */}
-          <div className="flex-1 overflow-y-auto p-4 lg:p-6">
-            <div className="space-y-4 lg:space-y-6">
-              {/* スマホ版: 画像を上部に表示 */}
-              <div className="lg:hidden">
-                {workspace.imageUrl ? (
-                  <div className="relative h-48 w-full overflow-hidden rounded-lg border border-gray-200 mb-4">
-                    <Image
-                      src={workspace.imageUrl}
-                      alt={workspace.name}
-                      fill
-                      priority={true}
-                      className="object-cover"
-                      sizes="100vw"
-                    />
-                  </div>
-                ) : (
-                  <div className="relative h-48 w-full bg-gray-100 flex items-center justify-center rounded-lg border border-gray-200 mb-4">
-                    <div className="text-center">
-                      <Building className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-500 text-sm">画像なし</p>
-                    </div>
-                  </div>
+          {/* 基本情報 */}
+          <section className="mt-6 pt-6 border-t border-gray-100">
+            <SectionTitle icon={Info} title="基本情報" />
+            <div className="grid grid-cols-2 gap-2.5">
+              <MetaBox label="所在地" className="col-span-2">
+                <span>
+                  {workspace.country} / {workspace.city}
+                </span>
+                {workspace.address && (
+                  <p className="text-gray-500 font-normal mt-1 text-[13px]">{workspace.address}</p>
                 )}
-                
-                {/* スマホ版: アクションボタンを画像の下に配置 */}
-                <div className="flex flex-col space-y-2 mb-6">
-                  {/* いいねボタン */}
-                  <button
-                    onClick={handleLike}
-                    className={`w-full inline-flex items-center justify-center px-4 py-3 font-semibold rounded-lg transition-all duration-200 text-base ${
-                      isLiked
-                        ? 'bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100'
-                        : 'bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900'
-                    }`}
-                  >
-                    <Heart className={`h-5 w-5 mr-2 ${isLiked ? 'fill-red-600 text-red-600' : ''}`} />
-                    {isLiked ? 'いいね済み' : 'いいね'} ({likeCount})
-                  </button>
-
-                  {/* ウェブサイトリンク */}
-                  {workspace.officialLink && (
-                    <a
-                      href={workspace.officialLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full inline-flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-base"
-                    >
-                      <ExternalLink className="h-5 w-5 mr-2" />
-                      ウェブサイトを見る
-                    </a>
-                  )}
-
-                  {/* URLをコピーして共有ボタン */}
-                  <button
-                    onClick={handleCopyUrl}
-                    className="w-full inline-flex items-center justify-center px-4 py-3 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 font-semibold rounded-lg transition-all duration-200 text-base"
-                  >
-                    <Copy className="h-5 w-5 mr-2" />
-                    {copySuccess ? 'コピーしました！' : 'URLをコピー'}
-                  </button>
-                </div>
-                
-                {/* スマホ版: カテゴリバッジと一言セクション */}
-                {(workspace.facilityFeatureOneLine || workspace.categoryWork || workspace.categoryConnect || workspace.categoryPrototype || workspace.categoryPilot || workspace.categoryTest || workspace.categorySupport || workspace.categoryShowcase || workspace.categoryLearn || workspace.categoryStay) && (
-                  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-6">
-                    {/* 施設特徴一言 */}
-                    {workspace.facilityFeatureOneLine && (
-                      <div className="mb-4">
-                        <p className="text-sm text-gray-600 leading-relaxed font-light italic" style={{
-                          letterSpacing: '0.01em',
-                          lineHeight: '1.6'
-                        }}>
-                          &ldquo;{workspace.facilityFeatureOneLine}&rdquo;
-                        </p>
-                      </div>
-                    )}
-
-                    {/* カテゴリバッジ */}
-                    {(workspace.categoryWork || workspace.categoryConnect || workspace.categoryPrototype || workspace.categoryPilot || workspace.categoryTest || workspace.categorySupport || workspace.categoryShowcase || workspace.categoryLearn || workspace.categoryStay) && (
-                      <div className="flex flex-wrap gap-2">
-                        {workspace.categoryWork && (
-                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                            執務
-                          </span>
-                        )}
-                        {workspace.categoryConnect && (
-                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                            交流
-                          </span>
-                        )}
-                        {workspace.categoryPrototype && (
-                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                            試作
-                          </span>
-                        )}
-                        {workspace.categoryPilot && (
-                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                            実証
-                          </span>
-                        )}
-                        {workspace.categoryTest && (
-                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                            試験
-                          </span>
-                        )}
-                        {workspace.categorySupport && (
-                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                            支援
-                          </span>
-                        )}
-                        {workspace.categoryShowcase && (
-                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                            発表
-                          </span>
-                        )}
-                        {workspace.categoryLearn && (
-                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                            学ぶ
-                          </span>
-                        )}
-                        {workspace.categoryStay && (
-                          <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                            滞在
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-              
-              {/* PC版: カテゴリバッジと一言セクション */}
-              {(workspace.facilityFeatureOneLine || workspace.categoryWork || workspace.categoryConnect || workspace.categoryPrototype || workspace.categoryPilot || workspace.categoryTest || workspace.categorySupport || workspace.categoryShowcase || workspace.categoryLearn || workspace.categoryStay) && (
-                <div className="hidden lg:block bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
-                  {/* 施設特徴一言 */}
-                  {workspace.facilityFeatureOneLine && (
-                    <div className="mb-4 lg:mb-6">
-                      <p className="text-sm lg:text-base text-gray-600 leading-relaxed font-light italic" style={{
-                        letterSpacing: '0.01em',
-                        lineHeight: '1.6'
-                      }}>
-                        &ldquo;{workspace.facilityFeatureOneLine}&rdquo;
-                      </p>
-                    </div>
-                  )}
-
-                  {/* カテゴリバッジ */}
-                  {(workspace.categoryWork || workspace.categoryConnect || workspace.categoryPrototype || workspace.categoryPilot || workspace.categoryTest || workspace.categorySupport || workspace.categoryShowcase || workspace.categoryLearn || workspace.categoryStay) && (
-                    <div className="flex flex-wrap gap-2">
-                      {workspace.categoryWork && (
-                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                          執務
-                        </span>
-                      )}
-                      {workspace.categoryConnect && (
-                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                          交流
-                        </span>
-                      )}
-                      {workspace.categoryPrototype && (
-                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                          試作
-                        </span>
-                      )}
-                      {workspace.categoryPilot && (
-                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                          実証
-                        </span>
-                      )}
-                      {workspace.categoryTest && (
-                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                          試験
-                        </span>
-                      )}
-                      {workspace.categorySupport && (
-                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                          支援
-                        </span>
-                      )}
-                      {workspace.categoryShowcase && (
-                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                          発表
-                        </span>
-                      )}
-                      {workspace.categoryLearn && (
-                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                          学ぶ
-                        </span>
-                      )}
-                      {workspace.categoryStay && (
-                        <span className="inline-flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs lg:text-sm font-medium px-3 py-1.5 rounded-full border border-gray-200 transition-colors duration-200">
-                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                          滞在
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </div>
+              </MetaBox>
+              {workspace.businessHours && (
+                <MetaBox label="営業時間" className="col-span-2">
+                  <span className="inline-flex items-start gap-1.5">
+                    <Clock className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <span className="whitespace-pre-line">{workspace.businessHours}</span>
+                  </span>
+                </MetaBox>
               )}
+              {workspace.operator && <MetaBox label="主体">{workspace.operator}</MetaBox>}
+              {workspace.management && <MetaBox label="運営">{workspace.management}</MetaBox>}
+            </div>
+          </section>
 
-              {/* 基本情報カード - モダンで洗練されたモノクロ調 */}
-              <div className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 lg:mb-6 flex items-center">
-                  <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
-                    <span className="text-white text-sm font-bold">W</span>
-                  </div>
-                  基本情報
-                </h3>
-                
-                <div className="space-y-4 lg:space-y-6">
-                  <div className="border-l-4 border-gray-300 pl-3 lg:pl-4">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">所在地</label>
-                    <div className="flex items-center space-x-2 lg:space-x-3 mt-2">
-                      <div className="w-5 h-5 lg:w-6 lg:h-6 bg-gray-100 rounded-full flex items-center justify-center">
-                        <MapPin className="h-2.5 w-2.5 lg:h-3 lg:w-3 text-gray-600" />
-                      </div>
-                      <span className="text-gray-900 font-semibold text-base lg:text-lg">{workspace.country} / {workspace.city}</span>
-                    </div>
-                    {workspace.address && (
-                      <p className="text-gray-700 mt-2 text-sm lg:text-base">{workspace.address}</p>
-                    )}
-                  </div>
-
-                  {workspace.businessHours && (
-                    <div className="border-l-4 border-gray-300 pl-3 lg:pl-4">
-                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">営業時間</label>
-                      <div className="flex items-center space-x-2 lg:space-x-3 mt-2">
-                        <div className="w-5 h-5 lg:w-6 lg:h-6 bg-gray-100 rounded-full flex items-center justify-center">
-                          <Clock className="h-2.5 w-2.5 lg:h-3 lg:w-3 text-gray-600" />
-                        </div>
-                        <span className="text-gray-900 font-semibold text-base lg:text-lg">{workspace.businessHours}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {workspace.operator && (
-                    <div className="border-l-4 border-gray-300 pl-3 lg:pl-4">
-                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">主体</label>
-                      <div className="flex items-center space-x-2 lg:space-x-3 mt-2">
-                        <div className="w-5 h-5 lg:w-6 lg:h-6 bg-gray-100 rounded-full flex items-center justify-center">
-                          <Building className="h-2.5 w-2.5 lg:h-3 lg:w-3 text-gray-600" />
-                        </div>
-                        <span className="text-gray-900 font-semibold text-base lg:text-lg">{workspace.operator}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {workspace.management && (
-                    <div className="border-l-4 border-gray-300 pl-3 lg:pl-4">
-                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">運営</label>
-                      <div className="flex items-center space-x-2 lg:space-x-3 mt-2">
-                        <div className="w-5 h-5 lg:w-6 lg:h-6 bg-gray-100 rounded-full flex items-center justify-center">
-                          <Briefcase className="h-2.5 w-2.5 lg:h-3 lg:w-3 text-gray-600" />
-                        </div>
-                        <span className="text-gray-900 font-semibold text-base lg:text-lg">{workspace.management}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* 施設情報カード - モダンで洗練されたモノクロ調 */}
-              {(workspace.hasDropin || workspace.hasNexana || workspace.hasMeetingRoom || workspace.hasPhoneBooth || workspace.hasWifi || workspace.hasParking || workspace.priceTable || workspace.rental || workspace.notes) && (
-                <div className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 lg:mb-6 flex items-center">
-                    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
-                      <span className="text-white text-sm font-bold">F</span>
-                    </div>
-                    施設情報
-                  </h3>
-                  
-                  <div className="space-y-6">
-                    {/* 利用可能性 */}
-                    {(workspace.hasDropin || workspace.hasNexana || workspace.hasMeetingRoom || workspace.hasPhoneBooth || workspace.hasWifi || workspace.hasParking) && (
-                      <div className="border-l-4 border-gray-300 pl-3 lg:pl-4">
-                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">施設情報</label>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {workspace.hasDropin && (
-                            <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm font-medium rounded-full flex items-center shadow-sm border border-gray-200">
-                              <div className="w-2 h-2 bg-gray-600 rounded-full mr-2"></div>
-                              ドロップイン可能
-                            </span>
-                          )}
-                          {workspace.hasNexana && (
-                            <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm font-medium rounded-full flex items-center shadow-sm border border-gray-200">
-                              <div className="w-2 h-2 bg-gray-600 rounded-full mr-2"></div>
-                              nexana設置
-                            </span>
-                          )}
-                          {workspace.hasMeetingRoom && (
-                            <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm font-medium rounded-full flex items-center shadow-sm border border-gray-200">
-                              <div className="w-2 h-2 bg-gray-600 rounded-full mr-2"></div>
-                              会議室
-                            </span>
-                          )}
-                          {workspace.hasPhoneBooth && (
-                            <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm font-medium rounded-full flex items-center shadow-sm border border-gray-200">
-                              <div className="w-2 h-2 bg-gray-600 rounded-full mr-2"></div>
-                              電話ボックス
-                            </span>
-                          )}
-                          {workspace.hasWifi && (
-                            <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm font-medium rounded-full flex items-center shadow-sm border border-gray-200">
-                              <div className="w-2 h-2 bg-gray-600 rounded-full mr-2"></div>
-                              WiFi
-                            </span>
-                          )}
-                          {workspace.hasParking && (
-                            <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm font-medium rounded-full flex items-center shadow-sm border border-gray-200">
-                              <div className="w-2 h-2 bg-gray-600 rounded-full mr-2"></div>
-                              駐車場
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {workspace.priceTable && (
-                      <div className="border-l-4 border-gray-300 pl-3 lg:pl-4">
-                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">料金表</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed text-sm lg:text-base font-medium whitespace-pre-line">{workspace.priceTable}</p>
-                      </div>
-                    )}
-
-                    {workspace.rental && (
-                      <div className="border-l-4 border-gray-300 pl-3 lg:pl-4">
-                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">貸し出し</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed text-sm lg:text-base font-medium whitespace-pre-line">{workspace.rental}</p>
-                      </div>
-                    )}
-
-                    {workspace.notes && (
-                      <div className="border-l-4 border-gray-300 pl-3 lg:pl-4">
-                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">補足事項</label>
-                        <p className="text-gray-900 mt-2 leading-relaxed text-sm lg:text-base font-medium whitespace-pre-line">{workspace.notes}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* 施設情報・周辺情報カード（新・可変リスト、カテゴリごと） */}
-              {infoCardGroups.map((group) => (
-                <div
-                  key={group.value}
-                  className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm"
-                >
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 lg:mb-6 flex items-center">
-                    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
-                      <span className="text-white text-sm font-bold">
-                        {group.label.charAt(0)}
-                      </span>
-                    </div>
-                    {group.label}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {group.cards.map((card, index) => (
+          {/* 施設・設備 */}
+          {hasFacilityInfo && (
+            <section className="mt-6 pt-6 border-t border-gray-100">
+              <SectionTitle icon={Layers} title="施設・設備" />
+              <div className="space-y-5">
+                {activeAmenities.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {activeAmenities.map(({ label, icon: Icon }) => (
                       <div
-                        key={index}
-                        className="bg-white border border-gray-200 rounded-lg p-4"
+                        key={label}
+                        className="flex items-center gap-2 rounded-xl bg-gray-50 ring-1 ring-gray-100 px-3 py-2.5"
                       >
-                        {card.imageUrl && (
-                          <div className="relative w-full h-32 mb-2 rounded overflow-hidden">
-                            <SimpleImage
-                              src={card.imageUrl}
-                              alt={card.title || ""}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        )}
-                        {card.title && (
-                          <h4 className="font-semibold mb-1 text-gray-900">
-                            {card.title}
-                          </h4>
-                        )}
-                        {card.description && (
-                          <p className="text-sm text-gray-600 whitespace-pre-wrap">
-                            {card.description}
-                          </p>
-                        )}
+                        <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-white ring-1 ring-emerald-100 flex-shrink-0">
+                          <Icon className="w-4 h-4 text-emerald-600" strokeWidth={2} />
+                        </div>
+                        <span className="text-[13px] font-semibold text-gray-800 truncate">{label}</span>
                       </div>
                     ))}
                   </div>
-                </div>
-              ))}
+                )}
 
-              {/* コメントセクション */}
-              <div className="bg-white border border-gray-200 rounded-xl p-4 lg:p-6 shadow-sm">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 lg:mb-6 flex items-center">
-                  <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
-                    <MessageCircle className="w-4 h-4 text-white" />
-                  </div>
-                  コメント ({comments.length})
-                </h3>
-
-                {/* コメント投稿フォーム */}
-                <form onSubmit={handleSubmitComment} className="mb-6 space-y-3">
+                {workspace.priceTable && (
                   <div>
-                    <input
-                      type="text"
-                      placeholder="お名前（任意）"
-                      value={userName}
-                      onChange={(e) => setUserName(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                      maxLength={50}
-                    />
+                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">料金表</p>
+                    <p className="text-gray-800 leading-relaxed text-sm whitespace-pre-line bg-gray-50 rounded-xl p-4 ring-1 ring-gray-100">
+                      {workspace.priceTable}
+                    </p>
                   </div>
-                  <div className="flex gap-2">
-                    <textarea
-                      placeholder="コメントを入力してください..."
-                      value={commentContent}
-                      onChange={(e) => setCommentContent(e.target.value)}
-                      className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none"
-                      rows={3}
-                      maxLength={1000}
-                      required
-                    />
-                    <button
-                      type="submit"
-                      disabled={!commentContent.trim() || isSubmittingComment}
-                      className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                    >
-                      <Send className="w-4 h-4" />
-                    </button>
-                  </div>
-                </form>
+                )}
 
-                {/* コメント一覧 */}
-                <div className="space-y-4">
-                  {comments.length === 0 ? (
-                    <p className="text-sm text-gray-500 text-center py-8">まだコメントがありません。最初のコメントを投稿してみましょう！</p>
-                  ) : (
-                    comments.map((comment) => (
-                      <div key={comment.id} className="border-l-4 border-gray-200 pl-4 py-2">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-semibold text-gray-900">{comment.userName}</span>
-                          <span className="text-xs text-gray-500">
-                            {new Date(comment.createdAt).toLocaleDateString('ja-JP', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.content}</p>
-                      </div>
-                    ))
-                  )}
-                </div>
+                {workspace.rental && (
+                  <div>
+                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">貸し出し</p>
+                    <p className="text-gray-800 leading-relaxed text-sm whitespace-pre-line">{workspace.rental}</p>
+                  </div>
+                )}
+
+                {workspace.notes && (
+                  <div>
+                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">補足事項</p>
+                    <p className="text-gray-800 leading-relaxed text-sm whitespace-pre-line">{workspace.notes}</p>
+                  </div>
+                )}
               </div>
+            </section>
+          )}
+
+          {/* 施設情報・周辺情報カード（カテゴリごと） */}
+          {infoCardGroups.map((group) => (
+            <section key={group.value} className="mt-6 pt-6 border-t border-gray-100">
+              <SectionTitle
+                icon={group.icon}
+                title={group.label}
+                count={group.cards.length}
+                chipBg={group.chipBg}
+                iconClass={group.iconClass}
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {group.cards.map((card, index) => (
+                  <div
+                    key={index}
+                    className="group/card bg-white rounded-xl overflow-hidden ring-1 ring-gray-200/80 hover:ring-gray-300 hover:shadow-md transition-all duration-300"
+                  >
+                    {card.imageUrl && (
+                      <div className="relative w-full aspect-[16/10] overflow-hidden bg-gray-100">
+                        <SimpleImage
+                          src={card.imageUrl}
+                          alt={card.title || ""}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover/card:scale-105"
+                        />
+                      </div>
+                    )}
+                    <div className="p-3.5">
+                      {card.title && (
+                        <h4 className="font-bold mb-1 text-gray-900 text-sm leading-snug">{card.title}</h4>
+                      )}
+                      {card.description && (
+                        <p className="text-[13px] text-gray-600 whitespace-pre-wrap leading-relaxed">
+                          {card.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
+
+          {/* コメント */}
+          <section className="mt-6 pt-6 border-t border-gray-100">
+            <SectionTitle icon={MessageCircle} title="コメント" count={comments.length} />
+
+            {/* 投稿フォーム */}
+            <form onSubmit={handleSubmitComment} className="mb-5 space-y-2.5">
+              <input
+                type="text"
+                placeholder="お名前（任意）"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-400 focus:bg-white transition-colors"
+                maxLength={50}
+              />
+              <div className="flex gap-2">
+                <textarea
+                  placeholder="コメントを入力してください..."
+                  value={commentContent}
+                  onChange={(e) => setCommentContent(e.target.value)}
+                  className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-400 focus:bg-white resize-none transition-colors"
+                  rows={3}
+                  maxLength={1000}
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={!commentContent.trim() || isSubmittingComment}
+                  aria-label="コメントを送信"
+                  className="px-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center self-stretch active:scale-[0.98]"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+            </form>
+
+            {/* 一覧 */}
+            <div className="space-y-3">
+              {comments.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-50 ring-1 ring-gray-100 mb-3">
+                    <MessageCircle className="w-5 h-5 text-gray-300" />
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    まだコメントがありません。
+                    <br className="sm:hidden" />
+                    最初のコメントを投稿してみましょう！
+                  </p>
+                </div>
+              ) : (
+                comments.map((comment) => (
+                  <div key={comment.id} className="rounded-xl bg-gray-50 ring-1 ring-gray-100 px-4 py-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex-shrink-0">
+                        {(comment.userName || "匿").charAt(0)}
+                      </div>
+                      <span className="text-sm font-semibold text-gray-900">{comment.userName}</span>
+                      <span className="text-xs text-gray-400">
+                        {new Date(comment.createdAt).toLocaleDateString("ja-JP", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed pl-8">
+                      {comment.content}
+                    </p>
+                  </div>
+                ))
+              )}
             </div>
-          </div>
+          </section>
         </div>
       </div>
-    </Modal>
+    </div>
   );
 }
-

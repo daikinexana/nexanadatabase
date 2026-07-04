@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, memo, useEffect } from "react";
-import Image from "next/image";
+import SimpleImage from "@/components/ui/simple-image";
 import {
   Newspaper,
   X,
@@ -107,17 +107,14 @@ function NewsItem({
           {/* 画像 - iPhone 16最適化 */}
                  {imageUrl ? (
                    <div className="sm:w-80 flex-shrink-0">
-                     <Image
+                     <SimpleImage
                        src={imageUrl}
                        alt={title}
                        width={320}
                        height={192}
                        className="w-full h-40 sm:h-44 md:h-48 object-cover rounded-lg sm:rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300"
-                       sizes="(max-width: 640px) 100vw, 320px"
                        priority={priority}
                        loading={priority ? "eager" : "lazy"}
-                       placeholder="blur"
-                       blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                      />
                    </div>
           ) : (
@@ -229,13 +226,12 @@ function NewsItem({
             {/* 画像 */}
             <div className="relative w-full aspect-[16/9] bg-gradient-to-br from-gray-100 to-gray-200">
               {imageUrl ? (
-                <Image
+                <SimpleImage
                   src={imageUrl}
                   alt={title}
                   fill
                   priority
                   className="object-cover"
-                  sizes="(max-width: 640px) 100vw, 512px"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">

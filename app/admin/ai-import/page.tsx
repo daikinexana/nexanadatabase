@@ -3,8 +3,9 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import AdminGuard from "@/components/admin/admin-guard";
+import ImageUpload from "@/components/ui/image-upload";
 import { OpportunityCard, type OpportunityItem } from "@/components/ui/opportunities-list";
-import { Sparkles, Link2, Loader2, CheckCircle2, AlertCircle, ArrowLeft } from "lucide-react";
+import { Sparkles, Link2, Loader2, CheckCircle2, AlertCircle, ArrowLeft, Search } from "lucide-react";
 
 const ORGANIZER_TYPE_OPTIONS = ["企業", "行政", "大学", "CV", "その他"];
 
@@ -184,11 +185,36 @@ export default function AiImportPage() {
           </Link>
 
           <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-500 text-white">
-                <Sparkles className="h-5 w-5" />
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-500 text-white">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">AIでURL取込</h1>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">AIでURL取込</h1>
+              {/* タイトルをGoogle画像検索 */}
+              <a
+                href={
+                  draft?.title.trim()
+                    ? `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(draft.title.trim())}`
+                    : undefined
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  if (!draft?.title.trim()) e.preventDefault();
+                }}
+                aria-disabled={!draft?.title.trim()}
+                className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold rounded-lg border transition-colors shrink-0 ${
+                  draft?.title.trim()
+                    ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                    : "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
+                }`}
+                title={draft?.title.trim() ? "タイトルをGoogle画像検索" : "先にAIで解析してタイトルを取得してください"}
+              >
+                <Search className="w-4 h-4" />
+                Google画像検索
+              </a>
             </div>
             <p className="text-gray-600 text-sm">
               コンテスト/公募のページURLを貼り付けると、AIが内容を解析してカード用データを自動生成します。内容を確認・修正してから保存してください。
@@ -378,12 +404,23 @@ export default function AiImportPage() {
                   </Field>
                 </div>
 
-                <Field label="画像URL">
-                  <input
-                    value={draft.imageUrl}
-                    onChange={(e) => update("imageUrl", e.target.value)}
-                    className={inputCls}
+                <Field label="画像">
+                  <ImageUpload
+                    value={draft.imageUrl || undefined}
+                    onChange={(imageUrl) => update("imageUrl", imageUrl)}
+                    type="opportunity"
                   />
+                  <div className="mt-2">
+                    <label className="block text-[11px] font-medium text-gray-500 mb-1">
+                      画像URLを直接指定（アップロードの代わりに貼り付けも可能）
+                    </label>
+                    <input
+                      value={draft.imageUrl}
+                      onChange={(e) => update("imageUrl", e.target.value)}
+                      placeholder="https://..."
+                      className={inputCls}
+                    />
+                  </div>
                 </Field>
 
                 <Field label="リンクURL *">

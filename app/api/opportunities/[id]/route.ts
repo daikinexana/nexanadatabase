@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 
@@ -85,6 +86,9 @@ export async function PUT(
       },
     });
 
+    revalidatePath("/opportunities");
+    revalidatePath("/");
+
     return NextResponse.json(updated);
   } catch (error) {
     console.error("Error updating opportunity:", error);
@@ -123,6 +127,8 @@ export async function DELETE(
     await requireAdmin();
     const { id } = await params;
     await prisma.opportunity.delete({ where: { id } });
+    revalidatePath("/opportunities");
+    revalidatePath("/");
     return NextResponse.json({ message: "Opportunity deleted successfully" });
   } catch (error) {
     console.error("Error deleting opportunity:", error);
