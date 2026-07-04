@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import AdminGuard from "@/components/admin/admin-guard";
+import AutoTextarea from "@/components/ui/auto-textarea";
 import AdminNav from "@/components/ui/admin-nav";
 import { MapPin, Plus, Edit, Trash2, Save, X } from "lucide-react";
 import ImageUpload from "@/components/ui/image-upload";
@@ -577,21 +578,21 @@ export default function AdminLocationPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">説明文（写真上）</label>
-                        <textarea
+                        <AutoTextarea
                           name="companyCard1DescTop"
                           value={formData.companyCard1DescTop}
                           onChange={handleInputChange}
-                          rows={3}
+                          minRows={3}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">説明文（写真下）</label>
-                        <textarea
+                        <AutoTextarea
                           name="companyCard1DescBottom"
                           value={formData.companyCard1DescBottom}
                           onChange={handleInputChange}
-                          rows={3}
+                          minRows={3}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>
@@ -623,21 +624,21 @@ export default function AdminLocationPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">説明文（写真上）</label>
-                        <textarea
+                        <AutoTextarea
                           name="companyCard2DescTop"
                           value={formData.companyCard2DescTop}
                           onChange={handleInputChange}
-                          rows={3}
+                          minRows={3}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">説明文（写真下）</label>
-                        <textarea
+                        <AutoTextarea
                           name="companyCard2DescBottom"
                           value={formData.companyCard2DescBottom}
                           onChange={handleInputChange}
-                          rows={3}
+                          minRows={3}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>
@@ -669,21 +670,21 @@ export default function AdminLocationPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">説明文（写真上）</label>
-                        <textarea
+                        <AutoTextarea
                           name="companyCard3DescTop"
                           value={formData.companyCard3DescTop}
                           onChange={handleInputChange}
-                          rows={3}
+                          minRows={3}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">説明文（写真下）</label>
-                        <textarea
+                        <AutoTextarea
                           name="companyCard3DescBottom"
                           value={formData.companyCard3DescBottom}
                           onChange={handleInputChange}
-                          rows={3}
+                          minRows={3}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>
@@ -1011,21 +1012,21 @@ export default function AdminLocationPage() {
                                   </div>
                                   <div>
                                     <label className="block text-xs font-medium text-gray-700 mb-1">説明文（写真上）</label>
-                                    <textarea
+                                    <AutoTextarea
                                       name="companyCard1DescTop"
                                       value={editingData.companyCard1DescTop || ''}
                                       onChange={handleEditInputChange}
-                                      rows={2}
+                                      minRows={2}
                                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                                     />
                                   </div>
                                   <div>
                                     <label className="block text-xs font-medium text-gray-700 mb-1">説明文（写真下）</label>
-                                    <textarea
+                                    <AutoTextarea
                                       name="companyCard1DescBottom"
                                       value={editingData.companyCard1DescBottom || ''}
                                       onChange={handleEditInputChange}
-                                      rows={2}
+                                      minRows={2}
                                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                                     />
                                   </div>
@@ -1057,21 +1058,21 @@ export default function AdminLocationPage() {
                                   </div>
                                   <div>
                                     <label className="block text-xs font-medium text-gray-700 mb-1">説明文（写真上）</label>
-                                    <textarea
+                                    <AutoTextarea
                                       name="companyCard2DescTop"
                                       value={editingData.companyCard2DescTop || ''}
                                       onChange={handleEditInputChange}
-                                      rows={2}
+                                      minRows={2}
                                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                                     />
                                   </div>
                                   <div>
                                     <label className="block text-xs font-medium text-gray-700 mb-1">説明文（写真下）</label>
-                                    <textarea
+                                    <AutoTextarea
                                       name="companyCard2DescBottom"
                                       value={editingData.companyCard2DescBottom || ''}
                                       onChange={handleEditInputChange}
-                                      rows={2}
+                                      minRows={2}
                                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                                     />
                                   </div>
@@ -1103,21 +1104,21 @@ export default function AdminLocationPage() {
                                   </div>
                                   <div>
                                     <label className="block text-xs font-medium text-gray-700 mb-1">説明文（写真上）</label>
-                                    <textarea
+                                    <AutoTextarea
                                       name="companyCard3DescTop"
                                       value={editingData.companyCard3DescTop || ''}
                                       onChange={handleEditInputChange}
-                                      rows={2}
+                                      minRows={2}
                                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                                     />
                                   </div>
                                   <div>
                                     <label className="block text-xs font-medium text-gray-700 mb-1">説明文（写真下）</label>
-                                    <textarea
+                                    <AutoTextarea
                                       name="companyCard3DescBottom"
                                       value={editingData.companyCard3DescBottom || ''}
                                       onChange={handleEditInputChange}
-                                      rows={2}
+                                      minRows={2}
                                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                                     />
                                   </div>

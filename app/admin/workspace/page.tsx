@@ -6,6 +6,7 @@ import AdminGuard from "@/components/admin/admin-guard";
 import { Briefcase, Plus, Edit, Trash2, Save, X, ArrowLeft, Sparkles, ImageIcon } from "lucide-react";
 import SimpleImage from "@/components/ui/simple-image";
 import ImageUpload from "@/components/ui/image-upload";
+import AutoTextarea from "@/components/ui/auto-textarea";
 import WorkspaceInfoCardsEditor from "@/components/ui/workspace-info-cards-editor";
 import { type InfoCard, normalizeInfoCards } from "@/lib/workspace-info-cards";
 import { deriveCountryCity } from "@/lib/derive-location";
@@ -479,14 +480,34 @@ export default function AdminWorkspacePage() {
     }
   };
 
+  const AppBar = (
+    <header className="sticky top-0 z-20 border-b border-gray-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
+      <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4 sm:px-6 lg:px-8">
+        <Link
+          href="/admin"
+          className="-ml-2 inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/20"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span className="hidden sm:inline">ダッシュボード</span>
+        </Link>
+        <span className="h-5 w-px bg-gray-200" aria-hidden />
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+            <Briefcase className="h-4 w-4" />
+          </span>
+          <h1 className="truncate text-[15px] font-semibold text-gray-900">ワークスペース管理</h1>
+        </div>
+      </div>
+    </header>
+  );
+
   if (loading) {
     return (
       <AdminGuard>
-        <div className="min-h-screen bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex justify-center items-center h-64">
-              <div className="text-lg text-gray-600">読み込み中...</div>
-            </div>
+        <div className="min-h-dvh bg-gray-50">
+          {AppBar}
+          <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-24 text-gray-400">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-emerald-500" />
           </div>
         </div>
       </AdminGuard>
@@ -495,34 +516,29 @@ export default function AdminWorkspacePage() {
 
   return (
     <AdminGuard>
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Link
-            href="/admin"
-            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            管理ダッシュボードに戻る
-          </Link>
-
-          <div className="mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">ワークスペース管理</h1>
-              <p className="text-gray-600">ワークスペース情報の管理と編集を行います</p>
-            </div>
+      <div className="min-h-dvh bg-gray-50">
+        {AppBar}
+        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <div className="mb-5">
+            <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+              ワークスペース管理
+            </h2>
+            <p className="mt-1 text-sm leading-relaxed text-gray-500">
+              施設情報の登録・編集を行います。
+            </p>
           </div>
 
-          <div className="mb-6 flex flex-wrap gap-3">
+          <div className="mb-6 grid grid-cols-1 gap-3 sm:flex sm:flex-wrap">
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
             >
               <Plus className="h-5 w-5" />
               新しいワークスペースを追加
             </button>
             <Link
               href="/admin/ai-import-workspace"
-              className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white px-4 py-2 rounded-lg hover:from-indigo-600 hover:to-blue-600 transition-colors flex items-center gap-2"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-500 to-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:from-indigo-600 hover:to-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
             >
               <Sparkles className="h-5 w-5" />
               AIでURL取込（複数可）
@@ -553,12 +569,12 @@ export default function AdminWorkspacePage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       施設の説明 <span className="text-red-500">*</span>
                     </label>
-                    <textarea
+                    <AutoTextarea
                       name="description"
                       value={formData.description}
                       onChange={handleInputChange}
                       required
-                      rows={4}
+                      minRows={4}
                       placeholder="施設の概要・特徴を説明してください"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     />
@@ -637,11 +653,11 @@ export default function AdminWorkspacePage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       営業時間
                     </label>
-                    <textarea
+                    <AutoTextarea
                       name="businessHours"
                       value={formData.businessHours}
                       onChange={handleInputChange}
-                      rows={3}
+                      minRows={3}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     />
                   </div>
@@ -708,11 +724,11 @@ export default function AdminWorkspacePage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       料金表
                     </label>
-                    <textarea
+                    <AutoTextarea
                       name="priceTable"
                       value={formData.priceTable}
                       onChange={handleInputChange}
-                      rows={4}
+                      minRows={4}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     />
                   </div>
@@ -898,33 +914,36 @@ export default function AdminWorkspacePage() {
           )}
 
           {/* ワークスペース一覧 */}
-          <div className="bg-white shadow rounded-lg overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-medium text-gray-900">ワークスペース一覧</h2>
+          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3.5 sm:px-6">
+              <h2 className="text-sm font-semibold text-gray-900 sm:text-base">
+                ワークスペース一覧
+                <span className="ml-1.5 font-normal text-gray-400">{workspaces.length}件</span>
+              </h2>
             </div>
-            
+
             {workspaces.length === 0 ? (
-              <div className="px-6 py-8 text-center text-gray-500">
+              <div className="px-6 py-12 text-center text-sm text-gray-500">
                 ワークスペース情報がありません
               </div>
             ) : (
-              <div className="divide-y divide-gray-200">
+              <div className="divide-y divide-gray-100">
                 {workspaces.map((workspace) => (
-                  <div key={workspace.id} className="px-6 py-4 hover:bg-gray-50">
-                    <div className="flex items-start justify-between">
-                      <div className="flex gap-4 flex-1">
-                        {workspace.imageUrl && (
-                          <div className="relative w-20 h-20 rounded-lg overflow-hidden">
+                  <div key={workspace.id} className="px-4 py-4 transition-colors hover:bg-gray-50/60 sm:px-6">
+                    <div className={`${editingId === workspace.id ? "" : "flex items-start gap-3 sm:gap-4"}`}>
+                      <div className={`${editingId === workspace.id ? "" : "flex flex-1 gap-3 sm:gap-4 min-w-0"}`}>
+                        {editingId !== workspace.id && workspace.imageUrl && (
+                          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-gray-200 sm:h-20 sm:w-20">
                             <SimpleImage
                               src={workspace.imageUrl}
                               alt={workspace.name}
                               width={80}
                               height={80}
-                              className="w-20 h-20 object-cover"
+                              className="h-full w-full object-cover"
                             />
                           </div>
                         )}
-                        <div className="flex-1">
+                        <div className="min-w-0 flex-1">
                           {editingId === workspace.id ? (
                             // 編集モード
                             <div className="space-y-4">
@@ -946,12 +965,12 @@ export default function AdminWorkspacePage() {
                                   <label className="block text-xs font-medium text-gray-700 mb-1">
                                     施設の説明 <span className="text-red-500">*</span>
                                   </label>
-                                  <textarea
+                                  <AutoTextarea
                                     name="description"
                                     value={editingData.description || ''}
                                     onChange={handleEditInputChange}
                                     required
-                                    rows={3}
+                                    minRows={3}
                                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                                   />
                                 </div>
@@ -1016,11 +1035,11 @@ export default function AdminWorkspacePage() {
                                 </div>
                                 <div className="md:col-span-2">
                                   <label className="block text-xs font-medium text-gray-700 mb-1">営業時間</label>
-                                  <textarea
+                                  <AutoTextarea
                                     name="businessHours"
                                     value={editingData.businessHours || ''}
                                     onChange={handleEditInputChange}
-                                    rows={2}
+                                    minRows={2}
                                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                                   />
                                 </div>
@@ -1081,11 +1100,11 @@ export default function AdminWorkspacePage() {
                                 </div>
                                 <div className="md:col-span-2">
                                   <label className="block text-xs font-medium text-gray-700 mb-1">料金表</label>
-                                  <textarea
+                                  <AutoTextarea
                                     name="priceTable"
                                     value={editingData.priceTable || ''}
                                     onChange={handleEditInputChange}
-                                    rows={3}
+                                    minRows={3}
                                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                                   />
                                 </div>
@@ -1247,19 +1266,20 @@ export default function AdminWorkspacePage() {
                           ) : (
                             // 表示モード
                             <>
-                              <div className="flex items-center gap-3">
-                                <Briefcase className="h-5 w-5 text-gray-400" />
-                                <h3 className="text-lg font-medium text-gray-900">
-                                  {workspace.name}
-                                </h3>
-                              </div>
-                              <p className="text-sm text-gray-500 mt-1">
-                                {workspace.country} / {workspace.city}
+                              <h3 className="text-base font-semibold text-gray-900 sm:text-lg">
+                                {workspace.name}
+                              </h3>
+                              <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
+                                <span className="truncate">
+                                  {workspace.country} / {workspace.city}
+                                </span>
                               </p>
                               {workspace.address && (
-                                <p className="text-sm text-gray-600 mt-1">{workspace.address}</p>
+                                <p className="mt-1 text-sm leading-relaxed text-gray-600">
+                                  {workspace.address}
+                                </p>
                               )}
-                              <p className="text-xs text-gray-400 mt-1">
+                              <p className="mt-1.5 text-xs text-gray-400">
                                 更新日: {new Date(workspace.updatedAt).toLocaleDateString('ja-JP')}
                               </p>
                             </>
@@ -1267,23 +1287,29 @@ export default function AdminWorkspacePage() {
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-2">
+                      <div
+                        className={
+                          editingId === workspace.id
+                            ? "mt-5 flex justify-end gap-2 border-t border-gray-100 pt-4"
+                            : "flex shrink-0 items-center gap-1"
+                        }
+                      >
                         {editingId === workspace.id ? (
-                          // 編集モードのボタン
+                          // 編集モードのボタン（下部のアクションバー）
                           <>
                             <button
-                              onClick={() => saveEdit(workspace.id)}
-                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                              title="保存"
-                            >
-                              <Save className="h-4 w-4" />
-                            </button>
-                            <button
                               onClick={cancelEditing}
-                              className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
-                              title="キャンセル"
+                              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/20"
                             >
                               <X className="h-4 w-4" />
+                              キャンセル
+                            </button>
+                            <button
+                              onClick={() => saveEdit(workspace.id)}
+                              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+                            >
+                              <Save className="h-4 w-4" />
+                              保存
                             </button>
                           </>
                         ) : (
@@ -1291,15 +1317,17 @@ export default function AdminWorkspacePage() {
                           <>
                             <button
                               onClick={() => startEditing(workspace)}
-                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-blue-600 transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
                               title="編集"
+                              aria-label="編集"
                             >
                               <Edit className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => deleteWorkspace(workspace.id)}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
                               title="削除"
+                              aria-label="削除"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -1312,7 +1340,7 @@ export default function AdminWorkspacePage() {
               </div>
             )}
           </div>
-        </div>
+        </main>
       </div>
     </AdminGuard>
   );

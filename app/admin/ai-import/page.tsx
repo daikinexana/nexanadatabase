@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import AdminGuard from "@/components/admin/admin-guard";
 import ImageUpload from "@/components/ui/image-upload";
+import AutoTextarea from "@/components/ui/auto-textarea";
 import { OpportunityCard, type OpportunityItem } from "@/components/ui/opportunities-list";
 import { Sparkles, Link2, Loader2, CheckCircle2, AlertCircle, ArrowLeft, Search } from "lucide-react";
 
@@ -172,85 +173,75 @@ export default function AiImportPage() {
       }
     : null;
 
+  const googleImageHref = draft?.title.trim()
+    ? `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(draft.title.trim())}`
+    : undefined;
+
   return (
     <AdminGuard>
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Link
-            href="/admin"
-            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            ダッシュボードに戻る
-          </Link>
-
-          <div className="mb-6">
-            <div className="flex items-start justify-between gap-3 mb-2">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-500 text-white">
-                  <Sparkles className="h-5 w-5" />
-                </div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">AIでURL取込</h1>
-              </div>
-              {/* タイトルをGoogle画像検索 */}
-              <a
-                href={
-                  draft?.title.trim()
-                    ? `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(draft.title.trim())}`
-                    : undefined
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => {
-                  if (!draft?.title.trim()) e.preventDefault();
-                }}
-                aria-disabled={!draft?.title.trim()}
-                className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold rounded-lg border transition-colors shrink-0 ${
-                  draft?.title.trim()
-                    ? "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-                    : "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
-                }`}
-                title={draft?.title.trim() ? "タイトルをGoogle画像検索" : "先にAIで解析してタイトルを取得してください"}
-              >
-                <Search className="w-4 h-4" />
-                Google画像検索
-              </a>
+      <div className="min-h-dvh bg-gray-50">
+        {/* Sticky app bar */}
+        <header className="sticky top-0 z-20 border-b border-gray-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
+          <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/20"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">ダッシュボード</span>
+            </Link>
+            <span className="h-5 w-px bg-gray-200" aria-hidden />
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 text-white">
+                <Sparkles className="h-4 w-4" />
+              </span>
+              <h1 className="truncate text-[15px] font-semibold text-gray-900">AIでURL取込</h1>
             </div>
-            <p className="text-gray-600 text-sm">
-              コンテスト/公募のページURLを貼り付けると、AIが内容を解析してカード用データを自動生成します。内容を確認・修正してから保存してください。
+          </div>
+        </header>
+
+        <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mb-6 max-w-2xl">
+            <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+              コンテスト・公募をAIで取込
+            </h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-gray-500">
+              ページURLを貼り付けると、AIが内容を解析してカード用データを自動生成します。内容を確認・修正してから保存してください。
             </p>
           </div>
 
           {/* URL入力 */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+            <label htmlFor="import-url" className="mb-2 block text-sm font-semibold text-gray-700">
               取り込むページのURL
             </label>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <div className="relative flex-1">
-                <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <input
+                  id="import-url"
                   type="url"
+                  inputMode="url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && !analyzing && handleAnalyze()}
                   placeholder="https://example.com/contest"
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900 text-sm"
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 text-sm text-gray-900 shadow-sm transition-colors placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                 />
               </div>
               <button
                 onClick={handleAnalyze}
                 disabled={analyzing || !url.trim()}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-500 to-blue-500 text-white text-sm font-semibold rounded-lg shadow-sm hover:from-indigo-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all min-h-[44px]"
+                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:from-indigo-600 hover:to-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {analyzing ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     解析中...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" />
+                    <Sparkles className="h-4 w-4" />
                     AIで解析
                   </>
                 )}
@@ -258,39 +249,72 @@ export default function AiImportPage() {
             </div>
           </div>
 
-          {/* エラー */}
-          {error && (
-            <div className="mb-6 flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">
-              <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+          {/* トップレベルのエラー */}
+          {error && !draft && (
+            <div
+              role="alert"
+              className="mb-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+            >
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          {/* 保存完了 */}
-          {savedId && (
-            <div className="mb-6 flex items-center justify-between gap-2 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg p-3 text-sm">
-              <span className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4" />
-                保存しました。
-              </span>
-              <Link
-                href="/opportunities"
-                target="_blank"
-                className="font-semibold underline hover:no-underline"
-              >
-                一覧ページで確認 →
-              </Link>
+          {/* 解析前の空状態 */}
+          {!draft && !analyzing && (
+            <div className="rounded-2xl border border-dashed border-gray-300 bg-white/50 px-6 py-14 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
+                <Sparkles className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-medium text-gray-900">まだデータがありません</p>
+              <p className="mx-auto mt-1 max-w-xs text-sm text-gray-500">
+                上の入力欄にURLを貼り付けて「AIで解析」を押すと、ここに編集フォームとプレビューが表示されます。
+              </p>
+            </div>
+          )}
+
+          {/* 解析中のスケルトン */}
+          {!draft && analyzing && (
+            <div className="rounded-2xl border border-gray-200 bg-white px-6 py-14 text-center">
+              <Loader2 className="mx-auto mb-4 h-7 w-7 animate-spin text-indigo-500" />
+              <p className="text-sm font-medium text-gray-900">AIがページを解析しています…</p>
+              <p className="mt-1 text-sm text-gray-500">数十秒かかる場合があります。</p>
             </div>
           )}
 
           {/* 編集フォーム + プレビュー */}
           {draft && (
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
               {/* フォーム */}
-              <div className="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 space-y-4">
-                <h2 className="text-lg font-bold text-gray-900">抽出結果を確認・編集</h2>
+              <div className="space-y-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 lg:col-span-3">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="text-lg font-bold text-gray-900">抽出結果を確認・編集</h2>
+                  {/* タイトルをGoogle画像検索 */}
+                  <a
+                    href={googleImageHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => {
+                      if (!draft.title.trim()) e.preventDefault();
+                    }}
+                    aria-disabled={!draft.title.trim()}
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${
+                      draft.title.trim()
+                        ? "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                        : "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
+                    }`}
+                    title={
+                      draft.title.trim()
+                        ? "タイトルをGoogle画像検索"
+                        : "先にタイトルを入力してください"
+                    }
+                  >
+                    <Search className="h-4 w-4" />
+                    <span className="hidden sm:inline">画像を検索</span>
+                  </a>
+                </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field label="種別">
                     <select
                       value={draft.kind}
@@ -314,7 +338,7 @@ export default function AiImportPage() {
                   </Field>
                 </div>
 
-                <Field label="タイトル *">
+                <Field label="タイトル" required>
                   <input
                     value={draft.title}
                     onChange={(e) => update("title", e.target.value)}
@@ -322,7 +346,7 @@ export default function AiImportPage() {
                   />
                 </Field>
 
-                <Field label="主催者 *">
+                <Field label="主催者" required>
                   <input
                     value={draft.organizer}
                     onChange={(e) => update("organizer", e.target.value)}
@@ -331,16 +355,16 @@ export default function AiImportPage() {
                 </Field>
 
                 <Field label="概要">
-                  <textarea
+                  <AutoTextarea
                     value={draft.description}
                     onChange={(e) => update("description", e.target.value)}
-                    rows={3}
+                    minRows={3}
                     className={inputCls}
                   />
                 </Field>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <Field label="エリア *">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Field label="エリア" required>
                     <select
                       value={draft.area}
                       onChange={(e) => update("area", e.target.value)}
@@ -368,8 +392,8 @@ export default function AiImportPage() {
                   </Field>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <Field label="締切日 *">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Field label="締切日" required>
                     <input
                       type="date"
                       value={draft.deadline}
@@ -377,7 +401,7 @@ export default function AiImportPage() {
                       className={inputCls}
                     />
                   </Field>
-                  <Field label="開始日 *">
+                  <Field label="開始日" required>
                     <input
                       type="date"
                       value={draft.startDate}
@@ -387,7 +411,7 @@ export default function AiImportPage() {
                   </Field>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field label="対象領域">
                     <input
                       value={draft.targetArea}
@@ -411,7 +435,7 @@ export default function AiImportPage() {
                     type="opportunity"
                   />
                   <div className="mt-2">
-                    <label className="block text-[11px] font-medium text-gray-500 mb-1">
+                    <label className="mb-1 block text-[11px] font-medium text-gray-500">
                       画像URLを直接指定（アップロードの代わりに貼り付けも可能）
                     </label>
                     <input
@@ -423,7 +447,7 @@ export default function AiImportPage() {
                   </div>
                 </Field>
 
-                <Field label="リンクURL *">
+                <Field label="リンクURL" required>
                   <input
                     value={draft.website}
                     onChange={(e) => update("website", e.target.value)}
@@ -434,33 +458,36 @@ export default function AiImportPage() {
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-emerald-600 text-white text-sm font-semibold rounded-lg shadow-sm hover:bg-emerald-700 disabled:opacity-50 transition-all min-h-[48px]"
+                  className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                       保存中...
                     </>
                   ) : (
                     <>
-                      <CheckCircle2 className="w-4 h-4" />
+                      <CheckCircle2 className="h-4 w-4" />
                       この内容で保存
                     </>
                   )}
                 </button>
 
                 {/* ボタン直下のフィードバック（画面外にならないように） */}
-                <div ref={feedbackRef}>
+                <div ref={feedbackRef} aria-live="polite">
                   {error && (
-                    <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">
-                      <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                    <div
+                      role="alert"
+                      className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+                    >
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                       <span>{error}</span>
                     </div>
                   )}
                   {savedId && (
-                    <div className="flex items-center justify-between gap-2 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg p-3 text-sm">
+                    <div className="flex items-center justify-between gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
                       <span className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4" />
+                        <CheckCircle2 className="h-4 w-4" />
                         保存しました。
                       </span>
                       <Link
@@ -477,10 +504,13 @@ export default function AiImportPage() {
 
               {/* プレビュー */}
               <div className="lg:col-span-2">
-                <div className="sticky top-6">
-                  <h2 className="text-sm font-semibold text-gray-500 mb-3">
-                    カードプレビュー（/opportunities での表示）
-                  </h2>
+                <div className="lg:sticky lg:top-20">
+                  <div className="mb-3 flex items-center gap-2">
+                    <h2 className="text-sm font-semibold text-gray-500">カードプレビュー</h2>
+                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                      /opportunities での表示
+                    </span>
+                  </div>
                   {previewItem && (
                     <div className="max-w-sm">
                       <OpportunityCard item={previewItem} />
@@ -490,20 +520,31 @@ export default function AiImportPage() {
               </div>
             </div>
           )}
-        </div>
+        </main>
       </div>
     </AdminGuard>
   );
 }
 
 const inputCls =
-  "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm text-gray-900";
+  "w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 shadow-sm transition-colors placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30";
 const selectCls = inputCls + " bg-white";
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-gray-600 mb-1">{label}</label>
+      <label className="mb-1 block text-xs font-semibold text-gray-600">
+        {label}
+        {required && <span className="ml-0.5 text-red-500">*</span>}
+      </label>
       {children}
     </div>
   );

@@ -81,15 +81,100 @@ function toAbsoluteUrl(maybeUrl: string, base: string): string {
   }
 }
 
+// 募集要項・スケジュール・賞金など、詳細が載っていそうな関連ページを見分けるためのキーワード
+const RELEVANT_LINK_KEYWORDS = [
+  "募集", "要項", "応募", "エントリー", "entry", "apply", "application",
+  "概要", "outline", "about", "detail", "guideline", "guide",
+  "テーマ", "課題", "theme", "スケジュール", "schedule", "flow", "流れ", "選考",
+  "賞", "prize", "award", "特典", "benefit", "支援", "副賞",
+  "対象", "参加", "program", "プログラム", "recruit", "faq",
+];
+
+// サイト共通のボイラープレート（募集情報と無関係）を追跡しないための除外パターン。
+// これらを取り込むと、運営会社を主催者と誤認する等の悪影響が出るため除外する。
+const BOILERPLATE_LINK_RE =
+  /(privacy|policy|terms|law|login|logout|sign-?in|sign-?up|register|mypage|account|sitemap|cart|inquiry|contact|corporate|\/company|\/members|プライバシー|利用規約|運営会社|会員登録|ログイン|お問い合わせ|会社概要|採用情報)/i;
+
+interface PageLink {
+  url: string;
+  text: string;
+  score: number;
+}
+
+// ホストから登録可能ドメイン（eTLD+1相当）をざっくり求める。
+// 例: auba.eiicon.net / corp.eiicon.net / eiicon.net → いずれも "eiicon.net"
+function registrableDomain(host: string): string {
+  const parts = host.toLowerCase().split(".").filter(Boolean);
+  if (parts.length <= 2) return parts.join(".");
+  const secondLevel = new Set(["co", "ne", "or", "ac", "go", "gr", "ed", "lg", "com", "org", "net", "gov", "edu"]);
+  return secondLevel.has(parts[parts.length - 2])
+    ? parts.slice(-3).join(".")
+    : parts.slice(-2).join(".");
+}
+
+// メインページ内のリンクから、詳細調査に値する関連ページ（同一ドメイン・募集関連）を抽出・スコアリング
+function extractRelevantLinks(html: string, baseUrl: string): PageLink[] {
+  let base: URL;
+  try {
+    base = new URL(baseUrl);
+  } catch {
+    return [];
+  }
+  const baseDomain = registrableDomain(base.host);
+  const map = new Map<string, PageLink>();
+  const re = /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    const rawHref = m[1];
+    const anchor = htmlToText(m[2]).slice(0, 80);
+    if (!rawHref || /^(#|mailto:|tel:|javascript:)/i.test(rawHref)) continue;
+
+    let abs: URL;
+    try {
+      abs = new URL(rawHref, baseUrl);
+    } catch {
+      continue;
+    }
+    if (!/^https?:$/.test(abs.protocol)) continue;
+    // 同一の登録可能ドメイン（サブドメイン違いは許容）のみ追跡
+    if (registrableDomain(abs.host) !== baseDomain) continue;
+    // バイナリ/画像/文書などHTML以外は追跡しない
+    if (/\.(pdf|jpe?g|png|gif|svg|webp|zip|docx?|xlsx?|pptx?|mp4|mov)$/i.test(abs.pathname)) continue;
+
+    abs.hash = "";
+    const key = abs.toString();
+    if (key === base.toString()) continue; // 自ページは除外
+
+    const hay = `${decodeURIComponent(abs.pathname)} ${decodeURIComponent(abs.search)} ${anchor}`;
+    if (BOILERPLATE_LINK_RE.test(hay)) continue; // 共通フッター等は除外
+
+    const lower = hay.toLowerCase();
+    let score = 0;
+    for (const kw of RELEVANT_LINK_KEYWORDS) {
+      if (lower.includes(kw.toLowerCase())) score += 1;
+    }
+    // メインページと同じディレクトリ配下（詳細ページの可能性が高い）は加点
+    if (abs.pathname.startsWith(base.pathname.replace(/[^/]*$/, ""))) score += 1;
+    if (score <= 0) continue;
+
+    const prev = map.get(key);
+    if (!prev || score > prev.score) {
+      map.set(key, { url: key, text: anchor, score });
+    }
+  }
+  return [...map.values()].sort((a, b) => b.score - a.score);
+}
+
 interface FetchedPage {
   url: string;
   title: string;
   ogImage: string;
   ogDescription: string;
   text: string;
+  links: PageLink[];
 }
 
-async function fetchPage(url: string): Promise<FetchedPage> {
+async function fetchPage(url: string, maxTextLength = 12000): Promise<FetchedPage> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000);
   try {
@@ -106,6 +191,10 @@ async function fetchPage(url: string): Promise<FetchedPage> {
     if (!res.ok) {
       throw new Error(`ページの取得に失敗しました (HTTP ${res.status})`);
     }
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType && !/text\/html|application\/xhtml/i.test(contentType)) {
+      throw new Error(`HTML以外のコンテンツです (${contentType})`);
+    }
     const html = await res.text();
     const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
     const ogImage = extractMeta(html, "og:image");
@@ -114,48 +203,60 @@ async function fetchPage(url: string): Promise<FetchedPage> {
       title: extractMeta(html, "og:title") || (titleMatch?.[1]?.trim() ?? ""),
       ogImage: toAbsoluteUrl(ogImage, url),
       ogDescription: extractMeta(html, "og:description") || extractMeta(html, "description"),
-      text: htmlToText(html).slice(0, 12000),
+      text: htmlToText(html).slice(0, maxTextLength),
+      links: extractRelevantLinks(html, url),
     };
   } finally {
     clearTimeout(timeout);
   }
 }
 
-function buildPrompt(page: FetchedPage): { system: string; user: string } {
+function buildPrompt(
+  main: FetchedPage,
+  extras: { anchor: string; page: FetchedPage }[]
+): { system: string; user: string } {
   const system = [
     "あなたはスタートアップ向けデータベースの編集者です。",
     "与えられたWebページの内容から、コンテストまたは公募（オープンイノベーション募集）の情報を抽出し、指定されたJSON形式のみで出力します。",
-    "ページに明記されている情報を最優先し、事実の創作はしないでください。ただし日付・エリアはページ内の表記から可能な限り読み取り、下記フォーマットに正規化してください。",
+    "入力には「メインページ」に加えて、同一サイト内の関連ページ（募集要項・応募概要・スケジュール・テーマ・賞金/特典など）の本文が複数含まれることがあります。",
+    "各フィールドは、メインページと関連ページのすべてを突き合わせて、可能な限り具体的に埋めてください。関連ページに詳細（締切日・対象領域・応募対象・賞金など）が書かれていることが多いので、必ず全セクションを確認すること。",
+    "ページに明記されている情報を最優先し、事実の創作はしないでください。ただし日付・エリアはページ内の表記から可能な限り読み取り、下記フォーマットに正規化してください。矛盾する情報がある場合は、募集要項/応募概要など詳細ページの記載を優先します。",
     "",
     "出力するJSONのキーと制約:",
     '- kind: "contest"（コンテスト・ピッチ・ハッカソン・アクセラ・アワード等の応募型）か "open-call"（企業/行政/大学がパートナー・協業・実証・課題解決先を募集する公募型）のどちらか。',
     "- title: イベント/募集の正式名称（必須）。",
-    "- organizer: 主催者・運営組織名（必須）。共催が複数ある場合は主となる組織。",
-    `- organizerType: 次のいずれか1つ [${ORGANIZER_TYPE_OPTIONS.join(", ")}]。VC/CVCは "CV"。判別不能なら "その他"。`,
+    "- organizer: 主催者・運営組織名（必須）。「主催」の記載を最優先し、無ければ「運営」「事務局」。共催が複数ある場合は主となる組織1つ。",
+    `- organizerType: 主催者の種別を次のいずれか1つ [${ORGANIZER_TYPE_OPTIONS.join(", ")}]。株式会社・有限会社・合同会社などの会社、インフラ運営会社・鉄道/道路会社・銀行なども "企業"。国・省庁・自治体・公社・独立行政法人など公的機関は "行政"、大学・高専・研究機関は "大学"、VC/CVCは "CV"。上記に当てはまらない場合のみ "その他"。`,
     "- description: 内容の要約（日本語・80〜150字）。「誰向けの・何を募集する・どんな機会か」が伝わるように。",
-    `- area: 開催/対象エリア。日本の都道府県名、または[${["全国", ...OVERSEAS_AREAS].join(", ")}]から最も近いものを1つ。全国規模・オンライン中心・複数地域なら「全国」。どうしても判別できない場合のみnull。`,
-    "- deadline: 応募・エントリーの締切日。「応募締切」「エントリー期限」「募集終了」等を探す。期間表記（例:「2026年6月1日〜7月14日」）なら終了日を採用。必ず YYYY-MM-DD 形式。不明ならnull。",
-    "- startDate: 募集開始日または開催日。「募集開始」「エントリー開始」「開催日」等を探す。期間表記なら開始日を採用。必ず YYYY-MM-DD 形式。不明ならnull。",
-    "- targetArea: 対象領域・テーマ（例: ヘルスケア, ディープテック, 環境, DX）。複数はカンマ区切り。無ければ空文字。",
-    "- targetAudience: 応募対象（例: スタートアップ, 学生, 個人, 中小企業, 研究者）。無ければ空文字。",
-    "- benefit: 賞金・特典・副賞、または提供リソース（資金/メンタリング/オフィス/実証フィールド等）。金額や内容を簡潔に。無ければ空文字。",
+    `- area: 開催/対象エリア。日本の都道府県名、または[${["全国", ...OVERSEAS_AREAS].join(", ")}]から最も近いものを1つ。実証フィールド・会場・実施主体の所在地が特定の都道府県に限定される場合（例: 会場や実証場所が東京都内→「東京都」）は、その都道府県を優先する。応募自体は全国から可能というだけでは「全国」にせず、物理的な実施地域を優先すること。実施地域が全国各地・オンライン中心・特定地域に絞れない場合のみ「全国」。判別できない場合のみnull。`,
+    "- deadline: 応募・エントリーの締切日。「応募締切」「エントリー期限」「募集終了」「〆切」等を探す。期間表記（例:「2026年6月1日〜7月14日」）なら終了日を採用。二次締切など複数ある場合は最終の締切。必ず YYYY-MM-DD 形式。不明ならnull。",
+    "- startDate: 募集開始日または開催日。「募集開始」「エントリー開始」「受付開始」「開催日」等を探す。期間表記なら開始日を採用。必ず YYYY-MM-DD 形式。不明ならnull。",
+    "- targetArea: 対象領域・テーマ（例: ヘルスケア, モビリティ, ディープテック, 環境, DX）。募集テーマ・課題領域から抽出。複数はカンマ区切り。無ければ空文字。",
+    "- targetAudience: 応募対象（例: スタートアップ, 学生, 個人, 中小企業, 研究者, 法人）。応募資格・参加条件から抽出。無ければ空文字。",
+    "- benefit: 賞金・特典・副賞、または提供リソース（資金/メンタリング/オフィス/実証フィールド/事業会社との連携等）。金額や内容を簡潔に。無ければ空文字。",
     "",
-    "日付ルール: 西暦4桁に統一し、和暦（令和等）や「YYYY年M月D日」「YYYY/M/D」表記もすべて YYYY-MM-DD に変換する。年が省略されている場合は文脈から最も妥当な年を補う。",
+    "日付ルール: 西暦4桁に統一し、和暦（令和等）や「YYYY年M月D日」「YYYY/M/D」表記もすべて YYYY-MM-DD に変換する。年が省略されている場合は文脈（他の日付や開催年度）から最も妥当な年を補う。",
     "JSONオブジェクトのみを出力し、前後に説明文やコードフェンス（```）を付けないこと。",
   ].join("\n");
 
-  const user = [
-    `URL: ${page.url}`,
-    `ページタイトル: ${page.title}`,
-    page.ogDescription ? `OG説明: ${page.ogDescription}` : "",
+  const sections: string[] = [
+    `メインページURL: ${main.url}`,
+    `メインページタイトル: ${main.title}`,
+    main.ogDescription ? `OG説明: ${main.ogDescription}` : "",
     "",
-    "本文テキスト:",
-    page.text,
-  ]
-    .filter(Boolean)
-    .join("\n");
+    "【メインページ本文】",
+    main.text,
+  ];
 
-  return { system, user };
+  for (const { anchor, page } of extras) {
+    sections.push(
+      "",
+      `【関連ページ: ${anchor || page.title || "詳細"}（${page.url}）】`,
+      page.text
+    );
+  }
+
+  return { system, user: sections.filter(Boolean).join("\n") };
 }
 
 function safeParseJson(content: string): Record<string, unknown> {
@@ -255,7 +356,26 @@ export async function extractOpportunityFromUrl(
     );
   }
 
-  const { system, user } = buildPrompt(page);
+  // 関連ページ（募集要項・スケジュール・賞金など）を最大4件まで追加取得して、
+  // 抽出精度を上げる。取得失敗・本文が薄いページは無視する。
+  const MAX_SUBPAGES = 4;
+  const candidates = page.links.slice(0, MAX_SUBPAGES);
+  const fetchedExtras = await Promise.all(
+    candidates.map(async (link) => {
+      try {
+        const sub = await fetchPage(link.url, 8000);
+        if (!sub.text || sub.text.length < 80) return null;
+        return { anchor: link.text, page: sub };
+      } catch {
+        return null;
+      }
+    })
+  );
+  const extras = fetchedExtras.filter(
+    (e): e is { anchor: string; page: FetchedPage } => e !== null
+  );
+
+  const { system, user } = buildPrompt(page, extras);
   const model = process.env.OPENROUTER_MODEL || DEFAULT_MODEL;
 
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {

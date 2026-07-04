@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import AdminGuard from "@/components/admin/admin-guard";
+import AutoTextarea from "@/components/ui/auto-textarea";
+import ImageUpload from "@/components/ui/image-upload";
 import {
   Sparkles,
   Loader2,
@@ -12,6 +14,7 @@ import {
   ArrowRight,
   Trash2,
   Save,
+  Search,
 } from "lucide-react";
 
 const NEWS_TYPE_LABELS: Record<string, string> = {
@@ -250,10 +253,10 @@ export default function AiImportNewsPage() {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               取り込むページのURL（1行に1つ・最大15件）
             </label>
-            <textarea
+            <AutoTextarea
               value={urlsText}
               onChange={(e) => setUrlsText(e.target.value)}
-              rows={6}
+              minRows={6}
               placeholder={"https://example.com/news/1\nhttps://example.com/news/2\nhttps://example.com/news/3"}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent text-sm text-gray-900 font-mono"
             />
@@ -414,14 +417,40 @@ function DraftCard({
             </span>
           )}
         </div>
-        <button
-          onClick={onRemove}
-          className="text-gray-400 hover:text-red-600 p-1.5"
-          title="このニュースを一覧から除外"
-          type="button"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-1.5">
+          {/* タイトルでGoogle画像検索 */}
+          <a
+            href={
+              draft.title.trim()
+                ? `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(draft.title.trim())}`
+                : undefined
+            }
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              if (!draft.title.trim()) e.preventDefault();
+            }}
+            aria-disabled={!draft.title.trim()}
+            title={draft.title.trim() ? "タイトルでGoogle画像検索" : "先にタイトルを入力してください"}
+            className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+              draft.title.trim()
+                ? "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                : "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
+            }`}
+          >
+            <Search className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">画像検索</span>
+          </a>
+          <button
+            onClick={onRemove}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+            title="このニュースを一覧から除外"
+            type="button"
+            aria-label="このニュースを一覧から除外"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -456,10 +485,10 @@ function DraftCard({
         </Field>
 
         <Field label="概要" full>
-          <textarea
+          <AutoTextarea
             value={draft.description}
             onChange={(e) => onChange({ description: e.target.value })}
-            rows={2}
+            minRows={2}
             className={inputCls}
           />
         </Field>
@@ -505,12 +534,23 @@ function DraftCard({
           />
         </Field>
 
-        <Field label="画像URL" full>
-          <input
-            value={draft.imageUrl}
-            onChange={(e) => onChange({ imageUrl: e.target.value })}
-            className={inputCls}
+        <Field label="画像（プレビュー / 差し替え）" full>
+          <ImageUpload
+            value={draft.imageUrl || undefined}
+            onChange={(url) => onChange({ imageUrl: url })}
+            type="news"
           />
+          <div className="mt-2">
+            <label className="mb-1 block text-[11px] font-medium text-gray-500">
+              画像URLを直接指定（アップロードの代わりに貼り付けも可能）
+            </label>
+            <input
+              value={draft.imageUrl}
+              onChange={(e) => onChange({ imageUrl: e.target.value })}
+              placeholder="https://..."
+              className={inputCls}
+            />
+          </div>
         </Field>
 
         <Field label="ソースURL" full>

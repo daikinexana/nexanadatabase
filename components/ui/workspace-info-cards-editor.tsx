@@ -2,6 +2,7 @@
 
 import { Plus, Trash2 } from "lucide-react";
 import ImageUpload from "@/components/ui/image-upload";
+import AutoTextarea from "@/components/ui/auto-textarea";
 import {
   type InfoCard,
   type InfoCardCategory,
@@ -112,10 +113,10 @@ export default function WorkspaceInfoCardsEditor({ value, onChange }: Props) {
             <label className="block text-xs font-semibold text-gray-500 mb-1">
               概要
             </label>
-            <textarea
+            <AutoTextarea
               value={card.description}
               onChange={(e) => update(index, { description: e.target.value })}
-              rows={3}
+              minRows={3}
               placeholder="内容の説明を入力"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
             />

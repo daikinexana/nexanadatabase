@@ -6,6 +6,7 @@ import Link from "next/link";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
+import AutoTextarea from "@/components/ui/auto-textarea";
 import { ArrowLeft, Save, X } from "lucide-react";
 
 interface OpenCall {
@@ -216,12 +217,12 @@ export default function EditOpenCallPage({ params }: { params: Promise<{ id: str
                   <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
                     説明
                   </label>
-                  <textarea
+                  <AutoTextarea
                     id="description"
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
-                    rows={4}
+                    minRows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="公募の説明を入力してください"
                   />

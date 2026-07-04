@@ -5,6 +5,7 @@ import Link from "next/link";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
+import AutoTextarea from "@/components/ui/auto-textarea";
 import AdminNav from "@/components/ui/admin-nav";
 import { Trophy, Plus, Edit, Trash2, Save, X } from "lucide-react";
 import SimpleImage from "@/components/ui/simple-image";
@@ -413,12 +414,12 @@ export default function AdminContestsPage() {
                   <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
                     説明
                   </label>
-                  <textarea
+                  <AutoTextarea
                     id="description"
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
-                    rows={3}
+                    minRows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="コンテストの説明を入力してください"
                   />
@@ -802,11 +803,11 @@ export default function AdminContestsPage() {
                                 </div>
                                 <div>
                                   <label className="block text-xs font-medium text-gray-700 mb-1">説明</label>
-                                  <textarea
+                                  <AutoTextarea
                                     name="description"
                                     value={editingData.description || ''}
                                     onChange={handleEditInputChange}
-                                    rows={2}
+                                    minRows={2}
                                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                                   />
                                 </div>

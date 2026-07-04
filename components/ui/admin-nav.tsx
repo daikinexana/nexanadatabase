@@ -54,23 +54,26 @@ export default function AdminNav() {
   const pathname = usePathname();
 
   return (
-    <div className="bg-white border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-4">
-          <h2 className="text-sm font-medium text-gray-500 mb-4">管理ページ</h2>
-          <nav className="flex flex-wrap gap-2">
+    <div className="sticky top-0 z-20 border-b border-gray-200 bg-white/90 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/70">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="py-3.5">
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+            管理ページ
+          </h2>
+          <nav className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:overflow-visible [&::-webkit-scrollbar]:hidden">
             {adminPages.map((page) => {
               const Icon = page.icon;
               const isActive = pathname === page.href;
-              
+
               return (
                 <Link
                   key={page.href}
                   href={page.href}
-                  className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  aria-current={isActive ? "page" : undefined}
+                  className={`group flex min-h-[40px] shrink-0 items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 ${
                     isActive
-                      ? "bg-blue-100 text-blue-700 border border-blue-200"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                      ? "border border-blue-200 bg-blue-50 text-blue-700 shadow-sm"
+                      : "border border-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                   }`}
                   title={page.description}
                 >

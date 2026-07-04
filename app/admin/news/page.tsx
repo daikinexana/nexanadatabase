@@ -7,6 +7,7 @@ import AdminGuard from "@/components/admin/admin-guard";
 import { Plus, Edit, Trash2, Save, RefreshCw, ArrowLeft } from "lucide-react";
 import SimpleImage from "@/components/ui/simple-image";
 import ImageUpload from "@/components/ui/image-upload";
+import AutoTextarea from "@/components/ui/auto-textarea";
 
 interface News {
   id: string;
@@ -369,46 +370,49 @@ export default function AdminNewsPage() {
 
   return (
     <AdminGuard>
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Link
-            href="/admin"
-            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            管理ダッシュボードに戻る
-          </Link>
+      <div className="min-h-dvh bg-gray-50">
+        {/* Sticky app bar */}
+        <header className="sticky top-0 z-20 border-b border-gray-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
+          <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-4 sm:px-6 lg:px-8">
+            <Link
+              href="/admin"
+              className="-ml-2 inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/20"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">ダッシュボード</span>
+            </Link>
+            <span className="h-5 w-px bg-gray-200" aria-hidden />
+            <h1 className="truncate text-[15px] font-semibold text-gray-900">ニュース管理</h1>
+            <button
+              onClick={fetchNews}
+              disabled={loading}
+              className="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/20"
+              title="最新データを再読み込み"
+              type="button"
+            >
+              <RefreshCw className={`h-5 w-5 ${loading ? "animate-spin" : ""}`} />
+            </button>
+          </div>
+        </header>
 
-          <div className="mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">ニュース管理</h1>
-                <p className="text-gray-600">投資、M&A、IPO、パートナーシップなどのニュース情報の管理と編集を行います</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    console.log('更新ボタンがクリックされました');
-                    fetchNews();
-                  }}
-                  disabled={loading}
-                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="最新データを再読み込み"
-                  type="button"
-                >
-                  <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-                  更新
-                </button>
-                <button
-                  onClick={handleCreate}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-                  type="button"
-                >
-                  <Plus className="h-5 w-5" />
-                  新しいニュースを追加
-                </button>
-              </div>
+        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+                ニュース管理
+              </h2>
+              <p className="mt-1 text-sm leading-relaxed text-gray-500">
+                投資・M&A・IPO・パートナーシップなどのニュースを管理します。
+              </p>
             </div>
+            <button
+              onClick={handleCreate}
+              className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:w-auto"
+              type="button"
+            >
+              <Plus className="h-5 w-5" />
+              新しいニュースを追加
+            </button>
           </div>
 
           {/* ニュース追加フォーム - 新規作成時のみ表示 */}
@@ -474,10 +478,10 @@ export default function AdminNewsPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     説明
                   </label>
-                  <textarea
+                  <AutoTextarea
                     value={formData.description || ""}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={3}
+                    minRows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="ニュースの説明を入力してください"
                   />
@@ -633,15 +637,16 @@ export default function AdminNewsPage() {
           )}
 
           {/* ニュース一覧 */}
-          <div className="bg-white shadow overflow-hidden sm:rounded-md">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-medium text-gray-900">
-                  ニュース一覧 ({totalCount.toLocaleString()}件)
-                </h2>
-                <div className="text-sm text-gray-500">
-                  ページ {currentPage} / {totalPages} ({limit}件/ページ)
-                </div>
+          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-gray-200 px-4 py-3.5 sm:px-6">
+              <h2 className="text-sm font-semibold text-gray-900 sm:text-base">
+                ニュース一覧
+                <span className="ml-1.5 font-normal text-gray-400">
+                  {totalCount.toLocaleString()}件
+                </span>
+              </h2>
+              <div className="text-xs text-gray-500 sm:text-sm">
+                ページ {currentPage} / {totalPages}
               </div>
             </div>
             
@@ -655,89 +660,93 @@ export default function AdminNewsPage() {
                 ニュース情報がありません
               </div>
             ) : (
-              <div className="space-y-4">
-                    {news.map((newsItem) => (
-                  <div key={newsItem.id} className="bg-white border border-gray-200 rounded-lg shadow-sm">
+              <ul className="divide-y divide-gray-100">
+                {news.map((newsItem) => (
+                  <li key={newsItem.id}>
                     {/* ニュースアイテムカード */}
-                    <div className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-4 flex-1">
-                            {/* 画像プレビュー */}
-                          <div className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
-                              {newsItem.imageUrl ? (
-                                <SimpleImage
-                                  src={newsItem.imageUrl.trim()}
-                                  alt={newsItem.title}
-                                width={64}
-                                height={64}
-                                className="w-16 h-16 object-cover"
-                                />
-                              ) : (
-                              <div className="w-16 h-16 bg-gray-100 flex items-center justify-center">
-                                <div className="w-8 h-8 bg-gray-300 rounded"></div>
-                                </div>
-                              )}
-                          </div>
-                          
-                          {/* コンテンツ */}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2 overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
+                    <div className="p-4 sm:p-6">
+                      <div className="flex items-start gap-3 sm:gap-4">
+                        {/* 画像プレビュー */}
+                        <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 sm:h-16 sm:w-16">
+                          {newsItem.imageUrl ? (
+                            <SimpleImage
+                              src={newsItem.imageUrl.trim()}
+                              alt={newsItem.title}
+                              width={64}
+                              height={64}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-gray-100">
+                              <div className="h-6 w-6 rounded bg-gray-300" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* コンテンツ */}
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3
+                              className="overflow-hidden text-sm font-semibold text-gray-900 sm:text-base"
+                              style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
+                            >
                               {newsItem.title}
                             </h3>
-                            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-2">
-                              <span className="font-medium">{newsItem.company}</span>
-                              <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                            {newsItem.type === 'FUNDING' ? '投資' : 
-                             newsItem.type === 'M_AND_A' ? 'M&A' :
-                             newsItem.type === 'IPO' ? 'IPO' :
-                                 newsItem.type === 'PARTNERSHIP' ? 'パートナーシップ' : newsItem.type}
-                          </span>
-                              {newsItem.area && (
-                                <span>{newsItem.area}</span>
-                              )}
-                              {newsItem.amount && (
-                                <span>{newsItem.amount}</span>
-                              )}
+                            {/* アクションボタン */}
+                            <div className="-mr-1 -mt-1 flex shrink-0 items-center">
+                              <button
+                                onClick={() => handleEdit(newsItem)}
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-blue-600 transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+                                title="編集"
+                                type="button"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(newsItem.id)}
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-red-600 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+                                title="削除"
+                                type="button"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
                             </div>
-                            {newsItem.description && (
-                              <p className="text-sm text-gray-600 overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
-                                {newsItem.description}
-                              </p>
-                            )}
                           </div>
-                          </div>
-                        
-                        {/* アクションボタン */}
-                        <div className="flex items-center gap-2 ml-4">
-                          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                            newsItem.isActive
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}>
-                            {newsItem.isActive ? "公開" : "非公開"}
-                          </span>
-                          <div className="flex space-x-1">
-                            <button
-                              onClick={() => handleEdit(newsItem)}
-                              className="text-blue-600 hover:text-blue-900 p-2 rounded hover:bg-blue-50 transition-colors cursor-pointer"
-                              title="編集"
-                              type="button"
+
+                          {/* メタ情報（チップ） */}
+                          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
+                            <span className="font-medium text-gray-700">{newsItem.company}</span>
+                            <span className="rounded-full bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-700">
+                              {newsItem.type === "FUNDING" ? "投資" :
+                               newsItem.type === "M_AND_A" ? "M&A" :
+                               newsItem.type === "IPO" ? "IPO" :
+                               newsItem.type === "PARTNERSHIP" ? "パートナーシップ" : newsItem.type}
+                            </span>
+                            <span
+                              className={`rounded-full px-2 py-0.5 font-semibold ${
+                                newsItem.isActive
+                                  ? "bg-gray-100 text-gray-600"
+                                  : "bg-red-50 text-red-700"
+                              }`}
                             >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(newsItem.id)}
-                              className="text-red-600 hover:text-red-900 p-2 rounded hover:bg-red-50 transition-colors cursor-pointer"
-                              title="削除"
-                              type="button"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                              {newsItem.isActive ? "公開" : "非公開"}
+                            </span>
+                            {newsItem.area && <span>{newsItem.area}</span>}
+                            {newsItem.amount && <span className="font-medium text-gray-700">{newsItem.amount}</span>}
                           </div>
+
+                          {newsItem.description && (
+                            <p
+                              className="mt-1.5 overflow-hidden text-sm leading-relaxed text-gray-500"
+                              style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
+                            >
+                              {newsItem.description}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* 編集フォーム - 該当アイテムの下に表示 */}
                     {editingId === newsItem.id && (
                       <div className="border-t border-gray-200 bg-gray-50 p-6">
@@ -799,10 +808,10 @@ export default function AdminNewsPage() {
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                               説明
                             </label>
-                            <textarea
+                            <AutoTextarea
                               value={formData.description || ""}
                               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                              rows={3}
+                              minRows={3}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                               placeholder="ニュースの詳細説明を入力"
                             />
@@ -966,93 +975,93 @@ export default function AdminNewsPage() {
                         </form>
                       </div>
                     )}
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
-            
+
             {/* ページネーション */}
             {totalPages > 1 && (
-              <div className="px-6 py-4 border-t border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-700">
+              <div className="border-t border-gray-200 px-4 py-4 sm:px-6">
+                <div className="flex flex-col-reverse items-center gap-3 sm:flex-row sm:justify-between">
+                  <div className="text-xs text-gray-500 sm:text-sm">
                     {totalCount > 0 && (
                       <>
-                        {(currentPage - 1) * limit + 1} - {Math.min(currentPage * limit, totalCount)}件を表示
-                        （全{totalCount.toLocaleString()}件中）
+                        {(currentPage - 1) * limit + 1} - {Math.min(currentPage * limit, totalCount)}
+                        <span className="mx-1">/</span>
+                        全{totalCount.toLocaleString()}件
                       </>
                     )}
                   </div>
-                  
-                  <div className="flex items-center space-x-2">
+
+                  <div className="flex items-center gap-1.5">
                     {/* 前のページボタン */}
                     <button
                       onClick={handlePrevPage}
                       disabled={currentPage === 1}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="inline-flex min-h-[40px] items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       前へ
                     </button>
-                    
-                    {/* ページ番号 */}
-                    <div className="flex items-center space-x-1">
-                      {/* 最初のページ */}
+
+                    {/* ページ番号（狭い画面では現在地のみ） */}
+                    <div className="hidden items-center gap-1 sm:flex">
                       {currentPage > 3 && (
                         <>
                           <button
                             onClick={() => handlePageChange(1)}
-                            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                            className="min-h-[40px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                           >
                             1
                           </button>
-                          {currentPage > 4 && (
-                            <span className="px-2 text-gray-500">...</span>
-                          )}
+                          {currentPage > 4 && <span className="px-1 text-gray-400">...</span>}
                         </>
                       )}
-                      
-                      {/* 現在のページ周辺 */}
+
                       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                         const startPage = Math.max(1, currentPage - 2);
                         const pageNum = startPage + i;
                         if (pageNum > totalPages) return null;
-                        
+
                         return (
                           <button
                             key={pageNum}
                             onClick={() => handlePageChange(pageNum)}
-                            className={`px-3 py-2 text-sm font-medium rounded-md ${
+                            aria-current={pageNum === currentPage ? "page" : undefined}
+                            className={`min-h-[40px] rounded-lg border px-3 py-2 text-sm font-medium ${
                               pageNum === currentPage
-                                ? "text-blue-600 bg-blue-50 border border-blue-300"
-                                : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                                ? "border-blue-300 bg-blue-50 text-blue-700"
+                                : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
                             }`}
                           >
                             {pageNum}
                           </button>
                         );
                       })}
-                      
-                      {/* 最後のページ */}
+
                       {currentPage < totalPages - 2 && (
                         <>
-                          {currentPage < totalPages - 3 && (
-                            <span className="px-2 text-gray-500">...</span>
-                          )}
+                          {currentPage < totalPages - 3 && <span className="px-1 text-gray-400">...</span>}
                           <button
                             onClick={() => handlePageChange(totalPages)}
-                            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                            className="min-h-[40px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                           >
                             {totalPages}
                           </button>
                         </>
                       )}
                     </div>
-                    
+
+                    {/* 現在地表示（狭い画面のみ） */}
+                    <span className="min-w-[3.5rem] text-center text-sm font-medium text-gray-700 sm:hidden">
+                      {currentPage} / {totalPages}
+                    </span>
+
                     {/* 次のページボタン */}
                     <button
                       onClick={handleNextPage}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="inline-flex min-h-[40px] items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       次へ
                     </button>
@@ -1061,7 +1070,7 @@ export default function AdminNewsPage() {
               </div>
             )}
           </div>
-        </div>
+        </main>
       </div>
     </AdminGuard>
   );

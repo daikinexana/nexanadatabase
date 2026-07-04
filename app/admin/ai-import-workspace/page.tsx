@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import AdminGuard from "@/components/admin/admin-guard";
+import AutoTextarea from "@/components/ui/auto-textarea";
 import ImageUpload from "@/components/ui/image-upload";
 import WorkspaceInfoCardsEditor from "@/components/ui/workspace-info-cards-editor";
 import { type InfoCard, normalizeInfoCards } from "@/lib/workspace-info-cards";
@@ -263,10 +264,10 @@ export default function AiImportWorkspacePage() {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               取り込む施設ページのURL（1行に1つ・最大10件）
             </label>
-            <textarea
+            <AutoTextarea
               value={urlsText}
               onChange={(e) => setUrlsText(e.target.value)}
-              rows={5}
+              minRows={5}
               placeholder={"https://example.com/facility-a\nhttps://example.com/facility-b"}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm text-gray-900 font-mono"
             />
@@ -414,10 +415,10 @@ export default function AiImportWorkspacePage() {
                     </div>
 
                     <Field label="施設の説明">
-                      <textarea
+                      <AutoTextarea
                         value={item.draft.description}
                         onChange={(e) => updateDraft(index, { description: e.target.value })}
-                        rows={3}
+                        minRows={3}
                         className={inputCls}
                       />
                     </Field>
@@ -475,10 +476,10 @@ export default function AiImportWorkspacePage() {
                     </div>
 
                     <Field label="料金表">
-                      <textarea
+                      <AutoTextarea
                         value={item.draft.priceTable}
                         onChange={(e) => updateDraft(index, { priceTable: e.target.value })}
-                        rows={2}
+                        minRows={2}
                         className={inputCls}
                       />
                     </Field>

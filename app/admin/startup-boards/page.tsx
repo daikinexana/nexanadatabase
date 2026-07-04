@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
+import AutoTextarea from "@/components/ui/auto-textarea";
 import AdminNav from "@/components/ui/admin-nav";
 import { Plus, Edit, Trash2, Save, X } from "lucide-react";
 import ImageUpload from "@/components/ui/image-upload";
@@ -271,11 +272,11 @@ export default function AdminStartupBoardsPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       企業と製品サービス
                     </label>
-                    <textarea
+                    <AutoTextarea
                       name="companyAndProduct"
                       value={formData.companyAndProduct || ""}
                       onChange={handleInputChange}
-                      rows={4}
+                      minRows={4}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
@@ -284,11 +285,11 @@ export default function AdminStartupBoardsPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       主な特徴など概要
                     </label>
-                    <textarea
+                    <AutoTextarea
                       name="companyOverview"
                       value={formData.companyOverview || ""}
                       onChange={handleInputChange}
-                      rows={4}
+                      minRows={4}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
@@ -519,11 +520,11 @@ export default function AdminStartupBoardsPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         概要
                       </label>
-                      <textarea
+                      <AutoTextarea
                         name="fundingOverview"
                         value={formData.fundingOverview || ""}
                         onChange={handleInputChange}
-                        rows={3}
+                        minRows={3}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
@@ -553,11 +554,11 @@ export default function AdminStartupBoardsPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         概要
                       </label>
-                      <textarea
+                      <AutoTextarea
                         name="hiringOverview"
                         value={formData.hiringOverview || ""}
                         onChange={handleInputChange}
-                        rows={3}
+                        minRows={3}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
@@ -587,11 +588,11 @@ export default function AdminStartupBoardsPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         提案して欲しい内容概要
                       </label>
-                      <textarea
+                      <AutoTextarea
                         name="proposalOverview"
                         value={formData.proposalOverview || ""}
                         onChange={handleInputChange}
-                        rows={3}
+                        minRows={3}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
@@ -621,11 +622,11 @@ export default function AdminStartupBoardsPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         共創概要（例：企業のアセット情報など）
                       </label>
-                      <textarea
+                      <AutoTextarea
                         name="collaborationOverview"
                         value={formData.collaborationOverview || ""}
                         onChange={handleInputChange}
-                        rows={3}
+                        minRows={3}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>

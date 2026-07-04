@@ -3,9 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import Header from "@/components/ui/header";
-import Footer from "@/components/ui/footer";
 import AdminGuard from "@/components/admin/admin-guard";
+import AutoTextarea from "@/components/ui/auto-textarea";
 import {
   ORGANIZER_TYPE_OPTIONS,
   JAPAN_AREAS,
@@ -142,30 +141,36 @@ export default function EditOpportunityPage() {
 
   return (
     <AdminGuard>
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Link
-            href="/admin/opportunities"
-            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            一覧に戻る
-          </Link>
+      <div className="min-h-dvh bg-gray-50">
+        {/* Sticky app bar */}
+        <header className="sticky top-0 z-20 border-b border-gray-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
+          <div className="mx-auto flex h-14 max-w-2xl items-center gap-2 px-4 sm:px-6 lg:px-8">
+            <Link
+              href="/admin/opportunities"
+              className="-ml-2 inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/20"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">一覧に戻る</span>
+            </Link>
+            <span className="h-5 w-px bg-gray-200" aria-hidden />
+            <h1 className="truncate text-[15px] font-semibold text-gray-900">
+              オポチュニティを編集
+            </h1>
+          </div>
+        </header>
 
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">オポチュニティを編集</h1>
-
+        <main className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
           {loading ? (
             <div className="flex items-center justify-center py-20 text-gray-400">
-              <Loader2 className="w-6 h-6 animate-spin" />
+              <Loader2 className="h-6 w-6 animate-spin" />
             </div>
           ) : !form ? (
-            <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
               {error || "データが見つかりませんでした"}
             </div>
           ) : (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="種別">
                   <select
                     value={form.kind}
@@ -189,20 +194,20 @@ export default function EditOpportunityPage() {
                 </Field>
               </div>
 
-              <Field label="タイトル *">
+              <Field label="タイトル" required>
                 <input value={form.title} onChange={(e) => update("title", e.target.value)} className={inputCls} />
               </Field>
 
-              <Field label="主催者 *">
+              <Field label="主催者" required>
                 <input value={form.organizer} onChange={(e) => update("organizer", e.target.value)} className={inputCls} />
               </Field>
 
               <Field label="概要">
-                <textarea value={form.description} onChange={(e) => update("description", e.target.value)} rows={3} className={inputCls} />
+                <AutoTextarea value={form.description} onChange={(e) => update("description", e.target.value)} minRows={3} className={inputCls} />
               </Field>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="エリア *">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field label="エリア" required>
                   <select value={form.area} onChange={(e) => update("area", e.target.value)} className={selectCls}>
                     <option value="">未設定</option>
                     <optgroup label="日本">
@@ -222,16 +227,16 @@ export default function EditOpportunityPage() {
                 </Field>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="締切日 *">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field label="締切日" required>
                   <input type="date" value={form.deadline} onChange={(e) => update("deadline", e.target.value)} className={inputCls} />
                 </Field>
-                <Field label="開始日 *">
+                <Field label="開始日" required>
                   <input type="date" value={form.startDate} onChange={(e) => update("startDate", e.target.value)} className={inputCls} />
                 </Field>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="対象領域">
                   <input value={form.targetArea} onChange={(e) => update("targetArea", e.target.value)} className={inputCls} />
                 </Field>
@@ -244,49 +249,52 @@ export default function EditOpportunityPage() {
                 <input value={form.imageUrl} onChange={(e) => update("imageUrl", e.target.value)} className={inputCls} />
               </Field>
 
-              <Field label="リンクURL *">
+              <Field label="リンクURL" required>
                 <input value={form.website} onChange={(e) => update("website", e.target.value)} className={inputCls} />
               </Field>
 
-              <label className="flex items-center gap-2 text-sm text-gray-700">
+              <label className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
                 <input
                   type="checkbox"
                   checked={form.isActive}
                   onChange={(e) => update("isActive", e.target.checked)}
-                  className="w-4 h-4"
+                  className="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                 />
-                公開する（/opportunities に表示）
+                <span>
+                  公開する
+                  <span className="ml-1 text-gray-400">（/opportunities に表示）</span>
+                </span>
               </label>
 
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-emerald-600 text-white text-sm font-semibold rounded-lg shadow-sm hover:bg-emerald-700 disabled:opacity-50 transition-all min-h-[48px]"
+                className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     保存中...
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="w-4 h-4" />
+                    <CheckCircle2 className="h-4 w-4" />
                     変更を保存
                   </>
                 )}
               </button>
 
-              <div ref={feedbackRef}>
+              <div ref={feedbackRef} aria-live="polite">
                 {error && (
-                  <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">
-                    <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                  <div role="alert" className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                     <span>{error}</span>
                   </div>
                 )}
                 {saved && (
-                  <div className="flex items-center justify-between gap-2 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg p-3 text-sm">
+                  <div className="flex items-center justify-between gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
                     <span className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4" />
+                      <CheckCircle2 className="h-4 w-4" />
                       保存しました。
                     </span>
                     <button
@@ -300,21 +308,31 @@ export default function EditOpportunityPage() {
               </div>
             </div>
           )}
-        </div>
-        <Footer />
+        </main>
       </div>
     </AdminGuard>
   );
 }
 
 const inputCls =
-  "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm text-gray-900";
+  "w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 shadow-sm transition-colors placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30";
 const selectCls = inputCls + " bg-white";
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-gray-600 mb-1">{label}</label>
+      <label className="mb-1 block text-xs font-semibold text-gray-600">
+        {label}
+        {required && <span className="ml-0.5 text-red-500">*</span>}
+      </label>
       {children}
     </div>
   );
