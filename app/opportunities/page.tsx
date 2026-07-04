@@ -6,7 +6,7 @@ import OpportunitiesList, {
 import { Rocket } from "lucide-react";
 import { Metadata } from "next";
 import Script from "next/script";
-import { headers } from "next/headers";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "コンテスト・公募一覧 | Nexana Database | スタートアップの挑戦機会をまとめて検索",
@@ -44,61 +44,61 @@ export const metadata: Metadata = {
   },
 };
 
-interface Opportunity {
-  id: string;
-  kind: "contest" | "open-call";
-  title: string;
-  description?: string;
-  imageUrl?: string;
-  deadline?: string;
-  startDate?: string;
-  area?: string;
-  organizer: string;
-  organizerType?: string;
-  website?: string;
-  benefit?: string;
-  targetArea?: string;
-  targetAudience?: string;
-  createdAt: string;
-}
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://db.nexanahq.com";
-
-// 開発環境では実際にアクセスしているホスト（localhost:3001 など）から取得する。
-// 本番では NEXT_PUBLIC_BASE_URL を使う（キャッシュ最適化のため静的のまま）。
-async function getBaseUrl(): Promise<string> {
-  if (process.env.NODE_ENV === "development") {
-    const host = (await headers()).get("host");
-    if (host) return `http://${host}`;
-  }
-  return BASE_URL;
-}
-
-async function fetchJson<T>(path: string): Promise<T[]> {
+// APIを経由せずPrismaを直接呼ぶ（余分なHTTPホップとコールドスタートを排除）。
+// 必要なフィールドのみselectしてegress/レイテンシを削減。
+async function getOpportunities(): Promise<OpportunityItem[]> {
   try {
-    const isDev = process.env.NODE_ENV === "development";
-    const base = await getBaseUrl();
-    const options: RequestInit = isDev
-      ? { cache: "no-store" }
-      : { next: { revalidate: 300 }, headers: { "Cache-Control": "max-age=300" } };
-    const response = await fetch(`${base}${path}`, options);
-    if (response.ok) return await response.json();
-    console.error(`Failed to fetch ${path}:`, response.status);
-    return [];
+    const opportunities = await prisma.opportunity.findMany({
+      where: { isActive: true },
+      orderBy: [{ deadline: "asc" }, { createdAt: "desc" }],
+      select: {
+        id: true,
+        kind: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        deadline: true,
+        startDate: true,
+        area: true,
+        organizer: true,
+        organizerType: true,
+        website: true,
+        benefit: true,
+        targetArea: true,
+        targetAudience: true,
+        createdAt: true,
+      },
+    });
+
+    return opportunities.map((o): OpportunityItem => ({
+      id: o.id,
+      kind: o.kind as "contest" | "open-call",
+      title: o.title,
+      description: o.description ?? undefined,
+      imageUrl: o.imageUrl ?? undefined,
+      deadline: o.deadline ? o.deadline.toISOString() : undefined,
+      startDate: o.startDate ? o.startDate.toISOString() : undefined,
+      area: o.area ?? undefined,
+      organizer: o.organizer,
+      organizerType: o.organizerType ?? undefined,
+      website: o.website ?? undefined,
+      benefit: o.benefit ?? undefined,
+      targetArea: o.targetArea ?? undefined,
+      targetAudience: o.targetAudience ?? undefined,
+      createdAt: o.createdAt.toISOString(),
+    }));
   } catch (error) {
-    console.error(`Error fetching ${path}:`, error);
+    console.error("Error fetching opportunities:", error);
     return [];
   }
 }
 
-export const dynamic = "auto";
 export const runtime = "nodejs";
-export const revalidate = 3600;
-export const fetchCache = "force-cache";
-export const preferredRegion = "auto";
+export const revalidate = 3600; // ISRでキャッシュ。作成/更新時はrevalidatePathで即時反映
+export const preferredRegion = "sin1"; // DB(ap-southeast-1)と同一リージョンでレイテンシ削減
 
 export default async function OpportunitiesPage() {
-  const opportunities = await fetchJson<Opportunity>("/api/opportunities");
+  const items = await getOpportunities();
 
   // 日本国内のエリア定義
   const japanAreas = [
@@ -176,27 +176,6 @@ export default async function OpportunitiesPage() {
     "海外",
     "その他",
   ];
-
-  // OpportunityItem 形式に正規化
-  const items: OpportunityItem[] = opportunities.map(
-    (o): OpportunityItem => ({
-      id: o.id,
-      kind: o.kind,
-      title: o.title,
-      description: o.description,
-      imageUrl: o.imageUrl,
-      deadline: o.deadline,
-      startDate: o.startDate,
-      area: o.area,
-      organizer: o.organizer,
-      organizerType: o.organizerType,
-      website: o.website,
-      benefit: o.benefit,
-      targetArea: o.targetArea,
-      targetAudience: o.targetAudience,
-      createdAt: o.createdAt,
-    })
-  );
 
   const breadcrumbStructuredData = {
     "@context": "https://schema.org",

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
@@ -292,6 +293,9 @@ export async function POST(request: NextRequest) {
         locationId: locationId || null,
       },
     });
+
+    // ワークスペース一覧ページのキャッシュを即時無効化
+    revalidatePath("/workspace");
 
     return NextResponse.json(workspace, { status: 201 });
   } catch (error) {

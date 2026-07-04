@@ -166,9 +166,9 @@ async function getNews(page: number = 1, limit: number = 50): Promise<NewsRespon
 }
 
 // ISRを使用してパフォーマンスを最適化（5分ごとに再生成）
-export const revalidate = 300; // 5分キャッシュ（ニュースは更新頻度が高いため短めに設定）
+export const revalidate = 300; // 5分キャッシュ（作成/更新/削除時はrevalidatePathで即時反映）
 export const runtime = 'nodejs';
-export const preferredRegion = 'auto';
+export const preferredRegion = 'sin1'; // DB(ap-southeast-1)と同一リージョンでレイテンシ削減
 
 export default async function NewsPage({
   searchParams,

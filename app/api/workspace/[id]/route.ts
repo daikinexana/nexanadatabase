@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { normalizeInfoCards } from "@/lib/workspace-info-cards";
@@ -51,6 +52,10 @@ export async function PUT(
       data,
     });
 
+    // 一覧・詳細ページのキャッシュを即時無効化
+    revalidatePath("/workspace");
+    revalidatePath(`/workspace/${resolvedParams.id}`);
+
     return NextResponse.json(workspace);
   } catch (error) {
     console.error("Error updating workspace:", error);
@@ -89,6 +94,9 @@ export async function DELETE(
       where: { id: resolvedParams.id },
       data: { isActive: false },
     });
+
+    // 一覧ページのキャッシュを即時無効化
+    revalidatePath("/workspace");
 
     return NextResponse.json({ success: true });
   } catch (error) {
