@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "ページが見つかりません | Nexana Database",
+  title: "ページが見つかりません | KYOSO BASE",
   description: "お探しのページが見つかりませんでした。",
   robots: {
     index: false,

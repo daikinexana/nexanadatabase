@@ -90,7 +90,7 @@ export default function AdminLoginPage() {
           </form>
         </div>
         <p className="text-center text-xs text-gray-400 mt-4">
-          Nexana Database 管理画面
+          KYOSO BASE 管理画面
         </p>
       </div>
     </div>

@@ -27,9 +27,9 @@ export const metadata: Metadata = {
   title: "KYOSO BASE | オープンイノベーション・スタートアップ情報プラットフォーム",
   description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。ネクサナ（nexana）が運営するスタートアップ・大企業・大学向けイノベーションデータベース。",
   keywords: "スタートアップ, スタートアップ情報, スタートアップデータベース, スタートアップコンテスト, スタートアップ支援, スタートアップ採用, スタートアップ就職, スタートアップ調達, スタートアップ調達ニュース, スタートアップM&A, 起業, 起業家, 起業したい, 起業支援, 新規事業, 新規事業担当, CEO, オープンイノベーション, オープンイノベーション情報, オープンイノベーションプラットフォーム, イノベーション, イノベーション情報, イノベーションデータベース, コンテスト, コンテスト情報, ビジネスコンテスト, ピッチコンテスト, ピッチ, ハッカソン, アクセラ, アクセラレーション, アクセラレータ, アクセラレータープログラム, プログラム, 公募, 公募情報, 募集, 募集情報, 開催, 開催情報, 調達, 調達情報, 調達ニュース, 資金調達, ファンディング, 投資, 投資情報, M&A, M&A情報, M&Aニュース, 買収, 合併, IPO, 上場, インキュベーション, インキュベーター, インキュベータープログラム, 共創, 共創プロジェクト, 協業, パートナーシップ, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, ロケーション, ワークスペース, コワーキングスペース, シェアオフィス, シェアオフィス運営, ビジネスコンテスト主催, ビジネスコンテスト主催者, VC, ベンチャーキャピタル, CVC, コーポレートベンチャーキャピタル, 広域行政, 市区町村, 行政担当者, 大学, 大学担当者, ディープテック, ディープテックスタートアップ, 技術データベース, プロダクトデータベース, 企業データベース, 行政データベース, 大学データベース, 融資, 融資情報, マッチングサービス, プロジェクトマネジメント, コミュニティマネジメント, 大企業, 行政, シェアハウスオーナー, startup, startup database, startup information, startup contest, pitch contest, business competition, accelerator, acceleration program, open innovation, innovation platform, funding, venture capital, CVC, corporate venture capital, M&A, IPO, workspace, coworking space, deep tech, deep tech startup, entrepreneurship, entrepreneur, business competition organizer, startup support, innovation database",
-  authors: [{ name: "Nexana HQ" }],
-  creator: "Nexana HQ",
-  publisher: "Nexana HQ",
+  authors: [{ name: "nexana" }],
+  creator: "nexana",
+  publisher: "nexana",
   metadataBase: new URL('https://db.nexanahq.com'),
   // サブドメイン専用の設定
   icons: {
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
         url: "https://db.nexanahq.com/180logo.png",
         width: 1200,
         height: 630,
-        alt: "Nexana Database - オープンイノベーション・スタートアップ情報プラットフォーム",
+        alt: "KYOSO BASE - オープンイノベーション・スタートアップ情報プラットフォーム",
       },
     ],
   },
@@ -135,7 +135,7 @@ const structuredData = [
     ],
     "publisher": {
       "@type": "Organization",
-      "name": "Nexana HQ",
+      "name": "nexana",
       "alternateName": ["ネクサナ", "nexana", "ねくさな"],
       "url": "https://db.nexanahq.com",
       "description": "スタートアップ・オープンイノベーション・イノベーション情報プラットフォームを運営",
@@ -183,7 +183,7 @@ const structuredData = [
   {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "Nexana HQ",
+    "name": "nexana",
     "url": "https://db.nexanahq.com",
     "logo": {
       "@type": "ImageObject",

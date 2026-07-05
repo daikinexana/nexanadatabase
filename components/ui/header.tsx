@@ -25,7 +25,7 @@ export default function Header() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/nexanadata.png"
-                alt="Nexana Database"
+                alt="KYOSO BASE"
                 width={400}
                 height={120}
                 className="h-24 w-auto max-w-[300px] object-contain"

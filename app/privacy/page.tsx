@@ -1,12 +1,12 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "プライバシーポリシー | Nexana Database",
-  description: "Nexana Databaseのプライバシーポリシーについて",
+  title: "プライバシーポリシー | KYOSO BASE",
+  description: "KYOSO BASEのプライバシーポリシーについて",
   keywords: "プライバシーポリシー, 個人情報保護, データ保護, プライバシー",
   openGraph: {
-    title: "プライバシーポリシー | Nexana Database",
-    description: "Nexana Databaseのプライバシーポリシーについて",
+    title: "プライバシーポリシー | KYOSO BASE",
+    description: "KYOSO BASEのプライバシーポリシーについて",
     type: "website",
   },
 };
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
           
           <div className="prose prose-lg max-w-none">
             <p className="text-gray-600 mb-6">
-              Nexana Database（以下「本サービス」）におけるユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下「本ポリシー」）を定めます。
+              KYOSO BASE（以下「本サービス」）におけるユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下「本ポリシー」）を定めます。
             </p>
 
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">1. 取得する情報</h2>
@@ -40,7 +40,7 @@ export default function PrivacyPage() {
               取得した個人情報は、以下の目的の範囲内で使用します：
             </p>
             <ul className="list-disc pl-6 text-gray-600 mb-6">
-              <li>Nexana Databaseサービスの提供および運営</li>
+              <li>KYOSO BASEサービスの提供および運営</li>
               <li>コンテスト、公募、施設、ニュース、ナレッジ情報の提供</li>
               <li>検索機能、フィルタリング機能の提供</li>
               <li>サービス提供およびその品質向上のため</li>
@@ -123,7 +123,7 @@ export default function PrivacyPage() {
             <div className="border-t border-gray-200 pt-6 mt-8">
               <p className="text-sm text-gray-500">
                 制定日：2025年1月1日<br />
-                最終更新日：2025年1月15日
+                最終更新日：2026年7月5日
               </p>
               <p className="text-sm text-gray-500 mt-2">
                 お問い合わせ先：<a href="/contact" className="text-blue-600 hover:text-blue-800">お問い合わせページ</a>

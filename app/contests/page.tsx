@@ -6,7 +6,7 @@ import { Metadata } from "next";
 import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "コンテスト一覧 | Nexana Database | スタートアップ・ビジネスコンテスト情報",
+  title: "コンテスト一覧 | KYOSO BASE | スタートアップ・ビジネスコンテスト情報",
   description: "スタートアップ・ビジネスコンテスト、ピッチコンテスト、ハッカソン、アクセラレーションプログラムの情報を掲載。公募・募集・開催情報をデータベース化。起業したい人、スタートアップCEO、新規事業担当者向けのコンテスト情報を網羅。ネクサナ（nexana）が運営するイノベーションプラットフォーム。",
   keywords: "スタートアップ, スタートアップコンテスト, スタートアップ情報, コンテスト, コンテスト情報, ビジネスコンテスト, ビジネスコンテスト情報, ピッチコンテスト, ピッチ, ピッチイベント, ハッカソン, ハッカソン情報, アクセラ, アクセラレーション, アクセラレータ, アクセラレータープログラム, プログラム, 公募, 公募情報, 募集, 募集情報, 開催, 開催情報, 起業, 起業したい, 起業家, 起業支援, CEO, 新規事業, 新規事業担当, イノベーション, イノベーション情報, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, startup contest, pitch contest, business competition, hackathon, accelerator, acceleration program, entrepreneurship, entrepreneur, innovation, startup information",
   robots: {
@@ -28,13 +28,13 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "コンテスト一覧 | Nexana Database | スタートアップ・ビジネスコンテスト情報",
+    title: "コンテスト一覧 | KYOSO BASE | スタートアップ・ビジネスコンテスト情報",
     description: "スタートアップコンテスト、ピッチコンテスト、ハッカソン、アクセラレーションプログラムなどの情報を掲載。起業したい人、スタートアップCEO、新規事業担当者向け。",
     type: "website",
     url: "https://db.nexanahq.com/contests",
     locale: "ja_JP",
     alternateLocale: ["en_US"],
-    siteName: "Nexana Database",
+    siteName: "KYOSO BASE",
     images: [
       {
         url: "https://db.nexanahq.com/contests.image.png",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "コンテスト一覧 | Nexana Database",
+    title: "コンテスト一覧 | KYOSO BASE",
     description: "スタートアップコンテスト、ピッチコンテスト、ハッカソンなどの情報を掲載",
     images: ["https://db.nexanahq.com/contests.image.png"],
   },

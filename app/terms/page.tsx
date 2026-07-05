@@ -1,12 +1,12 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "利用規約 | Nexana Database",
-  description: "Nexana Databaseの利用規約について",
+  title: "利用規約 | KYOSO BASE",
+  description: "KYOSO BASEの利用規約について",
   keywords: "利用規約, サービス利用規約, 利用条件, 規約",
   openGraph: {
-    title: "利用規約 | Nexana Database",
-    description: "Nexana Databaseの利用規約について",
+    title: "利用規約 | KYOSO BASE",
+    description: "KYOSO BASEの利用規約について",
     type: "website",
   },
 };
@@ -20,12 +20,12 @@ export default function TermsPage() {
           
           <div className="prose prose-lg max-w-none">
             <p className="text-gray-600 mb-6">
-              本規約は、Nexana Database（以下「本サービス」）の利用に関する条件を定めるものです。
+              本規約は、KYOSO BASE（以下「本サービス」）の利用に関する条件を定めるものです。
             </p>
 
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">第1条（適用）</h2>
             <p className="text-gray-600 mb-6">
-              本規約は、ユーザーとNexana Database運営者（以下「当社」）との間の本サービスの利用に関わる一切の関係に適用されるものとします。
+              本規約は、ユーザーとKYOSO BASEの運営者であるnexana株式会社（以下「当社」）との間の本サービスの利用に関わる一切の関係に適用されるものとします。
             </p>
 
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">第2条（定義）</h2>
@@ -36,7 +36,7 @@ export default function TermsPage() {
               <li>「ユーザー」：本サービスを利用する者</li>
               <li>「コンテンツ」：本サービスを通じて提供される情報、データ、画像等（コンテスト情報、公募情報、施設情報、ニュース、ナレッジ等を含む）</li>
               <li>「アカウント」：本サービスの利用に必要な識別情報</li>
-              <li>「本サービス」：オープンイノベーション・スタートアップ情報プラットフォーム「Nexana Database」</li>
+              <li>「本サービス」：オープンイノベーション・スタートアップ情報プラットフォーム「KYOSO BASE」</li>
             </ul>
 
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">第3条（利用登録）</h2>
@@ -146,7 +146,7 @@ export default function TermsPage() {
             <div className="border-t border-gray-200 pt-6 mt-8">
               <p className="text-sm text-gray-500">
                 制定日：2025年1月1日<br />
-                最終更新日：2025年1月15日
+                最終更新日：2026年7月5日
               </p>
               <p className="text-sm text-gray-500 mt-2">
                 お問い合わせ先：<a href="/contact" className="text-blue-600 hover:text-blue-800">お問い合わせページ</a>

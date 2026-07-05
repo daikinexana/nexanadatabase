@@ -14,19 +14,19 @@ export async function generateMetadata({ params }: WorkspaceDetailPageProps): Pr
 
   if (!location) {
     return {
-      title: "Workspace Not Found | Nexana Database",
+      title: "Workspace Not Found | KYOSO BASE",
     };
   }
 
   return {
-    title: `${location.city} | Nexana Database`,
+    title: `${location.city} | KYOSO BASE`,
     description: `${location.country} ${location.city}のワークスペース情報を掲載`,
     keywords: `${location.city}, ${location.country}, ワークスペース, ロケーション, 地域情報`,
     alternates: {
       canonical: `https://db.nexanahq.com/workspace/${location.slug}`,
     },
     openGraph: {
-      title: `${location.city} | Nexana Database`,
+      title: `${location.city} | KYOSO BASE`,
       description: `${location.country} ${location.city}のワークスペース情報`,
       type: "website",
       url: `https://db.nexanahq.com/workspace/${location.slug}`,
