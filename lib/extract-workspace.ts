@@ -463,9 +463,12 @@ function buildPrompt(page: CollectedContent): { system: string; user: string } {
     "出力するJSONのキーと制約:",
     "- name: 施設の正式名称（必須）。",
     "- description: 施設の概要・特徴の要約（日本語・100〜200字）。どんな空間で誰向けかが伝わるように。",
-    "- address: 施設の所在地。『住所』『所在地』『アクセス』や構造化データの住所から、都道府県〜番地・建物名まで拾う。郵便番号があれば含めてよい。不明なら空文字。",
-    `- country: 施設が所在する国。日本国内なら「日本」。海外なら次から最も近い1つ [${OVERSEAS_COUNTRIES.join(", ")}]。いずれにも当てはまらない海外は「海外」。判別できなければ空文字。`,
-    "- city: 施設が所在する都市名（日本国内なら都道府県名）。例: 東京都 / San Francisco / Singapore。判別できなければ空文字。",
+    "- address: 施設の所在地を、できる限り完全な形で1つの文字列にまとめる。『住所』『所在地』『アクセス』や構造化データ(JSON-LD)の住所、ページフッターから拾う。",
+    "  ・日本国内: 『都道府県＋市区町村＋番地＋建物名』。郵便番号があれば含めてよい。",
+    "  ・海外: 国際表記で『番地・通り, 都市, 州/地域 郵便番号, 国名』の順にまとめ、必ず末尾に国名（日本語）を付ける。例:「1623 W Fulton St, Chicago, IL 60612 アメリカ合衆国」「71 Robinson Road, Singapore 068895 シンガポール」。国名の日本語表記は country と整合させる（アメリカ→アメリカ合衆国, イギリス→イギリス, シンガポール→シンガポール, ドイツ→ドイツ 等）。",
+    "  ・都市名・国名が住所に含まれるように必ず補完すること（後段の国別フィルタが機能するため重要）。本当に所在地情報が無い場合のみ空文字。",
+    `- country: 施設が所在する国。日本国内なら「日本」。海外なら次から最も近い1つ [${OVERSEAS_COUNTRIES.join(", ")}]。いずれにも当てはまらない海外は「海外」。海外の施設なのに空にしないこと。判別できなければ空文字。`,
+    "- city: 施設が所在する都市名（日本国内なら都道府県名）。例: 東京都 / シカゴ / Singapore。海外の施設なのに空にしないこと。判別できなければ空文字。",
     "- officialLink: 施設公式ページのURL。基本は与えられたトップページURLでよい。",
     "- businessHours: 営業時間・利用時間。『営業時間』『利用時間』『OPEN』や構造化データから拾う（例:「平日 9:00-22:00 / 土日祝 10:00-18:00」）。不明なら空文字。",
     "- priceTable: 料金・プラン。ドロップイン/月額/会員種別など、価格に関する記載を要約（例:「ドロップイン 1,100円/時, 月額会員 22,000円」）。不明なら空文字。",
@@ -530,8 +533,15 @@ function bool(v: unknown): boolean {
 // 抽出結果を正規化
 function normalize(raw: Record<string, unknown>, page: CollectedContent): ExtractedWorkspace {
   const address = str(raw.address);
+  // まず住所から国/都市を判定（成功すれば都市まで取れるので最優先）
   let { country, city } = deriveCountryCity(address, "");
-  // 住所から国が判定できない場合は、AIが直接抽出した国名/都市を使う（海外対策）
+  // area は管理フォームの「上書き」欄。住所から判定できた場合は空のままにする
+  // （area を入れると保存時に上書きが優先され、都市が国名に潰れてしまうため）。
+  let area = "";
+
+  // 住所から判定できない場合のみ、AIが直接抽出した国名を保険として使う。
+  // この場合 area に国名を入れておくと、保存時の deriveCountryCity(address, area) が
+  // 住所に頼らず国を確定できる（都市までは分からないので city=国名になる）。
   if (country === "その他") {
     const aiCountry = normalizeCountry(str(raw.country));
     if (aiCountry === "日本") {
@@ -540,9 +550,11 @@ function normalize(raw: Record<string, unknown>, page: CollectedContent): Extrac
     } else if (aiCountry) {
       country = aiCountry;
       city = str(raw.city) || aiCountry;
+      area = aiCountry;
     } else if (str(raw.country) === "海外") {
       country = "海外";
       city = str(raw.city) || "海外";
+      area = "海外";
     }
   }
 
@@ -556,7 +568,7 @@ function normalize(raw: Record<string, unknown>, page: CollectedContent): Extrac
     name: str(raw.name) || page.title,
     description: str(raw.description) || page.ogDescription,
     address,
-    area: "",
+    area,
     country,
     city,
     officialLink: str(raw.officialLink) || page.url,
