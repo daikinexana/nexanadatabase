@@ -442,6 +442,18 @@ export default function AiImportPage() {
                     <input
                       value={draft.imageUrl}
                       onChange={(e) => update("imageUrl", e.target.value)}
+                      onDrop={(e) => {
+                        // 画像ファイルをこのテキスト欄にドロップすると、Chromeが
+                        // ローカルの絶対パス(/var/folders/...)を文字列として挿入してしまう。
+                        // それを防ぎ、上のアップロード枠を使うよう案内する。
+                        if (e.dataTransfer.files?.length) {
+                          e.preventDefault();
+                          alert(
+                            "ここは画像URL（https://...）を貼り付ける欄です。\n" +
+                              "画像ファイルは上の「画像をドラッグ&ドロップするか、クリックして選択」枠に入れてください。"
+                          );
+                        }
+                      }}
                       placeholder="https://..."
                       className={inputCls}
                     />

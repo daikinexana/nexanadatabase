@@ -547,6 +547,17 @@ function DraftCard({
             <input
               value={draft.imageUrl}
               onChange={(e) => onChange({ imageUrl: e.target.value })}
+              onDrop={(e) => {
+                // 画像ファイルをテキスト欄にドロップするとChromeがローカルの
+                // 絶対パス(/var/folders/...)を挿入してしまうため、それを防ぐ。
+                if (e.dataTransfer.files?.length) {
+                  e.preventDefault();
+                  alert(
+                    "ここは画像URL（https://...）を貼り付ける欄です。\n" +
+                      "画像ファイルは上のアップロード枠に入れてください。"
+                  );
+                }
+              }}
               placeholder="https://..."
               className={inputCls}
             />

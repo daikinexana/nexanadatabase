@@ -17,11 +17,28 @@ interface ImageUploadProps {
  * - JPEG(quality)で書き出し、targetBytes を超える間は品質を段階的に下げる
  * GIF はアニメーションが失われるため圧縮せずそのまま返す。
  */
+/**
+ * MIMEタイプを解決する。macOSのスクリーンショットなど、ブラウザが file.type を
+ * 空文字にして渡してくるケースがあるため、その場合は拡張子から推定する。
+ */
+const EXT_TO_MIME: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  gif: "image/gif",
+  webp: "image/webp",
+};
+function resolveImageType(file: File): string {
+  if (file.type && file.type.startsWith("image/")) return file.type;
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  return EXT_TO_MIME[ext] ?? "";
+}
+
 async function compressImage(
   file: File,
   { maxDimension = 1920, targetBytes = 900 * 1024 }: { maxDimension?: number; targetBytes?: number } = {}
 ): Promise<File> {
-  if (file.type === "image/gif") return file;
+  if (resolveImageType(file) === "image/gif") return file;
   // すでに十分小さくリサイズも不要なら、そのまま使う
   if (file.size <= targetBytes) {
     // 念のため大きすぎる寸法はリサイズしたいので、寸法チェックは続行する
@@ -81,9 +98,23 @@ export default function ImageUpload({ value, onChange, type, className = "" }: I
   const handleFileSelect = async (inputFile: File) => {
     if (!inputFile) return;
 
+    // macOSのスクリーンショットのサムネイルを直接ドラッグした場合など、
+    // 一時ファイルが既に消えていて中身が空(0バイト)になっていることがある。
+    // その状態で進めても壊れた画像がアップロードされるため、ここで明確に案内する。
+    if (inputFile.size === 0) {
+      alert(
+        "この画像は読み込めませんでした（中身が空です）。\n" +
+          "macOSのスクリーンショットは、撮影直後に右下に出るサムネイルを直接ドラッグすると失敗します。\n" +
+          "一度デスクトップなどに保存してから、そのファイルを選び直してください。"
+      );
+      return;
+    }
+
     // ファイルタイプチェック（圧縮前の元ファイルで判定）
+    // file.type が空でも拡張子から推定して弾かないようにする（スクショ等の対策）
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-    if (!allowedTypes.includes(inputFile.type)) {
+    const resolvedType = resolveImageType(inputFile);
+    if (!allowedTypes.includes(resolvedType)) {
       alert("サポートされていないファイル形式です（JPEG, PNG, GIF, WebPのみ）");
       return;
     }
@@ -102,6 +133,12 @@ export default function ImageUpload({ value, onChange, type, className = "" }: I
       } catch (compressError) {
         console.warn("⚠️ 圧縮に失敗したため元画像を使用します:", compressError);
         file = inputFile;
+      }
+
+      // MIMEが空のまま（スクショ等）だと S3 の ContentType が空になり表示できないので補完
+      if (!file.type || !file.type.startsWith("image/")) {
+        const type = resolveImageType(file) || resolveImageType(inputFile) || "image/png";
+        file = new File([file], file.name, { type, lastModified: file.lastModified });
       }
 
       // 圧縮後もサーバー上限を超える場合のみ弾く（GIF等）
@@ -202,11 +239,20 @@ export default function ImageUpload({ value, onChange, type, className = "" }: I
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    
+
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       handleFileSelect(files[0]);
+      return;
     }
+
+    // ファイル実体が取得できない = macOSスクショのサムネイルを直接ドラッグした等。
+    // 一時ファイル参照だけが渡ってきており、そのままではアップロードできない。
+    alert(
+      "画像ファイルを取得できませんでした。\n" +
+        "macOSのスクリーンショットは、撮影直後のサムネイルを直接ドラッグすると失敗します。\n" +
+        "一度デスクトップなどに保存してから、ドラッグまたはクリックで選び直してください。"
+    );
   };
 
   const handleDragOver = (e: React.DragEvent) => {
