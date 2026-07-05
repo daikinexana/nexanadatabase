@@ -7,7 +7,7 @@
  * LLMに渡す。写真が必要な項目（周辺情報カード等）は無理に埋めない。
  */
 
-import { deriveCountryCity } from "@/lib/derive-location";
+import { deriveCountryCity, normalizeCountry, OVERSEAS_COUNTRIES } from "@/lib/derive-location";
 import { type InfoCard, normalizeInfoCards } from "@/lib/workspace-info-cards";
 
 // 抽出結果の型（管理フォームの主要フィールドに対応）
@@ -464,6 +464,8 @@ function buildPrompt(page: CollectedContent): { system: string; user: string } {
     "- name: 施設の正式名称（必須）。",
     "- description: 施設の概要・特徴の要約（日本語・100〜200字）。どんな空間で誰向けかが伝わるように。",
     "- address: 施設の所在地。『住所』『所在地』『アクセス』や構造化データの住所から、都道府県〜番地・建物名まで拾う。郵便番号があれば含めてよい。不明なら空文字。",
+    `- country: 施設が所在する国。日本国内なら「日本」。海外なら次から最も近い1つ [${OVERSEAS_COUNTRIES.join(", ")}]。いずれにも当てはまらない海外は「海外」。判別できなければ空文字。`,
+    "- city: 施設が所在する都市名（日本国内なら都道府県名）。例: 東京都 / San Francisco / Singapore。判別できなければ空文字。",
     "- officialLink: 施設公式ページのURL。基本は与えられたトップページURLでよい。",
     "- businessHours: 営業時間・利用時間。『営業時間』『利用時間』『OPEN』や構造化データから拾う（例:「平日 9:00-22:00 / 土日祝 10:00-18:00」）。不明なら空文字。",
     "- priceTable: 料金・プラン。ドロップイン/月額/会員種別など、価格に関する記載を要約（例:「ドロップイン 1,100円/時, 月額会員 22,000円」）。不明なら空文字。",
@@ -528,7 +530,21 @@ function bool(v: unknown): boolean {
 // 抽出結果を正規化
 function normalize(raw: Record<string, unknown>, page: CollectedContent): ExtractedWorkspace {
   const address = str(raw.address);
-  const { country, city } = deriveCountryCity(address, "");
+  let { country, city } = deriveCountryCity(address, "");
+  // 住所から国が判定できない場合は、AIが直接抽出した国名/都市を使う（海外対策）
+  if (country === "その他") {
+    const aiCountry = normalizeCountry(str(raw.country));
+    if (aiCountry === "日本") {
+      country = "日本";
+      city = str(raw.city) || city;
+    } else if (aiCountry) {
+      country = aiCountry;
+      city = str(raw.city) || aiCountry;
+    } else if (str(raw.country) === "海外") {
+      country = "海外";
+      city = str(raw.city) || "海外";
+    }
+  }
 
   // infoCardsはfacilityカテゴリのみ許可（周辺系の推測を除外）
   const rawCards = normalizeInfoCards(raw.infoCards).map((c) => ({

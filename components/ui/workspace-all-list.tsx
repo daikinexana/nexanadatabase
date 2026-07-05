@@ -386,7 +386,7 @@ export default function WorkspaceAllList({ workspaces }: WorkspaceAllListProps) 
                     <MapPin className="w-2.5 h-2.5 text-neutral-400" />
                     <span className="truncate">
                       {workspace.city}
-                      {workspace.country && workspace.country !== "日本" ? `・${workspace.country}` : ""}
+                      {workspace.country && workspace.country !== "日本" && workspace.country !== workspace.city ? `・${workspace.country}` : ""}
                     </span>
                   </div>
                 </div>
