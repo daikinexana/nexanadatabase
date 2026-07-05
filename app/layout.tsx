@@ -272,32 +272,11 @@ export default async function RootLayout({
   const enableStructuredData = true;
   const structuredDataScript = enableStructuredData ? getStructuredDataScript() : null;
 
-  // サーバーサイドでUser-Agentをチェック（Googlebot検出）
-  // headers()を使って、middleware.tsで設定したX-Is-Googlebotヘッダーを確認
-  let isGooglebot = false;
-  try {
-    const { headers } = await import('next/headers');
-    const headersList = await headers();
-    const isGooglebotHeader = headersList.get('x-is-googlebot');
-    isGooglebot = isGooglebotHeader === 'true';
-    
-    // フォールバック: User-Agentを直接チェック
-    if (!isGooglebot) {
-      const userAgent = headersList.get('user-agent') || '';
-      const ua = userAgent.toLowerCase();
-      isGooglebot = (
-        ua.includes('googlebot') ||
-        ua.includes('google-inspectiontool') ||
-        ua.includes('mediapartners-google') ||
-        ua.includes('apis-google') ||
-        ua.includes('feedfetcher-google')
-      );
-    }
-  } catch (error) {
-    // headers()が利用できない場合は通常ユーザーとして扱う
-    console.warn('Could not check User-Agent:', error);
-  }
-  
+  // 注意: 以前ここで headers() を呼んで Googlebot 判定していたが、
+  // その結果(isGooglebot)はJSXで一切使われていない上、root layoutでの headers() 呼び出しは
+  // 全ページを動的レンダリング(no-store)に落とし、各ページの revalidate(ISR)/CDNキャッシュを無効化していた。
+  // 不要なため削除し、ISRを復活させる（Googlebot向けヘッダーはmiddleware側で付与済み）。
+
   // 基本的なHTML構造（ClerkProviderなしでも動作）
   const baseHtml = (
     <html lang="ja">
