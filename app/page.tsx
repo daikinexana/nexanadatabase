@@ -2,76 +2,51 @@ import { Metadata } from "next";
 import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import EnhancedButton from "@/components/ui/enhanced-button";
-import EnhancedCardButton from "@/components/ui/enhanced-card-button";
-import { Trophy, Building, ArrowRight, Star, Globe, Zap, Target, TrendingUp } from "lucide-react";
+import PagePreview from "@/components/ui/page-preview";
+import { Trophy, Building, TrendingUp, LayoutGrid } from "lucide-react";
 import { getDatabaseStats } from "@/lib/stats";
 
 export const metadata: Metadata = {
-  title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
+  title: "KYOSO BASE | オープンイノベーション・スタートアップ情報プラットフォーム",
   description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。ネクサナ（nexana）が運営するスタートアップ・大企業・大学向けイノベーションデータベース。",
   keywords: "スタートアップ, オープンイノベーション, イノベーション, コンテスト, ビジネスコンテスト, アクセラ, アクセラレーション, プログラム, 公募, 募集, 開催, 調達, M&A, インキュベーション, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, スタートアップコンテスト, ピッチコンテスト, business competition, ロケーション, ワークスペース, コワーキングスペース, スタートアップ調達ニュース, 大学ディープテック, 海外展開支援, マッチングサービス, プロジェクトマネジメント, コミュニティマネージメント, スタートアップ支援, 大企業, 大学, 行政",
   openGraph: {
-    title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
+    title: "KYOSO BASE | オープンイノベーション・スタートアップ情報プラットフォーム",
     description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。",
     type: "website",
     locale: "ja_JP",
     url: "https://db.nexanahq.com",
-    siteName: "Nexana Database",
+    siteName: "KYOSO BASE",
   },
 };
 
-const features = [
+const databases = [
   {
-    name: "コンテスト",
-    nameEn: "Contests",
-    description: "スタートアップコンテスト、ハッカソン、ピッチコンテストなどの情報を掲載",
-    descriptionEn: "Startup contests, hackathons, pitch competitions and more",
-    href: "/contests",
+    name: "コンテスト・公募・プログラム",
+    nameEn: "Programs",
     icon: Trophy,
-    color: "from-gray-500 to-gray-700",
-    bgColor: "bg-gradient-to-br from-white via-gray-50 to-gray-100",
-    textColor: "text-gray-700",
-    borderColor: "border-gray-200",
-    accentColor: "bg-gray-500",
-  },
-  {
-    name: "公募",
-    nameEn: "Open Calls",
-    description: "企業や自治体が募集する課題解決パートナーや協業相手の公募情報",
-    descriptionEn: "Open calls for partnerships and collaborations",
-    href: "/open-calls",
-    icon: Target,
-    color: "from-gray-600 to-gray-800",
-    bgColor: "bg-gradient-to-br from-white via-gray-50 to-gray-100",
-    textColor: "text-gray-700",
-    borderColor: "border-gray-200",
-    accentColor: "bg-gray-600",
+    preview: "programs" as const,
+    description:
+      "スタートアップコンテスト、ピッチ、ハッカソン、アクセラレーション、そして企業・行政・大学によるオープンイノベーション公募まで。挑戦の機会を種別・エリア・締切で横断的に検索できます。",
+    tags: ["コンテスト", "ピッチ", "ハッカソン", "アクセラ", "公募", "補助金"],
   },
   {
     name: "ワークスペース",
-    nameEn: "Workspace",
-    description: "世界各国・都市のワークスペース情報を掲載",
-    descriptionEn: "Workspace information for cities around the world",
-    href: "/workspace",
+    nameEn: "Workspaces",
     icon: Building,
-    color: "from-slate-500 to-slate-700",
-    bgColor: "bg-gradient-to-br from-white via-gray-50 to-gray-100",
-    textColor: "text-gray-700",
-    borderColor: "border-gray-200",
-    accentColor: "bg-slate-500",
+    preview: "workspaces" as const,
+    description:
+      "国内外のシェアオフィス、コワーキング、インキュベーション施設をエリア別に掲載。設備・料金・コミュニティ情報から、挑戦の拠点となる場所を見つけられます。",
+    tags: ["コワーキング", "シェアオフィス", "インキュベーション", "拠点探し"],
   },
   {
     name: "ニュース",
     nameEn: "News",
-    description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信",
-    descriptionEn: "Real-time startup funding, M&A, and IPO news",
-    href: "/news",
     icon: TrendingUp,
-    color: "from-zinc-500 to-zinc-700",
-    bgColor: "bg-gradient-to-br from-white via-gray-50 to-gray-100",
-    textColor: "text-gray-700",
-    borderColor: "border-gray-200",
-    accentColor: "bg-zinc-500",
+    preview: "news" as const,
+    description:
+      "スタートアップの資金調達、M&A、IPO、パートナーシップをリアルタイムで配信。投資家・調達額・セクターの情報を添えて、業界の動向を追えます。",
+    tags: ["資金調達", "M&A", "IPO", "業務提携"],
   },
 ];
 
@@ -90,251 +65,133 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-white">
       <ClientHeader />
-      
-      {/* ヒーローセクション - iPhone 16専用モバイルファーストデザイン */}
-      <div className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 min-h-screen flex items-center justify-center overflow-hidden">
-        {/* 背景装飾 - iPhone 16のDynamic Islandを意識 */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-8 bg-black/20 rounded-b-2xl sm:hidden"></div>
-        
-        {/* モバイル用の装飾要素 */}
-        <div className="absolute top-20 left-4 w-40 h-40 bg-blue-500/10 rounded-full blur-2xl"></div>
-        <div className="absolute top-40 right-4 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl"></div>
-        <div className="absolute bottom-32 left-8 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl"></div>
-        <div className="absolute bottom-20 right-8 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl"></div>
-        
-        {/* PC用の装飾要素 */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl hidden lg:block"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl hidden lg:block"></div>
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="mb-8">
-            {/* バッジ - iPhone 16風 */}
-            <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full mb-6 border border-white/20">
-              <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-              <span className="text-sm font-medium text-white/90">NEXANA DATABASE</span>
-            </div>
-            
-            {/* メインタイトル - iPhone 16対応 */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white mb-6 sm:mb-8 max-w-4xl mx-auto font-news-heading leading-tight">
-              <span className="block sm:hidden">
-                スタートアップの
-                <br />
-                未来を情報で
-                <br />
-                切り拓く
-              </span>
-              <span className="hidden sm:block">
-                スタートアップの未来を
-                <br className="hidden md:block" />
-                情報で切り拓く
-              </span>
-            </h1>
-            
-            {/* サブタイトル */}
-            <p className="text-lg sm:text-xl md:text-2xl text-blue-100 mb-4 sm:mb-6 font-medium">
-              <span className="block sm:hidden">イノベーション情報プラットフォーム</span>
-              <span className="hidden sm:block">イノベーション情報プラットフォーム</span>
-            </p>
-            
-            {/* 説明文 - iPhone用 */}
-            <p className="text-base sm:text-lg text-gray-300 mb-8 sm:mb-12 max-w-2xl mx-auto font-news leading-relaxed px-4 sm:px-0">
-              <span className="block sm:hidden">
-                コンテスト、公募、ニュースを<br />
-                一箇所で検索・発見できる
-              </span>
-              <span className="hidden sm:block">
-                コンテスト、公募、ニュースを一箇所で検索・発見できる
-                <br />
-                スタートアップ支援の総合情報データベース
-              </span>
-            </p>
-          </div>
-          
-          {/* CTAボタン群 - iPhone 16対応 */}
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 px-4 sm:px-0">
-            <EnhancedButton
-              href="/contests"
-              variant="primary"
-              size="md"
-              className="w-full sm:w-auto whitespace-nowrap"
-              loadingText="コンテストを読み込み中..."
-            >
-              コンテストを見る
-            </EnhancedButton>
-            
-            <EnhancedButton
-              href="/news"
-              variant="secondary"
-              size="md"
-              className="w-full sm:w-auto whitespace-nowrap"
-              loadingText="ニュースを読み込み中..."
-            >
-              最新ニュース
-            </EnhancedButton>
-          </div>
-          
-          {/* 統計情報 - iPhone用 */}
-          <div className="mt-12 sm:mt-16 grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto">
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stats.contests}+</div>
-              <div className="text-sm text-gray-300">コンテスト</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stats.locations}+</div>
-              <div className="text-sm text-gray-300">ロケーション</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stats.news}+</div>
-              <div className="text-sm text-gray-300">ニュース</div>
-            </div>
-          </div>
-        </div>
-        
-        {/* スクロールインジケーター - iPhone風 */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 hidden sm:block">
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-bounce"></div>
-          </div>
-        </div>
-      </div>
 
+      {/* ヒーロー — 白背景・巨大タイポグラフィ */}
+      <section className="relative overflow-hidden border-b border-neutral-200">
+        <div className="mx-auto max-w-[1400px] px-5 pb-16 pt-16 sm:px-8 sm:pb-24 sm:pt-24">
+          <p className="eyebrow">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-neutral-900" />
+            KYOSO BASE
+          </p>
 
-      {/* サービス紹介 - モダンでシンプルなデザイン */}
-      <div className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-white via-gray-50 to-gray-100 relative overflow-hidden">
-        {/* 背景装飾 - 控えめに */}
-        <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute top-10 left-10 w-48 h-48 bg-gray-500/3 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 right-10 w-64 h-64 bg-slate-500/3 rounded-full blur-3xl"></div>
-        </div>
-        
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-12 sm:mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800 rounded-full mb-6 shadow-lg border border-gray-600">
-              <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
-              <span className="text-sm font-bold text-white uppercase tracking-wider">SERVICES</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-news-heading text-gray-900 mb-4">
-              サービス
-              <span className="block text-lg sm:text-xl font-news-subheading text-gray-600 mt-2">Services</span>
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto font-news leading-relaxed px-4 sm:px-0">
-              スタートアップの成長を支援する多様な情報を提供します
+          <h1 className="display mt-6 text-[3rem] leading-[0.98] text-neutral-900 sm:text-[5.5rem] lg:text-[7.5rem]">
+            挑戦者を、
+            <br />
+            情報で<span className="text-neutral-300">支える。</span>
+          </h1>
+
+          <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_auto] lg:items-end">
+            <p className="max-w-xl text-base leading-relaxed text-neutral-500 sm:text-lg">
+              コンテスト・公募・プログラム、ワークスペース、ニュースを一箇所で。
+              挑戦する人のためのKYOSOデータベース。
             </p>
-          </div>
 
-          {/* コンパクトなカードレイアウト */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {features.map((feature) => (
-              <EnhancedCardButton
-                key={feature.name}
-                href={feature.href}
-                className="group relative bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-200 hover:border-gray-300 hover:shadow-xl transition-all duration-300 overflow-hidden hover:scale-[1.02]"
-                loadingText={`${feature.name}を読み込み中...`}
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <EnhancedButton
+                href="/opportunities"
+                variant="primary"
+                size="md"
+                className="w-full sm:w-auto"
+                loadingText="読み込み中..."
               >
-                {/* カードの背景グラデーション */}
-                <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-30 transition-opacity duration-300`}></div>
-                
-                {/* 装飾的な要素 - 控えめに */}
-                <div className={`absolute top-0 right-0 w-20 h-20 ${feature.bgColor} rounded-full -translate-y-10 translate-x-10 group-hover:scale-110 transition-transform duration-300 opacity-10`}></div>
-                
-                <div className="relative p-6 sm:p-8">
-                  {/* アイコン - コンパクトサイズ */}
-                  <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform duration-300 shadow-lg relative`}>
-                    <feature.icon className="h-8 w-8 text-white" />
-                    {/* アイコンの光る効果 */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  
-                  {/* コンテンツ */}
-                  <div className="mb-6">
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 group-hover:text-gray-700 transition-colors duration-300 whitespace-nowrap">
-                      {feature.name}
-                    </h3>
-                    <p className="text-sm font-semibold text-gray-500 mb-4 whitespace-nowrap">
-                      {feature.nameEn}
-                    </p>
-                  </div>
-                  
-                  <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-6 overflow-hidden font-news" style={{display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical'}}>
-                    {feature.description}
-                  </p>
-                  
-                  {/* アローアイコン - シンプルスタイル */}
-                  <div className="flex items-center text-gray-500 group-hover:text-gray-700 font-semibold text-sm transition-all duration-300 whitespace-nowrap">
-                    <span>詳細を見る</span>
-                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0" />
-                  </div>
+                挑戦機会を探す
+              </EnhancedButton>
+              <EnhancedButton
+                href="/news"
+                variant="secondary"
+                size="md"
+                className="w-full sm:w-auto"
+                loadingText="読み込み中..."
+              >
+                最新ニュース
+              </EnhancedButton>
+            </div>
+          </div>
+
+          {/* 統計 */}
+          <div className="mt-16 grid grid-cols-3 gap-4 border-t border-neutral-200 pt-8 sm:mt-20">
+            {[
+              { value: stats.programs, label: "コンテスト・公募・プログラム", labelEn: "Programs" },
+              { value: stats.workspaces, label: "ワークスペース", labelEn: "Workspaces" },
+              { value: stats.news, label: "ニュース", labelEn: "News" },
+            ].map((s) => (
+              <div key={s.labelEn}>
+                <div className="tnum text-3xl font-bold tracking-tight text-neutral-900 sm:text-5xl">
+                  {s.value}
+                  <span className="text-neutral-300">+</span>
                 </div>
-                
-                {/* ホバー時の光る効果 - 控えめに */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-gray-100/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-              </EnhancedCardButton>
+                <div className="mt-1 text-xs text-neutral-500 sm:text-sm">{s.label}</div>
+                <div className="font-display text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+                  {s.labelEn}
+                </div>
+              </div>
             ))}
           </div>
         </div>
-        
-        {/* セクション区切り - シンプルに */}
-        <div className="mt-16 sm:mt-20 flex justify-center">
-          <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-gray-300 to-transparent rounded-full"></div>
-        </div>
-      </div>
+      </section>
 
-      {/* About セクション - iPhone 16専用モバイルファーストデザイン */}
-      <div className="py-20 sm:py-24 lg:py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 sm:mb-20">
-            <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full mb-6 border border-white/20">
-              <span className="text-sm font-semibold text-white uppercase tracking-wider">ABOUT</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-news-heading text-white mb-4">
-              About NEXANA DATABASE
+      {/* データベース — 3つの領域を説明 */}
+      <section className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 sm:py-28">
+        <div className="flex items-end justify-between gap-6">
+          <div>
+            <p className="eyebrow">
+              <LayoutGrid className="h-3.5 w-3.5" />
+              Databases
+            </p>
+            <h2 className="display-2 mt-4 text-3xl text-neutral-900 sm:text-5xl">
+              3つのデータベース
             </h2>
-            <p className="text-lg sm:text-xl text-blue-100 max-w-3xl mx-auto font-news leading-relaxed px-4 sm:px-0">
-              挑戦者を支える情報プラットフォーム
-              <span className="block text-base sm:text-lg text-blue-200 mt-2 font-news">Supporting Challengers with Information</span>
-            </p>
-            <p className="text-base sm:text-lg text-gray-300 mt-6 max-w-2xl mx-auto font-news px-4 sm:px-0">
-              私たちは、日本で新しいことに挑戦する人たちをサポートし、<br className="hidden sm:block" />
-              成功への第一歩を踏み出すための情報を提供します。
-            </p>
           </div>
-
-          {/* 特徴 - iPhone 16専用のグリッドレイアウト */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
-            <div className="text-center group">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-indigo-600/20 backdrop-blur-sm rounded-3xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 border border-white/10">
-                <Globe className="h-8 w-8 text-blue-300" />
-              </div>
-              <h3 className="text-lg font-news-subheading mb-3 text-white">包括的な情報</h3>
-              <p className="text-gray-300 text-sm leading-relaxed font-news px-2 sm:px-0">コンテストからニュースまで、スタートアップに必要な情報を網羅</p>
-            </div>
-            
-            <div className="text-center group">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-600/20 backdrop-blur-sm rounded-3xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 border border-white/10">
-                <Star className="h-8 w-8 text-purple-300" />
-              </div>
-              <h3 className="text-lg font-news-subheading mb-3 text-white">厳選された情報</h3>
-              <p className="text-gray-300 text-sm leading-relaxed font-news px-2 sm:px-0">質の高い情報のみを厳選して提供</p>
-            </div>
-            
-            <div className="text-center group">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-500/20 to-emerald-600/20 backdrop-blur-sm rounded-3xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 border border-white/10">
-                <Zap className="h-8 w-8 text-green-300" />
-              </div>
-              <h3 className="text-lg font-news-subheading mb-3 text-white">オープンアクセス</h3>
-              <p className="text-gray-300 text-sm leading-relaxed font-news px-2 sm:px-0">すべての情報に誰でもアクセス可能で、挑戦の障壁を下げる</p>
-            </div>
-            
-            <div className="text-center group">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-500/20 to-red-600/20 backdrop-blur-sm rounded-3xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 border border-white/10">
-                <Target className="h-8 w-8 text-orange-300" />
-              </div>
-              <h3 className="text-lg font-news-subheading mb-3 text-white">発射台</h3>
-              <p className="text-gray-300 text-sm leading-relaxed font-news px-2 sm:px-0">挑戦者を次のステップへと押し上げるプラットフォーム</p>
-            </div>
-          </div>
+          <p className="hidden max-w-xs text-sm leading-relaxed text-neutral-500 sm:block">
+            挑戦のあらゆる局面に必要な情報を、横断的に。
+          </p>
         </div>
-      </div>
+
+        <div className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-200 lg:grid-cols-3">
+          {databases.map((db, i) => (
+            <div key={db.name} className="flex h-full flex-col bg-white">
+              {/* ヘッダー：番号 + アイコン */}
+              <div className="flex items-center justify-between px-6 pt-6 sm:px-8 sm:pt-8">
+                <span className="font-display text-sm font-semibold tracking-[0.15em] text-neutral-300">
+                  0{i + 1}
+                </span>
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200">
+                  <db.icon className="h-5 w-5 text-neutral-900" strokeWidth={1.75} />
+                </span>
+              </div>
+
+              {/* スマホで見たページのプレビュー */}
+              <div className="flex justify-center bg-gradient-to-b from-white to-neutral-50 px-6 py-7">
+                <PagePreview variant={db.preview} />
+              </div>
+
+              {/* テキスト */}
+              <div className="flex flex-1 flex-col px-6 pb-7 sm:px-8">
+                <h3 className="text-xl font-bold leading-snug tracking-tight text-neutral-900 sm:text-2xl">
+                  {db.name}
+                </h3>
+                <p className="font-display mt-1.5 text-xs uppercase tracking-[0.2em] text-neutral-400">
+                  {db.nameEn}
+                </p>
+                <p className="mt-4 text-sm leading-relaxed text-neutral-500">
+                  {db.description}
+                </p>
+
+                <div className="mt-6 flex flex-wrap gap-1.5 border-t border-neutral-100 pt-5">
+                  {db.tags.map((t) => (
+                    <span
+                      key={t}
+                      className="rounded-full border border-neutral-200 px-2.5 py-1 text-[11px] font-medium text-neutral-600"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <Footer />
     </div>

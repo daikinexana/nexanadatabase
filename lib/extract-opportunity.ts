@@ -5,7 +5,7 @@
 
 // 抽出結果の型（コンテスト/公募の共通スキーマ）
 export interface ExtractedOpportunity {
-  kind: "contest" | "open-call";
+  kind: "contest" | "open-call" | "program";
   title: string;
   organizer: string;
   organizerType: string; // 企業 / 行政 / 大学 / CV / その他
@@ -217,13 +217,13 @@ function buildPrompt(
 ): { system: string; user: string } {
   const system = [
     "あなたはスタートアップ向けデータベースの編集者です。",
-    "与えられたWebページの内容から、コンテストまたは公募（オープンイノベーション募集）の情報を抽出し、指定されたJSON形式のみで出力します。",
+    "与えられたWebページの内容から、コンテスト・公募・プログラム（オープンイノベーション募集や育成プログラム）の情報を抽出し、指定されたJSON形式のみで出力します。",
     "入力には「メインページ」に加えて、同一サイト内の関連ページ（募集要項・応募概要・スケジュール・テーマ・賞金/特典など）の本文が複数含まれることがあります。",
     "各フィールドは、メインページと関連ページのすべてを突き合わせて、可能な限り具体的に埋めてください。関連ページに詳細（締切日・対象領域・応募対象・賞金など）が書かれていることが多いので、必ず全セクションを確認すること。",
     "ページに明記されている情報を最優先し、事実の創作はしないでください。ただし日付・エリアはページ内の表記から可能な限り読み取り、下記フォーマットに正規化してください。矛盾する情報がある場合は、募集要項/応募概要など詳細ページの記載を優先します。",
     "",
     "出力するJSONのキーと制約:",
-    '- kind: "contest"（コンテスト・ピッチ・ハッカソン・アクセラ・アワード等の応募型）か "open-call"（企業/行政/大学がパートナー・協業・実証・課題解決先を募集する公募型）のどちらか。',
+    '- kind: 次の3つから最も適切なものを1つ。 "contest"（コンテスト・ピッチ・ハッカソン・アワード等、審査で優劣を competition 形式で競い賞を与える応募型）／ "open-call"（企業/行政/大学がパートナー・協業・実証・課題解決先を募集する公募型）／ "program"（アクセラレーション・インキュベーション・育成/支援プログラム等、採択後に一定期間の継続的な支援〈メンタリング・資金・オフィス・事業連携など〉を提供するプログラム型）。判断基準: 賞金/順位を競うなら contest、協業/課題解決の相手を探すなら open-call、採択者に継続的な育成・支援を行うなら program。アクセラ/インキュベーションは原則 program とする。',
     "- title: イベント/募集の正式名称（必須）。",
     "- organizer: 主催者・運営組織名（必須）。「主催」の記載を最優先し、無ければ「運営」「事務局」。共催が複数ある場合は主となる組織1つ。",
     `- organizerType: 主催者の種別を次のいずれか1つ [${ORGANIZER_TYPE_OPTIONS.join(", ")}]。株式会社・有限会社・合同会社などの会社、インフラ運営会社・鉄道/道路会社・銀行なども "企業"。国・省庁・自治体・公社・独立行政法人など公的機関は "行政"、大学・高専・研究機関は "大学"、VC/CVCは "CV"。上記に当てはまらない場合のみ "その他"。`,
@@ -284,7 +284,9 @@ function str(v: unknown): string {
 
 // 抽出結果を正規化（enum補正・日付整形）
 function normalize(raw: Record<string, unknown>, page: FetchedPage): ExtractedOpportunity {
-  const kind = str(raw.kind) === "open-call" ? "open-call" : str(raw.kind) === "contest" ? "contest" : "contest";
+  const rawKind = str(raw.kind);
+  const kind: ExtractedOpportunity["kind"] =
+    rawKind === "open-call" ? "open-call" : rawKind === "program" ? "program" : "contest";
 
   let organizerType = str(raw.organizerType);
   if (!ORGANIZER_TYPE_OPTIONS.includes(organizerType)) {
@@ -321,7 +323,7 @@ function normalize(raw: Record<string, unknown>, page: FetchedPage): ExtractedOp
   }
 
   return {
-    kind: kind as "contest" | "open-call",
+    kind,
     title: str(raw.title) || page.title,
     organizer: str(raw.organizer),
     organizerType,

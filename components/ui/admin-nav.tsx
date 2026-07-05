@@ -2,13 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  Trophy, 
-  Handshake, 
-  Newspaper, 
+import {
+  Trophy,
+  Newspaper,
   MapPin,
-  Briefcase,
-  Rocket
+  Briefcase
 } from "lucide-react";
 
 const adminPages = [
@@ -17,12 +15,6 @@ const adminPages = [
     href: "/admin/contests",
     icon: Trophy,
     description: "コンテスト情報の管理"
-  },
-  {
-    name: "公募",
-    href: "/admin/open-calls",
-    icon: Handshake,
-    description: "公募情報の管理"
   },
   {
     name: "ニュース",
@@ -41,12 +33,6 @@ const adminPages = [
     href: "/admin/workspace",
     icon: Briefcase,
     description: "ワークスペース情報の管理"
-  },
-  {
-    name: "スタートアップボード",
-    href: "/admin/startup-boards",
-    icon: Rocket,
-    description: "スタートアップボード情報の管理"
   }
 ];
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import AdminGuard from "@/components/admin/admin-guard";
 import AutoTextarea from "@/components/ui/auto-textarea";
+import ImageUpload from "@/components/ui/image-upload";
 import {
   ORGANIZER_TYPE_OPTIONS,
   JAPAN_AREAS,
@@ -15,10 +16,11 @@ import {
   Loader2,
   CheckCircle2,
   AlertCircle,
+  Search,
 } from "lucide-react";
 
 interface Form {
-  kind: "contest" | "open-call";
+  kind: "contest" | "open-call" | "program";
   title: string;
   organizer: string;
   organizerType: string;
@@ -139,6 +141,10 @@ export default function EditOpportunityPage() {
     }
   };
 
+  const googleImageHref = form?.title.trim()
+    ? `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(form.title.trim())}`
+    : undefined;
+
   return (
     <AdminGuard>
       <div className="min-h-dvh bg-gray-50">
@@ -153,9 +159,32 @@ export default function EditOpportunityPage() {
               <span className="hidden sm:inline">一覧に戻る</span>
             </Link>
             <span className="h-5 w-px bg-gray-200" aria-hidden />
-            <h1 className="truncate text-[15px] font-semibold text-gray-900">
+            <h1 className="flex-1 truncate text-[15px] font-semibold text-gray-900">
               オポチュニティを編集
             </h1>
+            {/* タイトルをGoogle画像検索 */}
+            <a
+              href={googleImageHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => {
+                if (!form?.title.trim()) e.preventDefault();
+              }}
+              aria-disabled={!form?.title.trim()}
+              title={
+                form?.title.trim()
+                  ? "タイトルをGoogle画像検索"
+                  : "先にタイトルを入力してください"
+              }
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${
+                form?.title.trim()
+                  ? "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                  : "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
+              }`}
+            >
+              <Search className="h-4 w-4" />
+              <span className="hidden sm:inline">画像を検索</span>
+            </a>
           </div>
         </header>
 
@@ -179,6 +208,7 @@ export default function EditOpportunityPage() {
                   >
                     <option value="contest">コンテスト</option>
                     <option value="open-call">公募</option>
+                    <option value="program">プログラム</option>
                   </select>
                 </Field>
                 <Field label="主催者タイプ">
@@ -245,8 +275,23 @@ export default function EditOpportunityPage() {
                 </Field>
               </div>
 
-              <Field label="画像URL">
-                <input value={form.imageUrl} onChange={(e) => update("imageUrl", e.target.value)} className={inputCls} />
+              <Field label="画像">
+                <ImageUpload
+                  value={form.imageUrl || undefined}
+                  onChange={(imageUrl) => update("imageUrl", imageUrl)}
+                  type="opportunity"
+                />
+                <div className="mt-2">
+                  <label className="mb-1 block text-[11px] font-medium text-gray-500">
+                    画像URLを直接指定（アップロードの代わりに貼り付けも可能）
+                  </label>
+                  <input
+                    value={form.imageUrl}
+                    onChange={(e) => update("imageUrl", e.target.value)}
+                    placeholder="https://..."
+                    className={inputCls}
+                  />
+                </div>
               </Field>
 
               <Field label="リンクURL" required>

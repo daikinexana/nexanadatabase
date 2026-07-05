@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     });
     
     // Content-Lengthをチェック（ローカル: 10MB、本番: 1MB）
-    const maxSize = process.env.NODE_ENV === 'production' ? 1 * 1024 * 1024 : 10 * 1024 * 1024;
+    const maxSize = process.env.NODE_ENV === 'production' ? 4 * 1024 * 1024 : 10 * 1024 * 1024;
     const contentLength = request.headers.get('content-length');
     if (contentLength && parseInt(contentLength) > maxSize) {
       return NextResponse.json({ 

@@ -1,8 +1,8 @@
 import { prisma } from './prisma';
 
 export interface DatabaseStats {
-  contests: number;
-  locations: number;
+  programs: number;
+  workspaces: number;
   news: number;
 }
 
@@ -14,18 +14,20 @@ export async function getDatabaseStats(): Promise<DatabaseStats> {
     });
 
     const queryPromise = Promise.all([
-      prisma.contest.count({
+      // コンテスト・公募・プログラム数（/opportunities が参照する Opportunity テーブル）
+      prisma.opportunity.count({
         where: { isActive: true }
       }),
-      prisma.location.count({
+      // 実際に登録されているワークスペース数（/workspace が参照する Workspace テーブル）
+      prisma.workspace.count({
         where: { isActive: true }
       }),
       prisma.news.count({
         where: { isActive: true }
       })
-    ]).then(([contestsCount, locationsCount, newsCount]) => ({
-      contests: contestsCount,
-      locations: locationsCount,
+    ]).then(([programsCount, workspacesCount, newsCount]) => ({
+      programs: programsCount,
+      workspaces: workspacesCount,
       news: newsCount
     }));
 
@@ -35,8 +37,8 @@ export async function getDatabaseStats(): Promise<DatabaseStats> {
     console.error('Error fetching database stats:', error);
     // エラー時はデフォルト値を返す（ページが表示され続けるように）
     return {
-      contests: 500,
-      locations: 50,
+      programs: 10,
+      workspaces: 50,
       news: 1000
     };
   }

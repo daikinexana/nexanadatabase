@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Inter, Noto_Sans_JP, JetBrains_Mono } from "next/font/google";
+import { Outfit, Noto_Sans_JP, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
@@ -23,7 +24,7 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
+  title: "KYOSO BASE | オープンイノベーション・スタートアップ情報プラットフォーム",
   description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。ネクサナ（nexana）が運営するスタートアップ・大企業・大学向けイノベーションデータベース。",
   keywords: "スタートアップ, スタートアップ情報, スタートアップデータベース, スタートアップコンテスト, スタートアップ支援, スタートアップ採用, スタートアップ就職, スタートアップ調達, スタートアップ調達ニュース, スタートアップM&A, 起業, 起業家, 起業したい, 起業支援, 新規事業, 新規事業担当, CEO, オープンイノベーション, オープンイノベーション情報, オープンイノベーションプラットフォーム, イノベーション, イノベーション情報, イノベーションデータベース, コンテスト, コンテスト情報, ビジネスコンテスト, ピッチコンテスト, ピッチ, ハッカソン, アクセラ, アクセラレーション, アクセラレータ, アクセラレータープログラム, プログラム, 公募, 公募情報, 募集, 募集情報, 開催, 開催情報, 調達, 調達情報, 調達ニュース, 資金調達, ファンディング, 投資, 投資情報, M&A, M&A情報, M&Aニュース, 買収, 合併, IPO, 上場, インキュベーション, インキュベーター, インキュベータープログラム, 共創, 共創プロジェクト, 協業, パートナーシップ, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, ロケーション, ワークスペース, コワーキングスペース, シェアオフィス, シェアオフィス運営, ビジネスコンテスト主催, ビジネスコンテスト主催者, VC, ベンチャーキャピタル, CVC, コーポレートベンチャーキャピタル, 広域行政, 市区町村, 行政担当者, 大学, 大学担当者, ディープテック, ディープテックスタートアップ, 技術データベース, プロダクトデータベース, 企業データベース, 行政データベース, 大学データベース, 融資, 融資情報, マッチングサービス, プロジェクトマネジメント, コミュニティマネジメント, 大企業, 行政, シェアハウスオーナー, startup, startup database, startup information, startup contest, pitch contest, business competition, accelerator, acceleration program, open innovation, innovation platform, funding, venture capital, CVC, corporate venture capital, M&A, IPO, workspace, coworking space, deep tech, deep tech startup, entrepreneurship, entrepreneur, business competition organizer, startup support, innovation database",
   authors: [{ name: "Nexana HQ" }],
@@ -69,8 +70,8 @@ export const metadata: Metadata = {
     locale: "ja_JP",
     alternateLocale: ["en_US"],
     url: "https://db.nexanahq.com",
-    siteName: "Nexana Database",
-    title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
+    siteName: "KYOSO BASE",
+    title: "KYOSO BASE | オープンイノベーション・スタートアップ情報プラットフォーム",
     description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。",
     images: [
       {
@@ -83,7 +84,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nexana Database | オープンイノベーション・スタートアップ情報プラットフォーム",
+    title: "KYOSO BASE | オープンイノベーション・スタートアップ情報プラットフォーム",
     description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。",
     images: ["https://db.nexanahq.com/180logo.png"],
   },
@@ -94,8 +95,11 @@ const structuredData = [
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Nexana Database",
+    "name": "KYOSO BASE",
     "alternateName": [
+      "KYOSO BASE - オープンイノベーション・スタートアップ情報プラットフォーム",
+      "KYOSO BASE",
+      "共創ベース",
       "Nexana Database - オープンイノベーション・スタートアップ情報プラットフォーム",
       "ネクサナデータベース",
       "nexana database",
@@ -158,7 +162,7 @@ const structuredData = [
           "@type": "ListItem",
           "position": 2,
           "name": "公募",
-          "url": "https://db.nexanahq.com/open-calls"
+          "url": "https://db.nexanahq.com/opportunities"
         },
         {
           "@type": "ListItem",
@@ -209,7 +213,7 @@ const structuredData = [
         "name": "オープンイノベーションの公募情報はどこで見られますか？",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "企業や行政が募集する課題解決パートナー、協業相手の公募情報は、公募一覧ページ（https://db.nexanahq.com/open-calls）で確認できます。"
+          "text": "企業や行政が募集する課題解決パートナー、協業相手の公募情報は、コンテスト・公募・プログラム一覧ページ（https://db.nexanahq.com/opportunities）で確認できます。"
         }
       },
       {
@@ -308,7 +312,7 @@ export default async function RootLayout({
         )}
       </head>
       <body
-        className={`${inter.variable} ${notoSansJP.variable} ${jetBrainsMono.variable} antialiased`}
+        className={`${outfit.variable} ${notoSansJP.variable} ${jetBrainsMono.variable} antialiased`}
         suppressHydrationWarning={true}
       >
         {/* Google Analytics */}

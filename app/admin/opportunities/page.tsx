@@ -14,12 +14,26 @@ import {
   ArrowLeft,
   Trophy,
   Handshake,
+  Rocket,
   Loader2,
+  type LucideIcon,
 } from "lucide-react";
+
+type OpportunityKind = "contest" | "open-call" | "program";
+
+const KIND_META: Record<OpportunityKind, { label: string; Icon: LucideIcon; badge: string }> = {
+  contest: { label: "コンテスト", Icon: Trophy, badge: "bg-amber-100 text-amber-700" },
+  "open-call": { label: "公募", Icon: Handshake, badge: "bg-purple-100 text-purple-700" },
+  program: { label: "プログラム", Icon: Rocket, badge: "bg-blue-100 text-blue-700" },
+};
+
+function kindMeta(kind: string) {
+  return KIND_META[(kind as OpportunityKind)] ?? KIND_META.contest;
+}
 
 interface Opportunity {
   id: string;
-  kind: "contest" | "open-call";
+  kind: "contest" | "open-call" | "program";
   title: string;
   organizer: string;
   organizerType?: string | null;
@@ -134,7 +148,7 @@ export default function AdminOpportunitiesPage() {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">オポチュニティ管理</h1>
               <p className="text-gray-500 text-sm mt-1">
-                コンテスト・公募の一覧 / 編集 / 削除 / 公開切替
+                コンテスト・公募・プログラムの一覧 / 編集 / 削除 / 公開切替
               </p>
             </div>
             <Link
@@ -178,7 +192,8 @@ export default function AdminOpportunitiesPage() {
               <p className="text-xs text-gray-500 mb-2">{filtered.length}件</p>
               <div className="space-y-2">
                 {filtered.map((item) => {
-                  const KindIcon = item.kind === "contest" ? Trophy : Handshake;
+                  const meta = kindMeta(item.kind);
+                  const KindIcon = meta.Icon;
                   const busy = busyId === item.id;
                   return (
                     <div
@@ -207,14 +222,10 @@ export default function AdminOpportunitiesPage() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-0.5">
                           <span
-                            className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                              item.kind === "contest"
-                                ? "bg-amber-100 text-amber-700"
-                                : "bg-purple-100 text-purple-700"
-                            }`}
+                            className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${meta.badge}`}
                           >
                             <KindIcon className="w-2.5 h-2.5" />
-                            {item.kind === "contest" ? "コンテスト" : "公募"}
+                            {meta.label}
                           </span>
                           {!item.isActive && (
                             <span className="text-[10px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">

@@ -7,7 +7,7 @@ import { Metadata } from "next";
 import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "ニュース一覧 | Nexana Database | スタートアップ調達・M&A情報",
+  title: "ニュース一覧 | KYOSO BASE | スタートアップ調達・M&A情報",
   description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信。VC、CVCの投資情報、資金調達ニュース、買収・合併情報も掲載。イノベーション・オープンイノベーションに関する最新ニュースをデータベース化。ネクサナ（nexana）が運営するプラットフォーム。",
   keywords: "スタートアップ, スタートアップ情報, スタートアップ調達, スタートアップ調達ニュース, スタートアップM&A, 調達, 調達情報, 調達ニュース, 資金調達, ファンディング, 投資, 投資情報, M&A, M&A情報, M&Aニュース, 買収, 合併, IPO, IPO情報, 上場, 上場情報, VC, ベンチャーキャピタル, CVC, コーポレートベンチャーキャピタル, ニュース, イノベーション, イノベーション情報, オープンイノベーション, オープンイノベーション情報, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, startup funding, startup M&A, startup IPO, venture capital, CVC, corporate venture capital, funding news, M&A news, IPO news, investment, innovation news",
   robots: {
@@ -29,13 +29,13 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "ニュース一覧 | Nexana Database | スタートアップ調達・M&A情報",
+    title: "ニュース一覧 | KYOSO BASE | スタートアップ調達・M&A情報",
     description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信。VC、CVCの投資情報、資金調達ニュースも掲載。",
     type: "website",
     url: "https://db.nexanahq.com/news",
     locale: "ja_JP",
     alternateLocale: ["en_US"],
-    siteName: "Nexana Database",
+    siteName: "KYOSO BASE",
     images: [
       {
         url: "https://db.nexanahq.com/news.image.png",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ニュース一覧 | Nexana Database",
+    title: "ニュース一覧 | KYOSO BASE",
     description: "スタートアップの調達情報、M&A情報、IPO情報をリアルタイムで配信",
     images: ["https://db.nexanahq.com/news.image.png"],
   },
@@ -238,7 +238,7 @@ export default async function NewsPage({
           },
           "publisher": {
             "@type": "Organization",
-            "name": "Nexana Database",
+            "name": "KYOSO BASE",
             "logo": {
               "@type": "ImageObject",
               "url": "https://db.nexanahq.com/nexanadata.png"
@@ -255,7 +255,7 @@ export default async function NewsPage({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Script
         id="breadcrumb-structured-data"
         type="application/ld+json"
@@ -272,40 +272,36 @@ export default async function NewsPage({
       />
       <ClientHeader />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-10">
-        {/* シンプルなページヘッダー */}
-        <div className="mb-6 sm:mb-8 md:mb-10">
-          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-            <div className="w-0.5 sm:w-1 h-6 sm:h-8 bg-gradient-to-b from-blue-400 via-indigo-400 to-purple-400 rounded-full"></div>
-            <div className="flex items-center gap-2">
-              <Newspaper className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-              <span className="text-xs sm:text-sm uppercase tracking-wider text-blue-600 font-bold">News</span>
-            </div>
-          </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
-            ニュース一覧
+      <div className="mx-auto max-w-[1400px] px-5 py-10 sm:px-8 sm:py-14">
+        {/* ページヘッダー */}
+        <div className="mb-8 border-b border-neutral-200 pb-8 sm:mb-10">
+          <p className="eyebrow">
+            <Newspaper className="h-3.5 w-3.5" />
+            News
+          </p>
+          <h1 className="display-2 mt-4 text-4xl text-neutral-900 sm:text-6xl">
+            ニュース
           </h1>
-          <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-            スタートアップの調達、M&A、IPO情報をリアルタイムで配信
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-neutral-500 sm:text-base">
+            スタートアップの調達、M&A、IPO情報をリアルタイムで配信。
           </p>
         </div>
 
-        {/* 結果表示 - iPhone 16最適化 */}
-        <div className="mb-5 sm:mb-6 md:mb-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5 shadow-lg border border-white/20 gap-2 sm:gap-0">
-            <p className="text-xs sm:text-sm md:text-base text-gray-600 font-news leading-relaxed">
-              <span className="font-news-subheading text-gray-900 text-base sm:text-lg md:text-xl">{pagination.totalCount.toLocaleString()}</span>件のニュースが見つかりました
-            </p>
-            <div className="text-xs sm:text-sm text-gray-500 bg-gray-50/50 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full">
-              最新のニュースを表示
-            </div>
-          </div>
+        {/* 件数表示 */}
+        <div className="mb-6 flex items-center justify-between border-b border-neutral-200 pb-4">
+          <p className="text-xs sm:text-sm text-neutral-500">
+            <span className="tnum font-bold text-neutral-900 text-base sm:text-lg">{pagination.totalCount.toLocaleString()}</span>
+            <span className="ml-1">件のニュース</span>
+          </p>
+          <span className="font-display text-[11px] uppercase tracking-[0.2em] text-neutral-400">
+            Latest
+          </span>
         </div>
 
-        {/* ニュース一覧 - iPhone 16最適化 */}
+        {/* ニュース一覧 */}
         {filteredNews.length > 0 ? (
           <>
-            <div className="space-y-4 sm:space-y-6 md:space-y-8">
+            <div className="divide-y divide-neutral-200 border-b border-neutral-200">
               {filteredNews.map((item, index) => (
                  <NewsItem
                    key={item.id}
@@ -337,18 +333,16 @@ export default async function NewsPage({
             </div>
           </>
         ) : (
-          <div className="text-center py-8 sm:py-12">
-            <div className="bg-white rounded-xl p-6 sm:p-8 shadow-sm border border-gray-200 max-w-md mx-auto">
-              <div className="text-gray-400 mb-4">
-                <Newspaper className="h-10 w-10 sm:h-12 sm:w-12 mx-auto" />
-              </div>
-              <h3 className="text-base sm:text-lg font-news-heading text-gray-900 mb-2">
-                該当するニュースが見つかりませんでした
-              </h3>
-              <p className="text-sm sm:text-base text-gray-600 font-news">
-                検索条件を変更して再度お試しください
-              </p>
+          <div className="text-center py-16 sm:py-24">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full border border-neutral-200 mb-4">
+              <Newspaper className="h-6 w-6 text-neutral-400" />
             </div>
+            <h3 className="text-lg font-bold tracking-tight text-neutral-900 mb-1">
+              該当するニュースが見つかりませんでした
+            </h3>
+            <p className="text-sm text-neutral-500">
+              検索条件を変更して再度お試しください
+            </p>
           </div>
         )}
       </div>

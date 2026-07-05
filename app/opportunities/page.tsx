@@ -9,7 +9,7 @@ import Script from "next/script";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-  title: "コンテスト・公募一覧 | Nexana Database | スタートアップの挑戦機会をまとめて検索",
+  title: "コンテスト・公募一覧 | KYOSO BASE | スタートアップの挑戦機会をまとめて検索",
   description:
     "スタートアップコンテスト、ピッチコンテスト、ハッカソン、アクセラレーション、企業・行政・大学のオープンイノベーション公募をまとめて掲載。種別・カテゴリ・エリアで横断的に絞り込み検索できるデータベース。ネクサナ（nexana）が運営。",
   keywords:
@@ -29,17 +29,17 @@ export const metadata: Metadata = {
     canonical: "https://db.nexanahq.com/opportunities",
   },
   openGraph: {
-    title: "コンテスト・公募一覧 | Nexana Database",
+    title: "コンテスト・公募一覧 | KYOSO BASE",
     description:
       "コンテストと公募を横断検索。種別・カテゴリ・エリアで絞り込めるスタートアップ向けデータベース。",
     type: "website",
     url: "https://db.nexanahq.com/opportunities",
     locale: "ja_JP",
-    siteName: "Nexana Database",
+    siteName: "KYOSO BASE",
   },
   twitter: {
     card: "summary_large_image",
-    title: "コンテスト・公募一覧 | Nexana Database",
+    title: "コンテスト・公募一覧 | KYOSO BASE",
     description: "コンテストと公募を種別・カテゴリ・エリアで横断検索",
   },
 };
@@ -72,7 +72,7 @@ async function getOpportunities(): Promise<OpportunityItem[]> {
 
     return opportunities.map((o): OpportunityItem => ({
       id: o.id,
-      kind: o.kind as "contest" | "open-call",
+      kind: o.kind as OpportunityItem["kind"],
       title: o.title,
       description: o.description ?? undefined,
       imageUrl: o.imageUrl ?? undefined,
@@ -223,23 +223,20 @@ export default async function OpportunitiesPage() {
       />
       <ClientHeader />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-10">
+      <div className="mx-auto max-w-[1400px] px-5 py-10 sm:px-8 sm:py-14">
         {/* ページヘッダー */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-            <div className="w-0.5 sm:w-1 h-6 sm:h-8 bg-gradient-to-b from-indigo-400 via-blue-400 to-cyan-400 rounded-full"></div>
-            <div className="flex items-center gap-2">
-              <Rocket className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
-              <span className="text-xs sm:text-sm uppercase tracking-wider text-indigo-600 font-bold">
-                Opportunities
-              </span>
-            </div>
-          </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">
-            コンテスト・公募一覧
+        <div className="mb-10 border-b border-neutral-200 pb-8 sm:mb-12">
+          <p className="eyebrow">
+            <Rocket className="h-3.5 w-3.5" />
+            Programs
+          </p>
+          <h1 className="display-2 mt-4 text-4xl text-neutral-900 sm:text-6xl">
+            コンテスト・公募・
+            <br className="sm:hidden" />
+            プログラム
           </h1>
-          <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-            コンテストと公募をまとめて掲載。種別・カテゴリ・エリアで横断的に絞り込めます。
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-neutral-500 sm:text-base">
+            コンテスト、ピッチ、ハッカソン、アクセラレーション、公募まで。挑戦の機会を種別・カテゴリ・エリアで横断的に絞り込めます。
           </p>
         </div>
 

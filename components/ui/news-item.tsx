@@ -9,6 +9,7 @@ import {
   Building2,
   Users,
   ExternalLink,
+  Calendar,
 } from "lucide-react";
 
 // ニュース種別のラベル（DB値の大文字・旧小文字表記の両方に対応）
@@ -16,19 +17,19 @@ function newsTypeLabel(type: string): string {
   switch (type) {
     case "FUNDING":
     case "funding":
-      return "💰 資金調達";
+      return "資金調達";
     case "M_AND_A":
     case "m&a":
-      return "🤝 M&A";
+      return "M&A";
     case "IPO":
     case "ipo":
-      return "📈 IPO";
+      return "IPO";
     case "PARTNERSHIP":
     case "partnership":
-      return "🤝 パートナーシップ";
+      return "パートナーシップ";
     case "OTHER":
     case "other":
-      return "📰 その他";
+      return "その他";
     default:
       return type;
   }
@@ -100,97 +101,91 @@ function NewsItem({
   return (
     <>
       <article
-        className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-white/20 p-3 sm:p-4 md:p-6 hover:shadow-xl sm:hover:scale-[1.02] transition-all duration-300 cursor-pointer group active:scale-[0.98]"
+        className="group cursor-pointer py-6 sm:py-8 transition-colors duration-200 active:opacity-80"
         onClick={handleCardClick}
       >
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6">
-          {/* 画像 - iPhone 16最適化 */}
-                 {imageUrl ? (
-                   <div className="sm:w-80 flex-shrink-0">
-                     <SimpleImage
-                       src={imageUrl}
-                       alt={title}
-                       width={320}
-                       height={192}
-                       className="w-full h-40 sm:h-44 md:h-48 object-cover rounded-lg sm:rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300"
-                       priority={priority}
-                       loading={priority ? "eager" : "lazy"}
-                     />
-                   </div>
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-6 md:gap-8">
+          {/* 画像 */}
+          {imageUrl ? (
+            <div className="sm:w-64 md:w-72 flex-shrink-0 overflow-hidden rounded-xl">
+              <SimpleImage
+                src={imageUrl}
+                alt={title}
+                width={320}
+                height={192}
+                className="w-full h-44 sm:h-40 md:h-44 object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                priority={priority}
+                loading={priority ? "eager" : "lazy"}
+              />
+            </div>
           ) : (
-            <div className="sm:w-80 flex-shrink-0">
-              <div className="w-full h-40 sm:h-44 md:h-48 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center rounded-lg sm:rounded-xl shadow-md border border-emerald-200/50 group-hover:shadow-lg transition-shadow duration-300">
-                <div className="text-center">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-2 sm:mb-3 mx-auto shadow-lg">
-                    <Newspaper className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-white" />
-                  </div>
-                  <p className="text-xs sm:text-sm font-medium text-emerald-600">ニュース</p>
-                </div>
+            <div className="sm:w-64 md:w-72 flex-shrink-0">
+              <div className="w-full h-44 sm:h-40 md:h-44 flex items-center justify-center rounded-xl border border-neutral-200 bg-neutral-50">
+                <Newspaper className="h-8 w-8 text-neutral-300" />
               </div>
             </div>
           )}
-          
-          {/* コンテンツ - iPhone 16最適化 */}
+
+          {/* コンテンツ */}
           <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3 md:mb-4">
-              <span className="inline-flex items-center px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 border border-emerald-200 shadow-sm">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center rounded-full bg-neutral-900 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
                 {newsTypeLabel(type)}
               </span>
               {sector && (
-                <span className="inline-flex items-center px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200 shadow-sm">
+                <span className="inline-flex items-center rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-neutral-600">
                   {sector}
                 </span>
               )}
               {area && (
-                <span className="inline-flex items-center px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold bg-gradient-to-r from-slate-100 to-gray-100 text-slate-700 border border-slate-200 shadow-sm">
+                <span className="inline-flex items-center rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-neutral-600">
                   {area}
                 </span>
               )}
             </div>
-            
-            <h2 className="text-base sm:text-lg md:text-xl font-news-heading text-gray-900 mb-2 sm:mb-3 leading-tight overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
+
+            <h2 className="mb-2 overflow-hidden text-lg font-bold leading-snug tracking-tight text-neutral-900 transition-colors group-hover:text-neutral-600 sm:text-xl md:text-2xl" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
               {title}
             </h2>
-            
+
             {description && (
-              <p className="text-xs sm:text-sm md:text-base text-gray-600 font-news mb-2 sm:mb-3 md:mb-4 leading-relaxed overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
+              <p className="mb-3 overflow-hidden text-sm leading-relaxed text-neutral-500 md:text-base" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
                 {description}
               </p>
             )}
-            
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4 text-[11px] sm:text-xs md:text-sm">
-              <span className="font-semibold text-slate-800 text-xs sm:text-sm md:text-base">{company}</span>
+
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-sm">
+              <span className="font-semibold text-neutral-900">{company}</span>
               {amount && (
-                <span className="inline-flex items-center px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs md:text-sm font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                <span className="tnum inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-0.5 text-xs font-medium text-neutral-800">
                   {amount}
                 </span>
               )}
               {investors && investors.length > 0 && (
-                <span className="text-slate-600 text-[11px] sm:text-xs md:text-sm leading-tight">
-                  <span className="font-medium">投資家:</span> <span className="break-words">{Array.isArray(investors) ? investors.slice(0, 2).join(', ') + (investors.length > 2 ? '...' : '') : investors}</span>
+                <span className="text-neutral-500">
+                  <span className="text-neutral-400">投資家</span> {Array.isArray(investors) ? investors.slice(0, 2).join(', ') + (investors.length > 2 ? '…' : '') : investors}
                 </span>
               )}
-              <span className="text-slate-500 text-[11px] sm:text-xs md:text-sm whitespace-nowrap">
-                📅 {publishedAt 
+              <span className="tnum inline-flex items-center gap-1 whitespace-nowrap text-neutral-400">
+                <Calendar className="h-3.5 w-3.5" />
+                {publishedAt
                   ? new Date(publishedAt).toLocaleDateString('ja-JP')
                   : new Date(createdAt).toLocaleDateString('ja-JP')
                 }
               </span>
             </div>
-            
+
             {sourceUrl && (
-              <div className="mt-2 sm:mt-3">
+              <div className="mt-3">
                 <a
                   href={sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center text-xs sm:text-sm text-blue-600 hover:text-blue-800 active:text-blue-900 font-medium min-h-[44px] py-2"
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-neutral-900 hover:underline"
                   onClick={handleLinkClick}
                 >
                   詳細を見る
-                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
+                  <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               </div>
             )}
@@ -224,7 +219,7 @@ function NewsItem({
             </button>
 
             {/* 画像 */}
-            <div className="relative w-full aspect-[16/9] bg-gradient-to-br from-gray-100 to-gray-200">
+            <div className="relative w-full aspect-[16/9] bg-neutral-100">
               {imageUrl ? (
                 <SimpleImage
                   src={imageUrl}
@@ -235,11 +230,11 @@ function NewsItem({
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <Newspaper className="h-10 w-10 text-gray-300" />
+                  <Newspaper className="h-10 w-10 text-neutral-300" />
                 </div>
               )}
               <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold backdrop-blur-sm bg-emerald-500/90 text-white">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide backdrop-blur-sm bg-neutral-900/90 text-white">
                   {newsTypeLabel(type)}
                 </span>
               </div>
@@ -250,12 +245,12 @@ function NewsItem({
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 {area && (
                   <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-500">
-                    <MapPin className="w-3.5 h-3.5 text-emerald-500/70" />
+                    <MapPin className="w-3.5 h-3.5 text-neutral-400" />
                     {area}
                   </span>
                 )}
                 {sector && (
-                  <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                  <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-neutral-100 text-neutral-700 border border-neutral-200">
                     {sector}
                   </span>
                 )}
@@ -315,7 +310,7 @@ function NewsItem({
                   href={sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold rounded-lg shadow-sm hover:from-emerald-600 hover:to-teal-600 transition-all min-h-[48px]"
+                  className="pill-ink w-full px-5 py-3.5 text-sm min-h-[48px]"
                 >
                   元記事を見る
                   <ExternalLink className="w-4 h-4" />

@@ -28,7 +28,6 @@ import { prisma } from '@/lib/prisma'
  * 
  * 将来的な拡張:
  * - コンテスト詳細ページ（/contests/[id]）
- * - 公募詳細ページ（/open-calls/[id]）
  * - ニュース詳細ページ（/news/[id]）
  * - VC/CVCデータベースページ（/vc, /cvc）
  * - 企業データベースページ（/companies）
@@ -55,12 +54,6 @@ function getFallbackSitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${BASE_URL}/contests`,
-      lastModified: now,
-      changeFrequency: 'daily' as const,
-      priority: 0.9,
-    },
-    {
-      url: `${BASE_URL}/open-calls`,
       lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 0.9,
@@ -105,19 +98,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // データベースから各カテゴリの最新更新日時とロケーションデータを並列取得
     const [
       latestContest,
-      latestOpenCall,
       latestLocation,
       latestNews,
-      latestStartupBoard,
       activeLocations,
-      activeStartupBoards,
     ] = await Promise.all([
       prisma.contest.findFirst({
-        where: { isActive: true },
-        orderBy: { updatedAt: 'desc' },
-        select: { updatedAt: true },
-      }),
-      prisma.openCall.findFirst({
         where: { isActive: true },
         orderBy: { updatedAt: 'desc' },
         select: { updatedAt: true },
@@ -132,18 +117,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         orderBy: { updatedAt: 'desc' },
         select: { updatedAt: true },
       }),
-      prisma.startupBoard.findFirst({
-        where: { isActive: true },
-        orderBy: { updatedAt: 'desc' },
-        select: { updatedAt: true },
-      }),
       prisma.location.findMany({
         where: { isActive: true },
         select: { slug: true, updatedAt: true },
-      }),
-      prisma.startupBoard.findMany({
-        where: { isActive: true },
-        select: { id: true, updatedAt: true },
       }),
     ])
 
@@ -151,10 +127,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // データベースの最新更新日時があれば使用、なければ現在時刻
     const homeLastModified = now.toISOString()
     const contestsLastModified = latestContest?.updatedAt.toISOString() || now.toISOString()
-    const openCallsLastModified = latestOpenCall?.updatedAt.toISOString() || now.toISOString()
     const locationsLastModified = latestLocation?.updatedAt.toISOString() || now.toISOString()
     const newsLastModified = latestNews?.updatedAt.toISOString() || now.toISOString()
-    const startupBoardsLastModified = latestStartupBoard?.updatedAt.toISOString() || now.toISOString()
 
     // 基本ページ（トップ、一覧、静的ページ）
     const sitemapEntries: MetadataRoute.Sitemap = [
@@ -173,12 +147,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.9,
       },
       {
-        url: `${BASE_URL}/open-calls`,
-        lastModified: openCallsLastModified,
-        changeFrequency: 'daily' as const,
-        priority: 0.9,
-      },
-      {
         url: `${BASE_URL}/workspace`,
         lastModified: locationsLastModified,
         changeFrequency: 'weekly' as const,
@@ -188,12 +156,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${BASE_URL}/news`,
         lastModified: newsLastModified,
         changeFrequency: 'hourly' as const,
-        priority: 0.9,
-      },
-      {
-        url: `${BASE_URL}/startup-boards`,
-        lastModified: startupBoardsLastModified,
-        changeFrequency: 'daily' as const,
         priority: 0.9,
       },
       // 静的ページ
@@ -228,16 +190,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           priority: 0.8,
         })
       }
-    })
-
-    // 個別のスタートアップボードページを追加
-    activeStartupBoards.forEach((board) => {
-      sitemapEntries.push({
-        url: `${BASE_URL}/startup-boards/${board.id}`,
-        lastModified: board.updatedAt.toISOString(),
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-      })
     })
 
     return sitemapEntries

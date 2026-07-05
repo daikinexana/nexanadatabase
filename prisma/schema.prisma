@@ -105,7 +105,7 @@ model OpenCall {
 // /opportunities 専用の統合モデル（コンテスト/公募を kind で区別）
 model Opportunity {
   id               String    @id @default(cuid())
-  kind             String    // "contest" | "open-call"
+  kind             String    // "contest" | "open-call" | "program"
   title            String
   organizer        String
   organizerType    String?

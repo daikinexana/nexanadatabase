@@ -57,24 +57,24 @@ export default function Pagination({
   }
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-white/20 p-3 sm:p-4 md:p-6">
-      {/* ページ情報 - iPhone 16最適化 */}
-      <div className="flex flex-col sm:flex-row items-center justify-between mb-3 sm:mb-4 md:mb-6 gap-2 sm:gap-0">
-        <div className="text-xs sm:text-sm md:text-base text-gray-600 font-news text-center sm:text-left">
-          <span className="font-news-subheading text-gray-900">
+    <div className="border-t border-neutral-200 pt-6">
+      {/* ページ情報 */}
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-4 sm:mb-6 gap-2 sm:gap-0">
+        <div className="tnum text-xs sm:text-sm text-neutral-500 text-center sm:text-left">
+          <span className="font-semibold text-neutral-900">
             {startItem.toLocaleString()}
           </span>
-          {" - "}
-          <span className="font-news-subheading text-gray-900">
+          {" – "}
+          <span className="font-semibold text-neutral-900">
             {endItem.toLocaleString()}
           </span>
           {" / "}
-          <span className="font-news-subheading text-gray-900">
+          <span className="font-semibold text-neutral-900">
             {totalCount.toLocaleString()}
           </span>
           {" 件"}
         </div>
-        <div className="text-[10px] sm:text-xs md:text-sm text-gray-500 bg-gray-50/50 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full">
+        <div className="tnum text-[11px] sm:text-xs text-neutral-500">
           ページ {currentPage} / {totalPages}
         </div>
       </div>
@@ -85,7 +85,7 @@ export default function Pagination({
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="flex items-center justify-center w-11 h-11 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-lg border border-gray-200/50 bg-white/50 backdrop-blur-sm text-gray-600 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-600 active:bg-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white/50 disabled:hover:border-gray-200/50 disabled:hover:text-gray-600 disabled:active:bg-white/50 transition-all duration-200 touch-manipulation"
+          className="flex items-center justify-center w-11 h-11 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full border border-neutral-200 bg-white text-neutral-600 hover:border-neutral-900 hover:text-neutral-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-neutral-200 disabled:hover:text-neutral-600 transition-all duration-200 touch-manipulation"
           aria-label="前のページ"
         >
           <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -111,10 +111,10 @@ export default function Pagination({
             <button
               key={pageNumber}
               onClick={() => onPageChange(pageNumber)}
-              className={`flex items-center justify-center w-11 h-11 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-lg border transition-all duration-200 font-news-subheading text-xs sm:text-sm md:text-base touch-manipulation ${
+              className={`tnum flex items-center justify-center w-11 h-11 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full border transition-all duration-200 font-semibold text-xs sm:text-sm md:text-base touch-manipulation ${
                 isActive
-                  ? "bg-gradient-to-r from-emerald-500 to-teal-500 border-emerald-500 text-white shadow-lg active:scale-95"
-                  : "border-gray-200/50 bg-white/50 backdrop-blur-sm text-gray-600 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-600 active:bg-emerald-100 active:scale-95"
+                  ? "bg-neutral-900 border-neutral-900 text-white active:scale-95"
+                  : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-900 hover:text-neutral-900 active:scale-95"
               }`}
               aria-label={`ページ ${pageNumber}`}
               aria-current={isActive ? "page" : undefined}
@@ -128,7 +128,7 @@ export default function Pagination({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="flex items-center justify-center w-11 h-11 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-lg border border-gray-200/50 bg-white/50 backdrop-blur-sm text-gray-600 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-600 active:bg-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white/50 disabled:hover:border-gray-200/50 disabled:hover:text-gray-600 disabled:active:bg-white/50 transition-all duration-200 touch-manipulation"
+          className="flex items-center justify-center w-11 h-11 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full border border-neutral-200 bg-white text-neutral-600 hover:border-neutral-900 hover:text-neutral-900 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-neutral-200 disabled:hover:text-neutral-600 transition-all duration-200 touch-manipulation"
           aria-label="次のページ"
         >
           <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -137,7 +137,7 @@ export default function Pagination({
 
       {/* ページジャンプ（モバイルでは非表示） */}
       <div className="hidden sm:flex items-center justify-center mt-3 sm:mt-4 space-x-2">
-        <span className="text-xs sm:text-sm text-gray-500">ページジャンプ:</span>
+        <span className="text-xs sm:text-sm text-neutral-500">ページジャンプ:</span>
         <input
           type="number"
           min="1"
@@ -149,7 +149,7 @@ export default function Pagination({
               onPageChange(page);
             }
           }}
-          className="w-16 sm:w-20 px-2 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-200/50 rounded bg-white/50 backdrop-blur-sm text-center focus:ring-2 focus:ring-emerald-500 focus:border-transparent min-h-[44px]"
+          className="tnum w-16 sm:w-20 px-2 py-1.5 sm:py-2 text-xs sm:text-sm border border-neutral-300 rounded-full bg-white text-center focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 min-h-[44px]"
         />
       </div>
     </div>

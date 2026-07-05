@@ -26,7 +26,7 @@ const OVERSEAS_AREAS = [
 ];
 
 interface Draft {
-  kind: "contest" | "open-call";
+  kind: "contest" | "open-call" | "program";
   title: string;
   organizer: string;
   organizerType: string;
@@ -203,7 +203,7 @@ export default function AiImportPage() {
         <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="mb-6 max-w-2xl">
             <h2 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
-              コンテスト・公募をAIで取込
+              コンテスト・公募・プログラムをAIで取込
             </h2>
             <p className="mt-1.5 text-sm leading-relaxed text-gray-500">
               ページURLを貼り付けると、AIが内容を解析してカード用データを自動生成します。内容を確認・修正してから保存してください。
@@ -323,6 +323,7 @@ export default function AiImportPage() {
                     >
                       <option value="contest">コンテスト</option>
                       <option value="open-call">公募</option>
+                      <option value="program">プログラム</option>
                     </select>
                   </Field>
                   <Field label="主催者タイプ">

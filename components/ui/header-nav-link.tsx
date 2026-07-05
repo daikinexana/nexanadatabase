@@ -59,9 +59,12 @@ export default function HeaderNavLink({
     }, 300);
   };
 
-  const baseClasses = isMobile 
-    ? 'block px-3 py-3 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-all duration-200 relative'
-    : 'text-gray-700 hover:text-blue-600 px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium transition-all duration-200 group relative';
+  const isActive = pathname === href;
+  const baseClasses = isMobile
+    ? 'block py-3 text-2xl font-semibold tracking-tight text-neutral-900 transition-colors duration-200 relative'
+    : `px-1 py-2 text-sm font-medium tracking-tight transition-colors duration-200 group relative ${
+        isActive ? 'text-neutral-900' : 'text-neutral-500 hover:text-neutral-900'
+      }`;
 
   return (
     <Link
@@ -77,16 +80,11 @@ export default function HeaderNavLink({
     >
       {/* ローディングスピナー - ロゴの場合は表示しない */}
       {isPending && !isLogo && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-lg">
-          <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
+        <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-lg">
+          <Loader2 className="h-4 w-4 text-neutral-900 animate-spin" />
         </div>
       )}
-      
-      {/* クリック時のリップル効果 - ロゴの場合は表示しない */}
-      {isClicked && !isLogo && (
-        <div className="absolute inset-0 bg-blue-100/50 rounded-lg animate-ping" />
-      )}
-      
+
       {/* コンテンツ */}
       <div className={isPending && !isLogo ? 'opacity-50' : ''}>
         {children}

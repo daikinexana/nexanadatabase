@@ -128,7 +128,7 @@ export default function Card({
   // 共有機能
   const getShareUrl = () => {
     if (typeof window !== 'undefined') {
-      return window.location.origin + `/open-calls?search=${encodeURIComponent(title)}`;
+      return window.location.origin + `/contests?search=${encodeURIComponent(title)}`;
     }
     return '';
   };

@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
-import Image from "next/image";
 
 interface ImageUploadProps {
   value?: string;
@@ -11,25 +10,80 @@ interface ImageUploadProps {
   className?: string;
 }
 
+/**
+ * アップロード前にブラウザ側で画像を縮小・圧縮する。
+ * 本番のアップロード上限（1MB）を超える写真でも確実に通るようにするのが目的。
+ * - 長辺を maxDimension までリサイズ
+ * - JPEG(quality)で書き出し、targetBytes を超える間は品質を段階的に下げる
+ * GIF はアニメーションが失われるため圧縮せずそのまま返す。
+ */
+async function compressImage(
+  file: File,
+  { maxDimension = 1920, targetBytes = 900 * 1024 }: { maxDimension?: number; targetBytes?: number } = {}
+): Promise<File> {
+  if (file.type === "image/gif") return file;
+  // すでに十分小さくリサイズも不要なら、そのまま使う
+  if (file.size <= targetBytes) {
+    // 念のため大きすぎる寸法はリサイズしたいので、寸法チェックは続行する
+  }
+
+  const dataUrl: string = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("画像の読み込みに失敗しました"));
+    reader.readAsDataURL(file);
+  });
+
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new window.Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("画像のデコードに失敗しました"));
+    image.src = dataUrl;
+  });
+
+  const scale = Math.min(1, maxDimension / Math.max(img.width, img.height));
+  const targetW = Math.max(1, Math.round(img.width * scale));
+  const targetH = Math.max(1, Math.round(img.height * scale));
+
+  // リサイズ不要かつ元が十分小さければ、そのまま返す（再エンコードによる劣化を避ける）
+  if (scale === 1 && file.size <= targetBytes) return file;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = targetW;
+  canvas.height = targetH;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+  // 透過PNGを白背景で塗ってからJPEG化（真っ黒背景になるのを防ぐ）
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, targetW, targetH);
+  ctx.drawImage(img, 0, 0, targetW, targetH);
+
+  const toBlob = (quality: number) =>
+    new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
+
+  let quality = 0.85;
+  let blob = await toBlob(quality);
+  while (blob && blob.size > targetBytes && quality > 0.4) {
+    quality -= 0.15;
+    blob = await toBlob(quality);
+  }
+  if (!blob) return file;
+
+  const newName = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+  return new File([blob], newName, { type: "image/jpeg", lastModified: file.lastModified });
+}
+
 export default function ImageUpload({ value, onChange, type, className = "" }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = async (file: File) => {
-    if (!file) return;
+  const handleFileSelect = async (inputFile: File) => {
+    if (!inputFile) return;
 
-    // ファイルサイズチェック（ローカル: 10MB、本番: 1MB）
-    const maxSize = process.env.NODE_ENV === 'production' ? 1 * 1024 * 1024 : 10 * 1024 * 1024;
-    const limitText = process.env.NODE_ENV === 'production' ? '1MB' : '10MB';
-    if (file.size > maxSize) {
-      alert(`ファイルサイズが大きすぎます（${limitText}以下にしてください）\n現在のサイズ: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
-      return;
-    }
-
-    // ファイルタイプチェック
+    // ファイルタイプチェック（圧縮前の元ファイルで判定）
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
+    if (!allowedTypes.includes(inputFile.type)) {
       alert("サポートされていないファイル形式です（JPEG, PNG, GIF, WebPのみ）");
       return;
     }
@@ -37,6 +91,28 @@ export default function ImageUpload({ value, onChange, type, className = "" }: I
     setIsUploading(true);
 
     try {
+      // アップロード前にブラウザ側でリサイズ・圧縮し、本番の1MB制限に収める
+      let file = inputFile;
+      try {
+        file = await compressImage(inputFile);
+        console.log("🗜️ 圧縮結果:", {
+          before: `${(inputFile.size / 1024 / 1024).toFixed(2)}MB`,
+          after: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+        });
+      } catch (compressError) {
+        console.warn("⚠️ 圧縮に失敗したため元画像を使用します:", compressError);
+        file = inputFile;
+      }
+
+      // 圧縮後もサーバー上限を超える場合のみ弾く（GIF等）
+      const maxSize = process.env.NODE_ENV === 'production' ? 4 * 1024 * 1024 : 10 * 1024 * 1024;
+      const limitText = process.env.NODE_ENV === 'production' ? '4MB' : '10MB';
+      if (file.size > maxSize) {
+        alert(`ファイルサイズが大きすぎます（${limitText}以下にしてください）\n現在のサイズ: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+        setIsUploading(false);
+        return;
+      }
+
       const formData = new FormData();
       formData.append("file", file);
       formData.append("type", type);
@@ -110,10 +186,10 @@ export default function ImageUpload({ value, onChange, type, className = "" }: I
       
       if (!isProduction) {
         // 開発環境でのみローカルプレビューを表示
-        const localUrl = URL.createObjectURL(file);
+        const localUrl = URL.createObjectURL(inputFile);
         onChange(localUrl);
       }
-      
+
       // ネットワークエラーやその他のエラーの場合
       const errorMessage = error instanceof Error ? error.message : "不明なエラーが発生しました";
       console.error("エラー詳細:", errorMessage);
@@ -164,11 +240,12 @@ export default function ImageUpload({ value, onChange, type, className = "" }: I
       {value && (
         <div className="relative">
           <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
-            <Image
+            {/* アップロード中のデータURLや http/外部URLなど任意のsrcを扱うため next/image は使わない */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={value}
               alt="アップロードされた画像"
-              fill
-              className="w-full h-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover"
             />
             <button
               onClick={removeImage}

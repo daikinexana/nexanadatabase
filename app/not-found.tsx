@@ -34,7 +34,7 @@ export default function NotFound() {
             <p>または、以下のページからお探しください：</p>
             <div className="mt-4 space-x-4">
               <Link href="/contests" className="text-blue-600 hover:underline">コンテスト</Link>
-              <Link href="/open-calls" className="text-blue-600 hover:underline">公募</Link>
+              <Link href="/opportunities" className="text-blue-600 hover:underline">公募</Link>
               <Link href="/news" className="text-blue-600 hover:underline">ニュース</Link>
             </div>
           </div>

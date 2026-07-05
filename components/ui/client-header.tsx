@@ -1,99 +1,119 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu, X, ArrowUpRight } from "lucide-react";
 import HeaderNavLink from "./header-nav-link";
+import Logo from "./logo";
 
 const navigation = [
-  { name: "コンテスト・公募", nameEn: "Opportunities", href: "/opportunities" },
+  { name: "コンテスト・公募・プログラム", nameEn: "Programs", href: "/opportunities" },
   { name: "ワークスペース", nameEn: "Workspace", href: "/workspace" },
   { name: "ニュース", nameEn: "News", href: "/news" },
 ];
 
 export default function ClientHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
+  const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20 sm:h-24">
+    <>
+    <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/80 backdrop-blur-xl">
+      <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+        <div className="flex h-16 items-center justify-between sm:h-20">
           {/* ロゴ */}
           <div className="flex-shrink-0">
             <HeaderNavLink href="/" onClick={closeMenu} isLogo={true}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/nexanadata.png"
-                alt="Nexana Database"
-                width={240}
-                height={64}
-                className="h-12 sm:h-16 w-auto max-w-[180px] sm:max-w-[240px]"
-                decoding="async"
-                style={{ color: 'transparent' }}
-              />
+              <Logo variant="dark" />
             </HeaderNavLink>
           </div>
 
           {/* デスクトップナビゲーション */}
-          <nav className="hidden md:flex space-x-6 lg:space-x-8">
-            {navigation.map((item) => (
-              <HeaderNavLink
-                key={item.name}
-                href={item.href}
-                className="group"
-              >
-                <div className="flex flex-col items-center">
-                  <span className="leading-tight">{item.name}</span>
-                  <span className="text-xs text-gray-500 group-hover:text-blue-500 transition-colors duration-200">
-                    {item.nameEn}
+          <nav className="hidden items-center gap-5 md:flex lg:gap-8">
+            {navigation.map((item) => {
+              const active = pathname === item.href;
+              return (
+                <HeaderNavLink key={item.name} href={item.href}>
+                  <span className="relative inline-block whitespace-nowrap">
+                    {item.name}
+                    <span
+                      className={`absolute -bottom-1.5 left-0 h-px w-full origin-left bg-neutral-900 transition-transform duration-300 ${
+                        active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                      }`}
+                    />
                   </span>
-                </div>
-              </HeaderNavLink>
-            ))}
+                </HeaderNavLink>
+              );
+            })}
+            <a
+              href="https://hp.nexanahq.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pill-ink px-5 py-2.5 text-sm"
+            >
+              運営会社
+              <ArrowUpRight className="h-4 w-4" />
+            </a>
           </nav>
 
-          {/* ハンバーガーメニューボタン - モバイルのみ */}
+          {/* ハンバーガー - モバイルのみ */}
           <button
-            onClick={toggleMenu}
-            className="md:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-200"
-            aria-label="メニューを開く"
+            onClick={() => setIsMenuOpen((v) => !v)}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-neutral-900 transition-colors hover:bg-neutral-100 md:hidden"
+            aria-label={isMenuOpen ? "メニューを閉じる" : "メニューを開く"}
+            aria-expanded={isMenuOpen}
           >
-            {isMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
+      </div>
+    </header>
 
-        {/* モバイルメニュー */}
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
-              {navigation.map((item) => (
+      {/* モバイル全画面メニュー（header の外に置くことで backdrop-filter の containing block を回避し、確実に viewport 全体を覆う） */}
+      {isMenuOpen && (
+        <div className="fixed inset-x-0 bottom-0 top-16 z-40 flex flex-col overflow-y-auto bg-white md:hidden">
+          <nav className="flex flex-1 flex-col gap-1 px-6 pt-8">
+            {navigation.map((item, i) => {
+              const active = pathname === item.href;
+              return (
                 <HeaderNavLink
                   key={item.name}
                   href={item.href}
                   isMobile={true}
                   onClick={closeMenu}
+                  className="border-b border-neutral-100"
                 >
-                  <div className="flex flex-col">
-                    <span className="font-semibold">{item.name}</span>
-                    <span className="text-sm text-gray-500">{item.nameEn}</span>
+                  <div className="flex items-baseline justify-between">
+                    <span className={active ? "text-neutral-900" : "text-neutral-900"}>
+                      {item.name}
+                    </span>
+                    <span className="font-display text-xs uppercase tracking-[0.2em] text-neutral-400">
+                      0{i + 1}
+                    </span>
                   </div>
+                  <span className="mt-0.5 block font-display text-xs uppercase tracking-[0.2em] text-neutral-400">
+                    {item.nameEn}
+                  </span>
                 </HeaderNavLink>
-              ))}
-            </div>
+              );
+            })}
+          </nav>
+          <div className="px-6 pb-10">
+            <a
+              href="https://hp.nexanahq.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={closeMenu}
+              className="pill-ink w-full px-6 py-4 text-base"
+            >
+              運営会社サイト
+              <ArrowUpRight className="h-5 w-5" />
+            </a>
           </div>
-        )}
-      </div>
-    </header>
+        </div>
+      )}
+    </>
   );
 }

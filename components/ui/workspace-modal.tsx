@@ -185,10 +185,10 @@ const INFO_CARD_META: Record<
   InfoCardCategory,
   { label: string; icon: LucideIcon; chipBg: string; iconClass: string }
 > = {
-  facility: { label: "施設情報", icon: Building2, chipBg: "bg-emerald-50", iconClass: "text-emerald-600" },
-  hotel: { label: "周辺ホテル", icon: BedDouble, chipBg: "bg-violet-50", iconClass: "text-violet-600" },
-  food: { label: "周辺グルメ", icon: Utensils, chipBg: "bg-amber-50", iconClass: "text-amber-600" },
-  spot: { label: "周辺スポット", icon: MapPin, chipBg: "bg-sky-50", iconClass: "text-sky-600" },
+  facility: { label: "施設情報", icon: Building2, chipBg: "bg-neutral-100", iconClass: "text-neutral-900" },
+  hotel: { label: "周辺ホテル", icon: BedDouble, chipBg: "bg-neutral-100", iconClass: "text-neutral-900" },
+  food: { label: "周辺グルメ", icon: Utensils, chipBg: "bg-neutral-100", iconClass: "text-neutral-900" },
+  spot: { label: "周辺スポット", icon: MapPin, chipBg: "bg-neutral-100", iconClass: "text-neutral-900" },
 };
 const INFO_CARD_ORDER: InfoCardCategory[] = ["facility", "hotel", "food", "spot"];
 
@@ -197,8 +197,8 @@ function SectionTitle({
   icon: Icon,
   title,
   count,
-  chipBg = "bg-emerald-50",
-  iconClass = "text-emerald-600",
+  chipBg = "bg-neutral-100",
+  iconClass = "text-neutral-900",
 }: {
   icon: LucideIcon;
   title: string;
@@ -409,7 +409,7 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
         </button>
 
         {/* ヒーロー画像 */}
-        <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-gradient-to-br from-gray-100 to-gray-200">
+        <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-neutral-100">
           {workspace.imageUrl ? (
             <SimpleImage
               src={workspace.imageUrl}
@@ -430,11 +430,11 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
           {/* 画像下オーバーレイ: 所在地 + いいね数 */}
           <div className="absolute inset-x-0 bottom-0 p-4 flex items-end justify-between gap-3">
             <span className="inline-flex items-center gap-1.5 text-white min-w-0">
-              <MapPin className="h-4 w-4 text-emerald-300 flex-shrink-0" />
+              <MapPin className="h-4 w-4 text-white/80 flex-shrink-0" />
               <span className="text-sm font-semibold truncate drop-shadow">{locationLabel}</span>
             </span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/45 backdrop-blur-sm text-white text-xs font-bold flex-shrink-0">
-              <Heart className={`w-3.5 h-3.5 ${likeCount > 0 ? "fill-rose-400 text-rose-400" : ""}`} />
+            <span className="tnum inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/45 backdrop-blur-sm text-white text-xs font-bold flex-shrink-0">
+              <Heart className={`w-3.5 h-3.5 ${likeCount > 0 ? "fill-white text-white" : ""}`} />
               {likeCount}
             </span>
           </div>
@@ -448,9 +448,9 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
               {activeCategories.map(({ label, icon: Icon }) => (
                 <span
                   key={label}
-                  className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2.5 py-1 rounded-full ring-1 ring-emerald-100"
+                  className="inline-flex items-center gap-1 bg-neutral-100 text-neutral-700 text-[11px] font-semibold px-2.5 py-1 rounded-full ring-1 ring-neutral-200"
                 >
-                  <Icon className="w-3 h-3 text-emerald-500" strokeWidth={2.2} />
+                  <Icon className="w-3 h-3 text-neutral-900" strokeWidth={2.2} />
                   {label}
                 </span>
               ))}
@@ -464,7 +464,7 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
 
           {/* 一言 */}
           {workspace.facilityFeatureOneLine && (
-            <blockquote className="mt-3 pl-3.5 border-l-[3px] border-emerald-400">
+            <blockquote className="mt-3 pl-3.5 border-l-[3px] border-neutral-900">
               <p className="text-sm sm:text-[15px] text-gray-600 leading-relaxed">
                 {workspace.facilityFeatureOneLine}
               </p>
@@ -478,7 +478,7 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
                 href={workspace.officialLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-semibold rounded-xl shadow-sm hover:from-emerald-700 hover:to-teal-700 transition-all min-h-[48px] active:scale-[0.98]"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 bg-neutral-900 text-white text-sm font-semibold rounded-xl hover:bg-neutral-700 transition-all min-h-[48px] active:scale-[0.98]"
               >
                 ウェブサイトを見る
                 <ExternalLink className="w-4 h-4" />
@@ -489,11 +489,11 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
                 onClick={handleLike}
                 className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-3 text-sm font-semibold rounded-xl transition-all min-h-[48px] active:scale-[0.98] ${
                   isLiked
-                    ? "bg-rose-50 text-rose-600 ring-1 ring-rose-200 hover:bg-rose-100"
-                    : "bg-white text-gray-700 ring-1 ring-gray-200 hover:ring-gray-300"
+                    ? "bg-neutral-900 text-white ring-1 ring-neutral-900 hover:bg-neutral-700"
+                    : "bg-white text-neutral-700 ring-1 ring-neutral-200 hover:ring-neutral-900"
                 }`}
               >
-                <Heart className={`w-4 h-4 ${isLiked ? "fill-rose-600 text-rose-600" : ""}`} />
+                <Heart className={`w-4 h-4 ${isLiked ? "fill-white text-white" : ""}`} />
                 {isLiked ? "いいね済み" : "いいね"}
               </button>
               <button
@@ -501,8 +501,8 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
                 aria-label="URLをコピーして共有"
                 className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-3 text-sm font-semibold rounded-xl transition-all min-h-[48px] active:scale-[0.98] ${
                   copySuccess
-                    ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-                    : "bg-white text-gray-700 ring-1 ring-gray-200 hover:ring-gray-300"
+                    ? "bg-neutral-100 text-neutral-900 ring-1 ring-neutral-300"
+                    : "bg-white text-neutral-700 ring-1 ring-neutral-200 hover:ring-neutral-900"
                 }`}
               >
                 {copySuccess ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -548,8 +548,8 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
                         key={label}
                         className="flex items-center gap-2 rounded-xl bg-gray-50 ring-1 ring-gray-100 px-3 py-2.5"
                       >
-                        <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-white ring-1 ring-emerald-100 flex-shrink-0">
-                          <Icon className="w-4 h-4 text-emerald-600" strokeWidth={2} />
+                        <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-white ring-1 ring-neutral-200 flex-shrink-0">
+                          <Icon className="w-4 h-4 text-neutral-900" strokeWidth={2} />
                         </div>
                         <span className="text-[13px] font-semibold text-gray-800 truncate">{label}</span>
                       </div>
@@ -636,7 +636,7 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
                 placeholder="お名前（任意）"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-400 focus:bg-white transition-colors"
+                className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900 focus:bg-white transition-colors"
                 maxLength={50}
               />
               <div className="flex gap-2">
@@ -644,7 +644,7 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
                   placeholder="コメントを入力してください..."
                   value={commentContent}
                   onChange={(e) => setCommentContent(e.target.value)}
-                  className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-400 focus:bg-white resize-none transition-colors"
+                  className="flex-1 px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900 focus:bg-white resize-none transition-colors"
                   rows={3}
                   maxLength={1000}
                   required
@@ -653,7 +653,7 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
                   type="submit"
                   disabled={!commentContent.trim() || isSubmittingComment}
                   aria-label="コメントを送信"
-                  className="px-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center self-stretch active:scale-[0.98]"
+                  className="px-4 bg-neutral-900 text-white rounded-xl hover:bg-neutral-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center self-stretch active:scale-[0.98]"
                 >
                   <Send className="w-4 h-4" />
                 </button>
@@ -677,7 +677,7 @@ export default function WorkspaceModal({ isOpen, onClose, workspace }: Workspace
                 comments.map((comment) => (
                   <div key={comment.id} className="rounded-xl bg-gray-50 ring-1 ring-gray-100 px-4 py-3">
                     <div className="flex items-center gap-2 mb-1">
-                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold flex-shrink-0">
+                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-neutral-900 text-white text-[11px] font-bold flex-shrink-0">
                         {(comment.userName || "匿").charAt(0)}
                       </div>
                       <span className="text-sm font-semibold text-gray-900">{comment.userName}</span>

@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 
-const KINDS = ["contest", "open-call"] as const;
+const KINDS = ["contest", "open-call", "program"] as const;
 
 // 個別取得
 export async function GET(
