@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { findOpportunityDuplicates, duplicateMessage } from "@/lib/duplicate-check";
 
 const KINDS = ["contest", "open-call", "program"] as const;
 
@@ -79,6 +80,7 @@ export async function POST(request: NextRequest) {
       targetArea,
       targetAudience,
       operatingCompany,
+      confirmDuplicate,
     } = body;
 
     // 必須フィールドのバリデーション
@@ -110,6 +112,23 @@ export async function POST(request: NextRequest) {
     }
     if (isNaN(start.getTime())) {
       return NextResponse.json({ error: "開始日が無効です" }, { status: 400 });
+    }
+
+    // 重複チェック（confirmDuplicate=true で明示的にスキップ可能）
+    if (!confirmDuplicate) {
+      const matches = await findOpportunityDuplicates({
+        title,
+        organizer,
+        website,
+        startDate: start,
+        deadline: deadlineDate,
+      });
+      if (matches.length > 0) {
+        return NextResponse.json(
+          { error: duplicateMessage(matches.length), duplicate: true, matches },
+          { status: 409 }
+        );
+      }
     }
 
     const opportunity = await prisma.opportunity.create({

@@ -5,6 +5,7 @@ import Link from "next/link";
 import AdminGuard from "@/components/admin/admin-guard";
 import ImageUpload from "@/components/ui/image-upload";
 import AutoTextarea from "@/components/ui/auto-textarea";
+import DuplicateModal, { type DuplicateMatch } from "@/components/admin/duplicate-modal";
 import { OpportunityCard, type OpportunityItem } from "@/components/ui/opportunities-list";
 import { Sparkles, Link2, Loader2, CheckCircle2, AlertCircle, ArrowLeft, Search } from "lucide-react";
 
@@ -64,6 +65,7 @@ export default function AiImportPage() {
   const [error, setError] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [dupMatches, setDupMatches] = useState<DuplicateMatch[] | null>(null);
   const feedbackRef = useRef<HTMLDivElement | null>(null);
 
   const update = <K extends keyof Draft>(key: K, value: Draft[K]) => {
@@ -101,7 +103,7 @@ export default function AiImportPage() {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (confirmDuplicate = false) => {
     if (!draft) return;
     // 必須項目チェック（エリア・締切日・開始日・リンクURLも必須）
     const missing: string[] = [];
@@ -133,6 +135,7 @@ export default function AiImportPage() {
         benefit: draft.benefit || undefined,
         targetArea: draft.targetArea || undefined,
         targetAudience: draft.targetAudience || undefined,
+        confirmDuplicate,
       };
 
       const res = await fetch("/api/opportunities", {
@@ -141,9 +144,15 @@ export default function AiImportPage() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
+      // 重複検知（409）→ モーダルで「それでも保存 / やめる」を選ばせる
+      if (res.status === 409 && data?.duplicate) {
+        setDupMatches(data.matches ?? []);
+        return;
+      }
       if (!res.ok) {
         throw new Error(data?.error || "保存に失敗しました");
       }
+      setDupMatches(null);
       setSavedId(data.id ?? "ok");
     } catch (e) {
       setError(e instanceof Error ? e.message : "保存に失敗しました");
@@ -469,7 +478,7 @@ export default function AiImportPage() {
                 </Field>
 
                 <button
-                  onClick={handleSave}
+                  onClick={() => handleSave()}
                   disabled={saving}
                   className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -535,6 +544,15 @@ export default function AiImportPage() {
           )}
         </main>
       </div>
+
+      <DuplicateModal
+        open={!!dupMatches}
+        matches={dupMatches ?? []}
+        targetLabel={draft?.title}
+        saving={saving}
+        onConfirm={() => handleSave(true)}
+        onCancel={() => setDupMatches(null)}
+      />
     </AdminGuard>
   );
 }

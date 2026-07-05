@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { normalizeInfoCards } from "@/lib/workspace-info-cards";
+import { findWorkspaceDuplicates, duplicateMessage } from "@/lib/duplicate-check";
 
 export async function GET(request: NextRequest) {
   try {
@@ -173,6 +174,7 @@ export async function POST(request: NextRequest) {
       meetsNexanaStandard,
       isNexanaRecommended,
       locationId,
+      confirmDuplicate,
     } = body;
 
     if (!name || !country || !city) {
@@ -180,6 +182,22 @@ export async function POST(request: NextRequest) {
         { error: "必須フィールドが不足しています" },
         { status: 400 }
       );
+    }
+
+    // 重複チェック（confirmDuplicate=true で明示的にスキップ可能）
+    if (!confirmDuplicate) {
+      const matches = await findWorkspaceDuplicates({
+        name,
+        city,
+        address,
+        officialLink,
+      });
+      if (matches.length > 0) {
+        return NextResponse.json(
+          { error: duplicateMessage(matches.length), duplicate: true, matches },
+          { status: 409 }
+        );
+      }
     }
 
     const workspace = await prisma.workspace.create({

@@ -6,6 +6,7 @@ import AdminGuard from "@/components/admin/admin-guard";
 import AutoTextarea from "@/components/ui/auto-textarea";
 import ImageUpload from "@/components/ui/image-upload";
 import WorkspaceInfoCardsEditor from "@/components/ui/workspace-info-cards-editor";
+import DuplicateModal, { type DuplicateMatch } from "@/components/admin/duplicate-modal";
 import { type InfoCard, normalizeInfoCards } from "@/lib/workspace-info-cards";
 import { deriveCountryCity } from "@/lib/derive-location";
 import {
@@ -55,6 +56,8 @@ interface Item {
   saving: boolean;
   savedId: string | null;
   saveError: string | null;
+  // 重複候補（検知された場合）
+  dupMatches?: DuplicateMatch[];
 }
 
 const EQUIPMENTS: { key: keyof Draft; label: string }[] = [
@@ -84,6 +87,7 @@ export default function AiImportWorkspacePage() {
   const [invalidUrls, setInvalidUrls] = useState<string[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const [savingAll, setSavingAll] = useState(false);
+  const [dupModalIndex, setDupModalIndex] = useState<number | null>(null);
 
   const parsedUrls = urlsText
     .split(/[\n,]/)
@@ -156,7 +160,10 @@ export default function AiImportWorkspacePage() {
     };
   };
 
-  const saveItem = async (index: number): Promise<boolean> => {
+  const saveItem = async (
+    index: number,
+    confirmDuplicate = false
+  ): Promise<boolean> => {
     const item = items[index];
     if (!item?.draft) return false;
     if (!item.draft.name.trim()) {
@@ -178,16 +185,27 @@ export default function AiImportWorkspacePage() {
       const res = await fetch("/api/workspace", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildPayload(item.draft)),
+        body: JSON.stringify({ ...buildPayload(item.draft), confirmDuplicate }),
       });
       const data = await res.json();
+      // 重複検知（409）→ 候補を保持し、要確認状態にする
+      if (res.status === 409 && data?.duplicate) {
+        setItems((prev) =>
+          prev.map((it, i) =>
+            i === index
+              ? { ...it, saving: false, dupMatches: data.matches ?? [], saveError: null }
+              : it
+          )
+        );
+        return false;
+      }
       if (!res.ok) {
         throw new Error(data?.error || "保存に失敗しました");
       }
       setItems((prev) =>
         prev.map((it, i) =>
           i === index
-            ? { ...it, saving: false, savedId: data.id ?? "ok", saveError: null }
+            ? { ...it, saving: false, savedId: data.id ?? "ok", saveError: null, dupMatches: undefined }
             : it
         )
       );
@@ -212,8 +230,8 @@ export default function AiImportWorkspacePage() {
     setSavingAll(true);
     for (let i = 0; i < items.length; i++) {
       const it = items[i];
-      if (it.draft && !it.savedId) {
-        // eslint-disable-next-line no-await-in-loop
+      // 重複警告(dupMatches)の項目は自動保存せず、個別に確認してもらう
+      if (it.draft && !it.savedId && !it.dupMatches) {
         await saveItem(i);
       }
     }
@@ -560,28 +578,38 @@ export default function AiImportWorkspacePage() {
                     </div>
 
                     <div className="flex items-center gap-3 pt-1">
-                      <button
-                        onClick={() => saveItem(index)}
-                        disabled={item.saving || Boolean(item.savedId)}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-all"
-                      >
-                        {item.saving ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            保存中...
-                          </>
-                        ) : item.savedId ? (
-                          <>
-                            <CheckCircle2 className="w-4 h-4" />
-                            保存済み
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle2 className="w-4 h-4" />
-                            この施設を保存
-                          </>
-                        )}
-                      </button>
+                      {item.dupMatches && !item.savedId ? (
+                        <button
+                          onClick={() => setDupModalIndex(index)}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white text-sm font-semibold rounded-lg hover:bg-amber-600 transition-all"
+                        >
+                          <AlertCircle className="w-4 h-4" />
+                          重複を確認（{item.dupMatches.length}件）
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => saveItem(index)}
+                          disabled={item.saving || Boolean(item.savedId)}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-all"
+                        >
+                          {item.saving ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              保存中...
+                            </>
+                          ) : item.savedId ? (
+                            <>
+                              <CheckCircle2 className="w-4 h-4" />
+                              保存済み
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle2 className="w-4 h-4" />
+                              この施設を保存
+                            </>
+                          )}
+                        </button>
+                      )}
                       {item.saveError && (
                         <span className="flex items-center gap-1 text-sm text-red-600">
                           <AlertCircle className="w-4 h-4" />
@@ -604,6 +632,24 @@ export default function AiImportWorkspacePage() {
           </div>
         </div>
       </div>
+
+      {(() => {
+        const item = dupModalIndex !== null ? items[dupModalIndex] : null;
+        return (
+          <DuplicateModal
+            open={!!item?.dupMatches}
+            matches={item?.dupMatches ?? []}
+            targetLabel={item?.draft?.name}
+            saving={item?.saving}
+            onConfirm={async () => {
+              if (dupModalIndex === null) return;
+              const ok = await saveItem(dupModalIndex, true);
+              if (ok) setDupModalIndex(null);
+            }}
+            onCancel={() => setDupModalIndex(null)}
+          />
+        );
+      })()}
     </AdminGuard>
   );
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import AdminGuard from "@/components/admin/admin-guard";
 import AutoTextarea from "@/components/ui/auto-textarea";
 import ImageUpload from "@/components/ui/image-upload";
+import DuplicateModal, { type DuplicateMatch } from "@/components/admin/duplicate-modal";
 import {
   Sparkles,
   Loader2,
@@ -25,7 +26,7 @@ const NEWS_TYPE_LABELS: Record<string, string> = {
   OTHER: "その他",
 };
 
-type SaveState = "idle" | "saving" | "saved" | "error";
+type SaveState = "idle" | "saving" | "saved" | "error" | "duplicate";
 
 interface Draft {
   // 元URLごとの一意キー（Reactのkey / 状態管理用）
@@ -45,6 +46,8 @@ interface Draft {
   // 保存状態
   saveState: SaveState;
   saveError?: string;
+  // 重複候補（saveState === "duplicate" のとき）
+  dupMatches?: DuplicateMatch[];
   // 解析エラー（抽出に失敗したURL）
   extractError?: string;
 }
@@ -77,6 +80,7 @@ export default function AiImportNewsPage() {
   const [error, setError] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [savingAll, setSavingAll] = useState(false);
+  const [dupModalKey, setDupModalKey] = useState<string | null>(null);
 
   const urlLines = urlsText
     .split("\n")
@@ -156,8 +160,11 @@ export default function AiImportNewsPage() {
     }
   };
 
-  // 1件保存（成功時はtrueを返す）
-  const saveDraft = async (draft: Draft): Promise<boolean> => {
+  // 1件保存（成功時はtrueを返す）。confirmDuplicate=true で重複警告を無視して保存
+  const saveDraft = async (
+    draft: Draft,
+    confirmDuplicate = false
+  ): Promise<boolean> => {
     if (!draft.title.trim() || !draft.company.trim() || !draft.type) {
       update(draft.key, {
         saveState: "error",
@@ -181,6 +188,7 @@ export default function AiImportNewsPage() {
         publishedAt: draft.publishedAt || undefined,
         imageUrl: draft.imageUrl || undefined,
         sourceUrl: draft.sourceUrl || undefined,
+        confirmDuplicate,
       };
       const res = await fetch("/api/news", {
         method: "POST",
@@ -188,11 +196,20 @@ export default function AiImportNewsPage() {
         credentials: "include",
         body: JSON.stringify(payload),
       });
+      const data = await res.json().catch(() => ({}));
+      // 重複検知（409）→ この項目を「要確認」状態にして候補を保持
+      if (res.status === 409 && data?.duplicate) {
+        update(draft.key, {
+          saveState: "duplicate",
+          dupMatches: data.matches ?? [],
+          saveError: undefined,
+        });
+        return false;
+      }
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
         throw new Error(data?.error || "保存に失敗しました");
       }
-      update(draft.key, { saveState: "saved", saveError: undefined });
+      update(draft.key, { saveState: "saved", saveError: undefined, dupMatches: undefined });
       return true;
     } catch (e) {
       update(draft.key, {
@@ -203,22 +220,21 @@ export default function AiImportNewsPage() {
     }
   };
 
-  // まだ保存されていない（抽出成功した）ドラフトをまとめて保存
+  // まだ保存されていない（抽出成功した）ドラフトをまとめて保存。
+  // 重複警告(duplicate)の項目は自動保存せず、個別に確認してもらう。
   const handleSaveAll = async () => {
     setSavingAll(true);
-    // 最新のstateを参照するため関数内で読み直す
     const targets = drafts.filter(
-      (d) => !d.extractError && d.saveState !== "saved"
+      (d) => !d.extractError && d.saveState !== "saved" && d.saveState !== "duplicate"
     );
     for (const d of targets) {
-      // 直前の編集を反映するため、現在のstateから取得し直す
       await saveDraft(d);
     }
     setSavingAll(false);
   };
 
   const savableCount = drafts.filter(
-    (d) => !d.extractError && d.saveState !== "saved"
+    (d) => !d.extractError && d.saveState !== "saved" && d.saveState !== "duplicate"
   ).length;
   const savedCount = drafts.filter((d) => d.saveState === "saved").length;
 
@@ -345,12 +361,31 @@ export default function AiImportNewsPage() {
                 draft={d}
                 onChange={(patch) => update(d.key, patch)}
                 onSave={() => saveDraft(d)}
+                onShowDuplicate={() => setDupModalKey(d.key)}
                 onRemove={() => remove(d.key)}
               />
             ))}
           </div>
         </div>
       </div>
+
+      {(() => {
+        const target = dupModalKey ? drafts.find((d) => d.key === dupModalKey) : null;
+        return (
+          <DuplicateModal
+            open={!!target}
+            matches={target?.dupMatches ?? []}
+            targetLabel={target?.title}
+            saving={target?.saveState === "saving"}
+            onConfirm={async () => {
+              if (!target) return;
+              const ok = await saveDraft(target, true);
+              if (ok) setDupModalKey(null);
+            }}
+            onCancel={() => setDupModalKey(null)}
+          />
+        );
+      })()}
     </AdminGuard>
   );
 }
@@ -360,15 +395,18 @@ function DraftCard({
   draft,
   onChange,
   onSave,
+  onShowDuplicate,
   onRemove,
 }: {
   index: number;
   draft: Draft;
   onChange: (patch: Partial<Draft>) => void;
   onSave: () => void;
+  onShowDuplicate: () => void;
   onRemove: () => void;
 }) {
   const saved = draft.saveState === "saved";
+  const isDuplicate = draft.saveState === "duplicate";
 
   // 抽出失敗したURLはエラー表示のみ
   if (draft.extractError) {
@@ -588,28 +626,43 @@ function DraftCard({
           {draft.saveState === "error" && draft.saveError && (
             <span className="text-xs text-red-600">{draft.saveError}</span>
           )}
-          <button
-            onClick={onSave}
-            disabled={draft.saveState === "saving" || saved}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          >
-            {draft.saveState === "saving" ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                保存中...
-              </>
-            ) : saved ? (
-              <>
-                <CheckCircle2 className="w-4 h-4" />
-                保存済み
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                保存
-              </>
-            )}
-          </button>
+          {isDuplicate && (
+            <span className="text-xs font-semibold text-amber-700">
+              似た既存データが{draft.dupMatches?.length ?? 0}件
+            </span>
+          )}
+          {isDuplicate ? (
+            <button
+              onClick={onShowDuplicate}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white text-sm font-semibold rounded-lg hover:bg-amber-600 transition-all"
+            >
+              <AlertCircle className="w-4 h-4" />
+              重複を確認
+            </button>
+          ) : (
+            <button
+              onClick={onSave}
+              disabled={draft.saveState === "saving" || saved}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              {draft.saveState === "saving" ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  保存中...
+                </>
+              ) : saved ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  保存済み
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  保存
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

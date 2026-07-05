@@ -223,8 +223,8 @@ export default function AdminNewsPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent | null, confirmDuplicate = false) => {
+    e?.preventDefault();
     setIsSubmitting(true);
 
     try {
@@ -232,7 +232,7 @@ export default function AdminNewsPage() {
       const random = Math.random().toString(36).substring(7);
       const url = isCreating ? `/api/news?_t=${timestamp}&_r=${random}` : `/api/news/${editingNews?.id}?_t=${timestamp}&_r=${random}`;
       const method = isCreating ? "POST" : "PUT";
-      
+
       const response = await fetch(url, {
         method,
         cache: 'no-store',
@@ -244,8 +244,24 @@ export default function AdminNewsPage() {
           'Expires': '0',
           'X-Request-ID': `${timestamp}-${random}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, confirmDuplicate }),
       });
+
+      // 重複検知（409, 作成時のみ）→ 候補を提示して確認後に保存
+      if (response.status === 409) {
+        const data = await response.json().catch(() => ({}));
+        if (data?.duplicate) {
+          const list = (data.matches ?? [])
+            .map((m: { title: string; subtitle: string; reason: string }) => `・${m.title}（${m.subtitle}）${m.reason}`)
+            .join("\n");
+          const ok = window.confirm(
+            `似た既存データが${data.matches?.length ?? 0}件あります:\n\n${list}\n\n重複（同じNews）でなければ「OK」で保存します。別ラウンドの調達など正当に異なる場合はOKを押してください。`
+          );
+          setIsSubmitting(false);
+          if (ok) await handleSubmit(null, true);
+          return;
+        }
+      }
 
       if (response.ok) {
         // 作成・更新後は常に最新データを再取得（Neonデータベースの変更を確実に反映）

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { findNewsDuplicates, duplicateMessage } from "@/lib/duplicate-check";
 
 // 常に動的に実行されるように設定（キャッシュを完全に無効化）
 export const dynamic = 'force-dynamic';
@@ -129,6 +130,7 @@ export async function POST(request: NextRequest) {
       publishedAt,
       sourceUrl,
       area,
+      confirmDuplicate,
     } = body;
 
     // バリデーション
@@ -137,6 +139,23 @@ export async function POST(request: NextRequest) {
         { error: "必須フィールドが不足しています" },
         { status: 400 }
       );
+    }
+
+    // 重複チェック（confirmDuplicate=true で明示的にスキップ可能）
+    if (!confirmDuplicate) {
+      const matches = await findNewsDuplicates({
+        title,
+        company,
+        amount,
+        sourceUrl,
+        publishedAt: publishedAt ? new Date(publishedAt) : null,
+      });
+      if (matches.length > 0) {
+        return NextResponse.json(
+          { error: duplicateMessage(matches.length), duplicate: true, matches },
+          { status: 409 }
+        );
+      }
     }
 
     const news = await prisma.news.create({

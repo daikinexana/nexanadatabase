@@ -405,8 +405,8 @@ export default function AdminWorkspacePage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent | null, confirmDuplicate = false) => {
+    e?.preventDefault();
     setIsSubmitting(true);
 
     try {
@@ -428,8 +428,25 @@ export default function AdminWorkspacePage() {
           // 住所（＋任意の上書き）からフィルタ用の国・都道府県を自動判定
           ...deriveCountryCity(formData.address, formData.area),
           locationId: null,
+          confirmDuplicate,
         }),
       });
+
+      // 重複検知（409）→ 候補を提示して確認後に保存
+      if (response.status === 409) {
+        const data = await response.json().catch(() => ({}));
+        if (data?.duplicate) {
+          const list = (data.matches ?? [])
+            .map((m: { title: string; subtitle: string; reason: string }) => `・${m.title}（${m.subtitle}）${m.reason}`)
+            .join("\n");
+          const ok = window.confirm(
+            `似た既存の施設が${data.matches?.length ?? 0}件あります:\n\n${list}\n\n重複でなければ「OK」で保存します。別都市の同名施設など正当に異なる場合はOKを押してください。`
+          );
+          setIsSubmitting(false);
+          if (ok) await handleSubmit(null, true);
+          return;
+        }
+      }
 
       if (response.ok) {
         await fetchWorkspaces();
