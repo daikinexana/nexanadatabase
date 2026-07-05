@@ -71,6 +71,56 @@ function htmlToText(html: string): string {
     .trim();
 }
 
+// JS描画サイト（SPA）対策: 可視HTMLの本文が薄い場合に、ページに埋め込まれた
+// SSRシリアライズJSON（Nuxtの __NUXT_DATA__ / Next.js の __NEXT_DATA__ /
+// JSON-LD / window.__NUXT__ 等）から人間可読なテキストを回収して本文の代替とする。
+// STUDIO・Nuxt・Next製の公募/キャンペーンページは本文がJSで描画されるため、
+// 通常のHTML除去では中身が取れないが、これらのJSONには募集タイトルや説明が入っている。
+function extractEmbeddedJsonText(html: string): string {
+  const chunks: string[] = [];
+  const scriptRe = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = scriptRe.exec(html)) !== null) {
+    const attrs = m[1] || "";
+    const body = m[2] || "";
+    const isJsonLd = /type=["']application\/(ld\+)?json["']/i.test(attrs);
+    const isDataScript = /__NUXT_DATA__|__NEXT_DATA__/.test(attrs);
+    const isStateAssign = /window\.__(NUXT|NEXT_DATA|INITIAL_STATE|APP|APOLLO_STATE)__/.test(body);
+    if (isJsonLd || isDataScript || isStateAssign) chunks.push(body);
+  }
+  if (chunks.length === 0) return "";
+
+  const joined = chunks.join(" ");
+  const seen = new Set<string>();
+  const out: string[] = [];
+  // JSON中のクオート文字列を回収し、意味のあるテキストのみ残す
+  const strRe = /"((?:[^"\\]|\\.){4,})"/g;
+  let s: RegExpExecArray | null;
+  while ((s = strRe.exec(joined)) !== null) {
+    let val = s[1];
+    try {
+      val = JSON.parse(`"${val}"`); // JSONエスケープ（　等）を復元
+    } catch {
+      /* エスケープ不整合はそのまま使う */
+    }
+    val = val.trim();
+    if (!val) continue;
+    // URL・パス・識別子・ファイル名・CSS値などノイズは除外
+    if (/^(https?:\/\/|\/|#|[a-z0-9_-]+\.[a-z]{2,4}$)/i.test(val)) continue;
+    if (!/\p{L}/u.test(val)) continue;
+    // 日本語(CJK)を含む、または英単語が3語以上つながる自然文のみ採用
+    const hasCJK = /[　-鿿＀-￯]/.test(val);
+    const wordish = val.split(/\s+/).length >= 3;
+    if (!hasCJK && !wordish) continue;
+    if (val.length > 300) val = val.slice(0, 300);
+    if (seen.has(val)) continue;
+    seen.add(val);
+    out.push(val);
+    if (out.length >= 200) break;
+  }
+  return out.join("\n");
+}
+
 // 相対URLを絶対URLに変換
 function toAbsoluteUrl(maybeUrl: string, base: string): string {
   if (!maybeUrl) return "";
@@ -198,12 +248,28 @@ async function fetchPage(url: string, maxTextLength = 12000): Promise<FetchedPag
     const html = await res.text();
     const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
     const ogImage = extractMeta(html, "og:image");
+    const ogDescription =
+      extractMeta(html, "og:description") || extractMeta(html, "description");
+
+    const bodyText = htmlToText(html);
+    let text = bodyText.slice(0, maxTextLength);
+    // 可視本文が薄い（JS描画SPAの疑い）場合は、埋め込みJSON+OG説明で補完する
+    if (bodyText.length < 200) {
+      const embedded = extractEmbeddedJsonText(html);
+      if (embedded || ogDescription) {
+        text = [bodyText, ogDescription, embedded]
+          .filter(Boolean)
+          .join("\n")
+          .slice(0, maxTextLength);
+      }
+    }
+
     return {
       url,
       title: extractMeta(html, "og:title") || (titleMatch?.[1]?.trim() ?? ""),
       ogImage: toAbsoluteUrl(ogImage, url),
-      ogDescription: extractMeta(html, "og:description") || extractMeta(html, "description"),
-      text: htmlToText(html).slice(0, maxTextLength),
+      ogDescription,
+      text,
       links: extractRelevantLinks(html, url),
     };
   } finally {
@@ -354,7 +420,7 @@ export async function extractOpportunityFromUrl(
   const page = await fetchPage(url);
   if (!page.text || page.text.length < 40) {
     throw new Error(
-      "ページ本文を取得できませんでした（JavaScriptで描画されるサイトの可能性があります）"
+      "ページ本文を取得できませんでした（JavaScriptで描画されるサイトで、埋め込みデータからも情報を取得できませんでした）。お手数ですが手動で入力してください。"
     );
   }
 
