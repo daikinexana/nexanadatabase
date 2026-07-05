@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/logofavicon.ico", sizes: "any" },
-      { url: "/nexana-favicon.svg", type: "image/svg+xml" },
+      { url: "/kyoso-favicon.svg", type: "image/svg+xml" },
     ],
     shortcut: "/logofavicon.ico",
     apple: [
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
     description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。",
     images: [
       {
-        url: "https://db.nexanahq.com/180logo.png",
+        url: "https://db.nexanahq.com/og-image.png",
         width: 1200,
         height: 630,
         alt: "KYOSO BASE - オープンイノベーション・スタートアップ情報プラットフォーム",
@@ -86,7 +86,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "KYOSO BASE | オープンイノベーション・スタートアップ情報プラットフォーム",
     description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。",
-    images: ["https://db.nexanahq.com/180logo.png"],
+    images: ["https://db.nexanahq.com/og-image.png"],
   },
 };
 

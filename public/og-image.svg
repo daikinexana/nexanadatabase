@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <rect width="1200" height="630" fill="#0a0a0a"/>
+  <rect x="40" y="40" width="1120" height="550" rx="20" fill="none" stroke="#ffffff" stroke-opacity="0.12"/>
+
+  <!-- KYOSO BASE mark: two overlapping circles = 共創 (co-creation) eclipse -->
+  <g transform="translate(600 232)">
+    <circle cx="-35" cy="0" r="58" fill="none" stroke="#ffffff" stroke-width="15"/>
+    <circle cx="35" cy="0" r="58" fill="#ffffff"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="600" y="412" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="74" font-weight="800" letter-spacing="1">
+    <tspan fill="#ffffff">KYOSO</tspan><tspan fill="#8f8f96" dx="28">BASE</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="600" y="470" text-anchor="middle"
+        font-family="'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif"
+        font-size="26" font-weight="500" fill="#c4c4c8" letter-spacing="2">オープンイノベーション・スタートアップ情報プラットフォーム</text>
+
+  <!-- URL -->
+  <text x="600" y="556" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="20" font-weight="600" fill="#6b6b70" letter-spacing="4">db.nexanahq.com</text>
+</svg>

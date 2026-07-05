@@ -17,6 +17,14 @@ export const metadata: Metadata = {
     locale: "ja_JP",
     url: "https://db.nexanahq.com",
     siteName: "KYOSO BASE",
+    images: [
+      {
+        url: "https://db.nexanahq.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "KYOSO BASE - オープンイノベーション・スタートアップ情報プラットフォーム",
+      },
+    ],
   },
 };
 

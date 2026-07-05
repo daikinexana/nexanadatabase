@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import Logo from "./logo";
 
 const navigation = [
   { name: "ホーム", nameEn: "Home", href: "/" },
@@ -22,16 +23,7 @@ export default function Header() {
         <div className="flex w-full items-center justify-between py-8">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/nexanadata.png"
-                alt="KYOSO BASE"
-                width={400}
-                height={120}
-                className="h-24 w-auto max-w-[300px] object-contain"
-                decoding="async"
-                style={{ color: 'transparent', aspectRatio: '400/120' }}
-              />
+              <Logo variant="dark" className="[&_.font-display]:text-2xl" />
             </Link>
           </div>
 
