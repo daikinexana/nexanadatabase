@@ -24,15 +24,16 @@ export default function Footer() {
         {/* 上部：大きなステートメント */}
         <div className="grid gap-12 border-b border-white/10 py-16 sm:py-20 lg:grid-cols-[1.5fr_1fr]">
           <div>
-            <p className="eyebrow !text-neutral-500">KYOSO BASE</p>
+            <p className="eyebrow !text-neutral-500">KYOSO BASE（共創ベース）</p>
             <h2 className="display mt-5 text-3xl text-white sm:text-5xl">
               挑戦者を、
               <br />
               情報で支える。
             </h2>
             <p className="mt-6 max-w-md text-sm leading-relaxed text-neutral-400">
+              KYOSO BASE（キョウソウベース）は、nexana（ネクサナ）が運営する「共創（きょうそう・協創）」から生まれたプラットフォーム。
               コンテスト・公募・プログラム、ワークスペース、ニュースを一箇所に。
-              挑戦する人のためのKYOSOデータベース。
+              挑戦する人のためのKYOSO（共創）データベースです。
             </p>
           </div>
 

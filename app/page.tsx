@@ -79,7 +79,7 @@ export default async function Home() {
         <div className="mx-auto max-w-[1400px] px-5 pb-16 pt-16 sm:px-8 sm:pb-24 sm:pt-24">
           <p className="eyebrow">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-neutral-900" />
-            KYOSO BASE
+            KYOSO BASE（共創ベース）
           </p>
 
           <h1 className="display mt-6 text-[3rem] leading-[0.98] text-neutral-900 sm:text-[5.5rem] lg:text-[7.5rem]">
@@ -90,8 +90,9 @@ export default async function Home() {
 
           <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_auto] lg:items-end">
             <p className="max-w-xl text-base leading-relaxed text-neutral-500 sm:text-lg">
+              KYOSO BASE（キョウソウベース）は、nexana（ネクサナ）が運営する「共創（きょうそう・協創）」から生まれたプラットフォーム。
               コンテスト・公募・プログラム、ワークスペース、ニュースを一箇所で。
-              挑戦する人のためのKYOSOデータベース。
+              挑戦する人のためのKYOSO（共創）データベースです。
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">

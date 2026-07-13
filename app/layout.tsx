@@ -24,9 +24,9 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "KYOSO BASE | オープンイノベーション・スタートアップ情報プラットフォーム",
-  description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。ネクサナ（nexana）が運営するスタートアップ・大企業・大学向けイノベーションデータベース。",
-  keywords: "スタートアップ, スタートアップ情報, スタートアップデータベース, スタートアップコンテスト, スタートアップ支援, スタートアップ採用, スタートアップ就職, スタートアップ調達, スタートアップ調達ニュース, スタートアップM&A, 起業, 起業家, 起業したい, 起業支援, 新規事業, 新規事業担当, CEO, オープンイノベーション, オープンイノベーション情報, オープンイノベーションプラットフォーム, イノベーション, イノベーション情報, イノベーションデータベース, コンテスト, コンテスト情報, ビジネスコンテスト, ピッチコンテスト, ピッチ, ハッカソン, アクセラ, アクセラレーション, アクセラレータ, アクセラレータープログラム, プログラム, 公募, 公募情報, 募集, 募集情報, 開催, 開催情報, 調達, 調達情報, 調達ニュース, 資金調達, ファンディング, 投資, 投資情報, M&A, M&A情報, M&Aニュース, 買収, 合併, IPO, 上場, インキュベーション, インキュベーター, インキュベータープログラム, 共創, 共創プロジェクト, 協業, パートナーシップ, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, ロケーション, ワークスペース, コワーキングスペース, シェアオフィス, シェアオフィス運営, ビジネスコンテスト主催, ビジネスコンテスト主催者, VC, ベンチャーキャピタル, CVC, コーポレートベンチャーキャピタル, 広域行政, 市区町村, 行政担当者, 大学, 大学担当者, ディープテック, ディープテックスタートアップ, 技術データベース, プロダクトデータベース, 企業データベース, 行政データベース, 大学データベース, 融資, 融資情報, マッチングサービス, プロジェクトマネジメント, コミュニティマネジメント, 大企業, 行政, シェアハウスオーナー, startup, startup database, startup information, startup contest, pitch contest, business competition, accelerator, acceleration program, open innovation, innovation platform, funding, venture capital, CVC, corporate venture capital, M&A, IPO, workspace, coworking space, deep tech, deep tech startup, entrepreneurship, entrepreneur, business competition organizer, startup support, innovation database",
+  title: "KYOSO BASE（共創ベース / きょうそう）| オープンイノベーション・スタートアップ情報プラットフォーム",
+  description: "KYOSO BASE（キョウソウベース）は「共創（きょうそう・協創）」から生まれたスタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。ネクサナ（nexana）が運営するスタートアップ・大企業・大学向けイノベーションデータベース。",
+  keywords: "KYOSO, KYOSO BASE, KYOSObase, kyoso, kyoso base, 共創, 共創ベース, 協創, きょうそう, キョウソウ, キョウソウベース, 共創プラットフォーム, スタートアップ, スタートアップ情報, スタートアップデータベース, スタートアップコンテスト, スタートアップ支援, スタートアップ採用, スタートアップ就職, スタートアップ調達, スタートアップ調達ニュース, スタートアップM&A, 起業, 起業家, 起業したい, 起業支援, 新規事業, 新規事業担当, CEO, オープンイノベーション, オープンイノベーション情報, オープンイノベーションプラットフォーム, イノベーション, イノベーション情報, イノベーションデータベース, コンテスト, コンテスト情報, ビジネスコンテスト, ピッチコンテスト, ピッチ, ハッカソン, アクセラ, アクセラレーション, アクセラレータ, アクセラレータープログラム, プログラム, 公募, 公募情報, 募集, 募集情報, 開催, 開催情報, 調達, 調達情報, 調達ニュース, 資金調達, ファンディング, 投資, 投資情報, M&A, M&A情報, M&Aニュース, 買収, 合併, IPO, 上場, インキュベーション, インキュベーター, インキュベータープログラム, 共創, 共創プロジェクト, 協業, パートナーシップ, プラットフォーム, データベース, ネクサナ, nexana, ねくさな, ロケーション, ワークスペース, コワーキングスペース, シェアオフィス, シェアオフィス運営, ビジネスコンテスト主催, ビジネスコンテスト主催者, VC, ベンチャーキャピタル, CVC, コーポレートベンチャーキャピタル, 広域行政, 市区町村, 行政担当者, 大学, 大学担当者, ディープテック, ディープテックスタートアップ, 技術データベース, プロダクトデータベース, 企業データベース, 行政データベース, 大学データベース, 融資, 融資情報, マッチングサービス, プロジェクトマネジメント, コミュニティマネジメント, 大企業, 行政, シェアハウスオーナー, startup, startup database, startup information, startup contest, pitch contest, business competition, accelerator, acceleration program, open innovation, innovation platform, funding, venture capital, CVC, corporate venture capital, M&A, IPO, workspace, coworking space, deep tech, deep tech startup, entrepreneurship, entrepreneur, business competition organizer, startup support, innovation database",
   authors: [{ name: "nexana" }],
   creator: "nexana",
   publisher: "nexana",
@@ -70,9 +70,9 @@ export const metadata: Metadata = {
     locale: "ja_JP",
     alternateLocale: ["en_US"],
     url: "https://db.nexanahq.com",
-    siteName: "KYOSO BASE",
-    title: "KYOSO BASE | オープンイノベーション・スタートアップ情報プラットフォーム",
-    description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。",
+    siteName: "KYOSO BASE（共創ベース）",
+    title: "KYOSO BASE（共創ベース / きょうそう）| オープンイノベーション・スタートアップ情報プラットフォーム",
+    description: "KYOSO BASE（キョウソウベース）は「共創（きょうそう・協創）」から生まれたスタートアップ・オープンイノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。",
     images: [
       {
         url: "https://db.nexanahq.com/og-image.png",
@@ -84,8 +84,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "KYOSO BASE | オープンイノベーション・スタートアップ情報プラットフォーム",
-    description: "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。",
+    title: "KYOSO BASE（共創ベース / きょうそう）| オープンイノベーション・スタートアップ情報プラットフォーム",
+    description: "KYOSO BASE（キョウソウベース）は「共創（きょうそう・協創）」から生まれたスタートアップ・オープンイノベーション情報の総合プラットフォーム。コンテスト、公募・募集、調達・M&Aニュース、ワークスペース情報をデータベース化。",
     images: ["https://db.nexanahq.com/og-image.png"],
   },
 };
@@ -99,7 +99,20 @@ const structuredData = [
     "alternateName": [
       "KYOSO BASE - オープンイノベーション・スタートアップ情報プラットフォーム",
       "KYOSO BASE",
+      "KYOSObase",
+      "kyoso base",
+      "kyoso",
+      "KYOSO",
       "共創ベース",
+      "共創",
+      "協創",
+      "きょうそう",
+      "キョウソウ",
+      "キョウソウベース",
+      "nexana KYOSO BASE",
+      "KYOSO BASE nexana",
+      "nexana 共創",
+      "ネクサナ 共創",
       "Nexana Database - オープンイノベーション・スタートアップ情報プラットフォーム",
       "ネクサナデータベース",
       "nexana database",
@@ -108,8 +121,9 @@ const structuredData = [
       "イノベーションデータベース"
     ],
     "url": "https://db.nexanahq.com",
-    "description": "スタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。ネクサナ（nexana）が運営するスタートアップ・大企業・大学向けイノベーションデータベース",
+    "description": "KYOSO BASE（共創ベース・きょうそう）は「共創（協創）」から生まれたスタートアップ・オープンイノベーション・イノベーション情報の総合プラットフォーム。コンテスト、ビジネスコンテスト、アクセラレーションプログラム、公募・募集・開催情報、調達・M&Aニュース、ロケーション・ワークスペース情報をデータベース化。ネクサナ（nexana）が運営するスタートアップ・大企業・大学向けイノベーションデータベース",
     "keywords": [
+      "KYOSO", "KYOSO BASE", "kyoso", "kyoso base", "共創", "共創ベース", "協創", "きょうそう", "キョウソウ", "キョウソウベース",
       "スタートアップ", "スタートアップ情報", "スタートアップデータベース", "スタートアップコンテスト", "スタートアップ支援", "スタートアップ採用", "スタートアップ就職", "スタートアップ調達",
       "オープンイノベーション", "オープンイノベーション情報", "オープンイノベーションプラットフォーム",
       "イノベーション", "イノベーション情報", "イノベーションデータベース",
