@@ -1,6 +1,7 @@
 import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import ContestsWithFilter from "@/components/ui/contests-with-filter";
+import ContestsRedirect from "@/components/ui/contests-redirect";
 import { Trophy } from "lucide-react";
 import { Metadata } from "next";
 import Script from "next/script";
@@ -272,6 +273,8 @@ export default async function ContestsPage({
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Google等の検索結果から来訪した場合も /opportunities へ転送 */}
+      <ContestsRedirect />
       <Script
         id="breadcrumb-structured-data"
         type="application/ld+json"
