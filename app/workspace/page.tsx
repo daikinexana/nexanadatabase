@@ -130,7 +130,7 @@ async function getWorkspaces(): Promise<WorkspaceListItem[]> {
 // force-dynamicを外してISRキャッシュを有効化（毎回DBアクセスしていたのが原因で遅かった）。
 // 作成/更新/削除時はrevalidatePathで即時反映されるため、キャッシュしても新規投稿はすぐ見える。
 export const runtime = 'nodejs';
-export const revalidate = 300; // 5分ISR（いいね数はこの間隔で更新）
+export const revalidate = 3600; // 1時間ISR（短いとクローラー巡回でNeonが起きっぱなしになり課金増）
 export const preferredRegion = 'sin1'; // DB(ap-southeast-1)と同一リージョンでレイテンシ削減
 
 export default async function WorkspacePage() {

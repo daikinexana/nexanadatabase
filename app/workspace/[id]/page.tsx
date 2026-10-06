@@ -3,6 +3,7 @@ import ClientHeader from "@/components/ui/client-header";
 import Footer from "@/components/ui/footer";
 import LocationDetailClient from "@/components/ui/location-detail-client";
 import { Metadata } from "next";
+import { cache } from "react";
 
 interface WorkspaceDetailPageProps {
   params: Promise<{ id: string }>;
@@ -34,7 +35,8 @@ export async function generateMetadata({ params }: WorkspaceDetailPageProps): Pr
   };
 }
 
-async function getLocation(idOrSlug: string) {
+// generateMetadataとページ本体で同じクエリを2回打たないようリクエスト内で共有
+const getLocation = cache(async function getLocation(idOrSlug: string) {
   try {
     console.log("getLocation called with:", idOrSlug);
     
@@ -128,10 +130,15 @@ async function getLocation(idOrSlug: string) {
     }
     return null;
   }
-}
+});
 
-export const dynamic = 'force-dynamic';
+// force-dynamicだとクローラー巡回のたびにNeonが起動し課金が膨らむため、オンデマンドISRに変更。
+// 編集時は /api/workspace/[id] の revalidatePath で即時反映される。
 export const revalidate = 3600;
+export const dynamicParams = true;
+export async function generateStaticParams() {
+  return [];
+}
 
 export default async function WorkspaceDetailPage({ params }: WorkspaceDetailPageProps) {
   const resolvedParams = await params;
