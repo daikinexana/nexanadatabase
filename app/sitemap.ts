@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
+import { SITE_CLOSED } from '@/lib/site-status'
 
 /**
  * サイトマップ生成
@@ -92,6 +93,9 @@ function getFallbackSitemap(): MetadataRoute.Sitemap {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // 公開停止中は空にしてDBにも触れない
+  if (SITE_CLOSED) return []
+
   const now = new Date()
 
   try {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { ADMIN_COOKIE, computeToken } from "@/lib/admin-auth";
+import { SITE_CLOSED } from "@/lib/site-status";
 
 /**
  * 環境変数でカスタムパスを設定可能（デフォルト: /admin）
@@ -86,8 +87,42 @@ function challenge(req: NextRequest): NextResponse {
   return NextResponse.redirect(url);
 }
 
+// 公開停止中でも通すパス（管理画面とそのログイン）
+function isAdminPath(p: string): boolean {
+  return (
+    p.startsWith(ADMIN_PATH) ||
+    p === "/admin-login" ||
+    p.startsWith("/api/admin-login") ||
+    p.startsWith("/api/admin/")
+  );
+}
+
+async function isAdmin(req: NextRequest): Promise<boolean> {
+  const password = process.env.ADMIN_PASSWORD;
+  if (!password) return !isProduction;
+  return req.cookies.get(ADMIN_COOKIE)?.value === (await computeToken(password));
+}
+
+const CLOSED_HTML = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>KYOSO BASE</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:system-ui,-apple-system,sans-serif;background:#fff;color:#111;padding:16px;box-sizing:border-box}main{text-align:center;max-width:480px}h1{font-size:22px;margin:0 0 12px}p{color:#555;line-height:1.7;margin:0}</style></head><body><main><h1>KYOSO BASE</h1><p>現在、本サービスは公開を停止しています。</p></main></body></html>`;
+
+function closedResponse(req: NextRequest): NextResponse {
+  const headers = { "X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store" };
+  if (req.nextUrl.pathname.startsWith("/api/")) {
+    return NextResponse.json({ error: "サービスは公開停止中です" }, { status: 503, headers });
+  }
+  return new NextResponse(CLOSED_HTML, {
+    status: 503,
+    headers: { ...headers, "Content-Type": "text/html; charset=utf-8" },
+  });
+}
+
 export default async function middleware(req: NextRequest): Promise<NextResponse> {
   const userAgent = req.headers.get("user-agent") || "";
+
+  // 公開停止中: 管理画面と、ログイン済み管理者のアクセス以外は停止ページを返す（DBに触れない）
+  if (SITE_CLOSED && !isAdminPath(req.nextUrl.pathname) && !(await isAdmin(req))) {
+    return closedResponse(req);
+  }
 
   // 管理画面・書き込みAPIのパスワード保護
   if (needsGate(req)) {
